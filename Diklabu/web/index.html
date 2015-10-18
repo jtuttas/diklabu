@@ -1,16 +1,100 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
-<html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
     <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta charset="utf-8"/>
+        <title>Kursbuchungssystem V2.0</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="css/doc.min.css" />
+    <link rel="stylesheet" href="css/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="css/jquery.mobile.structure-1.4.5.min.css" />
+    <link rel="stylesheet" href="css/jqm-datebox-1.4.5.min.css" />
+    <link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css"/>
+
+  <script type="text/javascript" src="lib/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="lib/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="lib/jqm-datebox-1.4.5.core.min.js"></script>
+    <script type="text/javascript" src="lib/jqm-datebox-1.4.5.mode.datebox.min.js"></script>
+    <script type="text/javascript" src="js/controller.js"></script>
     </head>
+
     <body>
-        <div>TODO write content</div>
+        <div data-role="page" id="login">
+            <div data-role="header" data-position="fixed">
+                <a href="#about"  data-role="button" class="ui-btn ui-icon-info ui-btn-icon-left">About</a>
+                <h1>Anmeldung</h1>
+                <a href="#" id="btnLogin" class="ui-btn ui-icon-forward ui-btn-icon-left">Login</a>
+            </div>
+            <div data-role="content">
+                <div data-role="fieldcontain">
+                    <label for="vorname">Vorname</label>
+                    <input type="text" id="vorname" placeholder="Vorname"  />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" placeholder="Name"  />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="gebdatum">Geburtsdatum</label>
+                    <input id="gebdatum" placeholder="yyyy-mm-tt" type="text"  data-role="datebox" data-options='{"mode":"datebox", "useLang":"en"}'/>
+                    
+                </div>
+                                
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h2>WPK Kursbuchungssystem V1.0</h2>
+            </div>
+        </div>
+        <div data-role="page" id="about">
+            <div data-role="header">
+                <h1>About</h1>
+                <a href="#login" data-role="button" class="ui-btn ui-icon-back ui-btn-icon-left">zurück</a>
+            </div>
+            <div data-role="content">
+                <div class="ui-body ui-body-d ui-corner-all">
+                    <img src="img/joerg.png" alt="joerg"/>
+                    <h2>WPK Kursbuchungssystem</h2>
+                    <h5>V1.0</h5>
+                    (c) 2015 by <a href="mailto:tuttas@mmbbs.de">Dr. Jörg Tuttas</a>
+                </div>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h2>WPK Kursbuchungssystem V1.0</h2>
+            </div>
+        </div>
+        <div data-role="page" id="wuensche">
+            <div data-role="header" data-position="fixed">
+                <h1>WPK Wünsche</h1>
+                <a href="#" id="btnCommit" class="ui-btn ui-icon-arrow-r ui-btn-icon-left">Wählen</a>
+            </div>
+            <div data-role="content">
+                <ul data-role="listview" id="wuensche" data-inset="false" data-filter-placeholder="">
+                    <li ><a href="#" id="btnErstwunsch"> Erstwunsch</a></li>
+                    <li id="erstwunsch">kein Kurs gewählt</li>
+                    <li ><a href="#" id="btnZweitwunsch">Zweitwunsch</a></li>
+                    <li id="zweitwunsch">kein Kurs gewählt</li>
+                    <li ><a href="#" id="btnDrittwunsch">Drittwunsch</a></li>
+                    <li id="drittwunsch">kein Kurs gewählt</li>
+                </ul>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h2>WPK Kursbuchungssystem V1.0</h2>
+            </div>
+        </div>
+        <div data-role="page" id="wpks">
+            <div data-role="header" data-position="fixed">
+                <a href="#" id="btnWaehlen" class="ui-btn ui-icon-check ui-btn-icon-left">wählen</a>
+                <h1>WPKs</h1>
+                <a href="#wuensche" class="ui-btn ui-icon-back ui-btn-icon-left">zurück</a>
+            </div>
+            <div data-role="content">
+                <div data-role="fieldcontain" id="wpklist">
+                </div>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h2>WPK Kursbuchungssystem V1.0</h2>
+            </div>
+        </div>
     </body>
+
 </html>
