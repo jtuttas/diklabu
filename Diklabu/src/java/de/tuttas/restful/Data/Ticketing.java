@@ -5,7 +5,7 @@
  */
 package de.tuttas.restful.Data;
 
-import de.tuttas.entities.Courses;
+import de.tuttas.entities.Klasse;
 import java.util.List;
 
 /**
@@ -15,7 +15,7 @@ import java.util.List;
 public class Ticketing {
 
     private Credential credential;
-    private List<Courses> courseList;
+    private List<Klasse> courseList;
     private boolean success;
     private String msg;
 
@@ -43,11 +43,11 @@ public class Ticketing {
         this.credential = c;
     }
 
-    public void setCourseList(List<Courses> courseList) {
+    public void setCourseList(List<Klasse> courseList) {
         this.courseList = courseList;
     }
 
-    public List<Courses> getCourseList() {
+    public List<Klasse> getCourseList() {
         return courseList;
     }
 

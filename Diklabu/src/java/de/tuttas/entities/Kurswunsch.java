@@ -6,7 +6,6 @@
 package de.tuttas.entities;
 
 import java.io.Serializable;
-import java.sql.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,52 +19,51 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-   @NamedQuery(name = "findPupilbyCredentials", query= "select p from Pupil p where p.NAME like :paramName and p.VORNAME like :paramVorname and p.GEB_DATUM like :paramGebDatum"),
+       @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId"),
 })
-public class Pupil implements Serializable {
+public class Kurswunsch implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
-        private String NAME;
-    private String VORNAME;
-    private Date GEB_DATUM;
+    private Integer ID_SCHUELER;
+    private Integer ID_KURS;
+    private String PRIORITAET;
 
-    public Pupil() {
+    public Kurswunsch() {
     }
 
-    public Pupil(String NAME, String VORNAME, Date GEB_DATUM) {
-        this.NAME = NAME;
-        this.VORNAME = VORNAME;
-        this.GEB_DATUM = GEB_DATUM;
+    public Kurswunsch(Integer ID_SCHUELER, Integer ID_KURS, String PRIORITAET) {
+        this.ID_SCHUELER = ID_SCHUELER;
+        this.ID_KURS = ID_KURS;
+        this.PRIORITAET = PRIORITAET;
     }
+
     
     
-
-    public Date getGEB_DATUM() {
-        return GEB_DATUM;
+    public void setID_KURS(Integer ID_KURS) {
+        this.ID_KURS = ID_KURS;
     }
 
-    public String getNAME() {
-        return NAME;
+    public Integer getID_KURS() {
+        return ID_KURS;
     }
 
-    public String getVORNAME() {
-        return VORNAME;
+    public void setID_SCHUELER(Integer ID_SCHUELER) {
+        this.ID_SCHUELER = ID_SCHUELER;
     }
 
-    public void setGEB_DATUM(Date GEB_DATUM) {
-        this.GEB_DATUM = GEB_DATUM;
+    public Integer getID_SCHUELER() {
+        return ID_SCHUELER;
     }
 
-    public void setNAME(String NAME) {
-        this.NAME = NAME;
+    public void setPRIORITAET(String PRIORITAET) {
+        this.PRIORITAET = PRIORITAET;
     }
 
-    public void setVORNAME(String VORNAME) {
-        this.VORNAME = VORNAME;
-    }
-    
+    public String getPRIORITAET() {
+        return PRIORITAET;
+    }            
 
     public Integer getId() {
         return id;
@@ -84,10 +82,11 @@ public class Pupil implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof Pupil)) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Kurswunsch)) {
             return false;
         }
-        Pupil other = (Pupil) object;
+        Kurswunsch other = (Kurswunsch) object;
         if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
@@ -96,7 +95,7 @@ public class Pupil implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.model.Pupil[ id="+id+" Name="+NAME+" Vorname="+VORNAME+" GebDatum="+GEB_DATUM  +"]";
+        return "de.tuttas.entities.Kurswunsch[ id=" + id + " ]";
     }
     
 }

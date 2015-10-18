@@ -5,7 +5,8 @@
  */
 package de.tuttas.restful;
 
-import de.tuttas.entities.Pupil;
+
+import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.Credential;
 import java.sql.Date;
 import java.util.List;
@@ -44,11 +45,11 @@ public class CourseBookingLogin {
     @Consumes(MediaType.APPLICATION_JSON)
     public Credential login(Credential c) {
         System.out.println ("Webservice courseselect/login"+c.toString());
-        Query  query = em.createNamedQuery("findPupilbyCredentials");
+        Query  query = em.createNamedQuery("findSchuelerbyCredentials");
         query.setParameter("paramName", c.getName());
         query.setParameter("paramVorname", c.getVorName());
         query.setParameter("paramGebDatum", c.getGebDatum());
-        List<Pupil> pupils = query.getResultList();
+        List<Schueler> pupils = query.getResultList();
         System.out.println("Result List:"+pupils);
         if (pupils.size()>0) {
             c.setLogin(true);

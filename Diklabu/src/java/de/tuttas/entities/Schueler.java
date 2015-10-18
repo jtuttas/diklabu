@@ -19,34 +19,43 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-   @NamedQuery(name = "getAllCourses", query= "select c from Courses c"),
+   @NamedQuery(name = "findSchuelerbyCredentials", query= "select s from Schueler s where s.NNAME like :paramName and s.VNAME like :paramVorname and S.GEBDAT like :paramGebDatum"),
 })
-
-public class Courses implements Serializable {
+public class Schueler implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer ID;
-    private String TEACHER_SHORTCUT;
-    private String TITLE;
+    private String NNAME;
+    private String VNAME;
+    private String GEBDAT;
 
-    public String getTEACHER_SHOTCUR() {
-        return TEACHER_SHORTCUT;
+    public String getGEBDAT() {
+        return GEBDAT;
     }
 
-    public String getTITLE() {
-        return TITLE;
+    public void setGEBDAT(String GEBDAT) {
+        this.GEBDAT = GEBDAT;
     }
 
-    public void setTEACHER_SHOTCUR(String TEACHER_SHOTCUR) {
-        this.TEACHER_SHORTCUT = TEACHER_SHOTCUR;
+    public String getNNAME() {
+        return NNAME;
     }
 
-    public void setTITLE(String TITLE) {
-        this.TITLE = TITLE;
+    public void setNNAME(String NNAME) {
+        this.NNAME = NNAME;
     }
 
+    public String getVNAME() {
+        return VNAME;
+    }
+
+    public void setVNAME(String VNAME) {
+        this.VNAME = VNAME;
+    }
     
+   
+
     public Integer getId() {
         return ID;
     }
@@ -64,10 +73,11 @@ public class Courses implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof Courses)) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Schueler)) {
             return false;
         }
-        Courses other = (Courses) object;
+        Schueler other = (Schueler) object;
         if ((this.ID == null && other.ID != null) || (this.ID != null && !this.ID.equals(other.ID))) {
             return false;
         }
@@ -76,7 +86,7 @@ public class Courses implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.model.Courses[ id=" + ID+" Titel="+ TITLE + " ]";
+        return "de.tuttas.entities.Schueler[ id=" + ID + " ]";
     }
     
 }
