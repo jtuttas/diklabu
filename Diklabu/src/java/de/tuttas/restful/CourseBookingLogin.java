@@ -49,6 +49,7 @@ public class CourseBookingLogin {
         query.setParameter("paramName", c.getName());
         query.setParameter("paramVorname", c.getVorName());
         query.setParameter("paramGebDatum", c.getGebDatum());
+        
         List<Schueler> pupils = query.getResultList();
         System.out.println("Result List:"+pupils);
         if (pupils.size()>0) {

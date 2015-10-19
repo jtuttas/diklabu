@@ -40,17 +40,20 @@ public class CourseBooking {
     @Consumes(MediaType.APPLICATION_JSON)
     public List<Klasse> getCourses() {
         System.out.println ("Webservice courseselect/booking GET:");
-        Query  query = em.createNamedQuery("getAllCourses");
+        
+        Query  query = em.createNamedQuery("getSelectedKlassen");
         List<Klasse> courses = query.getResultList();
         System.out.println("Result List:"+courses);
         return courses;
+        
+        
     }   
     
     @POST   
     @Consumes(MediaType.APPLICATION_JSON)
     public Ticketing book(Ticketing t) {
         System.out.println ("Webservice courseselect/booking POST:"+t.toString());
-        Query  query = em.createNamedQuery("findPupilbyCredentials");
+        Query  query = em.createNamedQuery("findSchuelerbyCredentials");
         query.setParameter("paramName", t.getCredential().getName());
         query.setParameter("paramVorname", t.getCredential().getVorName());
         query.setParameter("paramGebDatum", t.getCredential().getGebDatum());
@@ -64,21 +67,15 @@ public class CourseBooking {
             t = t.validate(t);
             if (t.getSuccess()) {
                 //  Schauen ob der Pupil schon gewählt hat
-                Query  q = em.createNamedQuery("findCoursesByUserId");
+                Query  q = em.createNamedQuery("findKlasseByUserId");
                 q.setParameter("paramId", t.getCredential().getId());
                 List<Klasse> courses = q.getResultList();
                 System.out.println("Result List Courses:"+courses);
                 if (courses.size()==0) {                
                     // Die drei Wünsche
-                    Kurswunsch rel1 = new Kurswunsch(
-                            t.getCourseList().get(0).getId().intValue(),
-                            t.getCredential().getId(), "1");
-                    Kurswunsch rel2 = new Kurswunsch(
-                            t.getCourseList().get(1).getId().intValue(),
-                            t.getCredential().getId(), "2");
-                    Kurswunsch rel3 = new Kurswunsch(
-                            t.getCourseList().get(2).getId().intValue(),
-                            t.getCredential().getId(), "3");
+                    Kurswunsch rel1 = new Kurswunsch(t.getCredential().getId(),t.getCourseList().get(0).getId().intValue(), "1");
+                    Kurswunsch rel2 = new Kurswunsch(t.getCredential().getId(),t.getCourseList().get(1).getId().intValue(), "2");
+                    Kurswunsch rel3 = new Kurswunsch(t.getCredential().getId(),t.getCourseList().get(2).getId().intValue(), "3");
                     // Validierung erfolgreich, jetzt Daten in DB eintragen
                     em.persist(rel1); //em.merge(u); for updates
                     em.persist(rel2); //em.merge(u); for updates

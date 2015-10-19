@@ -74,7 +74,7 @@ public class Ticketing {
 
     @Override
     public String toString() {
-        return "Ticketing: credentials="+this.getCredential().toString();
+        return "Ticketing: credentials="+this.getCredential().toString()+" CourseLIst="+this.getCourseList();
     }
     
     

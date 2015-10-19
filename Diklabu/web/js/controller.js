@@ -94,7 +94,7 @@ $(document).ready(function () {
             var id = $(this).attr('id');
             console.log("Gewählt wurde ID="+id);
             var course = courseList[id];
-            console.log("Gewählt wurde:"+course.TITLE);
+            console.log("Gewählt wurde:"+course.TITEL);
             wuensche[wunsch]=course;
             console.log("Wuensche="+JSON.stringify(wuensche));
             
@@ -111,19 +111,19 @@ $(document).ready(function () {
         if (courseList==undefined) $.mobile.changePage('#login');
         else {console.log("wuensche show");
         if (wuensche[0]!=null) {
-            $("#erstwunsch").text(wuensche[0].TITLE);
+            $("#erstwunsch").text(wuensche[0].TITEL);
         }
         else {
             $("#erstwunsch").text("kein Kurs gewählt");
         }
         if (wuensche[1]!=null) {
-            $("#zweitwunsch").text(wuensche[1].TITLE);
+            $("#zweitwunsch").text(wuensche[1].TITEL);
         }
         else {
             $("#zweitwunsch").text("kein Kurs gewählt");
         }
         if (wuensche[2]!=null) {
-            $("#drittwunsch").text(wuensche[2].TITLE);
+            $("#drittwunsch").text(wuensche[2].TITEL);
         }
         else {
             $("#drittwunsch").text("kein Kurs gewählt");
@@ -138,7 +138,7 @@ $(document).ready(function () {
         $('#wpklist').append('<fieldset data-role="controlgroup" id="cgrp">');
         console.log("Wuensche sind:"+JSON.stringify(wuensche));
         for (i = 0; i < courseList.length; i++) {
-            $('#wpklist').append('<input type="radio" name="slot" id="' + i + '" value="' + courseList[i].TITLE + '" /><label for="' + i + '">' + courseList[i].TITLE + '</label>');
+            $('#wpklist').append('<input type="radio" name="slot" id="' + i + '" value="' + courseList[i].TITEL + '" /><label for="' + i + '">' + courseList[i].TITEL + '</label>');
             for (j=0;j<=2;j++) {
                 if (wuensche[j]!=undefined) {
                     if (courseList[i].id==wuensche[j].id) {

@@ -6,6 +6,7 @@
 package de.tuttas.entities;
 
 import java.io.Serializable;
+import java.sql.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -17,9 +18,11 @@ import javax.persistence.NamedQuery;
  *
  * @author Jörg
  */
+    // select * from SCHUELER where NNAME like 'Neff' and VNAME like 'Corvin' AND GEBDAT='1991-11-17';
+
 @Entity
 @NamedQueries({
-   @NamedQuery(name = "findSchuelerbyCredentials", query= "select s from Schueler s where s.NNAME like :paramName and s.VNAME like :paramVorname and S.GEBDAT like :paramGebDatum"),
+   @NamedQuery(name = "findSchuelerbyCredentials", query= "select s from Schueler s where s.NNAME like :paramName and s.VNAME like :paramVorname and S.GEBDAT = :paramGebDatum"),
 })
 public class Schueler implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -28,13 +31,13 @@ public class Schueler implements Serializable {
     private Integer ID;
     private String NNAME;
     private String VNAME;
-    private String GEBDAT;
+    private Date GEBDAT;
 
-    public String getGEBDAT() {
+    public Date getGEBDAT() {
         return GEBDAT;
     }
 
-    public void setGEBDAT(String GEBDAT) {
+    public void setGEBDAT(Date GEBDAT) {
         this.GEBDAT = GEBDAT;
     }
 
