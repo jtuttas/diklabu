@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.tuttas.entities;
 
 import java.io.Serializable;
@@ -14,11 +9,10 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Buchungsfreigabe Entity (´Kurs_ID's der freigegebenen Kurse)
  * @author Jörg
  */
 @Entity
-//  @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId"),
 @NamedQueries({
    @NamedQuery(name = "getSelectedKlassen", query= "select k from Buchungsfreigabe b JOIN Klasse k on b.ID_KURS=k.ID")
 })
@@ -28,8 +22,16 @@ public class Buchungsfreigabe implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+
+    /**
+     * ID des freigebenen Kurses
+     */
     private Integer ID_KURS;
 
+    /**
+     * Abfrage der ID
+     * @return die ID
+     */
     public Integer getID_KURS() {
         return ID_KURS;
     }

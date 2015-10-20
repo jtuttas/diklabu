@@ -1,22 +1,30 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.tuttas.restful.Data;
 
 import de.tuttas.entities.Klasse;
 import java.util.List;
 
 /**
- *
+ * Das Ticket für die Kurswahl
  * @author Jörg
  */
 public class Ticketing {
 
+    /**
+     * Anmeldeinformationen
+     */
     private Credential credential;
+    /**
+     * Liste der Kurswünsche
+     */
     private List<Klasse> courseList;
+    /**
+     * Buchung erfolgreich
+     */
     private boolean success;
+    /**
+     * Nachricht der Buchung 
+     */
     private String msg;
 
     public void setMsg(String msg) {
@@ -52,9 +60,10 @@ public class Ticketing {
     }
 
     /**
-     * Ticket validieren
+     * Ticket validieren (es dürfen nur drei Wünsche geäußert werden und diese Wünsche müssen
+     * unterschiedlich sein.
      * @param t Das Ticket
-     * @return  Das validierte Ticket
+     * @return  Das validierte Ticket (ergänzt um Statusmeldungen)
      */
     public Ticketing validate(Ticketing t) {                    
         if (t.getCourseList().size()!=3) {

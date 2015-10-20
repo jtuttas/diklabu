@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.tuttas.restful;
 
 import de.tuttas.entities.Klasse;
@@ -26,16 +22,23 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 /**
- *
+ * Restful Webservice für die Kursbuchung (WPK Buchung)
  * @author Jörg
  */
 @Path("courseselect/booking")
 @Stateless
 public class CourseBooking {
     
+    /**
+     * Injection des EntityManagers
+     */
         @PersistenceContext(unitName="DiklabuPU")
     EntityManager em;
         
+        /**
+         * Abfrage der Kuirsliste der Buchbaren Kurse
+         * @return Die Liste mit Kursen (Klassen)
+         */
      @GET   
     @Consumes(MediaType.APPLICATION_JSON)
     public List<Klasse> getCourses() {
@@ -44,11 +47,14 @@ public class CourseBooking {
         Query  query = em.createNamedQuery("getSelectedKlassen");
         List<Klasse> courses = query.getResultList();
         System.out.println("Result List:"+courses);
-        return courses;
-        
-        
+        return courses;                
     }   
     
+    /**
+     * Buchen eines Kurses
+     * @param t Das Ticketing Objekt mit Credentials und Kurslist
+     * @return Das Ticketing Objekt ergänzt im msg und success Attribute
+     */
     @POST   
     @Consumes(MediaType.APPLICATION_JSON)
     public Ticketing book(Ticketing t) {

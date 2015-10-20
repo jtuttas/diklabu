@@ -1,22 +1,36 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.tuttas.restful.Data;
 
 import java.sql.Date;
 
 /**
- *
+ * Anmelde Objekt, welches vom Restful Service verwendet wird
  * @author Jörg
  */
 public class Credential {
+    /**
+     * Name des Benutzers
+     */
     private String name;
+    /**
+     * Vorname des Benutzers
+     */
     private String vorName;
+    /**
+     * Geburtsdatum des Benutzers in der Form yyyy-mm-dd
+     */
     private Date gebDatum;
+    /**
+     * Anmeldung erfolgreich
+     */
     private boolean login=false;
+    /**
+     * Nachricht / Fehlermeldung bei der Anmeldung
+     */
     private String msg;
+    /**
+     * Primärschlässel des Benutzers aus der SCHUELR Tabelle
+     */
     private int id;
 
     public void setId(int id) {

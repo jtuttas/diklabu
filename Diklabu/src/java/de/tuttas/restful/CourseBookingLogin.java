@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.tuttas.restful;
 
 
@@ -21,7 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
 /**
- *
+ * Restful Service für die Benutzeraneldung am WPK Buchungssystem System
  * @author Jörg
  */
 @Path("courseselect/login")
@@ -30,6 +25,10 @@ public class CourseBookingLogin {
     @PersistenceContext(unitName="DiklabuPU")
     EntityManager em;
     
+    /**
+     * Abfrage eines beispielhaften Login Onjektes mit Daten
+     * @return Das Anmeldeobjekt
+     */
     @GET   
     @Consumes(MediaType.APPLICATION_JSON)
     public Credential about() {
@@ -41,6 +40,11 @@ public class CourseBookingLogin {
         return c;
     }
     
+    /**
+     * Bnutzernamledung am System
+     * @param c Credential Objekt mit Anmelde Daten
+     * @return das Credential Objekt mit Anmelde Daten erweiter um Attribute id, success und msg
+     */
     @POST   
     @Consumes(MediaType.APPLICATION_JSON)
     public Credential login(Credential c) {

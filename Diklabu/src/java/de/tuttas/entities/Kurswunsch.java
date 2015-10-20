@@ -12,7 +12,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Relations Entity zwischen SCHUELER und Klasse (Kurs)
  * @author Jörg
  */
 @Entity
@@ -22,13 +22,28 @@ import javax.persistence.NamedQuery;
 public class Kurswunsch implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
+    /**
+     * Welcher Schüler
+     */
     private Integer ID_SCHUELER;
+    /**
+     * Wählt welchen Kurs
+     */
     private Integer ID_KURS;
+    /**
+     * Mit dieser Priorität
+     */
     private String PRIORITAET;
 
     public Kurswunsch() {
     }
 
+    /**
+     * Konstruktor
+     * @param ID_SCHUELER ID des Schülers 
+     * @param ID_KURS ID des Kurses
+     * @param PRIORITAET  Priorität
+     */
     public Kurswunsch(Integer ID_SCHUELER, Integer ID_KURS, String PRIORITAET) {
         System.out.println("Erzeuge Kurswunsch vom Schueler ID="+ID_SCHUELER+" für Kurs="+ID_KURS+" mit Priorität "+PRIORITAET);
         this.ID_SCHUELER = ID_SCHUELER;

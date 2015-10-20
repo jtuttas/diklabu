@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.tuttas.entities;
 
 import java.io.Serializable;
@@ -15,10 +11,9 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Entity eines Schuelers
  * @author Jörg
  */
-    // select * from SCHUELER where NNAME like 'Neff' and VNAME like 'Corvin' AND GEBDAT='1991-11-17';
 
 @Entity
 @NamedQueries({
@@ -28,9 +23,21 @@ public class Schueler implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    /**
+     * Primärschlüssel
+     */
     private Integer ID;
+    /**
+     * Vorname
+     */
     private String NNAME;
+    /**
+     * Nachname
+     */
     private String VNAME;
+    /**
+     * Geburtsdatum in der Form yyyy-mm-dd
+     */
     private Date GEBDAT;
 
     public Date getGEBDAT() {
