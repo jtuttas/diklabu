@@ -30,28 +30,51 @@ public class Klasse implements Serializable {
      */
     private String TITEL;
 
+    /**
+     * Setzen des Names der Klasse des Kurses
+     * @param TITEL der Name
+     */
     public void setTITEL(String TITEL) {
         this.TITEL = TITEL;
     }
 
+    /**
+     * Setzen des Primärschlüssels für den Lehrer der Klasse des Kurses
+     * @param ID_LEHRER der Primärschlüssel
+     */
     public void setID_LEHRER(String ID_LEHRER) {
         this.ID_LEHRER = ID_LEHRER;
     }
 
+    /**
+     * Abfrage des Titels der Klasse des Kurses
+     * @return 
+     */
     public String getTITEL() {
         return TITEL;
     }
 
+    /**
+     * Abfrage des Primärschlüssels des Lehrer des Kurses
+     * @return der Primärschlüssel
+     */
     public String getID_LEHRER() {
         return ID_LEHRER;
     }
     
     
-
+    /**
+     * Abfrage des Primrschlüssels des Kurses
+     * @return der Primärschlüssel
+     */
     public Integer getId() {
         return ID;
     }
 
+    /**
+     * Setzen des Primärschlüssels des Kurses
+     * @param id der Primärschlüssel
+     */
     public void setId(Integer id) {
         this.ID = id;
     }

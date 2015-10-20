@@ -27,34 +27,66 @@ public class Ticketing {
      */
     private String msg;
 
+    /**
+     * Nachricht für den Buchungsvorgang z.B. "Sie haben bereits gewählt"
+     * @param msg Die Nachricht
+     */
     public void setMsg(String msg) {
         this.msg = msg;
     }
 
+    /**
+     * Buchung erfolgreich
+     * @param success success = true .. Buchung erfolgreich
+     */
     public void setSuccess(boolean success) {
         this.success = success;
     }
 
+    /**
+     * Abfrage der Nachricht an den Benutzer
+     * @return die Nachricht
+     */
     public String getMsg() {
         return msg;
     }
     
+    /**
+     * Abfrage ob Buchung erfolgreich
+     * @return true = Erfolgreich
+     */
     public boolean getSuccess() {
         return success;
     }
     
+    /**
+     * Abfrage der Anmeldeinformationen des Benutzers
+     * @return Anmeldeinformationen des Benutzers mit Name, Vorname und Geburtsdatum etc.
+     */
     public Credential getCredential() {
         return credential;
     }
 
+    /**
+     * Setzen der Anmeldeinformatioen des Benutezrs
+     * @param c Anmeldeinformationen des Benutzers mit Name, Vorname und Geburtsdatum etc.
+     */
     public void setCredential(Credential c) {
         this.credential = c;
     }
 
+    /**
+     * Setzen der Kursliste (Wunschliste) der WPK's
+     * @param courseList die Liste der gewählten Kurse
+     */
     public void setCourseList(List<Klasse> courseList) {
         this.courseList = courseList;
     }
 
+    /**
+     * Abfrage der Kursliste (Wunschliste)
+     * @return die Liste der gewählten Kurse
+     */
     public List<Klasse> getCourseList() {
         return courseList;
     }
