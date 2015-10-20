@@ -78,13 +78,13 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>710</x>
-      <y>170</y>
-      <w>150</w>
-      <h>50</h>
+      <x>1250</x>
+      <y>140</y>
+      <w>170</w>
+      <h>80</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>130.0;30.0;10.0;10.0</additional_attributes>
+    <additional_attributes>10.0;60.0;150.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -100,8 +100,8 @@ bg=yellow
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>470</x>
-      <y>140</y>
+      <x>1400</x>
+      <y>90</y>
       <w>250</w>
       <h>150</h>
     </coordinates>
@@ -155,21 +155,21 @@ GET: /api/v1/courseselect/booking
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>470</x>
-      <y>320</y>
+      <x>1400</x>
+      <y>260</y>
       <w>250</w>
       <h>220</h>
     </coordinates>
     <panel_attributes>[
   {
-    "TEACHER_SHOTCUR": "WE",
-    "TITLE": "Sport",
-    "id": 1
+    "ID_LEHRER": "JD",
+    "TITEL": "Badminton",
+    "id": 3694
   },
   {
-    "TEACHER_SHOTCUR": "KR",
-    "TITLE": "Förderkurs",
-    "id": 2
+    "ID_LEHRER": "RL",
+    "TITEL": "Fit für den Beruf",
+    "id": 3691
   }
 ]
 bg=yellow
@@ -179,19 +179,19 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>710</x>
-      <y>340</y>
-      <w>150</w>
-      <h>70</h>
+      <x>1250</x>
+      <y>320</y>
+      <w>170</w>
+      <h>50</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>130.0;10.0;10.0;50.0</additional_attributes>
+    <additional_attributes>10.0;30.0;150.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>830</x>
-      <y>510</y>
+      <y>410</y>
       <w>450</w>
       <h>50</h>
     </coordinates>
@@ -203,17 +203,17 @@ POST: /api/v1/courseselect/booking
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>150</x>
-      <y>570</y>
+      <x>160</x>
+      <y>280</y>
       <w>580</w>
       <h>140</h>
     </coordinates>
     <panel_attributes>{
-   "credential":{"gebDatum":"1968-04-11","login":false,"name":"Tuttas","vorName":"Jörg"},
+   "credential":{"gebDatum":"1968-04-11","name":"Tuttas","vorName":"Jörg"},
    "courseList":[
-       {"id":2},
-       {"id":3},
-       {"id":4}
+       {"id":3694},
+       {"id":3691},
+       {"id":3610}
     ]
 }
 bg=yellow</panel_attributes>
@@ -222,19 +222,19 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>720</x>
-      <y>520</y>
-      <w>140</w>
-      <h>100</h>
+      <x>730</x>
+      <y>300</y>
+      <w>130</w>
+      <h>150</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>120.0;10.0;10.0;80.0</additional_attributes>
+    <additional_attributes>110.0;130.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
       <x>830</x>
-      <y>570</y>
+      <y>470</y>
       <w>450</w>
       <h>30</h>
     </coordinates>
@@ -244,21 +244,21 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>720</x>
-      <y>750</y>
+      <x>1400</x>
+      <y>510</y>
       <w>280</w>
       <h>400</h>
     </coordinates>
     <panel_attributes>{
   "courseList": [
     {
-      "id": 2
+      "id": 3694
     },
     {
-      "id": 3
+      "id": 3691
     },
     {
-      "id": 4
+      "id": 3610
     }
   ],
   "credential": {
@@ -278,12 +278,12 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>840</x>
-      <y>580</y>
-      <w>140</w>
-      <h>190</h>
+      <x>1250</x>
+      <y>470</y>
+      <w>170</w>
+      <h>100</h>
     </coordinates>
     <panel_attributes>lt=.</panel_attributes>
-    <additional_attributes>10.0;10.0;120.0;170.0</additional_attributes>
+    <additional_attributes>10.0;10.0;150.0;80.0</additional_attributes>
   </element>
 </diagram>
