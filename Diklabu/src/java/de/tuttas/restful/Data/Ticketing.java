@@ -108,6 +108,7 @@ public class Ticketing {
             t.getCourseList().get(1).getId().intValue()== t.getCourseList().get(2).getId().intValue()) {
             t.setSuccess(false);
             t.setMsg("Bitte drei unterschiedliche Wünsche auswählen!");
+            return t;
         }
         t.setSuccess(true);
         return t;
