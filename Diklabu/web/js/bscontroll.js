@@ -2,6 +2,7 @@
 var courseList;
 var wuensche = new Array(3);
 
+$("#version").text(VERSION);
 getCourseList();
 
 $("#btnWaehlen").click(function () {

@@ -5,7 +5,7 @@ var wunsch;
 var wuensche = new Array(3);
 var credentials;
 $(document).ready(function () {
-
+    
     $("#btnLogin").click(function () {
         if ($("#name").val()=="" ||$("#vorname").val()=="" || $("#gebdatum").val()=="") {
            toast("Bitte füllen Sie das Formular komplett aus!");
@@ -101,6 +101,10 @@ $(document).ready(function () {
         }
     });
 
+$("#about").on("pagebeforeshow", function (e) {
+    $("#version").text(VERSION); 
+});
+   
     $("#wuensche").on("pagebeforeshow", function (event) {
         if (courseList==undefined) $.mobile.changePage('#login');
         else {console.log("wuensche show");
