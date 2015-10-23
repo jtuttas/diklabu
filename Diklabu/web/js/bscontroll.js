@@ -119,6 +119,10 @@ $("#btnWaehlen").click(function () {
                             if (data.credential.selectedCourse!=undefined) {
                                 $("#zuteilung").text(data.credential.selectedCourse.TITEL+" ("+data.credential.selectedCourse.ID_LEHRER+")");
                             }
+                            else {
+                                $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
+                                
+                            }
                             //window.location.href = "#results";
                             $("#lnkResults").trigger("click");
                             
