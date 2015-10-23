@@ -17,7 +17,9 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-       @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId")
+       @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId"),
+       @NamedQuery(name = "findSelectKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId and rel.GEBUCHT = rel.PRIORITAET" )
+
 })
 public class Kurswunsch implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -34,6 +36,7 @@ public class Kurswunsch implements Serializable {
      * Mit dieser Priorität
      */
     private String PRIORITAET;
+    private String GEBUCHT;
 
     public Kurswunsch() {
     }
@@ -51,7 +54,14 @@ public class Kurswunsch implements Serializable {
         this.PRIORITAET = PRIORITAET;
     }
 
-    
+    public void setGEBUCHT(String GEBUCHT) {
+        this.GEBUCHT = GEBUCHT;
+    }
+
+    public String getGEBUCHT() {
+        return GEBUCHT;
+    }
+        
     
     public void setID_KURS(Integer ID_KURS) {
         this.ID_KURS = ID_KURS;

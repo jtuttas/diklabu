@@ -1,7 +1,9 @@
 
 package de.tuttas.restful.Data;
 
+import de.tuttas.entities.Klasse;
 import java.sql.Date;
+import java.util.List;
 
 /**
  * Anmelde Objekt, welches vom Restful Service verwendet wird
@@ -37,6 +39,51 @@ public class Credential {
      * Primärschlüssel des Benutzers aus das SCHUELER Entität
      * @param id Der Primärschlüssel
      */
+    private List<Klasse> courses;
+
+    /**
+     * Der zugeiteilte Kurs
+     */
+    private Klasse selectedCourse;
+
+    /**
+     * Setzen des gewählten Kurses
+     * @param selectedCourse  der gewählte Kurs
+     */
+    public void setSelectedCourse(Klasse selectedCourse) {
+        this.selectedCourse = selectedCourse;
+    }
+
+    /**
+     * Abfrage des gewählten Kurses
+     * @return der gewählte Kurs
+     */
+    public Klasse getSelectedCourse() {
+        return selectedCourse;
+    }
+    
+    
+    
+    
+    /**
+     * Setze Liste der gebuchten Kurse
+     * @param courses die Liste der gebuchten Kurse
+     */
+    public void setCourses(List<Klasse> courses) {
+        this.courses = courses;
+    }
+
+    /**
+     * Abfrage der Liste der gebuchten Kurse
+     * @return die Liste der gebuchten Kurse
+     */
+    public List<Klasse> getCourses() {
+        return courses;
+    }
+    
+    
+    
+    
     public void setId(int id) {
         this.id = id;
     }

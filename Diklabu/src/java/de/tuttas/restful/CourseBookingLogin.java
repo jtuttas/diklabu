@@ -1,6 +1,7 @@
 package de.tuttas.restful;
 
 
+import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.Credential;
 import java.sql.Date;
@@ -35,7 +36,6 @@ public class CourseBookingLogin {
         Credential c = new Credential();
         c.setName("Nachname");
         c.setVorName("Vorname");
-        c.setLogin(false);
         c.setGebDatum(Date.valueOf("2014-12-31"));
         return c;
     }
@@ -60,6 +60,20 @@ public class CourseBookingLogin {
             c.setLogin(true);
             c.setMsg("Anmeldung erfolgreich!");
             c.setId(pupils.get(0).getId().intValue());
+            // Abfrage der gewählten Kurse
+            query = em.createNamedQuery("findKlasseByUserId");
+            query.setParameter("paramId", c.getId());
+            List<Klasse> courses = query.getResultList();
+            System.out.println("Liste der Wünsche:"+courses);
+            c.setCourses(courses);
+            
+            // Abfrage des zugeteilten Kurses
+            query = em.createNamedQuery("findSelectKlasseByUserId");
+            query.setParameter("paramId", c.getId());
+            List<Klasse> selectCourses = query.getResultList();
+            System.out.println("Liste des gewählten Kurses:"+courses);
+            if (selectCourses.size()!=0) c.setSelectedCourse(selectCourses.get(0));
+            
         }
         else {
             c.setLogin(false);
