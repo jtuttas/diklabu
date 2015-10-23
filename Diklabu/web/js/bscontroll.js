@@ -65,6 +65,9 @@ $("#btnWaehlen").click(function () {
         }
         else {
             console.log("Wunsche=" + JSON.stringify(wuensche));
+            $("#nameAbfragen").val($("#name").val());
+            $("#vorNameAbfragen").val($("#vorName").val());
+            $("#gebDatumAbfragen").val($("#gebDatum").val());
             var credentials = {
                 name: $("#name").val(),
                 vorName: $("#vorName").val(),
@@ -96,6 +99,7 @@ $("#btnWaehlen").click(function () {
                             $("#erstWunsch").text("kein Kurs gewählt");
                             $("#zweitWunsch").text("kein Kurs gewählt");
                             $("#drittWunsch").text("kein Kurs gewählt");
+                            $.mobile.changePage('#results');
                         }
                         else {
                             toastr["error"](data.msg, "Fehler!");
