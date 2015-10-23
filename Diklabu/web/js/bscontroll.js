@@ -5,6 +5,56 @@ var wuensche = new Array(3);
 $("#version").text(VERSION);
 getCourseList();
 
+$("#btnAbfragen").click(function () {
+    if ($("#nameAbfragen").val() == "" || $("#vorNameAbfragen").val() == "" || $("#gebDatumAbfragen").val() == "") {
+        toastr["info"]("Bitte die Anmeldedaten vollständig ausfüllen!", "Information");
+    }
+    else {
+
+        var credentials = {
+            name: $("#nameAbfragen").val(),
+            vorName: $("#vorNameAbfragen").val(),
+            gebDatum: $("#gebDatumAbfragen").val()
+        };
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/courseselect/login",
+            type: "POST",
+            contentType: "application/json; charset=UTF-8",
+            dataType: "json",
+            data: JSON.stringify(credentials),
+            success: function (data) {
+                console.log("login finished" + JSON.stringify(data));
+                if (data.login == false) {
+                    toastr["error"](data.msg, "Fehler!");
+                }
+                else {
+                    toastr["success"](data.msg, "OK!");
+                    if (data.courses!=undefined && data.courses.length!=0) {
+                        $("#erstWunschAbfragen").text(data.courses[0].TITEL+" ("+data.courses[0].ID_LEHRER+")");
+                        $("#zweitWunschAbfragen").text(data.courses[1].TITEL+" ("+data.courses[1].ID_LEHRER+")");
+                        $("#drittWunschAbfragen").text(data.courses[2].TITEL+" ("+data.courses[2].ID_LEHRER+")");
+                        if (data.selectedCourse!=undefined) {
+                            $("#zuteilung").text(data.selectedCourse.TITEL+" ("+data.selectedCourse.ID_LEHRER+")");
+                        }
+                        else {
+                            $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
+
+                        }
+                    }
+                    else {
+                        $("#erstWunschAbfragen").text("kein Kurs gewählt");
+                        $("#zweitWunschAbfragen").text("kein Kurs gewählt");
+                        $("#drittWunschAbfragen").text("kein Kurs gewählt");                        
+                        $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
+                    }
+                    credentials=undefined;
+                }
+            }
+        });
+
+    }
+});
+
 $("#btnWaehlen").click(function () {
     if ($("#name").val() == "" || $("#vorName").val() == "" || $("#gebDatum").val() == "") {
         toastr["info"]("Bitte die Anmeldedaten vollständig ausfüllen!", "Information");
@@ -58,7 +108,6 @@ $("#btnWaehlen").click(function () {
 });
 
 
-
 function getCourseList() {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/courseselect/booking",
@@ -82,16 +131,16 @@ function getCourseList() {
             }
             $('#erstWunschDropdown li > a').click(function (e) {
                 var index = $(this).attr('kursid');
-                console.log("index = "+index+" class="+$("#w1" + index).attr("class"));
+                console.log("index = " + index + " class=" + $("#w1" + index).attr("class"));
                 if ($("#w1" + index).attr("class") != "disabled") {
                     $('#erstWunsch').text(this.innerHTML);
-                    if (wuensche[0]!=undefined) {
-                        console.log("Es existierte bereits ein Erstwunsch mit id="+wuensche[0].id);
-                        var i=findWunschbyId(wuensche[0].id);
-                        console.log("Dieser hat den index "+i);
-                        $("#w1"+i).removeClass("disabled");
-                        $("#w2"+i).removeClass("disabled");
-                        $("#w3"+i).removeClass("disabled");
+                    if (wuensche[0] != undefined) {
+                        console.log("Es existierte bereits ein Erstwunsch mit id=" + wuensche[0].id);
+                        var i = findWunschbyId(wuensche[0].id);
+                        console.log("Dieser hat den index " + i);
+                        $("#w1" + i).removeClass("disabled");
+                        $("#w2" + i).removeClass("disabled");
+                        $("#w3" + i).removeClass("disabled");
                     }
                     var course = courseList[index];
                     console.log("Gewählt wurde:" + course.TITEL);
@@ -105,13 +154,13 @@ function getCourseList() {
                 var id = $(this).attr('kursid');
                 if ($("#w2" + id).attr("class") != "disabled") {
                     $('#zweitWunsch').text(this.innerHTML);
-                    if (wuensche[1]!=undefined) {
-                        console.log("Es existierte bereits ein Zweitwunsch mit id="+wuensche[1].id);
-                        var i=findWunschbyId(wuensche[1].id);
-                        console.log("Dieser hat den index "+i);
-                        $("#w1"+i).removeClass("disabled");
-                        $("#w2"+i).removeClass("disabled");
-                        $("#w3"+i).removeClass("disabled");
+                    if (wuensche[1] != undefined) {
+                        console.log("Es existierte bereits ein Zweitwunsch mit id=" + wuensche[1].id);
+                        var i = findWunschbyId(wuensche[1].id);
+                        console.log("Dieser hat den index " + i);
+                        $("#w1" + i).removeClass("disabled");
+                        $("#w2" + i).removeClass("disabled");
+                        $("#w3" + i).removeClass("disabled");
                     }
                     var course = courseList[id];
                     console.log("Gewählt wurde:" + course.TITEL);
@@ -125,13 +174,13 @@ function getCourseList() {
                 var id = $(this).attr('kursid');
                 if ($("#w3" + id).attr("class") != "disabled") {
                     $('#drittWunsch').text(this.innerHTML);
-                    if (wuensche[2]!=undefined) {
-                        console.log("Es existierte bereits ein Drittwunsch mit id="+wuensche[2].id);
-                        var i=findWunschbyId(wuensche[2].id);
-                        console.log("Dieser hat den index "+i);
-                        $("#w1"+i).removeClass("disabled");
-                        $("#w2"+i).removeClass("disabled");
-                        $("#w3"+i).removeClass("disabled");
+                    if (wuensche[2] != undefined) {
+                        console.log("Es existierte bereits ein Drittwunsch mit id=" + wuensche[2].id);
+                        var i = findWunschbyId(wuensche[2].id);
+                        console.log("Dieser hat den index " + i);
+                        $("#w1" + i).removeClass("disabled");
+                        $("#w2" + i).removeClass("disabled");
+                        $("#w3" + i).removeClass("disabled");
                     }
                     var course = courseList[id];
                     console.log("Gewählt wurde:" + course.TITEL);
@@ -154,11 +203,11 @@ function getCourseList() {
  * @param {type} id die Id des Kurses
  * @returns {Number|j} die Position in der Kursliste
  */
-function findWunschbyId( id) {
-    for ( j=0;j<courseList.length;j++) {
-        if (courseList[j].id==id) {
+function findWunschbyId(id) {
+    for (j = 0; j < courseList.length; j++) {
+        if (courseList[j].id == id) {
             return j;
-        }        
+        }
     }
 }
 

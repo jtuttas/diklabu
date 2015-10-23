@@ -49,7 +49,10 @@
                             <a class="page-scroll" href="#kurswahl">Kurswahl</a>
                         </li>
                         <li>
-                            <a class="page-scroll" href="#help">Weitere Informationen zur Kurswahl</a>
+                            <a class="page-scroll" href="#help">Weitere Infos</a>
+                        </li>
+                        <li>
+                            <a class="page-scroll" href="#results">Zuteilung</a>
                         </li>
                     </ul>
                 </div>
@@ -152,7 +155,7 @@
                     <hr class="primary">
                     <p>Bitte melden Sie sich mit Ihren Anmeldedaten (Vorname, Nachname und Geburtsdatum) an. Diese Daten müssen mit den Daten aus dem Klassenbuch überein stimmen!</p>
                     <p>Es wird versucht Ihren Erstwunsch zu berücksichtigen. Wenn dieses nicht möglich ist wird versucht Ihren Zweitwunsch zu berücksichtigen!</p>
-                    <p>Das Ergebnis der Kurswahl können Sie zeitnah bei Ihrem Klassenlehrer in Erfahrung bringen!</p>
+                    <p>Das Ergebnis der Kurswahl können Sie zeitnah über den Link <a class="page-scroll" href="#results">Zuteilung</a> in Erfahrung bringen!</p>
                     <p>Bei weiteren Fragen wenden Sie sich bitte an ihre Abteilungsleiterin Frau Wessel!</p>
                 </div>
                 <div class="col-lg-4 text-center">
@@ -167,6 +170,60 @@
             </div>
         </div>
     </section>
+        
+        <section class="bg-dark" id="results">
+            <div class="container">
+                <div class="row">                    
+                    <div class="col-sm-3">
+                        <div class="fixedFont">Anmeldedaten</div>
+                        <label for="vorName">Vorname:</label>
+                        <input type="text" class="form-control" id="vorNameAbfragen" >
+                        <hr>
+                        <label for="name">Nachname:</label>
+                        <input type="text" class="form-control" id="nameAbfragen" >
+                        <hr>
+                        <label for="gebDatum">Geburtsdatum:</label>
+                        <input type="text" data-provide="datepicker" class="form-control date-input" id="gebDatumAbfragen" placeholder="yyyy-mm-dd" >
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-8">
+                        <div class="fixedFont">Kurse</div>
+                        <p>&nbsp;</p>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h4>1. Wunsch</h4>
+                            </div>
+                            <div class="col-sm-8">
+                                <h4 id="erstWunschAbfragen">kein Kurs gewählt</h4>
+                            </div>
+                            <div class="col-sm-4">
+                                <h4>2. Wunsch</h4>
+                            </div>
+                            <div class="col-sm-8">
+                                <h4 id="zweitWunschAbfragen">kein Kurs gewählt</h4>
+                            </div>
+                            <div class="col-sm-4">
+                                <h4>3. Wunsch</h4>
+                            </div>
+                            <div class="col-sm-8">
+                                <h4 id="drittWunschAbfragen">kein Kurs gewählt</h4>
+                            </div>                            
+                            <div class="col-sm-4">
+                                <h2>Kurszuteilung</h2>
+                            </div>
+                            <div class="col-sm-8">
+                                <h2 id="zuteilung">Ihnen wurde noch kein Kurs zugeteilt</h2>
+                            </div>                            
+                            
+                        </div>
+                    </div>
+                </div>
+                <p>&nbsp;</p>
+                <button class="col-sm-12 btn-danger btn-lg" id="btnAbfragen">Abfragen</button>
+            </div>
+        </section>
+        
+        
     <!-- jQuery -->
     <script src="js/jquery.js"></script>
     <!-- Bootstrap Core JavaScript -->

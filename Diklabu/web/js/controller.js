@@ -87,7 +87,7 @@ $(document).ready(function () {
     });
     
     $("#btnzuruck").click( function () {
-         credentials="";
+         credentials=undefined;
  
     });
     
@@ -124,6 +124,9 @@ $("#about").on("pagebeforeshow", function (e) {
          
          if (credentials.selectedCourse!=undefined) {
              $("#zugeteilt").text("Ihnen wurde der Kurs '"+credentials.selectedCourse.TITEL+"' zugewiesen!");
+         }
+         else {
+             $("#zugeteilt").text("Ihnen wurde noch kein Kurs zugeteilt!");
          }
      });
      
