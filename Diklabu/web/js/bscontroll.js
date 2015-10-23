@@ -29,6 +29,10 @@ $("#btnAbfragen").click(function () {
                 }
                 else {
                     toastr["success"](data.msg, "OK!");
+                    $("#name").val($("#nameAbfragen").val());
+                    $("#vorName").val($("#vorNameAbfragen").val());
+                    $("#gebDatum").val($("#gebDatumAbfragen").val());
+                    console.log("Wahlen: "+data.courses);
                     if (data.courses!=undefined && data.courses.length!=0) {
                         $("#erstWunschAbfragen").text(data.courses[0].TITEL+" ("+data.courses[0].ID_LEHRER+")");
                         $("#zweitWunschAbfragen").text(data.courses[1].TITEL+" ("+data.courses[1].ID_LEHRER+")");
@@ -46,6 +50,8 @@ $("#btnAbfragen").click(function () {
                         $("#zweitWunschAbfragen").text("kein Kurs gewählt");
                         $("#drittWunschAbfragen").text("kein Kurs gewählt");                        
                         $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
+                        //window.location.href = "#kurswahl";
+                        $("#lnkKurswahl").trigger("click");
                     }
                     credentials=undefined;
                 }
@@ -99,7 +105,11 @@ $("#btnWaehlen").click(function () {
                             $("#erstWunsch").text("kein Kurs gewählt");
                             $("#zweitWunsch").text("kein Kurs gewählt");
                             $("#drittWunsch").text("kein Kurs gewählt");
-                            window.location.href = "#results";
+                            $("#erstWunschAbfragen").text(wuensche[0].TITEL+" ("+wuensche[0].ID_LEHRER+")");
+                            $("#zweitWunschAbfragen").text(wuensche[1].TITEL+" ("+wuensche[1].ID_LEHRER+")");
+                            $("#drittWunschAbfragen").text(wuensche[2].TITEL+" ("+wuensche[2].ID_LEHRER+")");
+                            //window.location.href = "#results";
+                            $("#lnkResults").trigger("click");
                         }
                         else {
                             toastr["error"](data.msg, "Fehler!");
