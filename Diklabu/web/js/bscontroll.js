@@ -99,7 +99,7 @@ $("#btnWaehlen").click(function () {
                             $("#erstWunsch").text("kein Kurs gewählt");
                             $("#zweitWunsch").text("kein Kurs gewählt");
                             $("#drittWunsch").text("kein Kurs gewählt");
-                            $.mobile.changePage('#results');
+                            window.location.href = "#results";
                         }
                         else {
                             toastr["error"](data.msg, "Fehler!");
