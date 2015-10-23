@@ -113,6 +113,15 @@ $("#btnWaehlen").click(function () {
                         }
                         else {
                             toastr["error"](data.msg, "Fehler!");
+                            $("#erstWunschAbfragen").text(data.credential.courses[0].TITEL+" ("+data.credential.courses[0].ID_LEHRER+")");
+                            $("#zweitWunschAbfragen").text(data.credential.courses[1].TITEL+" ("+data.credential.courses[1].ID_LEHRER+")");
+                            $("#drittWunschAbfragen").text(data.credential.courses[2].TITEL+" ("+data.credential.courses[2].ID_LEHRER+")");
+                            if (data.credential.selectedCourse!=undefined) {
+                                $("#zuteilung").text(data.credential.selectedCourse.TITEL+" ("+data.credential.selectedCourse.ID_LEHRER+")");
+                            }
+                            //window.location.href = "#results";
+                            $("#lnkResults").trigger("click");
+                            
                         }
                     }
                 }
