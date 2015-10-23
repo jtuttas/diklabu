@@ -28,7 +28,7 @@
             <div data-role="content">
                 <div data-role="fieldcontain">
                     <label for="vorname">Vorname</label>
-                    <input type="text" id="vorname" placeholder="Vorname"  />
+                    <input type="text" id="vorname" placeholder="Vorname"   />
                 </div>
                 <div data-role="fieldcontain">
                     <label for="name">Name</label>
@@ -42,7 +42,7 @@
                                 
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2>WPK Kursbuchungssystem V1.0</h2>
+                <h2>WPK Kursbuchungssystem</h2>
             </div>
         </div>
         <div data-role="page" id="about">
@@ -59,7 +59,27 @@
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2>WPK Kursbuchungssystem V1.0</h2>
+                <h2>WPK Kursbuchungssystem</h2>
+            </div>
+        </div>
+        <div data-role="page" id="results">
+            <div data-role="header">
+                <h1>Abfrage Kurswahl</h1>
+                <a href="#login" data-role="button" id="btnzurueck" class="ui-btn ui-icon-back ui-btn-icon-left">zurück</a>
+            </div>
+            <div data-role="content">
+                <div>
+                <ul data-role="listview" id="result" data-inset="false" data-filter-placeholder="">
+                    <li id="erstwunschresult">kein Kurs</li>
+                    <li id="zweitwunschresult">kein Kurs</li>
+                    <li id="drittwunschresult">kein Kurs</li>
+                </ul>
+                    <hr/>                        
+                    <h1 style="text-align: center;" id="zugeteilt">noch kein Kurs zugeteilt!</h1>
+                </div>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h2>WPK Kursbuchungssystem</h2>
             </div>
         </div>
         <div data-role="page" id="wuensche">
@@ -78,7 +98,7 @@
                 </ul>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2>WPK Kursbuchungssystem V1.0</h2>
+                <h2>WPK Kursbuchungssystem</h2>
             </div>
         </div>
         <div data-role="page" id="wpks">
@@ -92,7 +112,7 @@
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2>WPK Kursbuchungssystem V1.0</h2>
+                <h2>WPK Kursbuchungssystem</h2>
             </div>
         </div>
     </body>

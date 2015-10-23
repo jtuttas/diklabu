@@ -27,7 +27,12 @@ $(document).ready(function () {
                 console.log("receive" + JSON.stringify(data));
                 if (data.login) {
                     credentials=data;
-                    getCourseList();
+                    console.log("bisherige wünsche :"+credentials.courses);
+                    if (credentials.courses!=undefined && credentials.courses.length!=0) {
+                        $.mobile.changePage('#results');
+                    }
+                    else getCourseList();
+                    
                 }
                 else {
                     toast(data.msg);
@@ -74,10 +79,16 @@ $(document).ready(function () {
                 $("#vorname").val("");
                 $("#gebdatum").val("");
                 $.mobile.changePage('#login');
+                credentials="";
             }
         });
            
        }
+    });
+    
+    $("#btnzuruck").click( function () {
+         credentials="";
+ 
     });
     
     $("#btnWaehlen").click(function () {
@@ -105,23 +116,34 @@ $("#about").on("pagebeforeshow", function (e) {
     $("#version").text(VERSION); 
 });
    
+     $("#results").on("pagebeforeshow", function (event) {
+         console.log("Anzeige der Wünsche:");
+         $("#erstwunschresult").text("1. Wunsch: "+credentials.courses[0].TITEL+" ("+credentials.courses[0].ID_LEHRER+")");
+         $("#zweitwunschresult").text("2. Wunsch: "+credentials.courses[1].TITEL+" ("+credentials.courses[1].ID_LEHRER+")");
+         $("#drittwunschresult").text("3. Wunsch: "+credentials.courses[2].TITEL+" ("+credentials.courses[2].ID_LEHRER+")");
+         
+         if (credentials.selectedCourse!=undefined) {
+             $("#zugeteilt").text("Ihnen wurde der Kurs '"+credentials.selectedCourse.TITEL+"' zugewiesen!");
+         }
+     });
+     
     $("#wuensche").on("pagebeforeshow", function (event) {
         if (courseList==undefined) $.mobile.changePage('#login');
         else {console.log("wuensche show");
         if (wuensche[0]!=null) {
-            $("#erstwunsch").text(wuensche[0].TITEL);
+            $("#erstwunsch").text(wuensche[0].TITEL+ " ("+wuensche[0].ID_LEHRER+")");
         }
         else {
             $("#erstwunsch").text("kein Kurs gewählt");
         }
         if (wuensche[1]!=null) {
-            $("#zweitwunsch").text(wuensche[1].TITEL);
+            $("#zweitwunsch").text(wuensche[1].TITEL+ " ("+wuensche[1].ID_LEHRER+")");
         }
         else {
             $("#zweitwunsch").text("kein Kurs gewählt");
         }
         if (wuensche[2]!=null) {
-            $("#drittwunsch").text(wuensche[2].TITEL);
+            $("#drittwunsch").text(wuensche[2].TITEL+ " ("+wuensche[2].ID_LEHRER+")");
         }
         else {
             $("#drittwunsch").text("kein Kurs gewählt");
@@ -136,7 +158,7 @@ $("#about").on("pagebeforeshow", function (e) {
         $('#wpklist').append('<fieldset data-role="controlgroup" id="cgrp">');
         console.log("Wuensche sind:"+JSON.stringify(wuensche));
         for (i = 0; i < courseList.length; i++) {
-            $('#wpklist').append('<input type="radio" name="slot" id="' + i + '" value="' + courseList[i].TITEL + '" /><label for="' + i + '">' + courseList[i].TITEL + '</label>');
+            $('#wpklist').append('<input type="radio" name="slot" id="' + i + '" value="' + courseList[i].TITEL +'" /><label for="' + i + '">' + courseList[i].TITEL + '  ('+courseList[i].ID_LEHRER+')</label>');
             for (j=0;j<=2;j++) {
                 if (wuensche[j]!=undefined) {
                     if (courseList[i].id==wuensche[j].id) {

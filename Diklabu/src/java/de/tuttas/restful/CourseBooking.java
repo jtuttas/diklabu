@@ -89,7 +89,14 @@ public class CourseBooking {
                     t.setMsg("Buchung erfolgreich!");
                 }
                 else {
+                    // Abfrage des zugeteilten Kurses
+                    query = em.createNamedQuery("findSelectKlasseByUserId");
+                    query.setParameter("paramId", t.getCredential().getId());
+                    List<Klasse> selectCourses = query.getResultList();
+                    System.out.println("Liste des gewählten Kurses:"+courses);
+                    if (selectCourses.size()!=0) t.getCredential().setSelectedCourse(selectCourses.get(0));
                     t.setSuccess(false);
+                    t.getCredential().setCourses(courses);
                     t.setMsg("Sie haben bereits gewählt!");
                 }
                 
