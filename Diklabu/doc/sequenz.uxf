@@ -4,7 +4,7 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>280</x>
+      <x>630</x>
       <y>340</y>
       <w>100</w>
       <h>30</h>
@@ -15,7 +15,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>670</x>
       <y>360</y>
       <w>30</w>
       <h>550</h>
@@ -26,7 +26,7 @@
   <element>
     <id>UMLGeneric</id>
     <coordinates>
-      <x>700</x>
+      <x>1050</x>
       <y>340</y>
       <w>100</w>
       <h>30</h>
@@ -37,7 +37,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>740</x>
+      <x>1090</x>
       <y>360</y>
       <w>30</w>
       <h>550</h>
@@ -48,7 +48,7 @@
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>670</x>
       <y>400</y>
       <w>450</w>
       <h>50</h>
@@ -61,7 +61,7 @@ POST: /api/v1/courseselect/login
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>20</x>
+      <x>370</x>
       <y>270</y>
       <w>190</w>
       <h>90</h>
@@ -78,7 +78,7 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>740</x>
+      <x>1090</x>
       <y>410</y>
       <w>170</w>
       <h>80</h>
@@ -89,7 +89,7 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>670</x>
       <y>460</y>
       <w>450</w>
       <h>30</h>
@@ -100,7 +100,7 @@ bg=yellow
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>890</x>
+      <x>1240</x>
       <y>0</y>
       <w>280</w>
       <h>510</h>
@@ -142,7 +142,7 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>200</x>
+      <x>550</x>
       <y>300</y>
       <w>150</w>
       <h>140</h>
@@ -153,7 +153,7 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>670</x>
       <y>550</y>
       <w>450</w>
       <h>50</h>
@@ -166,7 +166,7 @@ GET: /api/v1/courseselect/booking
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>670</x>
       <y>610</y>
       <w>450</w>
       <h>30</h>
@@ -177,7 +177,7 @@ GET: /api/v1/courseselect/booking
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>890</x>
+      <x>1240</x>
       <y>530</y>
       <w>250</w>
       <h>220</h>
@@ -201,7 +201,7 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>740</x>
+      <x>1090</x>
       <y>590</y>
       <w>170</w>
       <h>50</h>
@@ -212,7 +212,7 @@ bg=yellow
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>670</x>
       <y>680</y>
       <w>450</w>
       <h>50</h>
@@ -225,7 +225,7 @@ POST: /api/v1/courseselect/booking
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>0</x>
+      <x>350</x>
       <y>550</y>
       <w>230</w>
       <h>200</h>
@@ -244,7 +244,7 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>220</x>
+      <x>570</x>
       <y>570</y>
       <w>130</w>
       <h>150</h>
@@ -255,7 +255,7 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>320</x>
+      <x>670</x>
       <y>740</y>
       <w>450</w>
       <h>30</h>
@@ -266,7 +266,7 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>890</x>
+      <x>1240</x>
       <y>780</y>
       <w>280</w>
       <h>400</h>
@@ -300,7 +300,7 @@ bg=yellow</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>740</x>
+      <x>1090</x>
       <y>740</y>
       <w>170</w>
       <h>100</h>
@@ -311,7 +311,7 @@ bg=yellow</panel_attributes>
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1250</x>
+      <x>1600</x>
       <y>110</y>
       <w>140</w>
       <h>70</h>
@@ -324,7 +324,7 @@ bg=green
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1060</x>
+      <x>1410</x>
       <y>70</y>
       <w>210</w>
       <h>90</h>
@@ -335,7 +335,7 @@ bg=green
   <element>
     <id>UMLNote</id>
     <coordinates>
-      <x>1200</x>
+      <x>1550</x>
       <y>320</y>
       <w>140</w>
       <h>70</h>
@@ -348,7 +348,7 @@ bg=green
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>1020</x>
+      <x>1370</x>
       <y>350</y>
       <w>200</w>
       <h>50</h>
