@@ -26,10 +26,10 @@ $("#btnAbfragen").click(function () {
                 console.log("login finished" + JSON.stringify(data));
                 if (data.login == false) {
                     toastr["error"](data.msg, "Fehler!");
-                        $("#erstWunschAbfragen").text("");
-                        $("#zweitWunschAbfragen").text("");
-                        $("#drittWunschAbfragen").text("");
-                        $("#zuteilung").text("");
+                        $("#erstWunschAbfragen").text("?");
+                        $("#zweitWunschAbfragen").text("?");
+                        $("#drittWunschAbfragen").text("?");
+                        $("#zuteilung").text("?");
                 }
                 else {
                     toastr["success"](data.msg, "OK!");
