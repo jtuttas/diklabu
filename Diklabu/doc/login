@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rest-client version="3.5"><request><http-version>1.1</http-version><http-follow-redirects/><URL>http://localhost:8080/Diklabu/api/v1/courseselect/login</URL><method>POST</method><headers><header key="Content-Type" value="application/json; charset=UTF-8"/></headers><body><string content-type="application/json" charset="UTF-8">{"gebDatum":"1993-12-30","name":"Boltze","vorName":"Fabian"}</string></body></request></rest-client>
