@@ -40,6 +40,18 @@ public class Schueler implements Serializable {
      */
     private Date GEBDAT;
 
+    private String ACC;
+
+    public String getACC() {
+        return ACC;
+    }
+
+    public void setACC(String ACC) {
+        this.ACC = ACC;
+    }
+    
+    
+    
     public Date getGEBDAT() {
         return GEBDAT;
     }
