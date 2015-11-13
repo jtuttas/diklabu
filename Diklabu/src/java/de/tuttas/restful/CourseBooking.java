@@ -43,6 +43,7 @@ public class CourseBooking {
      @GET   
     @Consumes(MediaType.APPLICATION_JSON)
     public List<Klasse> getCourses() {
+        em.getEntityManagerFactory().getCache().evictAll();
         System.out.println ("Webservice courseselect/booking GET:");
         
         Query  query = em.createNamedQuery("getSelectedKlassen");

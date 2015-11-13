@@ -48,6 +48,7 @@ public class CourseBookingLogin {
     @POST   
     @Consumes(MediaType.APPLICATION_JSON)
     public Credential login(Credential c) {
+        em.getEntityManagerFactory().getCache().evictAll();
         System.out.println ("Webservice courseselect/login"+c.toString());
         Query  query = em.createNamedQuery("findSchuelerbyCredentials");
         query.setParameter("paramName", c.getName());
