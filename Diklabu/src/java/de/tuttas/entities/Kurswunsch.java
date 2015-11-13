@@ -46,12 +46,14 @@ public class Kurswunsch implements Serializable {
      * @param ID_SCHUELER ID des Schülers 
      * @param ID_KURS ID des Kurses
      * @param PRIORITAET  Priorität
+     * @param GEBUCHT  GEBUCHT
      */
-    public Kurswunsch(Integer ID_SCHUELER, Integer ID_KURS, String PRIORITAET) {
+    public Kurswunsch(Integer ID_SCHUELER, Integer ID_KURS, String PRIORITAET, String GEBUCHT) {
         System.out.println("Erzeuge Kurswunsch vom Schueler ID="+ID_SCHUELER+" für Kurs="+ID_KURS+" mit Priorität "+PRIORITAET);
         this.ID_SCHUELER = ID_SCHUELER;
         this.ID_KURS = ID_KURS;
         this.PRIORITAET = PRIORITAET;
+        this.GEBUCHT=GEBUCHT;
     }
 
     public void setGEBUCHT(String GEBUCHT) {
