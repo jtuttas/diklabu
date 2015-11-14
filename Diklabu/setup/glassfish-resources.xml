@@ -9,4 +9,5 @@
     <property name="User" value="SYSDBA"/>
     <property name="Password" value="masterkey"/>
   </jdbc-connection-pool>
+  
 </resources>
