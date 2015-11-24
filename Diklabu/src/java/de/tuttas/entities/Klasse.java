@@ -29,6 +29,17 @@ public class Klasse implements Serializable {
      * Name der Klasse des Kurses
      */
     private String TITEL;
+    private String KNAME;
+
+    public String getKNAME() {
+        return KNAME;
+    }
+
+    public void setKNAME(String KNAME) {
+        this.KNAME = KNAME;
+    }
+    
+    
 
     /**
      * Setzen des Names der Klasse des Kurses
