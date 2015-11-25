@@ -5,6 +5,8 @@
  */
 package de.tuttas.restful.Data;
 
+import java.sql.Date;
+
 /**
  *
  * @author Jörg
@@ -15,7 +17,20 @@ public class SchuelerObject {
     private String klasse;
     private String login;
     private int id;
+    private Date gebDatum;
 
+    public void setGebDatum(Date gebDatum) {
+        this.gebDatum = gebDatum;
+    }
+
+    public Date getGebDatum() {
+        return gebDatum;
+    }
+
+    
+
+    
+    
     public int getId() {
         return id;
     }

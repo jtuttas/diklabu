@@ -109,7 +109,7 @@ public class Schueler implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Schueler[ id=" + ID + " ]";
+        return "de.tuttas.entities.Schueler[ id=" + ID + "GEBDAT="+GEBDAT+" ]";
     }
     
 }

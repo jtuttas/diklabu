@@ -49,6 +49,7 @@ public class SchuelerManager {
         
         if (schueler.size()!=0) {
             so.setId(schueler.get(0).getId());
+            so.setGebDatum(schueler.get(0).getGEBDAT());
             System.out.println("Find Schüler mit id="+schueler.get(0).getId());
             
             LoginSchueler ls=em.find(LoginSchueler.class, schueler.get(0).getId());
@@ -58,6 +59,7 @@ public class SchuelerManager {
             
         }
         //return em.find(SchuelerLogin.class, schueler.get(0).getId());
+         System.out.println("Sende zurück:"+so);
         return so;
     }
     

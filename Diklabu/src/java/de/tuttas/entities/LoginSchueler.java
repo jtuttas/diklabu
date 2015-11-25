@@ -17,10 +17,6 @@ import javax.persistence.NamedQuery;
  * @author Jörg
  */
 @Entity
-@NamedQuery(
-        name = "findSchuelerLoginbyId", query= "select s from LoginSchueler s where s.ID_SCHUELER=:paramId"
-)
-
 public class LoginSchueler implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
