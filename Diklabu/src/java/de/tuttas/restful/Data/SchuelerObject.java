@@ -13,6 +13,26 @@ public class SchuelerObject {
     private String name;
     private String vorname;
     private String klasse;
+    private String login;
+    private int id;
+
+    public int getId() {
+        return id;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+    
+    
 
     public String getKlasse() {
         return klasse;

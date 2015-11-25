@@ -5,9 +5,10 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
-import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Schueler;
+
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -23,9 +24,9 @@ import javax.ws.rs.core.MediaType;
  *
  * @author Jörg
  */
-@Path("courseselect/getschueler")
+@Path("manager/getschueler")
 @Stateless
-public class SchuelerLogin {
+public class SchuelerManager {
      /**
      * Injection des EntityManagers
      */
@@ -35,9 +36,9 @@ public class SchuelerLogin {
         
      @POST   
     @Consumes(MediaType.APPLICATION_JSON)
-    public List<Schueler> getSchueler(SchuelerObject so) {
+    public SchuelerObject getSchueler(SchuelerObject so) {
         em.getEntityManagerFactory().getCache().evictAll();
-        System.out.println ("Webservice courseselect/getSchueler POST:"+so.toString());
+        System.out.println ("Webservice manager/getSchueler POST:"+so.toString());
         
         Query  query = em.createNamedQuery("findSchuelerbyNameKlasse");
         query.setParameter("paramName", so.getName());
@@ -45,7 +46,19 @@ public class SchuelerLogin {
         query.setParameter("paramKlasse", so.getKlasse());
         List<Schueler> schueler = query.getResultList();
         System.out.println("Result List:"+schueler);
-        return schueler;   
+        
+        if (schueler.size()!=0) {
+            so.setId(schueler.get(0).getId());
+            System.out.println("Find Schüler mit id="+schueler.get(0).getId());
+            
+            LoginSchueler ls=em.find(LoginSchueler.class, schueler.get(0).getId());
+            System.out.println("found:"+ls);
+            if (ls!=null) so.setLogin(ls.getLOGIN());
+            
+            
+        }
+        //return em.find(SchuelerLogin.class, schueler.get(0).getId());
+        return so;
     }
     
 }
