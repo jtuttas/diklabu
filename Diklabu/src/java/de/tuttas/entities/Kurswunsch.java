@@ -17,9 +17,8 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-       @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId ORDER BY rel.PRIORITAET"),
-       @NamedQuery(name = "findSelectKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId and rel.GEBUCHT = 1"  )
-
+    // Finden der Kurswünsche eines Schülers   
+    @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId ORDER BY rel.PRIORITAET"),
 })
 public class Kurswunsch implements Serializable {
     private static final long serialVersionUID = 1L;
