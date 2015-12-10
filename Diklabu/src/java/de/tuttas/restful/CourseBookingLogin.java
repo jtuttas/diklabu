@@ -67,13 +67,19 @@ public class CourseBookingLogin {
             List<Klasse> courses = query.getResultList();
             System.out.println("Liste der Wünsche:"+courses);
             c.setCourses(courses);
+            System.out.println("Liste des gewählten Kurses:"+courses);
             
             // Abfrage des zugeteilten Kurses
-            query = em.createNamedQuery("findSelectKlasseByUserId");
-            query.setParameter("paramId", c.getId());
-            List<Klasse> selectCourses = query.getResultList();
-            System.out.println("Liste des gewählten Kurses:"+courses);
-            if (selectCourses.size()!=0) c.setSelectedCourse(selectCourses.get(0));
+            if (courses.size()!=0) {
+                query = em.createNamedQuery("findKlassebyKurswunsch");
+                query.setParameter("paramWunsch1ID", courses.get(0).getId());
+                query.setParameter("paramWunsch2ID", courses.get(1).getId());
+                query.setParameter("paramWunsch3ID", courses.get(2).getId());
+                query.setParameter("paramIDSchueler", c.getId());
+                List<Klasse> selectCourses = query.getResultList();
+                System.out.println("Liste der zugeteilten Kurses:"+selectCourses);
+                if (selectCourses.size()!=0) c.setSelectedCourse(selectCourses.get(0));
+            }
             
         }
         else {

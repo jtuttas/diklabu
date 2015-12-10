@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 
 /**
@@ -13,6 +15,12 @@ import javax.persistence.Id;
  * @author Jörg
  */
 @Entity
+@NamedQueries({
+
+   @NamedQuery(name = "findKlassebyKurswunsch", query= "select k from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE JOIN Schueler s on s.ID=sk.ID_SCHUELER where (k.ID= :paramWunsch1ID OR k.ID= :paramWunsch2ID OR k.ID= :paramWunsch3ID) AND s.ID= :paramIDSchueler"),
+   @NamedQuery(name = "findKlassenbySchuelerID", query= "select k from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE  where sk.ID_SCHUELER= :paramIDSchueler")
+})
+
 public class Klasse implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id

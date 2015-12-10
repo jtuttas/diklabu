@@ -5,6 +5,7 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.entities.Klasse;
 import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
@@ -37,26 +38,49 @@ public class SchuelerManager {
      @POST   
     @Consumes(MediaType.APPLICATION_JSON)
     public SchuelerObject getSchueler(SchuelerObject so) {
-        em.getEntityManagerFactory().getCache().evictAll();
-        System.out.println ("Webservice manager/getSchueler POST:"+so.toString());
         
-        Query  query = em.createNamedQuery("findSchuelerbyNameKlasse");
-        query.setParameter("paramName", so.getName());
-        query.setParameter("paramVorname", so.getVorname());
-        query.setParameter("paramKlasse", so.getKlasse());
-        List<Schueler> schueler = query.getResultList();
-        System.out.println("Result List:"+schueler);
-        
-        if (schueler.size()!=0) {
-            so.setId(schueler.get(0).getId());
-            so.setGebDatum(schueler.get(0).getGEBDAT());
-            System.out.println("Find Schüler mit id="+schueler.get(0).getId());
-            
-            LoginSchueler ls=em.find(LoginSchueler.class, schueler.get(0).getId());
-            System.out.println("found:"+ls);
-            if (ls!=null) so.setLogin(ls.getLOGIN());
-            
-            
+        if (so.getAuth()==null) {
+            so.setSuccess(false);
+            so.setMsg("no auth");
+        }
+        else {
+            if (so.getAuth().valid()) {
+                em.getEntityManagerFactory().getCache().evictAll();
+                System.out.println ("Webservice manager/getSchueler POST:"+so.toString());
+
+                Query  query = em.createNamedQuery("findSchuelerbyNameKlasse");
+                query.setParameter("paramName", so.getName());
+                query.setParameter("paramVorname", so.getVorname());
+                query.setParameter("paramKlasse", so.getKlasse());
+                List<Schueler> schueler = query.getResultList();
+                System.out.println("Result List:"+schueler);
+
+                if (schueler.size()!=0) {
+                    so.setId(schueler.get(0).getId());
+                    so.setGebDatum(schueler.get(0).getGEBDAT());
+                    System.out.println("Find Schüler mit id="+schueler.get(0).getId());
+
+                    LoginSchueler ls=em.find(LoginSchueler.class, schueler.get(0).getId());
+                    System.out.println("found:"+ls);
+                    if (ls!=null) so.setLogin(ls.getLOGIN());
+
+                    query = em.createNamedQuery("findKlassenbySchuelerID");
+                    query.setParameter("paramIDSchueler", so.getId());
+                    List<Klasse> klassen = query.getResultList();
+                    System.out.println("Result List:"+klassen);
+                    so.setKlassen(klassen);
+                    so.setMsg("ok");
+                    so.setSuccess(true);
+                }
+                else {
+                    so.setMsg("not found");
+                    so.setSuccess(false);
+                }
+            }
+            else {
+                so.setSuccess(false);
+                so.setMsg("You are not allowed to access the service");
+            }
         }
         //return em.find(SchuelerLogin.class, schueler.get(0).getId());
          System.out.println("Sende zurück:"+so);

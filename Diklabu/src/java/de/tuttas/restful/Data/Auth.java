@@ -38,6 +38,12 @@ public class Auth {
     public void setKennwort(String kennwort) {
         this.kennwort = kennwort;
     }
+
+    public boolean valid() {
+        //TODO Admin Kennwort hier ändern
+        if (benutzer.compareTo("mmbbs")==0 && kennwort.compareTo("geheim")==0) return true;
+        return false;
+    }
     
     
 }

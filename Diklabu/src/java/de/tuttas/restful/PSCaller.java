@@ -50,7 +50,7 @@ public class PSCaller {
         System.out.println("receive POST manager/pscaller:" + pso.toString());
         if (pso.getAuth() != null) {
             Auth auth = pso.getAuth();
-            if (auth.getBenutzer().compareTo("admin")==0 && auth.getKennwort().compareTo("geheim")==0) {
+            if (auth.valid()) {
             try {
                 Runtime runtime = Runtime.getRuntime();
                 Process proc = runtime.exec("powershell " + pso.getScript());
@@ -65,7 +65,7 @@ public class PSCaller {
                 }
                 reader.close();
                 proc.getOutputStream().close();
-                out = "{\"out\":" + out + "}";
+                out = "{\"result\":" + out + "}";
                 System.out.println("out=" + out);                
                 
                 pso.setResult(out);
