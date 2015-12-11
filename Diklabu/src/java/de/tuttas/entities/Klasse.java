@@ -18,7 +18,8 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
 
    @NamedQuery(name = "findKlassebyKurswunsch", query= "select k from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE JOIN Schueler s on s.ID=sk.ID_SCHUELER where (k.ID= :paramWunsch1ID OR k.ID= :paramWunsch2ID OR k.ID= :paramWunsch3ID) AND s.ID= :paramIDSchueler"),
-   @NamedQuery(name = "findKlassenbySchuelerID", query= "select k from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE  where sk.ID_SCHUELER= :paramIDSchueler")
+   @NamedQuery(name = "findKlassenbySchuelerID", query= "select k from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE  where sk.ID_SCHUELER= :paramIDSchueler"),
+   @NamedQuery(name = "findSchuelerEinerBenanntenKlasse", query= "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE where k.KNAME like :paramNameKlasse")
 })
 
 public class Klasse implements Serializable {
@@ -107,7 +108,6 @@ public class Klasse implements Serializable {
 
     @Override
     public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
         if (!(object instanceof Klasse)) {
             return false;
         }
