@@ -26,21 +26,89 @@ import javax.ws.rs.core.MediaType;
  * Restful Webservice für die Kursbuchung (WPK Buchung)
  * @author Jörg
  */
-@Path("courseselect/booking")
+@Path("kurswahl")
 @Stateless
 public class CourseBooking {
     
     /**
      * Injection des EntityManagers
      */
-        @PersistenceContext(unitName="DiklabuPU")
+    @PersistenceContext(unitName="DiklabuPU")
     EntityManager em;
         
         /**
+     * Abfrage eines beispielhaften Login Onjektes mit Daten
+     * @return Das Anmeldeobjekt
+     */
+    @GET   
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Credential about() {
+        Credential c = new Credential();
+        c.setName("Nachname");
+        c.setVorName("Vorname");
+        c.setGebDatum(Date.valueOf("2014-12-31"));
+        return c;
+    }
+    
+    /**
+     * Bnutzernamledung am System
+     * @param c Credential Objekt mit Anmelde Daten
+     * @return das Credential Objekt mit Anmelde Daten erweiter um Attribute id, success und msg
+     */
+    @POST   
+    @Path("/login")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Credential login(Credential c) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        System.out.println ("Webservice courseselect/login"+c.toString());
+        Query  query = em.createNamedQuery("findSchuelerbyCredentials");
+        query.setParameter("paramName", c.getName());
+        query.setParameter("paramVorname", c.getVorName());
+        query.setParameter("paramGebDatum", c.getGebDatum());
+        
+        List<Schueler> pupils = query.getResultList();
+        System.out.println("Result List:"+pupils);
+        if (pupils.size()>0) {
+            c.setLogin(true);
+            c.setMsg("Anmeldung erfolgreich!");
+            c.setId(pupils.get(0).getId().intValue());
+            // Abfrage der gewählten Kurse
+            query = em.createNamedQuery("findKlasseByUserId");
+            query.setParameter("paramId", c.getId());
+            List<Klasse> courses = query.getResultList();
+            System.out.println("Liste der Wünsche:"+courses);
+            c.setCourses(courses);
+            System.out.println("Liste des gewählten Kurses:"+courses);
+            
+            // Abfrage des zugeteilten Kurses
+            if (courses.size()!=0) {
+                query = em.createNamedQuery("findKlassebyKurswunsch");
+                query.setParameter("paramWunsch1ID", courses.get(0).getId());
+                query.setParameter("paramWunsch2ID", courses.get(1).getId());
+                query.setParameter("paramWunsch3ID", courses.get(2).getId());
+                query.setParameter("paramIDSchueler", c.getId());
+                List<Klasse> selectCourses = query.getResultList();
+                System.out.println("Liste der zugeteilten Kurses:"+selectCourses);
+                if (selectCourses.size()!=0) c.setSelectedCourse(selectCourses.get(0));
+            }
+            
+        }
+        else {
+            c.setLogin(false);
+            c.setMsg("Kann Anmeldedaten nicht in der Datenbank finden!");
+        }
+        return c;
+    }
+    
+
+    
+    /**
          * Abfrage der Kuirsliste der Buchbaren Kurse
          * @return Die Liste mit Kursen (Klassen)
          */
-     @GET   
+     @GET  
+     @Path("/getcourses")
     @Consumes(MediaType.APPLICATION_JSON)
     public List<Klasse> getCourses() {
         em.getEntityManagerFactory().getCache().evictAll();
@@ -58,6 +126,7 @@ public class CourseBooking {
      * @return Das Ticketing Objekt ergänzt im msg und success Attribute
      */
     @POST   
+    @Path("/buchen")
     @Consumes(MediaType.APPLICATION_JSON)
     public Ticketing book(Ticketing t) {
         em.getEntityManagerFactory().getCache().evictAll();
@@ -105,11 +174,14 @@ public class CourseBooking {
                     }
                     else {
                         // Abfrage des zugeteilten Kurses
-                        query = em.createNamedQuery("findSelectKlasseByUserId");
-                        query.setParameter("paramId", t.getCredential().getId());
+                        query = em.createNamedQuery("findKlassebyKurswunsch");
+                        query.setParameter("paramWunsch1ID", courses.get(0).getId());
+                        query.setParameter("paramWunsch2ID", courses.get(1).getId());
+                        query.setParameter("paramWunsch3ID", courses.get(2).getId());
+                        query.setParameter("paramIDSchueler", t.getCredential().getId());
                         List<Klasse> selectCourses = query.getResultList();
-                        System.out.println("Liste des gewählten Kurses:"+courses);
-                        if (selectCourses.size()!=0) t.getCredential().setSelectedCourse(selectCourses.get(0));
+                        System.out.println("Liste der zugeteilten Kurses:"+selectCourses);
+                        if (selectCourses.size()!=0) t.getCredential().setSelectedCourse(selectCourses.get(0));                                                                        
                         t.setSuccess(false);
                         t.getCredential().setCourses(courses);
                         t.setMsg("Sie haben bereits gewählt!");

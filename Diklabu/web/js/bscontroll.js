@@ -17,7 +17,7 @@ $("#btnAbfragen").click(function () {
             gebDatum: $("#gebDatumAbfragen").val()
         };
         $.ajax({
-            url: SERVER + "/Diklabu/api/v1/courseselect/login",
+            url: SERVER + "/Diklabu/api/v1/kurswahl/login",
             type: "POST",
             contentType: "application/json; charset=UTF-8",
             dataType: "json",
@@ -89,7 +89,7 @@ $("#btnWaehlen").click(function () {
             };
             console.log("ticketing=" + JSON.stringify(ticketing));
             $.ajax({
-                url: SERVER + "/Diklabu/api/v1/courseselect/booking",
+                url: SERVER + "/Diklabu/api/v1/kurswahl/buchen",
                 type: "POST",
                 contentType: "application/json; charset=UTF-8",
                 dataType: "json",
@@ -141,7 +141,7 @@ $("#btnWaehlen").click(function () {
 
 function getCourseList() {
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/courseselect/booking",
+        url: SERVER + "/Diklabu/api/v1/kurswahl/getcourses",
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         dataType: "json",

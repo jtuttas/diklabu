@@ -18,7 +18,7 @@ $(document).ready(function () {
         };
         console.log(JSON.stringify(pupil));
         $.ajax({
-            url: SERVER + "/Diklabu/api/v1/courseselect/login",
+            url: SERVER + "/Diklabu/api/v1/kurswahl/login",
             type: "POST",
             data: JSON.stringify(pupil),
             contentType: "application/json; charset=UTF-8",
@@ -67,7 +67,7 @@ $(document).ready(function () {
            };
             console.log("ticketing=" + JSON.stringify(ticketing));
             $.ajax({
-            url: SERVER + "/Diklabu/api/v1/courseselect/booking",
+            url: SERVER + "/Diklabu/api/v1/kurswahl/buchen",
             type: "POST",
             contentType: "application/json; charset=UTF-8",
             dataType: "json",
@@ -179,7 +179,7 @@ $("#about").on("pagebeforeshow", function (e) {
 
 function getCourseList() {
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/courseselect/booking",
+        url: SERVER + "/Diklabu/api/v1/kurswahl/getcourses",
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         dataType: "json",
