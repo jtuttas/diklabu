@@ -28,14 +28,27 @@ import javax.persistence.NamedQuery;
 })
 public class Anwesenheit implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Id
-    private Integer id;
+    
     private Integer ID_SCHUELER;
+    @Id
     private Timestamp DATUM;
     @Column(length=3)
     private String ID_LEHRER;
     private String VERMERK;
 
+    public Anwesenheit() {
+    }
+
+    
+    
+    public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM, String ID_LEHRER, String VERMERK) {
+        this.ID_SCHUELER = ID_SCHUELER;
+        this.DATUM = DATUM;
+        this.ID_LEHRER = ID_LEHRER;
+        this.VERMERK = VERMERK;
+    }
+
+    
     public void setDATUM(Timestamp DATUM) {
         this.DATUM = DATUM;
     }
@@ -70,37 +83,6 @@ public class Anwesenheit implements Serializable {
     
     
     
-    public Integer getId() {
-        return id;
-    }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        // TODO: Warning - this method won't work in the case the id fields are not set
-        if (!(object instanceof Anwesenheit)) {
-            return false;
-        }
-        Anwesenheit other = (Anwesenheit) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public String toString() {
-        return "de.tuttas.entities.Anwesenheit[ id=" + id + " ]";
-    }
     
 }

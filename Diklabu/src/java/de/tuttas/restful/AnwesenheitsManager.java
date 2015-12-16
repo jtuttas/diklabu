@@ -29,6 +29,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -44,6 +45,27 @@ public class AnwesenheitsManager {
      */
     @PersistenceContext(unitName="DiklabuPU")
     EntityManager em;
+    
+    @GET   
+    public AnwesenheitEintrag getAnwesenheit() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        Timestamp d1 = new Timestamp(cal.getTimeInMillis());
+        AnwesenheitEintrag ae = new AnwesenheitEintrag(d1, "TU", 0, "a");
+        return ae;        
+    }
+    
+    @POST
+    public AnwesenheitEintrag setAnwesenheit(AnwesenheitEintrag ae) {
+        System.out.println("POST Anwesenheitseintrag = "+ae.toString());
+        Anwesenheit a = new Anwesenheit(ae.getID_SCHUELER(), ae.getDATUM(), ae.getID_LEHRER(),ae.getVERMERK());
+        em.persist(a);
+        return ae;
+    }
+    
     
     @GET   
     @Path("/{klasse}")
