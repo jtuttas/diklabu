@@ -62,7 +62,17 @@ public class AnwesenheitsManager {
     public AnwesenheitEintrag setAnwesenheit(AnwesenheitEintrag ae) {
         System.out.println("POST Anwesenheitseintrag = "+ae.toString());
         Anwesenheit a = new Anwesenheit(ae.getID_SCHUELER(), ae.getDATUM(), ae.getID_LEHRER(),ae.getVERMERK());
-        em.persist(a);
+        Query  q = em.createNamedQuery("findAnwesenheitbyDatumAndSchuelerID");
+        q.setParameter("paramDatum", ae.getDATUM());
+        q.setParameter("paramSchuelerID", ae.getID_SCHUELER());        
+        List<Anwesenheit> anw = q.getResultList();
+        if (anw.size()!=0) {
+            System.out.println("Es gibt schon einen Eintrag, also updaten");
+            em.merge(a);
+        }
+        else {
+            em.persist(a);
+        }
         return ae;
     }
     
