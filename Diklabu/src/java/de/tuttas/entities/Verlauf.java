@@ -29,12 +29,10 @@ import org.apache.jasper.Constants;
 public class Verlauf implements Serializable {
     private static final long serialVersionUID = 1L;
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Id
     private Integer ID;
-    @Id
     private int ID_KLASSE;
-    @Id
     private Timestamp DATUM;
-    @Id
     private String STUNDE;
     private String ID_LEHRER;
     private String ID_LERNFELD;
@@ -134,7 +132,6 @@ public class Verlauf implements Serializable {
     
     
 
-    /*
     @Override
     public int hashCode() {
         int hash = 0;
@@ -154,10 +151,10 @@ public class Verlauf implements Serializable {
         }
         return true;
     }
-    */
+
     @Override
     public String toString() {
-        return "de.tuttas.entities.Verlauf[ Datum=" + DATUM + " Klasse="+ID_KLASSE+" Stunde="+STUNDE+"]";
+        return "de.tuttas.entities.Verlauf[ ID="+ID+" Datum=" + DATUM + " Klasse="+ID_KLASSE+" Stunde="+STUNDE+"]\n";
     }
     
 }
