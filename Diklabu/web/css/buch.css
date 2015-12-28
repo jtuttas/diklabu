@@ -3,4 +3,10 @@ background-image: url("../img/diklabuheader.png");
 background-size: cover;
 color: #ffffff;
 }
+.mypassword {
+    height: 34px;
+}
 
+.mybutton {
+    margin-top: 6px;
+}

@@ -3,6 +3,7 @@ var idKlasse;
 // Eingeloggter Lehrer
 var myself = "TU";
 
+
 $("#eintragDatum").datepicker("setDate", "+0");
 var today = new Date();
 $("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
@@ -56,6 +57,20 @@ $.ajax({
     },
     error: function () {
         toastr["error"]("kann Lernfelder nicht vom Server laden", "Fehler!");
+    }
+});
+$.ajax({
+    url: SERVER + "/Diklabu/api/v1/lehrer",
+    type: "GET",
+    contentType: "application/json; charset=UTF-8",
+    success: function (data) {
+        $("#lehrer").empty();
+        for (i = 0; i < data.length; i++) {
+            $("#lehrer").append("<option >" + data[i].id + "</option>");
+        }
+    },
+    error: function () {
+        toastr["error"]("kann Lehrerliste nicht vom Server laden", "Fehler!");
     }
 });
 

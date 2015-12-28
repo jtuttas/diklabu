@@ -20,7 +20,7 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-   @NamedQuery(name = "findAllTeachers", query= "select l from Lehrer l"),   
+   @NamedQuery(name = "findAllTeachers", query= "select l from Lehrer l ORDER BY l.id"),   
 })
 public class Lehrer implements Serializable {
     private static final long serialVersionUID = 1L;

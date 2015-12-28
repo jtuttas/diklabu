@@ -11,9 +11,9 @@
         <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
         <!-- Custom Fonts -->
         <link rel="stylesheet" href="css/datepicker.css"/>
-        
+
         <!-- Plugin CSS -->
-        
+
         <!-- Custom CSS -->
         <link rel="stylesheet" href="css/buch.css" type="text/css"/>
         <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -29,13 +29,33 @@
     </head>
     <body id="page-top">
         <div class="container-fluid">
-            <div class="row">
+            <div class="row">                
                 <div class="jumbotron"><h1>Diklabu@MMBbS</h1>
                     <div class="row">
-                        <div class="col-md-5">
-
+                        <div class="col-md-1">
+                            <label for="lehrer">Kürzel</label>
+                            <select class="form-control" id="lehrer">
+                            </select>
                         </div>
+                        <div class="col-md-2">
+                            
+                                <label for="kennwort" >
+                                    Kennwort
+                                </label>
+                                <input type="password" class="form-control mypassword" id="kennwort">
+                            
+                        </div>
+                        <div class="col-md-1">
+                            
+                            
+                            <br>
+                            <button id="login" type="button" class="btn  btn-success mybutton">Login</button>                                                    
+                            
+                        </div>
+
                         <div class="col-md-3">
+                        </div>
+                        <div class="col-md-1">
                             <label for="klassen">Klassen</label>
                             <select class="form-control" id="klassen">
                             </select>
@@ -50,7 +70,7 @@
                         </div>
                         <div class="col-md-1">
                             <br>
-                            <button id="dokumentation" type="button" class="btn  btn-success">Dokumentation</button>
+                            <button id="dokumentation" type="button" class="btn  btn-success mybutton">Dokumentation</button>
                         </div>
                     </div>
                 </div>
@@ -161,7 +181,11 @@
                     </table>
                 </div>
             </div>
+
+
+
         </div>   
+
 
 
         <!-- jQuery -->
@@ -195,9 +219,9 @@
                 todayHighlight: true
             });
         </script>
-        
-         <!-- bootbox code -->
-    <script src="js/bootbox.min.js"></script>
+
+        <!-- bootbox code -->
+        <script src="js/bootbox.min.js"></script>
 
         <script src="js/config.js"></script>
         <script src="js/diklabu-startup.js"></script>

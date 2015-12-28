@@ -8,6 +8,7 @@ package de.tuttas.servlets;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
@@ -22,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+
 import java.util.Date;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -95,8 +97,15 @@ public class DokuServlet extends HttpServlet {
                 Document document = new Document();
                 
     
+            
+
+                
                 /* Basic PDF Creation inside servlet */
                 PdfWriter writer = PdfWriter.getInstance(document, out);
+
+                
+                                
+
                 StringBuilder htmlString = new StringBuilder();
 
                 /* Nun das Template laden */
@@ -119,13 +128,13 @@ public class DokuServlet extends HttpServlet {
                  */
                 htmlString.append("<table border='1' align='center' width='100%'>");
                 htmlString.append("<tr>");
-                htmlString.append("<td rowspan=\"3\">Logo</td>");
+                htmlString.append("<td rowspan=\"3\" width='150px'></td>");
                 htmlString.append("<td align='center'><h2>Multi Media Berufsbildende Schulen Hannover</h2></td>");
                 htmlString.append("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Unterrichtsverlauf</b></td>");
                 htmlString.append("</tr>");
                 htmlString.append("<tr>");
                 htmlString.append("<td  align='center' rowspan=\"2\"><h3>Klasse/ Kurs: " + kl.getKNAME() + "</h3></td>");
-                htmlString.append("<td  >Verantwortlicher: " + kl.getID_LEHRER() + "</td>");
+                htmlString.append("<td  style=\"font-size: 11;\">Verantwortlicher: " + kl.getID_LEHRER() + "</td>");
                 htmlString.append("<td  style=\"font-size: 11;\">geprüft</td>");
                 htmlString.append("</tr>");
                 htmlString.append("<tr>");
@@ -133,10 +142,11 @@ public class DokuServlet extends HttpServlet {
                 Calendar c = df.getCalendar();
                 c.setTimeInMillis(System.currentTimeMillis());
                 String dat = c.get(Calendar.DAY_OF_MONTH) + "." + (c.get(Calendar.MONTH) + 1) + "." + c.get(Calendar.YEAR);
-                htmlString.append("<td  >Ausdruck am: " + dat + "</td>");
+                htmlString.append("<td  style=\"font-size: 11;\">Ausdruck am: " + dat + "</td>");
                 htmlString.append("<td  style=\"font-size: 11;\">Datum</td>");
                 htmlString.append("</tr>");
                 htmlString.append("</table>");
+                htmlString.append("<p>&nbsp;</p>");
                 
                 /* Verlauf einfügen */
                 Query query = em.createNamedQuery("findVerlaufbyKlasse");        
@@ -157,28 +167,28 @@ public class DokuServlet extends HttpServlet {
                 
                 List<Verlauf> verlauf = query.getResultList();
                 System.out.println("Result List:" + verlauf);
-                htmlString.append("<table border='1' align='center' width='100%'>");
-                    htmlString.append("<tr>");
-                    htmlString.append("<td width='12%' style=\"font-size: 11;\">Datum</td>");
-                    htmlString.append("<td width='3%' style=\"font-size: 11;\">LK</td>");
-                    htmlString.append("<td width='3%' style=\"font-size: 11;\">LF</td>");
-                    htmlString.append("<td width='7%' style=\"font-size: 11;\">Stunde</td>");
-                    htmlString.append("<td style=\"font-size: 11;\">Inhalt</td>");
-                    htmlString.append("<td style=\"font-size: 11;\">Bemerkungen</td>");
-                    htmlString.append("<td style=\"font-size: 11;\">Lernsituation</td>");
+                htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
+                    htmlString.append("<tr >");
+                    htmlString.append("<td  width='12%' style=\"font-size: 11;border: 1px solid black; \"><b>Datum</b></td>");
+                    htmlString.append("<td  width='3%' style=\"font-size: 11;border: 1px solid black;\"><b>LK</b></td>");
+                    htmlString.append("<td  width='3%' style=\"font-size: 11;border: 1px solid black;\"><b>LF</b></td>");
+                    htmlString.append("<td  width='7%' style=\"font-size: 11;border: 1px solid black;\"><b>Stunde</b></td>");
+                    htmlString.append("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Inhalt</b></td>");
+                    htmlString.append("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Bemerkungen</b></td>");
+                    htmlString.append("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Lernsituation</b></td>");
                     
 
                     htmlString.append("</tr>");
                 for (Verlauf v : verlauf) {
                     htmlString.append("<tr>");
                     String str=v.getDATUM().toString();
-                    htmlString.append("<td width='12%' style=\"font-size: 11;\">"+str.substring(0,str.indexOf(" "))+"</td>");
-                    htmlString.append("<td width='3%' style=\"font-size: 11;\">"+v.getID_LEHRER()+"</td>");
-                    htmlString.append("<td width='3%' style=\"font-size: 11;\">"+v.getID_LERNFELD()+"</td>");
-                    htmlString.append("<td width='7%' style=\"font-size: 11;\">"+v.getSTUNDE()+"</td>");
-                    htmlString.append("<td style=\"font-size: 11;\">"+v.getINHALT()+"</td>");
-                    htmlString.append("<td style=\"font-size: 11;\">"+v.getBEMERKUNG()+"</td>");
-                    htmlString.append("<td style=\"font-size: 11;\">"+v.getAUFGABE()+"</td>");
+                    htmlString.append("<td width='12%' style=\"font-size: 11;border: 1px solid black;\">"+str.substring(0,str.indexOf(" "))+"</td>");
+                    htmlString.append("<td width='3%' style=\"font-size: 11;border: 1px solid black;\">"+v.getID_LEHRER()+"</td>");
+                    htmlString.append("<td width='3%' style=\"font-size: 11;border: 1px solid black;\">"+v.getID_LERNFELD()+"</td>");
+                    htmlString.append("<td width='7%' style=\"font-size: 11;border: 1px solid black;\">"+v.getSTUNDE()+"</td>");
+                    htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">"+v.getINHALT()+"</td>");
+                    htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">"+v.getBEMERKUNG()+"</td>");
+                    htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">"+v.getAUFGABE()+"</td>");
                     
 
                     htmlString.append("</tr>");
@@ -191,6 +201,12 @@ public class DokuServlet extends HttpServlet {
                 document.open();
                 //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
                 InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+                // Bild einfügen
+            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            Image image = Image.getInstance(url);
+            image.setAbsolutePosition(45f, 720f);
+            image.scalePercent(50f);
+            document.add(image);
                 
                 XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
                 document.close();

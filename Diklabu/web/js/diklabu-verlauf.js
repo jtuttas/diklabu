@@ -53,6 +53,9 @@ $("#addVerlauf").click(function () {
             data: JSON.stringify(myData),
             success: function (data) {
                 refreshVerlauf($("#klassen").val());
+                var i = $("#stunde").prop('selectedIndex');
+                i++;
+                $("#stunde").prop('selectedIndex', i);
             },
             error: function () {
                 toastr["error"]("kann Datensatz nicht eintragen", "Fehler!");
