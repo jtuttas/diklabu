@@ -11,6 +11,10 @@ $("#deleteVerlauf").click(function () {
             $.ajax({
                 url: SERVER + "/Diklabu/api/v1/verlauf/" + idVerlauf,
                 type: "DELETE",
+                headers: {
+                    "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+                    "auth_token": sessionStorage.auth_token
+                },
                 contentType: "application/json; charset=UTF-8",
                 success: function (data) {
                     $("#lernsituationVerlauf").val("");
@@ -20,8 +24,8 @@ $("#deleteVerlauf").click(function () {
                     $("#deleteVerlauf").addClass("disabled");
                     refreshVerlauf($("#klassen").val());
                 },
-                error: function () {
-                    toastr["error"]("kann Datensatz nicht löschen", "Fehler!");
+                error: function (xhr, textStatus, errorThrown) {
+                    toastr["error"]("kann Datensatz nicht löschen! Status Code="+xhr.status, "Fehler!");
                 }
             });
         }
@@ -38,7 +42,7 @@ $("#addVerlauf").click(function () {
             "BEMERKUNG": $("#bemerkungVerlauf").val(),
             "DATUM": $("#eintragDatum").val() + "T00:00:00",
             "ID_KLASSE": idKlasse,
-            "ID_LEHRER": "TU",
+            "ID_LEHRER": sessionStorage.myself,
             "ID_LERNFELD": $("#lernfelder").val(),
             "INHALT": $("#inhaltVerlauf").val(),
             "STUNDE": $("#stunde").val()
@@ -50,6 +54,10 @@ $("#addVerlauf").click(function () {
             url: SERVER + "/Diklabu/api/v1/verlauf",
             type: "POST",
             contentType: "application/json; charset=UTF-8",
+            headers: {
+                "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+                "auth_token": sessionStorage.auth_token
+            },
             data: JSON.stringify(myData),
             success: function (data) {
                 refreshVerlauf($("#klassen").val());
@@ -57,8 +65,8 @@ $("#addVerlauf").click(function () {
                 i++;
                 $("#stunde").prop('selectedIndex', i);
             },
-            error: function () {
-                toastr["error"]("kann Datensatz nicht eintragen", "Fehler!");
+            error: function (xhr, textStatus, errorThrown) {
+                toastr["error"]("kann Datensatz nicht eintragen! Status Code="+xhr.status, "Fehler!");
             }
         });
     }
@@ -76,7 +84,7 @@ $("#updateVerlauf").click(function () {
             "BEMERKUNG": $("#bemerkungVerlauf").val(),
             "DATUM": $("#eintragDatum").val() + "T00:00:00",
             "ID_KLASSE": idKlasse,
-            "ID_LEHRER": "TU",
+            "ID_LEHRER": sessionStorage.myself,
             "ID_LERNFELD": $("#lernfelder").val(),
             "INHALT": $("#inhaltVerlauf").val(),
             "STUNDE": $("#stunde").val()
@@ -88,12 +96,16 @@ $("#updateVerlauf").click(function () {
             url: SERVER + "/Diklabu/api/v1/verlauf",
             type: "POST",
             contentType: "application/json; charset=UTF-8",
+            headers: {
+                "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+                "auth_token": sessionStorage.auth_token
+            },
             data: JSON.stringify(myData),
             success: function (data) {
                 refreshVerlauf($("#klassen").val());
             },
-            error: function () {
-                toastr["error"]("kann Datensatz nicht eintragen", "Fehler!");
+            error: function (xhr, textStatus, errorThrown) {
+                toastr["error"]("kann Datensatz nicht eintragen! Status Code="+xhr.status, "Fehler!");
             }
         });
     }

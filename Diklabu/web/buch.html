@@ -72,7 +72,15 @@
                         </div>
                         <div class="col-md-1">
                             <br>
-                            <button id="dokumentation" type="button" class="btn  btn-success mybutton disabled">Dokumentation</button>
+                            <form action="/Diklabu/DokuServlet" target="_blank" method="POST" role="form" class="form-horizontal">
+                                <input type="hidden" name="cmd" value="verlauf">
+                                <input type="hidden" name="auth_token" id="auth_token">
+                                <input type="hidden" name="service_key" id="service_key">
+                                <input type="hidden" name="idklasse" id="idklasse">
+                                <input type="hidden" name="from" id="from">
+                                <input type="hidden" name="to" id="to">
+                            <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
+                            </form>
                         </div>
                     </div>
                 </div>
