@@ -31,13 +31,8 @@ $("#login").click(function () {
             data: JSON.stringify(myData),
             success: function (jsonObj, textStatus, xhr) {
                 sessionStorage.auth_token = jsonObj.auth_token;
-                $("#auth_token").val(jsonObj.auth_token);
-                $("#service_key").val($("#lehrer").val() + "f80ebc87-ad5c-4b29-9366-5359768df5a1");
-                $("#idklasse").val(idKlasse);
-                $("#from").val($("#startDate").val());
-                $("#to").val($("#endDate").val());
                 console.log("Thoken = " + jsonObj.auth_token);
-                
+
                 toastr["success"]("Login erfolgreich", "Info!");
                 sessionStorage.myself = $("#lehrer").val();
                 loggedIn();
@@ -76,11 +71,11 @@ $("#login").click(function () {
                 loggedOut();
             },
             error: function (xhr, textStatus, errorThrown) {
-                toastr["error"]("Logout fehlgeschlagen!Status Code="+xhr.status, "Fehler!");
+                toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
                 console.log("HTTP Status: " + xhr.status);
                 console.log("Error textStatus: " + textStatus);
                 console.log("Error thrown: " + errorThrown);
-                if (xhr.status=401) {
+                if (xhr.status = 401) {
                     loggedOut();
                 }
             }
@@ -101,6 +96,7 @@ $.ajax({
         }
         nameKlasse = data[0].KNAME;
         idKlasse = data[0].id;
+         $("#idklasse").val(idKlasse);
         if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
             refreshVerlauf(nameKlasse);
         }
@@ -182,7 +178,7 @@ function refreshVerlauf(kl) {
             });
         },
         error: function (xhr, textStatus, errorThrown) {
-            toastr["error"]("kann Verlauf nicht vom Server laden! Status Code="+xhr.status, "Fehler!");
+            toastr["error"]("kann Verlauf nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
         }
     });
 }
@@ -214,7 +210,7 @@ function loggedIn() {
     $("#inputVerlaufContainer").show();
     $('#startDate').datepicker().on('changeDate', function (ev) {
         refreshVerlauf($("#klassen").val());
-       $("#from").val($("#startDate").val());
+        $("#from").val($("#startDate").val());
 
     });
     $('#endDate').datepicker().on('changeDate', function (ev) {
@@ -228,4 +224,9 @@ function loggedIn() {
         $("#idklasse").val(idKlasse);
 
     });
+    $("#auth_token").val(sessionStorage.auth_token);
+    $("#service_key").val(sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1");
+    $("#idklasse").val(idKlasse);
+    $("#from").val($("#startDate").val());
+    $("#to").val($("#endDate").val());
 }
