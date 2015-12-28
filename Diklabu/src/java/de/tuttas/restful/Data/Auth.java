@@ -44,6 +44,13 @@ public class Auth {
         if (benutzer.compareTo("mmbbs")==0 && kennwort.compareTo("geheim")==0) return true;
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "Auth username="+benutzer+" kennwort="+kennwort;
+    }
+    
+    
     
     
 }

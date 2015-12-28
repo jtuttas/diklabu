@@ -42,14 +42,6 @@ public class KlassenManager {
         return schueler;  
     }
 
-    @GET   
-    public List<Klasse> getClasses() {
-        System.out.println ("Webservice klasse GET");
-        
-        Query  query = em.createNamedQuery("findAllKlassen");        
-        List<Klasse> klassen = query.getResultList();
-        System.out.println("Result List:"+klassen);
-        return klassen;  
-    }
+   
 
 }
