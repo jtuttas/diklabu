@@ -161,7 +161,7 @@ public class DokuServlet extends HttpServlet {
                         parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
                         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
                     }
-                    response.addHeader("Content-Disposition", "attachment; filename=verlauf_"+kl.getKNAME()+"_"+new java.sql.Date(parsedFrom.getTime()).toString()+"-"+parsedTo.toString()+".pdf");
+                    response.addHeader("Content-Disposition", "attachment; filename=verlauf_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
 
                     List<Verlauf> verlauf = query.getResultList();
                     System.out.println("Result List:" + verlauf);
@@ -177,9 +177,10 @@ public class DokuServlet extends HttpServlet {
                     tagZeile += ("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Lernsituation</b></td>");
                     tagZeile += ("</tr>");
                     htmlString.append(tagZeile);
-                    
+
                     String tag = " ";
                     document.open();
+                    boolean firstPage = true;
                     for (Verlauf v : verlauf) {
                         String str = v.getDATUM().toString();
                         if (str.compareTo(tag) == 0) {
@@ -191,10 +192,12 @@ public class DokuServlet extends HttpServlet {
                             htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getBEMERKUNG() + "</td>");
                             htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getAUFGABE() + "</td>");
                             htmlString.append("</tr>");
+
                         } // ein neuer Tag
                         else {
+
                             // Jede Woche eine neue Seite!
-                            if (v.getWochentag().compareTo("Mo.") == 0) {
+                            if (!firstPage && v.getWochentag().compareTo("Mo.") == 0) {
                                 htmlString.append("</table>");
                                 System.out.println("html String=" + htmlString.toString());
                                 //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
@@ -216,7 +219,15 @@ public class DokuServlet extends HttpServlet {
                             htmlString.append("<tr>");
                             htmlString.append("<td colspan=\"6\" align=\"center\" style=\"background-color: #cccccc; padding:4px;border: 1px solid black;\">" + v.getWochentag() + " " + str.substring(0, str.indexOf(" ")) + "</td>");
                             htmlString.append("</tr>");
-
+                            htmlString.append("<tr>");
+                            htmlString.append("<td width='3%' style=\"font-size: 11;border: 1px solid black;\">" + v.getID_LEHRER() + "</td>");
+                            htmlString.append("<td width='5%' style=\"font-size: 11;border: 1px solid black;\">" + v.getID_LERNFELD() + "</td>");
+                            htmlString.append("<td width='7%' style=\"font-size: 11;border: 1px solid black;\">" + v.getSTUNDE() + "</td>");
+                            htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getINHALT() + "</td>");
+                            htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getBEMERKUNG() + "</td>");
+                            htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getAUFGABE() + "</td>");
+                            htmlString.append("</tr>");
+                            firstPage = false;
                             tag = str;
                         }
                     }
