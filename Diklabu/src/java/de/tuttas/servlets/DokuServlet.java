@@ -179,6 +179,7 @@ public class DokuServlet extends HttpServlet {
                     htmlString.append(tagZeile);
 
                     String tag = " ";
+                    int kw =-1;
                     document.open();
                     boolean firstPage = true;
                     for (Verlauf v : verlauf) {
@@ -195,9 +196,10 @@ public class DokuServlet extends HttpServlet {
 
                         } // ein neuer Tag
                         else {
-
+                            if (kw==-1) kw=v.getKw();
                             // Jede Woche eine neue Seite!
-                            if (!firstPage && v.getWochentag().compareTo("Mo.") == 0) {
+                            if (!firstPage && kw!=v.getKw()) {
+                                kw=v.getKw();
                                 htmlString.append("</table>");
                                 System.out.println("html String=" + htmlString.toString());
                                 //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
@@ -217,7 +219,7 @@ public class DokuServlet extends HttpServlet {
                                 System.out.println("weiter mit neuer Seite");
                             }
                             htmlString.append("<tr>");
-                            htmlString.append("<td colspan=\"6\" align=\"center\" style=\"background-color: #cccccc; padding:4px;border: 1px solid black;\">" + v.getWochentag() + " " + str.substring(0, str.indexOf(" ")) + "</td>");
+                            htmlString.append("<td colspan=\"6\" align=\"center\" style=\"background-color: #cccccc; padding:4px;border: 1px solid black;\">KW " + v.getKw()+" / "+v.getWochentag() + " " + str.substring(0, str.indexOf(" ")) + "</td>");
                             htmlString.append("</tr>");
                             htmlString.append("<tr>");
                             htmlString.append("<td width='3%' style=\"font-size: 11;border: 1px solid black;\">" + v.getID_LEHRER() + "</td>");

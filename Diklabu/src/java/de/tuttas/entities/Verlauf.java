@@ -48,7 +48,20 @@ public class Verlauf implements Serializable {
     
     @Transient
     private String Wochentag;
+    @Transient
+    private int kw;
 
+    public void setKw(int kw) {
+        this.kw = kw;
+    }
+
+    public int getKw() {
+        Calendar c = Calendar.getInstance();
+        c.setTime(DATUM);
+        return c.get(Calendar.WEEK_OF_YEAR);
+    }
+
+    
     public void setWochentag(String Wochentag) {
         this.Wochentag = Wochentag;
     }
