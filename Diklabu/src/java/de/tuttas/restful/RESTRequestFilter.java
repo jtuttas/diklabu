@@ -40,6 +40,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
 
         } else {
             if (!demoAuthenticator.isServiceKeyValid(serviceKey)) {
+                log.info("no Service Key found");
                 // Kick anyone without a valid service key
                 requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 

@@ -30,7 +30,13 @@
     <body id="page-top">
         <div class="container-fluid">
             <div class="row">                
-                <div class="jumbotron"><h1>Diklabu@MMBbS</h1>
+                <div class="jumbotron">
+                    <div class="row">
+                        <div class="col-md-offset-11">
+                            <p id="version">&nbsp;</p>
+                        </div>
+                    </div>
+                    <h1>Diklabu@MMBbS</h1>
                     <div class="row">
                         <div class="col-md-1">
                             <div  id="kuerzelContainer">
@@ -55,9 +61,9 @@
                             
                         </div>
 
-                        <div class="col-md-3">
-                        </div>
                         <div class="col-md-1">
+                        </div>
+                        <div class="col-md-3">
                             <label for="klassen">Klassen</label>
                             <select class="form-control" id="klassen">
                             </select>
@@ -236,6 +242,9 @@
         <script src="js/bootbox.min.js"></script>
 
         <script src="js/config.js"></script>
+        <script>
+            $("#version").text(VERSION);
+        </script>
         <script src="js/diklabu-startup.js"></script>
         <script src="js/diklabu-verlauf.js"></script>
     </body>

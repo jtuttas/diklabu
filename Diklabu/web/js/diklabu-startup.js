@@ -15,15 +15,18 @@ if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "unde
 $("#login").click(function () {
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {
         var myData = {
-            "benutzer": $("#lehrer").val(),
+            "benutzer": $('#lehrer').find(":selected").attr("idplain"),
             "kennwort": $("#kennwort").val()
         };
-
+        console.log("idplain = "+$('#lehrer').find(":selected").attr("idplain"));
+        sessionStorage.service_key=$('#lehrer').find(":selected").attr("idplain")+ "f80ebc87-ad5c-4b29-9366-5359768df5a1";
+        console.log("Service key ="+sessionStorage.service_key);
+        
         $.ajax({
             cache: false,
             contentType: "application/json; charset=UTF-8",
             headers: {
-                "service_key": $("#lehrer").val() + "f80ebc87-ad5c-4b29-9366-5359768df5a1"
+                "service_key": sessionStorage.service_key
             },
             dataType: "json",
             url: "/Diklabu/api/v1/auth/login/",
@@ -34,7 +37,8 @@ $("#login").click(function () {
                 console.log("Thoken = " + jsonObj.auth_token);
 
                 toastr["success"]("Login erfolgreich", "Info!");
-                sessionStorage.myself = $("#lehrer").val();
+                sessionStorage.myselfplain = $('#lehrer').find(":selected").attr("idplain");
+                sessionStorage.myself=$('#lehrer').val();
                 loggedIn();
                 nameKlasse = $("#klassen").val();
                 refreshVerlauf(nameKlasse);
@@ -57,7 +61,7 @@ $("#login").click(function () {
             cache: false,
             contentType: "application/json; charset=UTF-8",
             headers: {
-                "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+                "service_key": sessionStorage.service_key,
                 "auth_token": sessionStorage.auth_token
             },
             dataType: "json",
@@ -127,7 +131,7 @@ $.ajax({
     success: function (data) {
         $("#lehrer").empty();
         for (i = 0; i < data.length; i++) {
-            $("#lehrer").append("<option >" + data[i].id + "</option>");
+            $("#lehrer").append("<option idplain="+data[i].idplain+">" + data[i].id + "</option>");
         }
     },
     error: function () {
@@ -140,8 +144,9 @@ function refreshVerlauf(kl) {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/verlauf/" + kl + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
         type: "GET",
+         cache: false,
         headers: {
-            "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+            "service_key": sessionStorage.service_key,
             "auth_token": sessionStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
@@ -149,7 +154,7 @@ function refreshVerlauf(kl) {
             verlauf = data;
             $("#tabelleVerlauf").empty();
             for (i = 0; i < data.length; i++) {
-                var datum = data[i].DATUM;
+                var datum = data[i].wochentag+" "+data[i].DATUM;
                 datum = datum.substring(0, datum.indexOf('T'));
                 if (data[i].ID_LEHRER == sessionStorage.myself) {
                     $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' class='success'><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
@@ -225,7 +230,7 @@ function loggedIn() {
 
     });
     $("#auth_token").val(sessionStorage.auth_token);
-    $("#service_key").val(sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1");
+    $("#service_key").val(sessionStorage.service_key);
     $("#idklasse").val(idKlasse);
     $("#from").val($("#startDate").val());
     $("#to").val($("#endDate").val());

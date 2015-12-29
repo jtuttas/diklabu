@@ -4,32 +4,36 @@ var idVerlauf;
 var verlauf;
 
 $("#deleteVerlauf").click(function () {
-    console.log(" Verlaufseintrag ID=" + idVerlauf + " löschen!");
-    bootbox.confirm("Sind Sie sicher, dass Sie den Entrag löschen wollen?", function (result) {
-        console.log(result);
-        if (result) {
-            $.ajax({
-                url: SERVER + "/Diklabu/api/v1/verlauf/" + idVerlauf,
-                type: "DELETE",
-                headers: {
-                    "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
-                    "auth_token": sessionStorage.auth_token
-                },
-                contentType: "application/json; charset=UTF-8",
-                success: function (data) {
-                    $("#lernsituationVerlauf").val("");
-                    $("#bemerkungVerlauf").val("");
-                    $("#inhaltVerlauf").val("");
-                    $("#updateVerlauf").addClass("disabled");
-                    $("#deleteVerlauf").addClass("disabled");
-                    refreshVerlauf($("#klassen").val());
-                },
-                error: function (xhr, textStatus, errorThrown) {
-                    toastr["error"]("kann Datensatz nicht löschen! Status Code="+xhr.status, "Fehler!");
+    if (!$("#deleteVerlauf").hasClass("disabled")) {
+        console.log(" Verlaufseintrag ID=" + idVerlauf + " löschen!");
+        if (idVerlauf != undefined) {
+            bootbox.confirm("Sind Sie sicher, dass Sie den Entrag löschen wollen?", function (result) {
+                console.log(result);
+                if (result) {
+                    $.ajax({
+                        url: SERVER + "/Diklabu/api/v1/verlauf/" + idVerlauf,
+                        type: "DELETE",
+                        headers: {
+                            "service_key": sessionStorage.service_key,
+                            "auth_token": sessionStorage.auth_token
+                        },
+                        contentType: "application/json; charset=UTF-8",
+                        success: function (data) {
+                            $("#lernsituationVerlauf").val("");
+                            $("#bemerkungVerlauf").val("");
+                            $("#inhaltVerlauf").val("");
+                            $("#updateVerlauf").addClass("disabled");
+                            $("#deleteVerlauf").addClass("disabled");
+                            refreshVerlauf($("#klassen").val());
+                        },
+                        error: function (xhr, textStatus, errorThrown) {
+                            toastr["error"]("kann Datensatz nicht löschen! Status Code=" + xhr.status, "Fehler!");
+                        }
+                    });
                 }
             });
         }
-    });
+    }
 });
 $("#addVerlauf").click(function () {
     if ($("#inhaltVerlauf").val() == "") {
@@ -55,7 +59,7 @@ $("#addVerlauf").click(function () {
             type: "POST",
             contentType: "application/json; charset=UTF-8",
             headers: {
-                "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+                "service_key": sessionStorage.service_key,
                 "auth_token": sessionStorage.auth_token
             },
             data: JSON.stringify(myData),
@@ -66,7 +70,7 @@ $("#addVerlauf").click(function () {
                 $("#stunde").prop('selectedIndex', i);
             },
             error: function (xhr, textStatus, errorThrown) {
-                toastr["error"]("kann Datensatz nicht eintragen! Status Code="+xhr.status, "Fehler!");
+                toastr["error"]("kann Datensatz nicht eintragen! Status Code=" + xhr.status, "Fehler!");
             }
         });
     }
@@ -74,6 +78,7 @@ $("#addVerlauf").click(function () {
 
 
 $("#updateVerlauf").click(function () {
+    if (!$("#updateVerlauf").hasClass("disabled")) {
     if ($("#inhaltVerlauf").val() == "") {
         toastr["warning"]("Bitte einen Inhalt eingeben", "Hinweis!");
     }
@@ -97,7 +102,7 @@ $("#updateVerlauf").click(function () {
             type: "POST",
             contentType: "application/json; charset=UTF-8",
             headers: {
-                "service_key": sessionStorage.myself + "f80ebc87-ad5c-4b29-9366-5359768df5a1",
+                "service_key": sessionStorage.service_key,
                 "auth_token": sessionStorage.auth_token
             },
             data: JSON.stringify(myData),
@@ -105,9 +110,10 @@ $("#updateVerlauf").click(function () {
                 refreshVerlauf($("#klassen").val());
             },
             error: function (xhr, textStatus, errorThrown) {
-                toastr["error"]("kann Datensatz nicht eintragen! Status Code="+xhr.status, "Fehler!");
+                toastr["error"]("kann Datensatz nicht eintragen! Status Code=" + xhr.status, "Fehler!");
             }
         });
     }
+}
 });
 

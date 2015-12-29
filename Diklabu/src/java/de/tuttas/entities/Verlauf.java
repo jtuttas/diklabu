@@ -5,8 +5,13 @@
  */
 package de.tuttas.entities;
 
+import de.tuttas.util.DatumUtil;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.TimeZone;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +19,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.TableGenerator;
+import javax.persistence.Transient;
 import org.apache.jasper.Constants;
 
 /**
@@ -39,6 +45,22 @@ public class Verlauf implements Serializable {
     private String INHALT;
     private String BEMERKUNG;
     private String AUFGABE;
+    
+    @Transient
+    private String Wochentag;
+
+    public void setWochentag(String Wochentag) {
+        this.Wochentag = Wochentag;
+    }
+
+    public String getWochentag() {        
+        Calendar c = Calendar.getInstance();
+        c.setTime(DATUM);
+        int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
+        return DatumUtil.getWochentag(dayOfWeek);
+    }
+    
+    
 
     public Verlauf() {
     }
@@ -154,7 +176,7 @@ public class Verlauf implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Verlauf[ ID="+ID+" Datum=" + DATUM + " Klasse="+ID_KLASSE+" Stunde="+STUNDE+"]\n";
+        return "de.tuttas.entities.Verlauf[ ID="+ID+" Datum=" + DATUM + " Klasse="+ID_KLASSE+" Stunde="+STUNDE+" Wochentag="+this.getWochentag()+"]\n";
     }
     
 }

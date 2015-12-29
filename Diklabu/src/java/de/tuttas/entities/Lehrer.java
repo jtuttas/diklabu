@@ -5,6 +5,7 @@
  */
 package de.tuttas.entities;
 
+import de.tuttas.util.StringUtil;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Transient;
 
 /**
  *
@@ -30,6 +32,19 @@ public class Lehrer implements Serializable {
     private String id;
     private String NNAME;
     private String VNAME;
+    
+    @Transient
+    private String idplain;
+
+    public String getIdplain() {
+        return StringUtil.removeGermanCharacters(this.id);
+    }
+
+    public void setIdplain(String idplain) {
+        this.idplain = idplain;
+    }
+    
+    
 
     public void setNNAME(String NNAME) {
         this.NNAME = NNAME;

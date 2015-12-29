@@ -33,20 +33,16 @@ public final class Authenticator {
     private final Map<String, String> authorizationTokensStorage = new HashMap();
 
     private Authenticator() {
-
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("DiklabuPU");
         EntityManager em = emf.createEntityManager();
-
         Query query = em.createNamedQuery("findAllTeachers");
         List<Lehrer> lehrer = query.getResultList();
         
         for (Lehrer l : lehrer) {
             System.out.println("Anlegen Benutzer (" + l.getId()+")");
-            usersStorage.put(l.getId(), "mmbbs");
-            serviceKeysStorage.put(l.getId()+"f80ebc87-ad5c-4b29-9366-5359768df5a1", l.getId());
-
+            usersStorage.put(l.getIdplain(), "mmbbs");
+            serviceKeysStorage.put(l.getIdplain()+"f80ebc87-ad5c-4b29-9366-5359768df5a1", l.getIdplain());
         }
-
     }
 
     public static Authenticator getInstance() {
