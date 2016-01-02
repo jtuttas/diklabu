@@ -39,9 +39,9 @@ public class Auth {
         this.kennwort = kennwort;
     }
 
-    public boolean valid() {
-        //TODO Admin Kennwort hier ändern
-        if (benutzer.compareTo("mmbbs")==0 && kennwort.compareTo("geheim")==0) return true;
+    public boolean validAdminUser() {
+        // TODO hier noch Admin User und Kennworte richtig machen
+        if (benutzer.compareTo("TU")==0 && kennwort.compareTo("mmbbs")==0) return true;
         return false;
     }
 

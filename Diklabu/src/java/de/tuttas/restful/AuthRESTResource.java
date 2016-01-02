@@ -5,7 +5,11 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.restful.AuthRESTResourceProxy;
 import de.tuttas.restful.Data.Auth;
+import de.tuttas.restful.auth.Authenticator;
+
+import de.tuttas.restful.auth.HTTPHeaderNames;
 import java.security.GeneralSecurityException;
 import javax.ejb.Stateless;
 import javax.json.Json;

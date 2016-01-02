@@ -3,8 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.tuttas.restful;
+package de.tuttas.restful.auth;
 
+import de.tuttas.config.Config;
+import de.tuttas.restful.auth.Authenticator;
 import java.io.IOException;
 import java.util.logging.Logger;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -12,6 +14,7 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+
 
 @Provider
 @PreMatching
@@ -36,7 +39,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = requestCtx.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
 
-        if (path.startsWith("/noauth") || path.startsWith("/kurswahl")) {
+        if (path.startsWith("/noauth") || path.startsWith("/kurswahl") || Config.debug) {
 
         } else {
             if (!demoAuthenticator.isServiceKeyValid(serviceKey)) {
@@ -48,7 +51,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
             }
             log.info("found Valid Key");
             // For any pther methods besides login, the authToken must be verified
-            if (!path.startsWith("/auth/login/")) {
+            if (!path.startsWith("/auth/login/") ) {
                 String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
 
                 // if it isn't valid, just kick them out.

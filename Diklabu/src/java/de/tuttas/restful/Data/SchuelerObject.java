@@ -19,30 +19,9 @@ public class SchuelerObject {
     private List<Klasse>klassen;
     private String name;
     private String vorname;
-    private String klasse;
-    private String login;
     private int id;
     private Date gebDatum;
-    private String msg;
-    private boolean success;
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-    
-    public boolean getSuccess() {
-        return this.success;
-    }
-    
-    
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
     
     
 
@@ -75,23 +54,11 @@ public class SchuelerObject {
         return id;
     }
 
-    public String getLogin() {
-        return login;
-    }
 
     public void setId(int id) {
         this.id = id;
     }
 
-    public void setLogin(String login) {
-        this.login = login;
-    }
-    
-    
-
-    public String getKlasse() {
-        return klasse;
-    }
 
     public String getName() {
         return name;
@@ -99,10 +66,6 @@ public class SchuelerObject {
 
     public String getVorname() {
         return vorname;
-    }
-
-    public void setKlasse(String Klasse) {
-        this.klasse = Klasse;
     }
 
     public void setName(String Name) {
@@ -113,10 +76,6 @@ public class SchuelerObject {
         this.vorname = Vorname;
     }
 
-    @Override
-    public String toString() {
-        return "SchuelerObject Name="+this.getName()+" Vorname="+this.getVorname()+" Klasse="+this.getKlasse();
-    }
     
     
     

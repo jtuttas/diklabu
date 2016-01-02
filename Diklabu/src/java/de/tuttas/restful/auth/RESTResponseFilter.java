@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.tuttas.restful;
+package de.tuttas.restful.auth;
 
 import java.io.IOException;
 import java.util.logging.Logger;

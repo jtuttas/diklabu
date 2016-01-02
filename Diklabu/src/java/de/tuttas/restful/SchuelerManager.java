@@ -19,72 +19,42 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
 /**
  *
  * @author Jörg
  */
-@Path("manager/getschueler")
+@Path("schueler")
 @Stateless
 public class SchuelerManager {
-     /**
+
+    /**
      * Injection des EntityManagers
      */
-        @PersistenceContext(unitName="DiklabuPU")
+    @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
-        
-        
-     @POST   
-    @Consumes(MediaType.APPLICATION_JSON)
-    public SchuelerObject getSchueler(SchuelerObject so) {
-        
-        if (so.getAuth()==null) {
-            so.setSuccess(false);
-            so.setMsg("no auth");
-        }
-        else {
-            if (so.getAuth().valid()) {
-                em.getEntityManagerFactory().getCache().evictAll();
-                System.out.println ("Webservice manager/getSchueler POST:"+so.toString());
 
-                Query  query = em.createNamedQuery("findSchuelerbyNameKlasse");
-                query.setParameter("paramName", so.getName());
-                query.setParameter("paramVorname", so.getVorname());
-                query.setParameter("paramKlasse", so.getKlasse());
-                List<Schueler> schueler = query.getResultList();
-                System.out.println("Result List:"+schueler);
-
-                if (schueler.size()!=0) {
-                    so.setId(schueler.get(0).getId());
-                    so.setGebDatum(schueler.get(0).getGEBDAT());
-                    System.out.println("Find Schüler mit id="+schueler.get(0).getId());
-
-                    LoginSchueler ls=em.find(LoginSchueler.class, schueler.get(0).getId());
-                    System.out.println("found:"+ls);
-                    if (ls!=null) so.setLogin(ls.getLOGIN());
-
-                    query = em.createNamedQuery("findKlassenbySchuelerID");
+    @GET   
+    @Path("/{idschueler}")
+    public SchuelerObject getPupil(@PathParam("idschueler") int idschueler) {
+        System.out.println("Abfrage Schueler mit der ID "+idschueler);
+        SchuelerObject so = new SchuelerObject();
+        Schueler s = em.find(Schueler.class, idschueler);
+        if (s!=null) {
+            so.setId(idschueler);
+            so.setGebDatum(s.getGEBDAT());
+            so.setName(s.getNNAME());
+            so.setVorname(s.getVNAME());
+            Query query = em.createNamedQuery("findKlassenbySchuelerID");
                     query.setParameter("paramIDSchueler", so.getId());
                     List<Klasse> klassen = query.getResultList();
-                    System.out.println("Result List:"+klassen);
+                    System.out.println("Result List:" + klassen);
                     so.setKlassen(klassen);
-                    so.setMsg("ok");
-                    so.setSuccess(true);
-                }
-                else {
-                    so.setMsg("not found");
-                    so.setSuccess(false);
-                }
-            }
-            else {
-                so.setSuccess(false);
-                so.setMsg("You are not allowed to access the service");
-            }
         }
-        //return em.find(SchuelerLogin.class, schueler.get(0).getId());
-         System.out.println("Sende zurück:"+so);
+        
         return so;
     }
-    
+
 }

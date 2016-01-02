@@ -3,13 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package de.tuttas.restful;
+package de.tuttas.config;
 
 /**
  *
  * @author Jörg
  */
-public interface HTTPHeaderNames {
-    public static final String SERVICE_KEY = "service_key";
-    public static final String AUTH_TOKEN = "auth_token";
+public class Config {
+    public static final boolean debug=true;
 }

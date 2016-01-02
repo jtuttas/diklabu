@@ -50,7 +50,7 @@ public class PSCaller {
         System.out.println("receive POST manager/pscaller:" + pso.toString());
         if (pso.getAuth() != null) {
             Auth auth = pso.getAuth();
-            if (auth.valid()) {
+            if (auth.validAdminUser()) {
             try {
                 Runtime runtime = Runtime.getRuntime();
                 Process proc = runtime.exec("powershell " + pso.getScript());

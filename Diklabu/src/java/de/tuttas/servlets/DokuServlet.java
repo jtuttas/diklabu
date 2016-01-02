@@ -14,9 +14,10 @@ import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
+import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Verlauf;
-import de.tuttas.restful.Authenticator;
+import de.tuttas.restful.auth.Authenticator;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -73,8 +74,6 @@ public class DokuServlet extends HttpServlet {
 
         String auth = request.getParameter("auth_token");
         String service = request.getParameter("service_key");
-        // TODO entfernen!
-        String debug = request.getParameter("debug");
         System.out.println("auth_token=" + auth);
         if (request.getParameter("cmd") == null || request.getParameter("idklasse") == null || request.getParameter("from") == null) {
             System.out.println("Info zeigen");
@@ -93,7 +92,7 @@ public class DokuServlet extends HttpServlet {
                 out.println("</html>");
             }
         } else {
-            if (debug != null || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(service, auth)) {
+            if (de.tuttas.config.Config.debug || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(service, auth)) {
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 System.out.println("Klasse=" + kl.getID_LEHRER());
                 response.setContentType("application/pdf");
