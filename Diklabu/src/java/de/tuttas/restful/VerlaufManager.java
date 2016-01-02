@@ -38,41 +38,44 @@ public class VerlaufManager {
      */
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
-    
-    @GET   
+
+    @GET
     public Verlauf getVerlauf() {
-          em.getEntityManagerFactory().getCache().evictAll();
+        em.getEntityManagerFactory().getCache().evictAll();
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         Timestamp d1 = new Timestamp(cal.getTimeInMillis());
-        Verlauf v = new Verlauf(0, d1, "01", "TU", "LF6", "nix", "keine", "keine");
-        return v;        
-    }
-    
-    @DELETE
-     @Path("/{id}")
-    public Verlauf deleteVerlauf(@PathParam("id") int id) {
-        System.out.println("DELETE empfangen id="+id);
-        Verlauf v = em.find(Verlauf.class, id);
-        if (v!=null)  em.remove(v);
+        Verlauf v = new Verlauf(0, d1, "01", "TU", "LF6", "beispielhafter Verlauf", "keine", "keine");
         return v;
-        
     }
-    
+
+    @DELETE
+    @Path("/{id}")
+    public Verlauf deleteVerlauf(@PathParam("id") int id) {
+        System.out.println("DELETE empfangen id=" + id);
+        Verlauf v = em.find(Verlauf.class, id);
+        if (v != null) {
+            em.remove(v);
+            return v;
+        }
+        return null;
+
+    }
+
     @POST
     public Verlauf setVerlauf(Verlauf v) {
-          em.getEntityManagerFactory().getCache().evictAll();
-        System.out.println("POST Verlauf = "+v.toString());
-        Query  q = em.createNamedQuery("findVerlaufbyDatumStundeAndKlassenID");
+        em.getEntityManagerFactory().getCache().evictAll();
+        System.out.println("POST Verlauf = " + v.toString());
+        Query q = em.createNamedQuery("findVerlaufbyDatumStundeAndKlassenID");
         q.setParameter("paramDatum", v.getDATUM());
-        q.setParameter("paramKlassenID", v.getID_KLASSE());        
-        q.setParameter("paramStunde",v.getSTUNDE());
+        q.setParameter("paramKlassenID", v.getID_KLASSE());
+        q.setParameter("paramStunde", v.getSTUNDE());
         List<Verlauf> verlauf = q.getResultList();
         System.out.println("Result List:" + verlauf);
-        if (verlauf.size()!=0) {
+        if (verlauf.size() != 0) {
             System.out.println("Es gibt schon einen Eintrag, also updaten");
             Verlauf ve = verlauf.get(0);
             ve.setAUFGABE(v.getAUFGABE());
@@ -84,8 +87,7 @@ public class VerlaufManager {
             ve.setINHALT(v.getINHALT());
             ve.setSTUNDE(v.getSTUNDE());
             em.merge(ve);
-        }
-        else {
+        } else {
             System.out.println("Neuen Verlaufseintrag erzeugen");
             em.persist(v);
         }
@@ -95,7 +97,7 @@ public class VerlaufManager {
     @GET
     @Path("/{klasse}")
     public List<Verlauf> getVerlauf(@PathParam("klasse") String kl) {
-          
+
         em.getEntityManagerFactory().getCache().evictAll();
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -113,38 +115,38 @@ public class VerlaufManager {
         System.out.println("Result List:" + verlauf);
         return verlauf;
     }
-    
-    @GET   
+
+    @GET
     @Path("/{klasse}/{from}")
-    public List<Verlauf> getAnwesenheitFrom(@PathParam("klasse") String kl,@PathParam("from") Date  from ) {
-          em.getEntityManagerFactory().getCache().evictAll();
+    public List<Verlauf> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from) {
+        em.getEntityManagerFactory().getCache().evictAll();
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(cal.getTimeInMillis());      
-        System.out.println ("Webservice Verlauf GET klasse="+kl+" from="+from+" to="+d);        
-        Query query = em.createNamedQuery("findVerlaufbyKlasse");        
+        Date d = new Date(cal.getTimeInMillis());
+        System.out.println("Webservice Verlauf GET klasse=" + kl + " from=" + from + " to=" + d);
+        Query query = em.createNamedQuery("findVerlaufbyKlasse");
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", d);
         List<Verlauf> verlauf = query.getResultList();
         System.out.println("Result List:" + verlauf);
-        return verlauf;  
+        return verlauf;
     }
-    
-    @GET   
+
+    @GET
     @Path("/{klasse}/{from}/{to}")
-    public List<Verlauf> getAnwesenheitFrom(@PathParam("klasse") String kl,@PathParam("from") Date from,@PathParam("to") Date to ) {
-          em.getEntityManagerFactory().getCache().evictAll();
-        System.out.println ("Webservice Verlauf GET from="+from+" to="+to);        
-        Query query = em.createNamedQuery("findVerlaufbyKlasse");        
+    public List<Verlauf> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from, @PathParam("to") Date to) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        System.out.println("Webservice Verlauf GET from=" + from + " to=" + to);
+        Query query = em.createNamedQuery("findVerlaufbyKlasse");
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", to);
         List<Verlauf> verlauf = query.getResultList();
         System.out.println("Result List:" + verlauf);
-        return verlauf;  
+        return verlauf;
     }
 }

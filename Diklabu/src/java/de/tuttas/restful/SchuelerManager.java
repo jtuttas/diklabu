@@ -5,6 +5,8 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.entities.Ausbilder;
+import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
@@ -36,25 +38,34 @@ public class SchuelerManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
-    @GET   
+    @GET
     @Path("/{idschueler}")
     public SchuelerObject getPupil(@PathParam("idschueler") int idschueler) {
-        System.out.println("Abfrage Schueler mit der ID "+idschueler);
-        SchuelerObject so = new SchuelerObject();
+        System.out.println("Abfrage Schueler mit der ID " + idschueler);
         Schueler s = em.find(Schueler.class, idschueler);
-        if (s!=null) {
+        
+        if (s != null) {
+            SchuelerObject so = new SchuelerObject();
             so.setId(idschueler);
             so.setGebDatum(s.getGEBDAT());
             so.setName(s.getNNAME());
             so.setVorname(s.getVNAME());
             Query query = em.createNamedQuery("findKlassenbySchuelerID");
-                    query.setParameter("paramIDSchueler", so.getId());
-                    List<Klasse> klassen = query.getResultList();
-                    System.out.println("Result List:" + klassen);
-                    so.setKlassen(klassen);
+            query.setParameter("paramIDSchueler", so.getId());
+            List<Klasse> klassen = query.getResultList();
+            System.out.println("Result List:" + klassen);
+            so.setKlassen(klassen);
+            
+            Ausbilder a = em.find(Ausbilder.class, s.getID_AUSBILDER());
+            so.setAusbilder(a);
+            
+            if (a!=null) {
+                Betrieb b = em.find(Betrieb.class, a.getID_BETRIEB());
+                so.setBetrieb(b);
+            }
+            return so;
         }
-        
-        return so;
+        return null;
     }
 
 }

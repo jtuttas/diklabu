@@ -40,13 +40,14 @@ import javax.ws.rs.PathParam;
 @Path("anwesenheit")
 @Stateless
 public class AnwesenheitsManager {
-        /**
+
+    /**
      * Injection des EntityManagers
      */
-    @PersistenceContext(unitName="DiklabuPU")
+    @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
-    
-    @GET   
+
+    @GET
     public AnwesenheitEintrag getAnwesenheit() {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -55,95 +56,91 @@ public class AnwesenheitsManager {
         cal.set(Calendar.MILLISECOND, 0);
         Timestamp d1 = new Timestamp(cal.getTimeInMillis());
         AnwesenheitEintrag ae = new AnwesenheitEintrag(d1, "TU", 0, "a");
-        return ae;        
+        return ae;
     }
-    
+
     @POST
     public AnwesenheitEintrag setAnwesenheit(AnwesenheitEintrag ae) {
-        System.out.println("POST Anwesenheitseintrag = "+ae.toString());
-        Anwesenheit a = new Anwesenheit(ae.getID_SCHUELER(), ae.getDATUM(), ae.getID_LEHRER(),ae.getVERMERK());
-        Query  q = em.createNamedQuery("findAnwesenheitbyDatumAndSchuelerID");
+        System.out.println("POST Anwesenheitseintrag = " + ae.toString());
+        Anwesenheit a = new Anwesenheit(ae.getID_SCHUELER(), ae.getDATUM(), ae.getID_LEHRER(), ae.getVERMERK());
+        Query q = em.createNamedQuery("findAnwesenheitbyDatumAndSchuelerID");
         q.setParameter("paramDatum", ae.getDATUM());
-        q.setParameter("paramSchuelerID", ae.getID_SCHUELER());        
+        q.setParameter("paramSchuelerID", ae.getID_SCHUELER());
         List<Anwesenheit> anw = q.getResultList();
-        if (anw.size()!=0) {
+        if (anw.size() != 0) {
             System.out.println("Es gibt schon einen Eintrag, also updaten");
             em.merge(a);
-        }
-        else {
+        } else {
             em.persist(a);
         }
         return ae;
     }
-    
-    
-    @GET   
+
+    @GET
     @Path("/{klasse}")
     public List<AnwesenheitObjekt> getAnwesenheit(@PathParam("klasse") String kl) {
-       em.getEntityManagerFactory().getCache().evictAll();
-        
+        em.getEntityManagerFactory().getCache().evictAll();
+
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
         Date d1 = new Date(cal.getTimeInMillis());
-        Date d2 = new Date(cal.getTimeInMillis()+(1000*60*60*24));
-        
-        
-       System.out.println ("Webservice Anwesenheit GET from Date="+d1.toString()+" To "+d2.toString()+" klasse="+kl);        
-        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse",AnwesenheitEintrag.class);        
+        Date d2 = new Date(cal.getTimeInMillis() + (1000 * 60 * 60 * 24));
+
+        System.out.println("Webservice Anwesenheit GET from Date=" + d1.toString() + " To " + d2.toString() + " klasse=" + kl);
+        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", d1);
         query.setParameter("paramToDate", d2);
-        return getData(query);        
+        return getData(query);
     }
-    
-    @GET   
+
+    @GET
     @Path("/{klasse}/{from}")
-    public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl,@PathParam("from") Date  from ) {
+    public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(cal.getTimeInMillis());      
-        System.out.println ("Webservice Anwesenheit GET klasse="+kl+" from="+from+" to="+d);        
-        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse",AnwesenheitEintrag.class);        
+        Date d = new Date(cal.getTimeInMillis());
+        System.out.println("Webservice Anwesenheit GET klasse=" + kl + " from=" + from + " to=" + d);
+        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", d);
-        return getData(query);        
+        return getData(query);
     }
-    
-    
-    @GET   
+
+    @GET
     @Path("/{klasse}/{from}/{to}")
-    public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl,@PathParam("from") Date from,@PathParam("to") Date to ) {
-        
-        System.out.println ("Webservice Anwesenheit GET from="+from+" to="+to);        
-        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse",AnwesenheitEintrag.class);        
+    public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from, @PathParam("to") Date to) {
+
+        System.out.println("Webservice Anwesenheit GET from=" + from + " to=" + to);
+        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", to);
-        return getData(query);        
+        return getData(query);
     }
-    
+
     private List<AnwesenheitObjekt> getData(TypedQuery query) {
         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
         //System.out.println("Results:="+anwesenheit);
         List<AnwesenheitObjekt> anw = new ArrayList();
-        int id=0;
+        int id = 0;
         AnwesenheitObjekt ao = new AnwesenheitObjekt();
-        for (int i=0;i<anwesenheit.size();i++) {
-            if (anwesenheit.get(i).getID_SCHUELER()!=id) {
-                id=anwesenheit.get(i).getID_SCHUELER();
+        for (int i = 0; i < anwesenheit.size(); i++) {
+            if (anwesenheit.get(i).getID_SCHUELER() != id) {
+                id = anwesenheit.get(i).getID_SCHUELER();
                 ao = new AnwesenheitObjekt(id);
                 anw.add(ao);
             }
             ao.getEintraege().add(anwesenheit.get(i));
         }
-        return anw;  
+        return anw;
     }
-    
+
 }

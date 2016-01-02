@@ -5,6 +5,8 @@
  */
 package de.tuttas.restful.Data;
 
+import de.tuttas.entities.Ausbilder;
+import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import java.sql.Date;
 import java.util.List;
@@ -21,10 +23,28 @@ public class SchuelerObject {
     private String vorname;
     private int id;
     private Date gebDatum;
+    private Ausbilder ausbilder;
+    private Betrieb betrieb;
 
+    public void setBetrieb(Betrieb betrieb) {
+        this.betrieb = betrieb;
+    }
+
+    public Betrieb getBetrieb() {
+        return betrieb;
+    }
     
     
 
+    public void setAusbilder(Ausbilder ausbilder) {
+        this.ausbilder = ausbilder;
+    }
+
+    public Ausbilder getAusbilder() {
+        return ausbilder;
+    }
+    
+    
     public Auth getAuth() {
         return auth;
     }

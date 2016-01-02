@@ -42,6 +42,18 @@ public class Schueler implements Serializable {
     private Date GEBDAT;
 
     private String ACC;
+    
+    private int ID_AUSBILDER;
+
+    public void setID_AUSBILDER(int ID_AUSBILDER) {
+        this.ID_AUSBILDER = ID_AUSBILDER;
+    }
+
+    public int getID_AUSBILDER() {
+        return ID_AUSBILDER;
+    }
+    
+    
 
     public String getACC() {
         return ACC;
