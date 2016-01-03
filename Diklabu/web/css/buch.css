@@ -10,3 +10,7 @@ color: #ffffff;
 .mybutton {
     margin-top: 6px;
 }
+
+.infoIcon {
+    cursor: pointer;
+}

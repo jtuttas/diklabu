@@ -1,6 +1,8 @@
 // ID der gewählten Klasse
 var idKlasse;
 var nameKlasse;
+// Schueler der gewählten Klasse
+var schueler;
 
 $("#eintragDatum").datepicker("setDate", "+0");
 var today = new Date();
@@ -42,6 +44,7 @@ $("#login").click(function () {
                 loggedIn();
                 nameKlasse = $("#klassen").val();
                 refreshVerlauf(nameKlasse);
+                refreshKlassenliste(nameKlasse);
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Login fehlgeschlagen", "Fehler!");
@@ -103,6 +106,7 @@ $.ajax({
          $("#idklasse").val(idKlasse);
         if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
             refreshVerlauf(nameKlasse);
+            refreshKlassenliste(nameKlasse)
         }
     },
     error: function () {
@@ -188,6 +192,31 @@ function refreshVerlauf(kl) {
     });
 }
 
+function refreshKlassenliste(kl) {
+    console.log("Refresh Anwesenheit f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/" + kl ,
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            schueler = data;
+            $("#tabelleKlasse").empty();
+            $("#tabelleKlasse").append('<tr><th>Name</th></tr>');
+            for (i = 0; i < data.length; i++) {
+                $("#tabelleKlasse").append('<tr><td><img src="img/Info.png" id="S'+data[i].id+'" class="infoIcon"> '+data[i].VNAME+" "+data[i].NNAME+'</td></tr>');
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Schuler der Klasse "+kl+" nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
+
 function loggedOut() {
     $("#kuerzelContainer").show();
     $("#kennwortContainer").show();
@@ -215,17 +244,20 @@ function loggedIn() {
     $("#inputVerlaufContainer").show();
     $('#startDate').datepicker().on('changeDate', function (ev) {
         refreshVerlauf($("#klassen").val());
+        refreshKlassenliste($("#klassen").val());
         $("#from").val($("#startDate").val());
 
     });
     $('#endDate').datepicker().on('changeDate', function (ev) {
         refreshVerlauf($("#klassen").val());
+        refreshKlassenliste($("#klassen").val());
         $("#to").val($("#endDate").val());
     });
     $("#klassen").change(function () {
         console.log("Klasse ID=" + $('option:selected', this).attr('dbid') + " KNAME=" + $("#klassen").val());
         idKlasse = $('option:selected', this).attr('dbid');
         refreshVerlauf($("#klassen").val());
+        refreshKlassenliste($("#klassen").val());
         $("#idklasse").val(idKlasse);
 
     });

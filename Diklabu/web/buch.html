@@ -33,16 +33,16 @@
                 <div class="jumbotron">
                     <div class="row">
                         <div class="col-md-offset-11">
-                            <p id="version">&nbsp;</p>
+                            <a href="https://github.com/jtuttas/diklabu/issues" target="bugs" id="version">&nbsp;</a>
                         </div>
                     </div>
                     <h1>Diklabu@MMBbS</h1>
                     <div class="row">
                         <div class="col-md-1">
                             <div  id="kuerzelContainer">
-                            <label for="lehrer">Kürzel</label>
-                            <select class="form-control" id="lehrer">
-                            </select>
+                                <label for="lehrer">Kürzel</label>
+                                <select class="form-control" id="lehrer">
+                                </select>
                             </div>
                         </div>
                         <div class="col-md-2" >
@@ -54,11 +54,11 @@
                             </div>
                         </div>
                         <div class="col-md-1">
-                            
-                            
+
+
                             <br>
                             <button id="login" type="button" class="btn  btn-success mybutton">Login</button>                                                    
-                            
+
                         </div>
 
                         <div class="col-md-1">
@@ -85,118 +85,251 @@
                                 <input type="hidden" name="idklasse" id="idklasse">
                                 <input type="hidden" name="from" id="from">
                                 <input type="hidden" name="to" id="to">
-                            <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
+                                <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
                             </form>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-12">
 
-                    <div class="row" >
-                        <div style="display:none;" id="inputVerlaufContainer">
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="eintragDatum">Datum</label>
-                                <div class="input-group date">
-                                    <input type="text" class="form-control" id="eintragDatum">
-                                    <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                <ul class="nav nav-tabs">
+                    <li class="active"><a data-toggle="tab" href="#tabVerlauf">Verlauf</a></li>
+                    <li><a data-toggle="tab" href="#tabAnwesenheit">Anwesenheit</a></li>
+                    <li><a data-toggle="tab" href="#tabNoten">Noten</a></li>
+                    <li><a data-toggle="tab" href="#tabChat">Chat</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div id="tabVerlauf" class="tab-pane fade in active">
+                        <div class="col-md-12">
+                            <div class="row" >
+                                <div style="display:none;" id="inputVerlaufContainer">
+                                    <div class="col-md-2">
+                                        <div class="form-group">
+                                            <label for="eintragDatum">Datum</label>
+                                            <div class="input-group date">
+                                                <input type="text" class="form-control" id="eintragDatum">
+                                                <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="lernfelder">Lernfeld</label>
+                                            <select class="form-control" id="lernfelder">
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="stunde">Stunde</label>
+
+                                            <select class="form-control" id="stunde">
+                                                <option>01</option>
+                                                <option>02</option>
+                                                <option>03</option>
+                                                <option>04</option>
+                                                <option>05</option>
+                                                <option>06</option>
+                                                <option>07</option>
+                                                <option>08</option>
+                                                <option>09</option>
+                                                <option>10</option>
+                                                <option>11</option>
+                                                <option>12</option>
+                                                <option>13</option>
+                                                <option>14</option>
+                                                <option>15</option>
+                                                <option>16</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <div class="form-group">
+                                            <label for="lernsituationVerlauf" >
+                                                Lernsituation
+                                            </label>
+
+                                            <input type="text" class="form-control" id="lernsituationVerlauf">
+
+                                        </div>
+                                        <div class="form-group">
+
+                                            <label for="inhaltVerlauf">
+                                                Inhalt
+                                            </label>
+                                            <input type="text" class="form-control" id="inhaltVerlauf">
+                                        </div>
+                                        <div class="form-group">
+
+                                            <label for="bemerkungVerlauf">
+                                                Bemerkungen
+                                            </label>
+                                            <input type="text" class="form-control" id="bemerkungVerlauf">
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-1">
+                                        <div class="row">
+                                            <br></br>
+                                            <button id="addVerlauf" type="button" class="btn col-md-12  btn-success">Hinzufügen</button>
+                                            <br></br>
+                                            <button id="updateVerlauf" type="button" class="btn col-md-12  btn-info disabled">Ändern</button>
+                                            <br></br>
+                                            <button id="deleteVerlauf" type="button" class="btn  col-md-12 btn-danger disabled">Löschen</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label for="lernfelder">Lernfeld</label>
-                                <select class="form-control" id="lernfelder">
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="stunde">Stunde</label>
-
-                                <select class="form-control" id="stunde">
-                                    <option>01</option>
-                                    <option>02</option>
-                                    <option>03</option>
-                                    <option>04</option>
-                                    <option>05</option>
-                                    <option>06</option>
-                                    <option>07</option>
-                                    <option>08</option>
-                                    <option>09</option>
-                                    <option>10</option>
-                                    <option>11</option>
-                                    <option>12</option>
-                                    <option>13</option>
-                                    <option>14</option>
-                                    <option>15</option>
-                                    <option>16</option>
-                                </select>
-                            </div>
+                            <hr>
+                            <table class="table table-striped table-hover" style="display:none;" id="tabelle">
+                                <thead>
+                                    <tr>
+                                        <th width="10%">
+                                            Datum
+                                        </th>
+                                        <th width="5%">
+                                            LK
+                                        </th>
+                                        <th width="5%">
+                                            LF
+                                        </th>
+                                        <th width="5%">
+                                            Stunde
+                                        </th>
+                                        <th width="25%">
+                                            Inhalt
+                                        </th>
+                                        <th>
+                                            Bemerkungen
+                                        </th>
+                                        <th>
+                                            Lernsituation
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelleVerlauf">
+                                </tbody>
+                            </table>
                         </div>
-                        <div class="col-md-9">
-                            <div class="form-group">
-                                <label for="lernsituationVerlauf" >
-                                    Lernsituation
-                                </label>
-
-                                <input type="text" class="form-control" id="lernsituationVerlauf">
-
-                            </div>
-                            <div class="form-group">
-
-                                <label for="inhaltVerlauf">
-                                    Inhalt
-                                </label>
-                                <input type="text" class="form-control" id="inhaltVerlauf">
-                            </div>
-                            <div class="form-group">
-
-                                <label for="bemerkungVerlauf">
-                                    Bemerkungen
-                                </label>
-                                <input type="text" class="form-control" id="bemerkungVerlauf">
-                            </div>
-
-                        </div>
-                        <div class="col-md-1">
-                            <div class="row">
-                                <br></br>
-                                <button id="addVerlauf" type="button" class="btn col-md-12  btn-success">Hinzufügen</button>
-                                <br></br>
-                                <button id="updateVerlauf" type="button" class="btn col-md-12  btn-info disabled">Ändern</button>
-                                <br></br>
-                                <button id="deleteVerlauf" type="button" class="btn  col-md-12 btn-danger disabled">Löschen</button>
-                            </div>
-                        </div>
-                              </div>
                     </div>
-                    <hr>
-                    <table class="table table-striped table-hover" style="display:none;" id="tabelle">
-                        <thead>
-                            <tr>
-                                <th width="10%">
-                                    Datum
-                                </th>
-                                <th width="5%">
-                                    LK
-                                </th>
-                                <th width="5%">
-                                    LF
-                                </th>
-                                <th width="5%">
-                                    Stunde
-                                </th>
-                                <th width="25%">
-                                    Inhalt
-                                </th>
-                                <th>
-                                    Bemerkungen
-                                </th>
-                                <th>
-                                    Lernsituation
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelleVerlauf">
-                        </tbody>
-                    </table>
+                    <div id="tabAnwesenheit" class="tab-pane fade">
+                        <br>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <table class="table table-bordered" id="tabelleKlasse">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><img src="img/Info.png" class="infoIcon"> John</td>
+                                        </tr>
+                                        <tr>
+                                            <td><img src="img/Info.png" class="infoIcon"> Mary</td>
+                                        </tr>
+                                        <tr>
+                                            <td><img src="img/Info.png" class="infoIcon"> July</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-9 table-responsive">
+                                <table class="table table-bordered" id="tabelleAnwesenheit">
+                                    <thead>
+                                        <tr>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                            <th>10.12.2015</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+
+                                        </tr>
+                                        <tr>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                        </tr>
+                                        <tr>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                            <td>a</td>
+                                        </tr>
+                                    </tbody>
+                                </table>                                
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="tabNoten" class="tab-pane fade">
+                        <h1>Noten</h1>
+                    </div>
+                    <div id="tabChat" class="tab-pane fade">
+
+                    </div>
+
+
                 </div>
             </div>
 
@@ -245,6 +378,8 @@
         <script>
             $("#version").text(VERSION);
         </script>
+
+
         <script src="js/diklabu-startup.js"></script>
         <script src="js/diklabu-verlauf.js"></script>
     </body>
