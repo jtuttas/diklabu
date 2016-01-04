@@ -7,7 +7,7 @@ var schueler;
 var anwesenheit;
 
 var inputVisible = false;
-
+var days = ['So.','Mo.','Di.','Mi.','Do.','Fr.','Sa.'];
 $("#eintragDatum").datepicker("setDate", "+0");
 var today = new Date();
 $("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
@@ -251,7 +251,12 @@ function refreshAnwesenheit(kl) {
             var tab = "";
             tab += '<thead><tr>';
             while (current <= dateEnde) {
-                tab += '<th>&nbsp; ' + current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
+                if (current.getDay()==0 || current.getDay()==6) {
+                    tab += '<th class="wochenende">&nbsp; ' + days[current.getDay()]+"<br>"+ current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';                    
+                }
+                else {
+                    tab += '<th>&nbsp; ' + days[current.getDay()]+"<br>"+ current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
+                }
                 current.setDate(current.getDate() + 1);
             }
             tab += '</tr></thead>';
@@ -297,7 +302,12 @@ function generateAnwesenheitsTable() {
         tab += "<tr>";
         var dateStart = new Date($("#startDate").val());
         while (dateStart <= dateEnde) {
-            tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(dateStart) + "\" >&nbsp;</td>";
+            if (dateStart.getDay()==0 || dateStart.getDay()==6) {
+            tab += "<td class=\"anwesenheit wochenende\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(dateStart) + "\" >&nbsp;</td>";
+        }
+        else {
+tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(dateStart) + "\" >&nbsp;</td>";            
+        }
             dateStart.setDate(dateStart.getDate() + 1);
         }
         tab += '</tr>';
@@ -371,6 +381,7 @@ function handelKeyEvents(e) {
                 inputVisible = true;
                 inputTd = tr.next().find('td').eq(index);
                 t = inputTd.text();
+                oldText = inputTd.text();
                 inputTd.empty();
                 inputTd.append('<input class="inputAnwesenheit" id="anwesenheitsInput" maxlength="12" size="4" type="text" value="' + t + '"></input>');
                 $("#anwesenheitsInput").focus();
@@ -418,7 +429,22 @@ function anwesenheitsEintrag(td,txt) {
 
 function toSQLString(d) {
     var s = "";
-    s += d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+    
+    s += d.getFullYear() + "-";
+    if (d.getMonth() + 1>9) {
+        s+= (d.getMonth() + 1);
+    }
+    else {
+        s+= "0"+(d.getMonth() + 1);
+    }
+    s+="-";
+    if (d.getDate()>9) {
+        s+=d.getDate();
+    }
+    else {
+        s+="0"+d.getDate();
+    }
+    
     return s;
 }
 
