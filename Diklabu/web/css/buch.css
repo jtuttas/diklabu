@@ -14,3 +14,11 @@ color: #ffffff;
 .infoIcon {
     cursor: pointer;
 }
+
+th{ height: 75px; }
+
+.inputAnwesenheit {
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+}
