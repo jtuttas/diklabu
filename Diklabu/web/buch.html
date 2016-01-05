@@ -94,6 +94,7 @@
                 <ul class="nav nav-tabs">
                     <li class="active"><a data-toggle="tab" href="#tabVerlauf">Verlauf</a></li>
                     <li><a data-toggle="tab" href="#tabAnwesenheit">Anwesenheit</a></li>
+                    <li><a data-toggle="tab" href="#tabFehlzeiten">Fehlzeiten</a></li>
                     <li><a data-toggle="tab" href="#tabNoten">Noten</a></li>
                     <li><a data-toggle="tab" href="#tabBemerkungen">Bemerkungen</a></li>
                     <li><a data-toggle="tab" href="#tabStundenplan">Stundenplan</a></li>
@@ -224,6 +225,9 @@
                         </div>
 
                     </div>
+                    <div id="tabFehlzeiten" class="tab-pane fade">
+                        <h1>Fehlzeiten</h1>
+                    </div>
                     <div id="tabNoten" class="tab-pane fade">
                         <h1>Noten</h1>
                     </div>
@@ -250,48 +254,92 @@
 
 
 
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
-        <!-- Bootstrap Core JavaScript -->
-        <script src="js/bootstrap.min.js"></script>
-        <!-- Plugin JavaScript -->
-        <script src="js/jquery.easing.min.js"></script>
-        <script src="js/jquery.fittext.js"></script>
-        <script src="js/wow.min.js"></script>
-        <!-- Custom Theme JavaScript -->
-        <script src="js/creative.js"></script>
-        <script src="js/bootstrap-datepicker.js"></script>
-        <script src="js/toastr.min.js"></script>
-        <script type="text/javascript">
-            $('.date-input').datepicker({
-                format: "yyyy-mm-dd",
-                language: "de",
-                daysOfWeekDisabled: "5,6",
-                calendarWeeks: true,
-                autoclose: true,
-                todayHighlight: true
-            });
-            $('#eintragDatum').datepicker({
-                format: "yyyy-mm-dd",
-                todayBtn: "linked",
-                language: "de",
-                daysOfWeekDisabled: "5,6",
-                calendarWeeks: true,
-                autoclose: true,
-                todayHighlight: true
-            });
-        </script>
+        <!-- Modal Info Dialog-->
+        <div id="schuelerinfo" class="modal fade" role="dialog">
+            <div class="modal-dialog">
 
-        <!-- bootbox code -->
-        <script src="js/bootbox.min.js"></script>
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h2 class="modal-title" id="infoName">Modal Header</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img src="img/anonym.gif" width="150">
+                            </div>
+                            <div class="col-md-8">
+                                <p id="infoGeb"></p>
+                                <h3>Ausbilder</h3>
+                                <p id="infoAusbilderName"></p>
+                                <a id="infoAusbilderMail" href="mailto:"></a>
+                                <p id="infoAusbilderTel"></p>
+                                <p id="infoAusbilderFax"></p>
+                                <h3>Betrieb</h3>
+                                <p id="infoBetriebName"></p>                  
+                                <p id="infoBetriebStrasse"></p>
+                                <p id="infoBetriebOrt"></p>
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Klassen/Kurse</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="infoKlassen">
+                                    </tbody>
+                                </table>
 
-        <script src="js/config.js"></script>
-        <script>
-            $("#version").text(VERSION);
-        </script>
+                            </div>
+                        </div>   
+                        
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- jQuery -->
+            <script src="js/jquery.js"></script>
+            <!-- Bootstrap Core JavaScript -->
+            <script src="js/bootstrap.min.js"></script>
+            <!-- Plugin JavaScript -->
+            <script src="js/jquery.easing.min.js"></script>
+            <script src="js/jquery.fittext.js"></script>
+            <script src="js/wow.min.js"></script>
+            <!-- Custom Theme JavaScript -->
+            <script src="js/creative.js"></script>
+            <script src="js/bootstrap-datepicker.js"></script>
+            <script src="js/toastr.min.js"></script>
+            <script type="text/javascript">
+                $('.date-input').datepicker({
+                    format: "yyyy-mm-dd",
+                    language: "de",
+                    daysOfWeekDisabled: "5,6",
+                    calendarWeeks: true,
+                    autoclose: true,
+                    todayHighlight: true
+                });
+                $('#eintragDatum').datepicker({
+                    format: "yyyy-mm-dd",
+                    todayBtn: "linked",
+                    language: "de",
+                    daysOfWeekDisabled: "5,6",
+                    calendarWeeks: true,
+                    autoclose: true,
+                    todayHighlight: true
+                });
+            </script>
+
+            <!-- bootbox code -->
+            <script src="js/bootbox.min.js"></script>
+
+            <script src="js/config.js"></script>
+            <script>
+                $("#version").text(VERSION);
+            </script>
 
 
-        <script src="js/diklabu-startup.js"></script>
-        <script src="js/diklabu-verlauf.js"></script>
+            <script src="js/diklabu-startup.js"></script>
+            <script src="js/diklabu-verlauf.js"></script>
     </body>
 </html>

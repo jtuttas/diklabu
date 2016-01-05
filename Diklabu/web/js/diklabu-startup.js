@@ -7,7 +7,7 @@ var schueler;
 var anwesenheit;
 
 var inputVisible = false;
-var days = ['So.','Mo.','Di.','Mi.','Do.','Fr.','Sa.'];
+var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
 $("#eintragDatum").datepicker("setDate", "+0");
 var today = new Date();
 $("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
@@ -147,6 +147,7 @@ $.ajax({
     }
 });
 
+
 function refreshVerlauf(kl) {
     console.log("Refresh Verlauf f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
     $.ajax({
@@ -218,6 +219,45 @@ function refreshKlassenliste(kl) {
             }
             $("#tabelleKlasse").append("</tbody>");
             refreshAnwesenheit(kl);
+            $(".infoIcon").click(function () {
+                var id = $(this).attr("id");
+                id = id.substring(1);
+                console.log("lade Schuler ID=" + id);
+                $.ajax({
+                    url: SERVER + "/Diklabu/api/v1/schueler/" + id,
+                    type: "GET",
+                    headers: {
+                        "service_key": sessionStorage.service_key,
+                        "auth_token": sessionStorage.auth_token
+                    },
+                    contentType: "application/json; charset=UTF-8",
+                    success: function (data) {
+                        $("#infoName").text(data.vorname+" "+data.name);
+                        $("#infoGeb").text("Geburtsdatum "+data.gebDatum);
+                        $("#infoAusbilderName").text(data.ausbilder.NNAME);
+                        $("#infoAusbilderMail").text(data.ausbilder.EMAIL);
+                        $("#infoAusbilderMail").attr("href","mailto://"+data.ausbilder.EMAIL);
+                        $("#infoAusbilderTel").text("Tel.:"+data.ausbilder.TELEFON);
+                        $("#infoAusbilderFax").text("Fax :"+data.ausbilder.FAX);
+
+                        $("#infoBetriebName").text(data.betrieb.NAME);
+                        $("#infoBetriebStrasse").text(data.betrieb.STRASSE);
+                        $("#infoBetriebOrt").text(data.betrieb.PLZ+" "+data.betrieb.ORT);
+                        
+                        $("#infoKlassen").empty();
+                        for (var i=0;i<data.klassen.length;i++) {
+                            var kl = data.klassen[i];
+                            $("#infoKlassen").append('<tr><td>'+kl.KNAME+" ("+kl.ID_LEHRER+")"+'</td></tr>');
+                        }
+                        
+                        $('#schuelerinfo').modal('show');
+                    },
+                    error: function () {
+                        toastr["error"]("kann Schülerinfo ID=" + id + " nicht vom Server laden", "Fehler!");
+                    }
+                });
+            });
+
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Schüler der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
@@ -251,11 +291,11 @@ function refreshAnwesenheit(kl) {
             var tab = "";
             tab += '<thead><tr>';
             while (current <= dateEnde) {
-                if (current.getDay()==0 || current.getDay()==6) {
-                    tab += '<th class="wochenende">&nbsp; ' + days[current.getDay()]+"<br>"+ current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';                    
+                if (current.getDay() == 0 || current.getDay() == 6) {
+                    tab += '<th class="wochenende">&nbsp; ' + days[current.getDay()] + "<br>" + current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
                 }
                 else {
-                    tab += '<th>&nbsp; ' + days[current.getDay()]+"<br>"+ current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
+                    tab += '<th>&nbsp; ' + days[current.getDay()] + "<br>" + current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
                 }
                 current.setDate(current.getDate() + 1);
             }
@@ -292,7 +332,7 @@ function refreshAnwesenheit(kl) {
     });
 }
 
-var oldText="";
+var oldText = "";
 function generateAnwesenheitsTable() {
     var dateStart = new Date($("#startDate").val());
     var dateEnde = new Date($("#endDate").val());
@@ -302,12 +342,12 @@ function generateAnwesenheitsTable() {
         tab += "<tr>";
         var dateStart = new Date($("#startDate").val());
         while (dateStart <= dateEnde) {
-            if (dateStart.getDay()==0 || dateStart.getDay()==6) {
-            tab += "<td class=\"anwesenheit wochenende\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(dateStart) + "\" >&nbsp;</td>";
-        }
-        else {
-tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(dateStart) + "\" >&nbsp;</td>";            
-        }
+            if (dateStart.getDay() == 0 || dateStart.getDay() == 6) {
+                tab += "<td class=\"anwesenheit wochenende\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(dateStart) + "\" >&nbsp;</td>";
+            }
+            else {
+                tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(dateStart) + "\" >&nbsp;</td>";
+            }
             dateStart.setDate(dateStart.getDate() + 1);
         }
         tab += '</tr>';
@@ -315,7 +355,7 @@ tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + 
     $("#tabelleAnwesenheit").append(tab);
     $(".anwesenheit").click(function () {
         console.log("input Visible=" + inputVisible);
-        oldText=$(this).text();
+        oldText = $(this).text();
         if (!inputVisible) {
             inputTd = $(this);
             inputVisible = true;
@@ -334,6 +374,7 @@ tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + 
             console.log("eingegeben wurde " + txt);
             $("#anwesenheitsInput").remove();
             inputTd.text(txt);
+            anwesenheitsEintrag(inputTd, txt);
             inputTd = $(this);
             var t = $(this).text();
             $(this).empty();
@@ -354,13 +395,13 @@ tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + 
 function handelKeyEvents(e) {
     var keyCode = e.keyCode || e.which;
     //console.log("key Pressed" + keyCode);
-    if (keyCode == 13 || keyCode == 9 || keyCode==27) {
+    if (keyCode == 13 || keyCode == 9 || keyCode == 27) {
         var txt = $(this).val();
         console.log("eingegeben wurde " + txt);
         $(this).remove();
-        if (keyCode!=27) {
+        if (keyCode != 27) {
             inputTd.text(txt);
-            anwesenheitsEintrag(inputTd,txt);
+            anwesenheitsEintrag(inputTd, txt);
         }
         else {
             inputTd.text(oldText);
@@ -368,7 +409,7 @@ function handelKeyEvents(e) {
         inputVisible = false;
         var index = inputTd.index();
         var tr = inputTd.parent();
-        
+
         console.log("index=" + index);
         console.log("Nachbar-Element hat Text " + $(inputTd).next().text());
         console.log("Vorheriges-Element hat Text " + $(inputTd).prev().text());
@@ -397,18 +438,18 @@ function handelKeyEvents(e) {
     }
 }
 
-function anwesenheitsEintrag(td,txt) {
+function anwesenheitsEintrag(td, txt) {
     var id = td.attr("id");
-    var dat=id.substring(id.indexOf("_")+1);
-    var sid=id.substring(0,id.indexOf("_"));
+    var dat = id.substring(id.indexOf("_") + 1);
+    var sid = id.substring(0, id.indexOf("_"));
     var eintr = {
-        "DATUM": dat+"T00:00:00",
+        "DATUM": dat + "T00:00:00",
         "ID_LEHRER": sessionStorage.myself,
         "ID_SCHUELER": parseInt(sid),
         "VERMERK": txt
     };
-    
-    console.log ("Sende zum Server:"+JSON.stringify(eintr));
+
+    console.log("Sende zum Server:" + JSON.stringify(eintr));
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/anwesenheit/",
         type: "POST",
@@ -429,22 +470,22 @@ function anwesenheitsEintrag(td,txt) {
 
 function toSQLString(d) {
     var s = "";
-    
+
     s += d.getFullYear() + "-";
-    if (d.getMonth() + 1>9) {
-        s+= (d.getMonth() + 1);
+    if (d.getMonth() + 1 > 9) {
+        s += (d.getMonth() + 1);
     }
     else {
-        s+= "0"+(d.getMonth() + 1);
+        s += "0" + (d.getMonth() + 1);
     }
-    s+="-";
-    if (d.getDate()>9) {
-        s+=d.getDate();
+    s += "-";
+    if (d.getDate() > 9) {
+        s += d.getDate();
     }
     else {
-        s+="0"+d.getDate();
+        s += "0" + d.getDate();
     }
-    
+
     return s;
 }
 
