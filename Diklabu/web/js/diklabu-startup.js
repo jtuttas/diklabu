@@ -12,6 +12,8 @@ $("#eintragDatum").datepicker("setDate", "+0");
 var today = new Date();
 $("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
 $("#endDate").datepicker("setDate", new Date());
+// Tooltip Aktivieren
+$('[data-toggle="tooltip"]').tooltip();   
 
 console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
@@ -232,24 +234,24 @@ function refreshKlassenliste(kl) {
                     },
                     contentType: "application/json; charset=UTF-8",
                     success: function (data) {
-                        $("#infoName").text(data.vorname+" "+data.name);
-                        $("#infoGeb").text("Geburtsdatum "+data.gebDatum);
+                        $("#infoName").text(data.vorname + " " + data.name);
+                        $("#infoGeb").text("Geburtsdatum " + data.gebDatum);
                         $("#infoAusbilderName").text(data.ausbilder.NNAME);
                         $("#infoAusbilderMail").text(data.ausbilder.EMAIL);
-                        $("#infoAusbilderMail").attr("href","mailto://"+data.ausbilder.EMAIL);
-                        $("#infoAusbilderTel").text("Tel.:"+data.ausbilder.TELEFON);
-                        $("#infoAusbilderFax").text("Fax :"+data.ausbilder.FAX);
+                        $("#infoAusbilderMail").attr("href", "mailto://" + data.ausbilder.EMAIL);
+                        $("#infoAusbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
+                        $("#infoAusbilderFax").text("Fax :" + data.ausbilder.FAX);
 
                         $("#infoBetriebName").text(data.betrieb.NAME);
                         $("#infoBetriebStrasse").text(data.betrieb.STRASSE);
-                        $("#infoBetriebOrt").text(data.betrieb.PLZ+" "+data.betrieb.ORT);
-                        
+                        $("#infoBetriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
+
                         $("#infoKlassen").empty();
-                        for (var i=0;i<data.klassen.length;i++) {
+                        for (var i = 0; i < data.klassen.length; i++) {
                             var kl = data.klassen[i];
-                            $("#infoKlassen").append('<tr><td>'+kl.KNAME+" ("+kl.ID_LEHRER+")"+'</td></tr>');
+                            $("#infoKlassen").append('<li>' + kl.KNAME + " (" + kl.ID_LEHRER + ")" + '</li>');
                         }
-                        
+
                         $('#schuelerinfo').modal('show');
                     },
                     error: function () {
@@ -312,7 +314,8 @@ function refreshAnwesenheit(kl) {
                     dat = dat.substring(0, dat.indexOf("T"));
                     var id = eintraege[j].ID_SCHUELER + "_" + dat;
                     console.log("suche html id " + id);
-                    $("#" + id).text(eintraege[j].VERMERK);
+                    //$("#" + id).text(eintraege[j].VERMERK);
+                    $("#" + id).append('<a href="#" data-toggle="tooltip" title="'+eintraege[j].ID_LEHRER+'">'+eintraege[j].VERMERK+'</a>');
                     $("#" + id).attr("id_lehrer", eintraege[j].ID_LEHRER);
                     $("#" + id).addClass("anwesenheitsPopup");
                 }
@@ -373,7 +376,8 @@ function generateAnwesenheitsTable() {
             var txt = $("#anwesenheitsInput").val();
             console.log("eingegeben wurde " + txt);
             $("#anwesenheitsInput").remove();
-            inputTd.text(txt);
+            //inputTd.text(txt);
+            inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+txt+'</a>');
             anwesenheitsEintrag(inputTd, txt);
             inputTd = $(this);
             var t = $(this).text();
@@ -400,7 +404,8 @@ function handelKeyEvents(e) {
         console.log("eingegeben wurde " + txt);
         $(this).remove();
         if (keyCode != 27) {
-            inputTd.text(txt);
+            //inputTd.text(txt);            
+            inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+txt+'</a>');
             anwesenheitsEintrag(inputTd, txt);
         }
         else {
@@ -410,11 +415,13 @@ function handelKeyEvents(e) {
         var index = inputTd.index();
         var tr = inputTd.parent();
 
+        /*
         console.log("index=" + index);
         console.log("Nachbar-Element hat Text " + $(inputTd).next().text());
         console.log("Vorheriges-Element hat Text " + $(inputTd).prev().text());
         console.log("Oberhalb hat den Wert " + tr.prev().find('td').eq(index).text());
         console.log("Unterhalb hat den Wert " + tr.next().find('td').eq(index).text());
+        */
         // unteres Element auswählen
         if (keyCode == 13) {
             // nicht letzte Zeile
