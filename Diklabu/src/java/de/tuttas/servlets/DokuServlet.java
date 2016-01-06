@@ -267,9 +267,7 @@ public class DokuServlet extends HttpServlet {
 
             tagZeile += "</table>\n";
             htmlString.append(tagZeile);
-        }
-
-        System.out.println("fertig");
+            System.out.println("fertig");
         System.out.println("html String =" + htmlString.toString());
         //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
@@ -280,6 +278,9 @@ public class DokuServlet extends HttpServlet {
         image.scalePercent(50f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        }
+
+        
         document.close();
         return document;
     }
