@@ -20,6 +20,14 @@ if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "unde
     console.log("Build gui for logged in user");
     loggedIn();
 }
+
+
+$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+//show selected tab / active
+ console.log ( $(e.target).text() );
+ $("#dokumentationType").val($(e.target).text());
+});
+
 $("#login").click(function () {
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {
         var myData = {

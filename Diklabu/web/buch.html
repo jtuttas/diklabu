@@ -79,7 +79,7 @@
                         <div class="col-md-1">
                             <br>
                             <form action="/Diklabu/DokuServlet" target="_blank" method="POST" role="form" class="form-horizontal">
-                                <input type="hidden" name="cmd" value="verlauf">
+                                <input id="dokumentationType" type="hidden" name="cmd" value="Verlauf">
                                 <input type="hidden" name="auth_token" id="auth_token">
                                 <input type="hidden" name="service_key" id="service_key">
                                 <input type="hidden" name="idklasse" id="idklasse">
@@ -91,7 +91,7 @@
                     </div>
                 </div>
 
-                <ul class="nav nav-tabs">
+                <ul class="nav nav-tabs" id="navTabs">
                     <li class="active"><a data-toggle="tab" href="#tabVerlauf">Verlauf</a></li>
                     <li><a data-toggle="tab" href="#tabAnwesenheit">Anwesenheit</a></li>
                     <li><a data-toggle="tab" href="#tabFehlzeiten">Fehlzeiten</a></li>
