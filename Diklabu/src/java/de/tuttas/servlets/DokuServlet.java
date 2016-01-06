@@ -106,28 +106,6 @@ public class DokuServlet extends HttpServlet {
                 //Get the output stream for writing PDF object        
                 OutputStream out = response.getOutputStream();
                 try {
-                    Document document = new Document();
-                    /* Basic PDF Creation inside servlet */
-                    PdfWriter writer = PdfWriter.getInstance(document, out);
-                    StringBuilder htmlString = new StringBuilder();
-                    /* Nun das Template laden */
-                    /*
-                     ServletContext cntxt = this.getServletContext();
-                     String fName = "/temp-verlauf.html";
-                     System.out.println("Lade Template: " + cntxt.getRealPath(fName));
-                     InputStream ins = cntxt.getResourceAsStream(fName);
-                     if (ins != null) {
-                     InputStreamReader isr = new InputStreamReader(ins);
-                     BufferedReader reader = new BufferedReader(isr);
-                     String word = "";
-                     while ((word = reader.readLine()) != null) {
-                     System.out.println("word=" + word);
-                     htmlString.append(word);
-                     }
-                     } else {
-                     System.out.println("Kann Template nicht finden");
-                     }
-                     */
                     String kopf = "";
                     kopf += ("<table border='1' align='center' width='100%'>");
                     kopf += ("<tr>");
@@ -155,25 +133,25 @@ public class DokuServlet extends HttpServlet {
                     kopf += ("</tr>");
                     kopf += ("</table>");
                     kopf += ("<p>&nbsp;</p>");
-                    htmlString.append(kopf);
 
-                    if (cmd.compareTo("Verlauf") == 0) {
-                        htmlString = createVerlauf(kl, request, response, htmlString, document, writer, kopf);
-                    } else if (cmd.compareTo("Anwesenheit") == 0) {
-                        htmlString = createAnwesenheit(kl, request, response, htmlString, document, writer, kopf);
-
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    Date parsedFrom = (Date) dateFormat.parse(request.getParameter("from"));
+                    Date parsedTo;
+                    if (request.getParameter("to") == null) {
+                        parsedTo = new java.sql.Date(System.currentTimeMillis());
+                    } else {                        
+                        parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
                     }
+                    System.out.println("setze To auf " + new java.sql.Date(parsedTo.getTime()));
 
-                    //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
-                    InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-                    // Bild einfügen
-                    String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
-                    Image image = Image.getInstance(url);
-                    image.setAbsolutePosition(45f, 720f);
-                    image.scalePercent(50f);
-                    document.add(image);
-                    XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-                    document.close();
+                    Document document;
+                    if (cmd.compareTo("Verlauf") == 0) {
+                        response.addHeader("Content-Disposition", "attachment; filename=Verlauf_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                        document = createVerlauf(kl, kopf, parsedFrom, parsedTo, out);
+                    } else if (cmd.compareTo("Anwesenheit") == 0) {
+                        response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                        document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out);                        
+                    }
 
                 } catch (DocumentException exc) {
                     throw new IOException(exc.getMessage());
@@ -200,33 +178,24 @@ public class DokuServlet extends HttpServlet {
         }
     }
 
-    private StringBuilder createAnwesenheit(Klasse kl, HttpServletRequest request, HttpServletResponse response, StringBuilder htmlString, Document document, PdfWriter writer, String kopf) throws ParseException, IOException, DocumentException {
+    private Document createAnwesenheit(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
         /* Anwesenheit einfügen */
         TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
         query.setParameter("paramKName", kl.getKNAME());
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedFrom = (Date) dateFormat.parse(request.getParameter("from"));
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
+        query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
         System.out.println("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
-        Date parsedTo;
-        if (request.getParameter("to") == null) {
-            query.setParameter("paramToDate", new java.sql.Date(System.currentTimeMillis()));
-            parsedTo = new java.sql.Date(System.currentTimeMillis());
-        } else {
-            dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
-            query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
-        }
-        System.out.println("setze To auf " + new java.sql.Date(parsedTo.getTime()));
-        response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
         List<AnwesenheitObjekt> anwesenheit = getData(query);
-        
-        
+
         System.out.println("Result List:" + anwesenheit);
         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
         c.setTime(parsedFrom);
         System.out.println("KW beginnt bei " + c.get(GregorianCalendar.WEEK_OF_YEAR));
-
         int spalte = 0;
         String tagZeile = "";
         document.open();
@@ -263,9 +232,9 @@ public class DokuServlet extends HttpServlet {
                 while (spalte < 7 && !current.after(parsedTo)) {
                     c.setTime(current);
                     if (c.get(GregorianCalendar.DAY_OF_WEEK) == 1 || c.get(GregorianCalendar.DAY_OF_WEEK) == 7) {
-                        tagZeile += ("<td style=\"background-color:#cccccc;font-size: 11;border: 1px solid black;\">"+findVermerk(s.getId(),current,anwesenheit)+"</td>\n");
+                        tagZeile += ("<td style=\"background-color:#cccccc;font-size: 11;border: 1px solid black;\">" + findVermerk(s.getId(), current, anwesenheit) + "</td>\n");
                     } else {
-                        tagZeile += ("<td style=\"font-size: 11;border: 1px solid black;\">"+findVermerk(s.getId(),current,anwesenheit)+"</td>\n");
+                        tagZeile += ("<td style=\"font-size: 11;border: 1px solid black;\">" + findVermerk(s.getId(), current, anwesenheit) + "</td>\n");
                     }
                     System.out.println("Zeile f. Schüler " + s.getNNAME() + " Datum " + current);
                     current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
@@ -301,45 +270,31 @@ public class DokuServlet extends HttpServlet {
         }
 
         System.out.println("fertig");
-
-        /*
-         for (Schueler s : schueler) {
-         htmlString.append("<tr>");
-         htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + s.getVNAME() + " " + s.getNNAME() + "</td>");
-         spalte = 0;
-         while (spalte <= 7) {
-         //htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + getAnwesenheit(s.getId(), anwesenheit,parsedFrom) + "</td>");
-         htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">x</td>");
-         parsedFrom = new Date(parsedFrom.getTime() + 1000 * 60 * 60 * 24);
-         spalte++;
-         }
-         htmlString.append("</tr>");
-         }
-
-         }
-         */
         System.out.println("html String =" + htmlString.toString());
-        return htmlString;
+        //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        document.close();
+        return document;
     }
 
-    private StringBuilder createVerlauf(Klasse kl, HttpServletRequest request, HttpServletResponse response, StringBuilder htmlString, Document document, PdfWriter writer, String kopf) throws ParseException, IOException, DocumentException {
+    private Document createVerlauf(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
         /* Verlauf einfügen */
         Query query = em.createNamedQuery("findVerlaufbyKlasse");
         query.setParameter("paramKName", kl.getKNAME());
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date parsedFrom = (Date) dateFormat.parse(request.getParameter("from"));
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
-        System.out.println("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
-        Date parsedTo;
-        if (request.getParameter("to") == null) {
-            query.setParameter("paramToDate", new java.sql.Date(System.currentTimeMillis()));
-            parsedTo = new java.sql.Date(System.currentTimeMillis());
-        } else {
-            dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
-            query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
-        }
-        response.addHeader("Content-Disposition", "attachment; filename=verlauf_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+        query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
         List<Verlauf> verlauf = query.getResultList();
         System.out.println("Result List:" + verlauf);
         htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
@@ -412,7 +367,17 @@ public class DokuServlet extends HttpServlet {
         }
         htmlString.append("</table>");
         System.out.println("html String Rest=" + htmlString.toString());
-        return htmlString;
+        //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        document.close();
+        return document;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -456,10 +421,10 @@ public class DokuServlet extends HttpServlet {
 
     private String findVermerk(Integer id, Date current, List<AnwesenheitObjekt> anwesenheit) {
         for (AnwesenheitObjekt ao : anwesenheit) {
-            if (ao.getId_Schueler()==id) {
-                System.out.println("Schuler mit id= "+id+" gefunden!");
+            if (ao.getId_Schueler() == id) {
+                System.out.println("Schuler mit id= " + id + " gefunden!");
                 for (AnwesenheitEintrag a : ao.getEintraege()) {
-                    if (a.getDATUM().compareTo(current)==0) {
+                    if (a.getDATUM().compareTo(current) == 0) {
                         return a.getVERMERK();
                     }
                 }
