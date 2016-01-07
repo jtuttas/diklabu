@@ -10,6 +10,7 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
+import de.tuttas.util.VerspaetungsUtil;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -139,6 +140,10 @@ public class AnwesenheitsManager {
                 anw.add(ao);
             }
             ao.getEintraege().add(anwesenheit.get(i));
+        }
+        
+        for (AnwesenheitObjekt ano:anw) {
+            ano=VerspaetungsUtil.parse(ano);
         }
         return anw;
     }
