@@ -40,11 +40,23 @@ public class VerspaetungsUtil {
                     ao.incFehltageEntschuldigt();
                 } else if (vermerk.charAt(0) == 'v') {
                     ao.incVerspaetungen();
-                    ao.addMinutenVerspaetung(filterMinuten(vermerk, "v"));
+                    int min = filterMinuten(vermerk, "v");
+                    boolean e = false;
+                    ao.addMinutenVerspaetung(min);
                     if (istEntschuldigt(vermerk, "v")) {
                         ao.addMinutenVerspaetungEntschuldigt(filterMinuten(vermerk, "v"));
+                        e=true;
                     }
                     // Test auf v40xG90
+                    int i=0;
+                    if (e) i++;
+                    vermerk = vermerk.substring(1+Integer.toString(min).length()+i);
+                    System.out.println("Vermekr ist nun ("+vermerk+")");
+                    min = filterMinuten(vermerk, "g");
+                    ao.addMinutenVerspaetung(min);
+                    if (istEntschuldigt(vermerk, "g")) {
+                        ao.addMinutenVerspaetungEntschuldigt(filterMinuten(vermerk, "g"));                        
+                    }
                 } else {
                     ao.getParseErrors().add(ae);
                     
@@ -127,7 +139,8 @@ public class VerspaetungsUtil {
         System.out.println("v60etest=" + filterMinuten("v60etest", "v"));
         System.out.println("av60etest=" + filterMinuten("av60etest", "v"));
         System.out.println("aversuch90=" + filterMinuten("aversuch90", "v"));
-
+        System.out.println("v90g90" + filterMinuten("v90g90", "v"));
+        System.out.println("--");
         System.out.println("v60test2=" + istEntschuldigt("v60test2", "v"));
         System.out.println("d60test2=" + istEntschuldigt("d60test2", "v"));
         System.out.println("v60etest=" + istEntschuldigt("v60etest", "v"));
