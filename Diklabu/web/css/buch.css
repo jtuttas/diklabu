@@ -26,3 +26,7 @@ th{ height: 75px; }
 .wochenende {
     background-color: #eeeeee;
 }
+
+.parseError {
+    background-color: #ffcccc;
+}

@@ -5,6 +5,7 @@
  */
 package de.tuttas.restful.Data;
 
+import de.tuttas.util.VerspaetungsUtil;
 import java.sql.Date;
 import java.sql.Timestamp;
 
@@ -17,6 +18,16 @@ public class AnwesenheitEintrag {
     private String ID_LEHRER;
     private int ID_SCHUELER;
     private String VERMERK;
+    private boolean parseError = false;
+
+    public void setParseError(boolean b) {
+        this.parseError=b;
+    }
+    
+    public boolean getParseError() {
+        return  this.parseError;
+    }
+
 
     public AnwesenheitEintrag() {
     }

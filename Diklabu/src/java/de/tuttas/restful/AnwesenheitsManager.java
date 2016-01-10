@@ -9,6 +9,7 @@ import de.tuttas.entities.Anwesenheit;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
+
 import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.util.VerspaetungsUtil;
 import java.sql.Date;
@@ -74,6 +75,7 @@ public class AnwesenheitsManager {
         } else {
             em.persist(a);
         }
+        ae.setParseError(!VerspaetungsUtil.isValid(ae));
         return ae;
     }
 
@@ -139,6 +141,7 @@ public class AnwesenheitsManager {
                 ao = new AnwesenheitObjekt(id);
                 anw.add(ao);
             }
+            anwesenheit.get(i).setParseError(!VerspaetungsUtil.isValid(anwesenheit.get(i)));
             ao.getEintraege().add(anwesenheit.get(i));
         }
         

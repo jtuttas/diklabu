@@ -44,19 +44,52 @@ public class VerspaetungsUtil {
                     if (istEntschuldigt(vermerk, "v")) {
                         ao.addMinutenVerspaetungEntschuldigt(filterMinuten(vermerk, "v"));
                     }
+                    // Test auf v40xG90
                 } else {
                     ao.getParseErrors().add(ae);
+                    
                 }
             }
         }
         return ao;
     }
 
+    public static boolean isValid(AnwesenheitEintrag ae) {
+        String vermerk = ae.getVERMERK();
+        return isValid(vermerk);
+    }
+    
+    public static boolean isValid(String vermerk) {
+        
+         vermerk = vermerk.replace((char) 160, ' ');
+            vermerk = vermerk.trim();
+            vermerk = vermerk.toLowerCase();
+            System.out.println("Test parse Error ("+vermerk+")");
+        if (vermerk.length() > 0) {
+            if (vermerk.charAt(0) == 'a') {
+                return true;
+            } else if (vermerk.charAt(0) == 'f') {
+                return true;
+
+            } else if (vermerk.charAt(0) == 'e') {
+                return true;
+
+            } else if (vermerk.charAt(0) == 'v') {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
+
     /**
      * Ermittels die Fehlminuten
+     *
      * @param v Der String z.B v90
-     * @param firstChar Beginn der Zeichenkette "v" f. Verspätungen "ag" f. anwesend gegangen
-     * @return  Anzahl der Fehlminuten
+     * @param firstChar Beginn der Zeichenkette "v" f. Verspätungen "ag" f.
+     * anwesend gegangen
+     * @return Anzahl der Fehlminuten
      */
     public static int filterMinuten(String v, String firstChar) {
         v = v.toLowerCase();
@@ -71,8 +104,10 @@ public class VerspaetungsUtil {
 
     /**
      * Überprüft ob die Fehlzeiten entschuldigt sind
+     *
      * @param v Der String z.B. v90e
-     * @param firstChar Beginn der Zeichenkette "v" f. Verspätungen "ag" f. anwesend gegangen
+     * @param firstChar Beginn der Zeichenkette "v" f. Verspätungen "ag" f.
+     * anwesend gegangen
      * @return true f. entschuldigt, f für unentschuldigt
      */
     public static boolean istEntschuldigt(String v, String firstChar) {

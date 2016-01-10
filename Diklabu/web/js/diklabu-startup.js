@@ -326,6 +326,9 @@ function refreshAnwesenheit(kl) {
                     $("#" + id).append('<a href="#" data-toggle="tooltip" title="'+eintraege[j].ID_LEHRER+'">'+eintraege[j].VERMERK+'</a>');
                     $("#" + id).attr("id_lehrer", eintraege[j].ID_LEHRER);
                     $("#" + id).addClass("anwesenheitsPopup");
+                    if (eintraege[j].parseError) {
+                        $("#" + id).addClass("parseError");
+                    }
                 }
             }
             // Eventhandler auf einen anwesenheitseintrag
@@ -382,11 +385,11 @@ function generateAnwesenheitsTable() {
             inputVisible = true;
             $('body').off('keydown', "#anwesenheitsInput");
             var txt = $("#anwesenheitsInput").val();
-            console.log("eingegeben wurde " + txt);
+            console.log("eingegeben wurde (" + txt+")");
             $("#anwesenheitsInput").remove();
             //inputTd.text(txt);
             inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+txt+'</a>');
-            anwesenheitsEintrag(inputTd, txt);
+            if (txt!="" && txt.charCodeAt(0)!=160) anwesenheitsEintrag(inputTd, txt);
             inputTd = $(this);
             var t = $(this).text();
             $(this).empty();
@@ -417,7 +420,7 @@ function handelKeyEvents(e) {
             anwesenheitsEintrag(inputTd, txt);
         }
         else {
-            inputTd.text(oldText);
+            inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+oldText+'</a>');        
         }
         inputVisible = false;
         var index = inputTd.index();
@@ -476,6 +479,13 @@ function anwesenheitsEintrag(td, txt) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
+            if (data.parseError) {
+                toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");                
+                td.addClass("parseError");
+            }
+            else {
+                td.removeClass("parseError");
+            }
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Anwesenheitseintrag nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
