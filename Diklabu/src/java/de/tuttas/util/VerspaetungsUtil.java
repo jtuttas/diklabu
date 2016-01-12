@@ -45,21 +45,27 @@ public class VerspaetungsUtil {
                     ao.addMinutenVerspaetung(min);
                     if (istEntschuldigt(vermerk, "v")) {
                         ao.addMinutenVerspaetungEntschuldigt(filterMinuten(vermerk, "v"));
-                        e=true;
+                        e = true;
                     }
                     // Test auf v40xG90
-                    int i=0;
-                    if (e) i++;
-                    vermerk = vermerk.substring(1+Integer.toString(min).length()+i);
-                    System.out.println("Vermekr ist nun ("+vermerk+")");
-                    min = filterMinuten(vermerk, "g");
-                    ao.addMinutenVerspaetung(min);
-                    if (istEntschuldigt(vermerk, "g")) {
-                        ao.addMinutenVerspaetungEntschuldigt(filterMinuten(vermerk, "g"));                        
+                    int i = 0;
+                    if (e) {
+                        i++;
+                    }
+                    try {
+                        vermerk = vermerk.substring(1 + Integer.toString(min).length() + i);
+                        System.out.println("Vermerk ist nun (" + vermerk + ")");
+                        min = filterMinuten(vermerk, "g");
+                        ao.addMinutenVerspaetung(min);
+                        if (istEntschuldigt(vermerk, "g")) {
+                            ao.addMinutenVerspaetungEntschuldigt(filterMinuten(vermerk, "g"));
+                        }
+                    } catch (StringIndexOutOfBoundsException ee) {
+
                     }
                 } else {
                     ao.getParseErrors().add(ae);
-                    
+
                 }
             }
         }
@@ -70,27 +76,18 @@ public class VerspaetungsUtil {
         String vermerk = ae.getVERMERK();
         return isValid(vermerk);
     }
-    
+
     public static boolean isValid(String vermerk) {
-        
-         vermerk = vermerk.replace((char) 160, ' ');
-            vermerk = vermerk.trim();
-            vermerk = vermerk.toLowerCase();
-            System.out.println("Test parse Error ("+vermerk+")");
-        if (vermerk.length() > 0) {
-            if (vermerk.charAt(0) == 'a') {
-                return true;
-            } else if (vermerk.charAt(0) == 'f') {
-                return true;
 
-            } else if (vermerk.charAt(0) == 'e') {
-                return true;
-
-            } else if (vermerk.charAt(0) == 'v') {
-                return true;
-            } else {
-                return false;
-            }
+        vermerk = vermerk.replace((char) 160, ' ');
+        vermerk = vermerk.trim();
+        vermerk = vermerk.toLowerCase();
+        System.out.println("Test parse Error (" + vermerk + ")");
+        Pattern p = Pattern.compile("(^v\\d+(e(g\\d+(e|)|)|g\\d+(e|)|)|^a(g\\d+(e|)|)|^e|^f)");
+        Matcher m = p.matcher(vermerk);
+        while (m.find()) {
+            System.out.println("is Valid ist ("+m.group()+")");
+            return true;
         }
         return false;
     }

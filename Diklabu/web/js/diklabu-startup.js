@@ -389,7 +389,7 @@ function generateAnwesenheitsTable() {
             $("#anwesenheitsInput").remove();
             //inputTd.text(txt);
             inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+txt+'</a>');
-            if (txt!="" && txt.charCodeAt(0)!=160) anwesenheitsEintrag(inputTd, txt);
+            if (txt!=undefined && txt!="" && txt.charCodeAt(0)!=160) anwesenheitsEintrag(inputTd, txt);
             inputTd = $(this);
             var t = $(this).text();
             $(this).empty();
