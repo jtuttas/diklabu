@@ -22,9 +22,9 @@ import javax.persistence.NamedQuery;
 @Entity
 @NamedQueries({
    // @NamedQuery(name = "findAnwesenheitbyKlasse", query= "select a from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on sk.ID_SCHUELER=s.ID INNER JOIN Klasse k on k.ID=sk.ID_KLASSE where k.KNAME='FISI13A' and a.DATUM between '2015-09-08' and '2015-09-10' ORDER BY s.ID ")
-     @NamedQuery(name = "findAnwesenheitbyKlasse", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on sk.ID_SCHUELER=s.ID INNER JOIN Klasse k on k.ID=sk.ID_KLASSE where k.KNAME like :paramKName and (a.DATUM between :paramFromDate and :paramToDate) ORDER BY a.ID_SCHUELER,a.DATUM "),
+     @NamedQuery(name = "findAnwesenheitbyKlasse", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on sk.ID_SCHUELER=s.ID INNER JOIN Klasse k on k.ID=sk.ID_KLASSE where k.KNAME like :paramKName and (a.DATUM between :paramFromDate and :paramToDate) ORDER BY s.NNAME,a.DATUM "),
    //@NamedQuery(name = "findAnwesenheitbyKlasse", query= "select a from Anwesenheit a where a.ID_SCHUELER=14279 and (a.DATUM between :paramFromDate and :paramToDate)")
-     @NamedQuery(name = "findAnwesenheitbyDatumAndSchuelerID", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a where a.DATUM=:paramDatum and a.ID_SCHUELER=:paramSchuelerID")
+     @NamedQuery(name = "findAnwesenheitbyDatumAndSchuelerID", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID where a.DATUM=:paramDatum and a.ID_SCHUELER=:paramSchuelerID  ORDER BY s.NNAME")
     
 })
 public class Anwesenheit implements Serializable {

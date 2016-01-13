@@ -13,7 +13,7 @@ var today = new Date();
 $("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
 $("#endDate").datepicker("setDate", new Date());
 // Tooltip Aktivieren
-$('[data-toggle="tooltip"]').tooltip();   
+$('[data-toggle="tooltip"]').tooltip();
 
 console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
@@ -24,8 +24,29 @@ if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "unde
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 //show selected tab / active
- console.log ( $(e.target).text() );
- $("#dokumentationType").val($(e.target).text());
+    console.log($(e.target).text());
+    $("#dokumentationType").val($(e.target).text());
+
+    // Bei Verspätungen neu vom Server laden
+    if ($(e.target).text() == "Fehlzeiten") {
+        console.log("Erneuere Fehlzeiten f. Klasse "+nameKlasse);
+        $.ajax({
+            // anwesenheit/FISI13A/2015-09-08/2015-09-15
+            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + nameKlasse + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
+            type: "GET",
+            cache: false,
+            headers: {
+                "service_key": sessionStorage.service_key,
+                "auth_token": sessionStorage.auth_token
+            },
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                anwesenheit = data;
+                console.log("anwesenheit=" + JSON.stringify(data));
+                generateVerspaetungen();
+            }
+        });
+    }
 });
 
 $("#login").click(function () {
@@ -222,14 +243,23 @@ function refreshKlassenliste(kl) {
             schueler = data;
             $("#tabelleKlasse").empty();
 
-            $("#tabelleKlasse").append('<thead><tr><th >Name</th></tr></thead>');
+            $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
                 $("#tabelleKlasse").append('<tr><td><img src="img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
             }
             $("#tabelleKlasse").append("</tbody>");
             refreshAnwesenheit(kl);
-            $(".infoIcon").click(function () {
+            getSchuelerInfo();
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Schüler der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
+
+function getSchuelerInfo() {
+    $(".infoIcon").click(function () {
                 var id = $(this).attr("id");
                 id = id.substring(1);
                 console.log("lade Schuler ID=" + id);
@@ -268,11 +298,6 @@ function refreshKlassenliste(kl) {
                 });
             });
 
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            toastr["error"]("kann Schüler der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-        }
-    });
 }
 
 function refreshAnwesenheit(kl) {
@@ -292,6 +317,7 @@ function refreshAnwesenheit(kl) {
         success: function (data) {
             anwesenheit = data;
             console.log("anwesenheit=" + JSON.stringify(data));
+            generateVerspaetungen();
             $("#tabelleAnwesenheit").empty();
             var dateStart = new Date($("#startDate").val());
             var dateEnde = new Date($("#endDate").val());
@@ -323,7 +349,7 @@ function refreshAnwesenheit(kl) {
                     var id = eintraege[j].ID_SCHUELER + "_" + dat;
                     console.log("suche html id " + id);
                     //$("#" + id).text(eintraege[j].VERMERK);
-                    $("#" + id).append('<a href="#" data-toggle="tooltip" title="'+eintraege[j].ID_LEHRER+'">'+eintraege[j].VERMERK+'</a>');
+                    $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + '">' + eintraege[j].VERMERK + '</a>');
                     $("#" + id).attr("id_lehrer", eintraege[j].ID_LEHRER);
                     $("#" + id).addClass("anwesenheitsPopup");
                     if (eintraege[j].parseError) {
@@ -344,6 +370,43 @@ function refreshAnwesenheit(kl) {
             toastr["error"]("kann Anwesenheit der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
         }
     });
+}
+
+function generateVerspaetungen() {
+    console.log("Generate Verspaetungen");
+    $("#verspaetungenTabelle").empty();
+    for (var i = 0; i < anwesenheit.length; i++) {
+        if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0) {
+            var tr = "<tr>";
+            tr += "<td><img src=\"img/Info.png\" id=\"S"+ anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
+            tr += "<td>" + anwesenheit[i].summeFehltage + "</td>";
+            tr += "<td>" + anwesenheit[i].summeFehltageEntschuldigt + "</td>";
+            tr += "<td>" + anwesenheit[i].anzahlVerspaetungen + " (" + anwesenheit[i].summeMinutenVerspaetungen + " min)</td>";
+            tr += "<td>" + anwesenheit[i].summeMinutenVerspaetungenEntschuldigt + " min</td>";
+            var fehler = anwesenheit[i].parseErrors;
+            tr += "<td>";
+            console.log("Fehler size=" + fehler.length);
+            for (var j = 0; j < fehler.length; j++) {
+                var dat = fehler[j].DATUM;
+                dat = dat.substr(0, dat.indexOf("T"));
+                tr += "<small> " + fehler[j].ID_LEHRER + " (" + fehler[j].VERMERK + ") " + dat + "</small>";
+            }
+            tr += "</td>";
+
+            tr += "</tr>";
+            $("#verspaetungenTabelle").append(tr);
+        }
+    }
+    getSchuelerInfo();
+}
+
+function getNameSchuler(id) {
+    for (var i = 0; i < schueler.length; i++) {
+        if (schueler[i].id == id) {
+            return schueler[i].VNAME + " " + schueler[i].NNAME;
+        }
+    }
+    return "unknown ID "+id;
 }
 
 var oldText = "";
@@ -385,11 +448,12 @@ function generateAnwesenheitsTable() {
             inputVisible = true;
             $('body').off('keydown', "#anwesenheitsInput");
             var txt = $("#anwesenheitsInput").val();
-            console.log("eingegeben wurde (" + txt+")");
+            console.log("eingegeben wurde (" + txt + ")");
             $("#anwesenheitsInput").remove();
             //inputTd.text(txt);
-            inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+txt+'</a>');
-            if (txt!=undefined && txt!="" && txt.charCodeAt(0)!=160) anwesenheitsEintrag(inputTd, txt);
+            inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + txt + '</a>');
+            if (txt != undefined && txt != "" && txt.charCodeAt(0) != 160)
+                anwesenheitsEintrag(inputTd, txt);
             inputTd = $(this);
             var t = $(this).text();
             $(this).empty();
@@ -416,23 +480,23 @@ function handelKeyEvents(e) {
         $(this).remove();
         if (keyCode != 27) {
             //inputTd.text(txt);            
-            inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+txt+'</a>');
+            inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + txt + '</a>');
             anwesenheitsEintrag(inputTd, txt);
         }
         else {
-            inputTd.append('<a href="#" data-toggle="tooltip" title="'+sessionStorage.myself+'">'+oldText+'</a>');        
+            inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + oldText + '</a>');
         }
         inputVisible = false;
         var index = inputTd.index();
         var tr = inputTd.parent();
 
         /*
-        console.log("index=" + index);
-        console.log("Nachbar-Element hat Text " + $(inputTd).next().text());
-        console.log("Vorheriges-Element hat Text " + $(inputTd).prev().text());
-        console.log("Oberhalb hat den Wert " + tr.prev().find('td').eq(index).text());
-        console.log("Unterhalb hat den Wert " + tr.next().find('td').eq(index).text());
-        */
+         console.log("index=" + index);
+         console.log("Nachbar-Element hat Text " + $(inputTd).next().text());
+         console.log("Vorheriges-Element hat Text " + $(inputTd).prev().text());
+         console.log("Oberhalb hat den Wert " + tr.prev().find('td').eq(index).text());
+         console.log("Unterhalb hat den Wert " + tr.next().find('td').eq(index).text());
+         */
         // unteres Element auswählen
         if (keyCode == 13) {
             // nicht letzte Zeile
@@ -480,7 +544,7 @@ function anwesenheitsEintrag(td, txt) {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             if (data.parseError) {
-                toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");                
+                toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
                 td.addClass("parseError");
             }
             else {
@@ -553,6 +617,7 @@ function loggedIn() {
     $("#klassen").change(function () {
         console.log("Klasse ID=" + $('option:selected', this).attr('dbid') + " KNAME=" + $("#klassen").val());
         idKlasse = $('option:selected', this).attr('dbid');
+        nameKlasse=$("#klassen").val();
         refreshVerlauf($("#klassen").val());
         refreshKlassenliste($("#klassen").val());
         $("#idklasse").val(idKlasse);
