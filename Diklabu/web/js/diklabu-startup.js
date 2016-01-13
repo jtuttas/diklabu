@@ -29,7 +29,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 
     // Bei Verspätungen neu vom Server laden
     if ($(e.target).text() == "Fehlzeiten") {
-        console.log("Erneuere Fehlzeiten f. Klasse "+nameKlasse);
+        console.log("Erneuere Fehlzeiten f. Klasse " + nameKlasse);
         $.ajax({
             // anwesenheit/FISI13A/2015-09-08/2015-09-15
             url: SERVER + "/Diklabu/api/v1/anwesenheit/" + nameKlasse + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
@@ -260,46 +260,66 @@ function refreshKlassenliste(kl) {
 
 function getSchuelerInfo() {
     $(".infoIcon").click(function () {
-                var id = $(this).attr("id");
-                id = id.substring(1);
-                console.log("lade Schuler ID=" + id);
-                $.ajax({
-                    url: SERVER + "/Diklabu/api/v1/schueler/" + id,
-                    type: "GET",
-                    headers: {
-                        "service_key": sessionStorage.service_key,
-                        "auth_token": sessionStorage.auth_token
-                    },
-                    contentType: "application/json; charset=UTF-8",
-                    success: function (data) {
-                        $("#infoName").text(data.vorname + " " + data.name);
-                        $("#infoGeb").text("Geburtsdatum " + data.gebDatum);
-                        $("#infoAusbilderName").text(data.ausbilder.NNAME);
-                        $("#infoAusbilderMail").text(data.ausbilder.EMAIL);
-                        $("#infoAusbilderMail").attr("href", "mailto://" + data.ausbilder.EMAIL);
-                        $("#infoAusbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
-                        $("#infoAusbilderFax").text("Fax :" + data.ausbilder.FAX);
+        var id = $(this).attr("id");
+        id = id.substring(1);
+        console.log("lade Schuler ID=" + id);
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/schueler/" + id,
+            type: "GET",
+            headers: {
+                "service_key": sessionStorage.service_key,
+                "auth_token": sessionStorage.auth_token
+            },
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                $("#infoName").text(data.vorname + " " + data.name);
+                $("#infoGeb").text("Geburtsdatum " + data.gebDatum);
+                $("#infoAusbilderName").text(data.ausbilder.NNAME);
+                $("#infoAusbilderMail").text(data.ausbilder.EMAIL);
+                $("#infoAusbilderMail").attr("href", "mailto://" + data.ausbilder.EMAIL);
+                $("#infoAusbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
+                $("#infoAusbilderFax").text("Fax :" + data.ausbilder.FAX);
 
-                        $("#infoBetriebName").text(data.betrieb.NAME);
-                        $("#infoBetriebStrasse").text(data.betrieb.STRASSE);
-                        $("#infoBetriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
+                $("#infoBetriebName").text(data.betrieb.NAME);
+                $("#infoBetriebStrasse").text(data.betrieb.STRASSE);
+                $("#infoBetriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
 
-                        $("#infoKlassen").empty();
-                        for (var i = 0; i < data.klassen.length; i++) {
-                            var kl = data.klassen[i];
-                            $("#infoKlassen").append('<li>' + kl.KNAME + " (" + kl.ID_LEHRER + ")" + '</li>');
-                        }
+                $("#infoKlassen").empty();
+                for (var i = 0; i < data.klassen.length; i++) {
+                    var kl = data.klassen[i];
+                    $("#infoKlassen").append('<li>' + kl.KNAME + " (" + kl.ID_LEHRER + ")" + '</li>');
+                }
 
-                        $('#schuelerinfo').modal('show');
-                    },
-                    error: function () {
-                        toastr["error"]("kann Schülerinfo ID=" + id + " nicht vom Server laden", "Fehler!");
-                    }
-                });
-            });
+                $('#schuelerinfo').modal('show');
+                getSchuelerBild(id);
+            },
+            error: function () {
+                toastr["error"]("kann Schülerinfo ID=" + id + " nicht vom Server laden", "Fehler!");
+            }
+        });
+    });
 
 }
 
+/**
+ * Anzeige des Schülerbiles einer Schülers
+ * @param {type} id
+ * @returns {undefined}
+ */
+function getSchuelerBild(id) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
+        type: 'HEAD',
+        error:
+                function () {
+                    $("#infoBild").attr("src", "img/anonym.gif");
+                },
+        success:
+                function () {
+                    $("#infoBild").attr("src", SERVER + "/Diklabu/api/v1/schueler/bild/" + id);
+                }
+    });
+}
 function refreshAnwesenheit(kl) {
     console.log("Refresh Anwesenheit f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
     var url = SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + $("#startDate").val() + "/" + $("#endDate").val();
@@ -378,7 +398,7 @@ function generateVerspaetungen() {
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0) {
             var tr = "<tr>";
-            tr += "<td><img src=\"img/Info.png\" id=\"S"+ anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
+            tr += "<td><img src=\"img/Info.png\" id=\"S" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
             tr += "<td>" + anwesenheit[i].summeFehltage + "</td>";
             tr += "<td>" + anwesenheit[i].summeFehltageEntschuldigt + "</td>";
             tr += "<td>" + anwesenheit[i].anzahlVerspaetungen + " (" + anwesenheit[i].summeMinutenVerspaetungen + " min)</td>";
@@ -406,7 +426,7 @@ function getNameSchuler(id) {
             return schueler[i].VNAME + " " + schueler[i].NNAME;
         }
     }
-    return "unknown ID "+id;
+    return "unknown ID " + id;
 }
 
 var oldText = "";
@@ -617,7 +637,7 @@ function loggedIn() {
     $("#klassen").change(function () {
         console.log("Klasse ID=" + $('option:selected', this).attr('dbid') + " KNAME=" + $("#klassen").val());
         idKlasse = $('option:selected', this).attr('dbid');
-        nameKlasse=$("#klassen").val();
+        nameKlasse = $("#klassen").val();
         refreshVerlauf($("#klassen").val());
         refreshKlassenliste($("#klassen").val());
         $("#idklasse").val(idKlasse);

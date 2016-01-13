@@ -226,33 +226,26 @@
 
                     </div>
                     <div id="tabFehlzeiten" class="tab-pane fade">
-   <table  class="table table-bordered table-striped ">
-    <thead>
-      <tr>
-          <th rowspan="2" width="25%"><h3>Name</h3></th>
-          <th colspan="2"><h3>Fehltage</h3></th>
-   <th colspan="2"><h3>Verspätungen</h3></th>
-          <th rowspan="2">Eintragsfehler</th>
-      </tr>
-      <tr>
-      
-          <td>gesamt</td>
-          <td>entschuldigt</td>
-          <td>Anzahl (Minuten)</td>
-          <td>Minuten entschuldigt</td>          
-      </tr>
-    </thead>
-    <tbody id="verspaetungenTabelle">
-        <tr>
-    <td>Tuttas</td>
-    <td>3</td>
-    <td>3</td>
-    <td>2 (40)</td>
-    <td>1 (20)</td>
-    <td></td>
-        </tr>
-    </tbody>
-  </table>
+                        <table  class="table table-bordered table-striped ">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2" width="25%"><h3>Name</h3></th>
+                            <th colspan="2"><h3>Fehltage</h3></th>
+                            <th colspan="2"><h3>Verspätungen</h3></th>
+                            <th rowspan="2">Eintragsfehler</th>
+                            </tr>
+                            <tr>
+
+                                <td>gesamt</td>
+                                <td>entschuldigt</td>
+                                <td>Anzahl (Minuten)</td>
+                                <td>Minuten entschuldigt</td>          
+                            </tr>
+                            </thead>
+                            <tbody id="verspaetungenTabelle">
+
+                            </tbody>
+                        </table>
                     </div>
                     <div id="tabNoten" class="tab-pane fade">
                         <h1>Noten</h1>
@@ -293,7 +286,7 @@
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-md-4">
-                                <img src="img/anonym.gif" width="150">
+                                <img id="infoBild" src="img/anonym.gif" width="150">
                             </div>
                             <div class="col-md-8">
                                 <p id="infoGeb"></p>
@@ -306,14 +299,14 @@
                                 <p id="infoBetriebName"></p>                  
                                 <p id="infoBetriebStrasse"></p>
                                 <p id="infoBetriebOrt"></p>
-                                 <h3>Klassen/Kurse</h3>
-                                 <ul id="infoKlassen">
-                                     
-                                 </ul>
+                                <h3>Klassen/Kurse</h3>
+                                <ul id="infoKlassen">
+
+                                </ul>
 
                             </div>
                         </div>   
-                        
+
                     </div>
 
                 </div>
@@ -362,5 +355,6 @@
 
             <script src="js/diklabu-startup.js"></script>
             <script src="js/diklabu-verlauf.js"></script>
+            
     </body>
 </html>

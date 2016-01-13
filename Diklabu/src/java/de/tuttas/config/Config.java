@@ -11,4 +11,6 @@ package de.tuttas.config;
  */
 public class Config {
     public static final boolean debug=true;
+    
+    public static final String IMAGE_FILE_PATH = "c:\\Temp\\";
 }
