@@ -12,7 +12,7 @@ var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
 $("#eintragDatum").datepicker("setDate", "+0");
 var today = new Date();
-$("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7));
+$("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6));
 $("#endDate").datepicker("setDate", new Date());
 // Tooltip Aktivieren
 $('[data-toggle="tooltip"]').tooltip();
@@ -57,8 +57,6 @@ $('#bildUploadForm').on('submit', (function (e) {
                 toastr["error"](data.msg, "Fehler!");
                 $("#uploadBildButton").show();
             }
-
-
         },
         error: function (data) {
             console.log("error");
@@ -442,7 +440,7 @@ function generateVerspaetungen() {
     console.log("Generate Verspaetungen");
     $("#verspaetungenTabelle").empty();
     for (var i = 0; i < anwesenheit.length; i++) {
-        if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0) {
+        if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0 || anwesenheit[i].parseErrors.length!=0) {
             var tr = "<tr>";
             tr += "<td><img src=\"img/Info.png\" id=\"S" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
             tr += "<td>" + anwesenheit[i].summeFehltage + "</td>";
