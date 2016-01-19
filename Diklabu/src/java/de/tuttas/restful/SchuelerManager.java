@@ -14,6 +14,9 @@ import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import java.util.List;
 import javax.ejb.Stateless;
@@ -29,6 +32,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
+
 
 /**
  *
@@ -94,5 +100,31 @@ public class SchuelerManager {
         
 
     }
+    
+     @POST  
+     @Path("/bild/{idschueler}")    
+    @Consumes(MediaType.MULTIPART_FORM_DATA)  
+    public Response uploadFile(     
+            @PathParam("idschueler") int idschueler,
+            @FormDataParam("file") InputStream uploadedInputStream,  
+            @FormDataParam("file") FormDataContentDisposition fileDetail) {  
+            String fileLocation = Config.IMAGE_FILE_PATH+idschueler+".jpg";
+            System.out.println("upload File for "+idschueler);
+                    //saving file  
+            try {  
+                FileOutputStream out = new FileOutputStream(new File(fileLocation));  
+                int read = 0;  
+                byte[] bytes = new byte[1024];  
+                out = new FileOutputStream(new File(fileLocation));  
+                while ((read = uploadedInputStream.read(bytes)) != -1) {  
+                    out.write(bytes, 0, read);  
+                }  
+                out.flush();  
+                out.close();  
+            } catch (IOException e) {e.printStackTrace();}  
+            String output = "File successfully uploaded to : " + fileLocation;  
+            return null;  
+        }  
+    
 
 }
