@@ -5,6 +5,8 @@ var nameKlasse;
 var schueler;
 // Anwesenheit der gewählten Klasse und des gewählten Zeitraums
 var anwesenheit;
+// ID eines ausgewählten Schülers
+var idSchueler;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -14,13 +16,57 @@ $("#startDate").datepicker("setDate", new Date(today.getFullYear(), today.getMon
 $("#endDate").datepicker("setDate", new Date());
 // Tooltip Aktivieren
 $('[data-toggle="tooltip"]').tooltip();
-
+$("#uploadBildButton").hide();
 console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
     console.log("Build gui for logged in user");
     loggedIn();
 }
 
+$(document).on('change', '.btn-file :file', function () {
+
+    var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    console.log("Ausgewählt wurde " + label);
+    input.trigger('fileselect', [numFiles, label]);
+    $("#bildWahl").text(label);
+    $("#uploadBildButton").show();
+});
+
+$('#bildUploadForm').on('submit', (function (e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    $("#uploadBildButton").hide();
+    $.ajax({
+        type: 'POST',
+        url: SERVER + "/Diklabu/api/v1/schueler/bild/" + idSchueler,
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            console.log("success");
+            if (data.success) {
+                toastr["success"](data.msg, "Info!");
+                getSchuelerBild(idSchueler);
+                 $("#fileBild").replaceWith($("#fileBild").val('').clone(true));
+                 $("#bildWahl").text("");
+            }
+            else {
+                toastr["error"](data.msg, "Fehler!");
+                $("#uploadBildButton").show();
+            }
+
+
+        },
+        error: function (data) {
+            console.log("error");
+            toastr["error"]("Fehler beim Hochladen des Bildes!", "Fehler!");
+            $("#uploadBildButton").show();
+        }
+    });
+}));
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 //show selected tab / active
@@ -261,10 +307,10 @@ function refreshKlassenliste(kl) {
 function getSchuelerInfo() {
     $(".infoIcon").click(function () {
         var id = $(this).attr("id");
-        id = id.substring(1);
-        console.log("lade Schuler ID=" + id);
+        idSchueler = id.substring(1);
+        console.log("lade Schuler ID=" + idSchueler);
         $.ajax({
-            url: SERVER + "/Diklabu/api/v1/schueler/" + id,
+            url: SERVER + "/Diklabu/api/v1/schueler/" + idSchueler,
             type: "GET",
             headers: {
                 "service_key": sessionStorage.service_key,
@@ -291,10 +337,10 @@ function getSchuelerInfo() {
                 }
 
                 $('#schuelerinfo').modal('show');
-                getSchuelerBild(id);
+                getSchuelerBild(idSchueler);
             },
             error: function () {
-                toastr["error"]("kann Schülerinfo ID=" + id + " nicht vom Server laden", "Fehler!");
+                toastr["error"]("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden", "Fehler!");
             }
         });
     });

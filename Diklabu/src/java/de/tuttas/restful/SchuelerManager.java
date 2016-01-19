@@ -12,6 +12,11 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
+import de.tuttas.restful.Data.ResultObject;
+import java.awt.AlphaComposite;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -20,6 +25,7 @@ import java.io.InputStream;
 
 import java.util.List;
 import javax.ejb.Stateless;
+import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -35,7 +41,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
-
 /**
  *
  * @author Jörg
@@ -43,7 +48,6 @@ import org.glassfish.jersey.media.multipart.FormDataParam;
 @Path("schueler")
 @Stateless
 public class SchuelerManager {
-  
 
     /**
      * Injection des EntityManagers
@@ -82,12 +86,12 @@ public class SchuelerManager {
     }
 
     @GET
-    @Path("/bild/{idschueler}")    
+    @Path("/bild/{idschueler}")
     @Produces("image/jpg")
     public Response getFile(@PathParam("idschueler") int idschueler) {
 
-        String filename = Config.IMAGE_FILE_PATH+idschueler+".jpg";
-        System.out.println("Lade file "+filename);
+        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        System.out.println("Lade file " + filename);
         File file = new File(filename);
         if (!file.exists()) {
             return Response.status(Response.Status.NOT_FOUND).build();
@@ -96,35 +100,55 @@ public class SchuelerManager {
         response.header("Content-Disposition",
                 "attachment; filename=image_from_server.png");
         return response.build();
-        
-        
 
     }
-    
-     @POST  
-     @Path("/bild/{idschueler}")    
-    @Consumes(MediaType.MULTIPART_FORM_DATA)  
-    public Response uploadFile(     
-            @PathParam("idschueler") int idschueler,
-            @FormDataParam("file") InputStream uploadedInputStream,  
-            @FormDataParam("file") FormDataContentDisposition fileDetail) {  
-            String fileLocation = Config.IMAGE_FILE_PATH+idschueler+".jpg";
-            System.out.println("upload File for "+idschueler);
-                    //saving file  
-            try {  
-                FileOutputStream out = new FileOutputStream(new File(fileLocation));  
-                int read = 0;  
-                byte[] bytes = new byte[1024];  
-                out = new FileOutputStream(new File(fileLocation));  
-                while ((read = uploadedInputStream.read(bytes)) != -1) {  
-                    out.write(bytes, 0, read);  
-                }  
-                out.flush();  
-                out.close();  
-            } catch (IOException e) {e.printStackTrace();}  
-            String output = "File successfully uploaded to : " + fileLocation;  
-            return null;  
-        }  
-    
 
+    @POST
+    @Path("/bild/{idschueler}")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public ResultObject uploadFile(
+            @PathParam("idschueler") int idschueler,
+            @FormDataParam("file") InputStream uploadedInputStream,
+            @FormDataParam("file") FormDataContentDisposition fileDetail) {
+
+        ResultObject r = new ResultObject();
+        String fileLocation = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        System.out.println("upload File for " + idschueler);
+        try {
+
+            Image image = ImageIO.read(uploadedInputStream);
+            if (image != null) {
+                int originalWidth = image.getWidth(null);
+                int originalHeight = image.getHeight(null);
+                int newWidth = 200;
+                int newHeight = Math.round(newWidth * ((float) originalHeight / originalWidth));
+                BufferedImage bi = this.createResizedCopy(image, newWidth, newHeight, true);
+                ImageIO.write(bi, "jpg", new File(Config.IMAGE_FILE_PATH + idschueler + ".jpg"));
+                r.setMsg("Bild erfolgreich hochgeladen!");
+                r.setSuccess(true);
+            } else {
+                r.setMsg("Fehler beim Hochladen des Bildes!");
+                r.setSuccess(false);
+
+            }
+        } catch (IOException e) {
+            System.out.println("Error");
+            r.setMsg(e.getMessage());
+            r.setSuccess(false);
+        }
+
+        return r;
+    }
+
+    private BufferedImage createResizedCopy(Image originalImage, int scaledWidth, int scaledHeight, boolean preserveAlpha) {
+        int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
+        BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
+        Graphics2D g = scaledBI.createGraphics();
+        if (preserveAlpha) {
+            g.setComposite(AlphaComposite.Src);
+        }
+        g.drawImage(originalImage, 0, 0, scaledWidth, scaledHeight, null);
+        g.dispose();
+        return scaledBI;
+    }
 }

@@ -285,10 +285,26 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="col-md-4">
-                                <img id="infoBild" src="img/anonym.gif" width="150">
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <img class="col-md-12" id="infoBild" src="img/anonym.gif" width="150">
+                                </div>
+                                <form enctype="multipart/form-data" id="bildUploadForm" action="/Diklabu/api/v1/schueler/bild/14279">
+                                    <div class="row">
+                                        <span class="btn btn-default col-md-12 btn-file" >
+                                            Auswählen<input id="fileBild" type="file" name="file">
+
+                                        </span>
+                                        <strong class="col-md-12" id="bildWahl">&nbsp;</strong>
+
+                                    </div>
+                                <div class="row">
+                                    <button id="uploadBildButton" type="submit" class="col-md-12 btn btn-primary">Upload</button>
+                                </div>
+                                </form>
+
                             </div>
-                            <div class="col-md-8">
+                            <div class="col-md-7">
                                 <p id="infoGeb"></p>
                                 <h3>Ausbilder</h3>
                                 <p id="infoAusbilderName"></p>
@@ -355,6 +371,6 @@
 
             <script src="js/diklabu-startup.js"></script>
             <script src="js/diklabu-verlauf.js"></script>
-            
+
     </body>
 </html>
