@@ -85,10 +85,10 @@
                                 <input type="hidden" name="idklasse" id="idklasse">
                                 <input type="hidden" name="from" id="from">
                                 <input type="hidden" name="to" id="to">
-                                
+
                                 <div class="row">
                                     <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
-                                <input type="radio" name="type" value="pdf" checked> pdf <input type="radio" name="type" value="csv"> csv
+                                    <input type="radio" name="type" value="pdf" checked> pdf <input type="radio" name="type" value="csv"> csv
                                 </div>
                             </form>
                         </div>
@@ -230,7 +230,7 @@
 
                     </div>
                     <div id="tabFehlzeiten" class="tab-pane fade">
-                        <table  class="table table-bordered table-striped ">
+                        <table style="display: none;" class="table table-bordered table-striped" id="tabelleFehlzeiten">
                             <thead>
                                 <tr>
                                     <th rowspan="2" width="25%"><h3>Name</h3></th>
@@ -265,18 +265,20 @@
                     </div>
                     <div id="tabChat" class="tab-pane fade">
                         <br></br>
-                        <div class="row">
-                            <div class=" col-md-offset-1 col-md-8">
-                                <input type="text" id="newChatLine" class="form-control">
+                        <div id="chatContainer" style="display:  none;">
+                            <div class="row">
+                                <div class=" col-md-offset-1 col-md-8">
+                                    <input type="text" id="newChatLine" class="form-control">
+                                </div>
+                                <div class="col-md-1">
+                                    <button class="btn btn-primary" id="sendChatLine">send</button>
+                                </div>
                             </div>
-                             <div class="col-md-1">
-                                <button class="btn btn-primary" id="sendChatLine">send</button>
-                             </div>
-                        </div>
-                        <hr>
-                        <div class="row" >
-                            <div class="col-md-offset-1 col-md-10" id="chatLines">
-                                
+                            <hr>
+                            <div class="row" >
+                                <div class="col-md-offset-1 col-md-10" id="chatLines">
+
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -316,9 +318,9 @@
                                         <strong class="col-md-12" id="bildWahl">&nbsp;</strong>
 
                                     </div>
-                                <div class="row">
-                                    <button id="uploadBildButton" type="submit" class="col-md-12 btn btn-primary">Upload</button>
-                                </div>
+                                    <div class="row">
+                                        <button id="uploadBildButton" type="submit" class="col-md-12 btn btn-primary">Upload</button>
+                                    </div>
                                 </form>
 
                             </div>
@@ -386,10 +388,10 @@
                 $("#version").text(VERSION);
             </script>
 
-
+            <script src="js/diklabu-chat.js"></script>
             <script src="js/diklabu-startup.js"></script>
             <script src="js/diklabu-verlauf.js"></script>
-            <script src="js/diklabu-chat.js"></script>
+
 
     </body>
 </html>

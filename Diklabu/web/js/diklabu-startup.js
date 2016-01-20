@@ -120,7 +120,7 @@ $("#login").click(function () {
                 sessionStorage.auth_token = jsonObj.auth_token;
                 console.log("Thoken = " + jsonObj.auth_token);
 
-                toastr["success"]("Login erfolgreich", "Info!");
+                toastr["success"]("Login erfolgreich", "Info!");                
                 sessionStorage.myselfplain = $('#lehrer').find(":selected").attr("idplain");
                 sessionStorage.myself = $('#lehrer').val();
                 loggedIn();
@@ -661,6 +661,14 @@ function loggedOut() {
     $('#endDate').datepicker().off('changeDate');
     sessionStorage.auth_token = undefined;
     sessionStorage.myself = undefined;
+    $("#tabelleKlasse").empty();
+    $("#tabelleKlasse").hide();
+    $("#tabelleAnwesenheit").empty();
+    $("#tabelleAnwesenheit").hide();
+    $("#tabelleFehlzeiten").hide();
+    $("#verspaetungenTabelle").empty();
+    $("#chatContainer").hide();
+     chatDisconnect();
 }
 function loggedIn() {
     $("#kuerzelContainer").hide();
@@ -696,4 +704,9 @@ function loggedIn() {
     $("#idklasse").val(idKlasse);
     $("#from").val($("#startDate").val());
     $("#to").val($("#endDate").val());
+    $("#tabelleKlasse").show();
+    $("#tabelleAnwesenheit").show();
+    $("#tabelleFehlzeiten").show();
+    $("#chatContainer").show();
+    chatConnect();
 }
