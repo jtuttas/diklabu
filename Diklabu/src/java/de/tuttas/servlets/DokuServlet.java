@@ -22,6 +22,7 @@ import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.DatumUtil;
+import de.tuttas.util.VerspaetungsUtil;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -115,7 +116,8 @@ public class DokuServlet extends HttpServlet {
                         kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Unterrichtsverlauf</b></td>");
                     } else if (cmd.compareTo("Anwesenheit") == 0) {
                         kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Anwesenheit</b></td>");
-
+                    } else if (cmd.compareTo("Fehlzeiten") == 0) {
+                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Fehlzeiten</b></td>");
                     }
                     kopf += ("</tr>");
                     kopf += ("<tr>");
@@ -151,6 +153,9 @@ public class DokuServlet extends HttpServlet {
                     } else if (cmd.compareTo("Anwesenheit") == 0) {
                         response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
                         document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out);                        
+                    } else if (cmd.compareTo("Fehlzeiten") == 0) {
+                        response.addHeader("Content-Disposition", "attachment; filename=Fehlzeiten_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                        document = createFehlzeiten(kl, kopf, parsedFrom, parsedTo, out);                        
                     }
 
                 } catch (DocumentException exc) {
@@ -176,6 +181,46 @@ public class DokuServlet extends HttpServlet {
                 }
             }
         }
+    }
+    private Document createFehlzeiten(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
+        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
+        query.setParameter("paramKName", kl.getKNAME());
+        query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
+        query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
+        System.out.println("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
+        List<AnwesenheitObjekt> anwesenheit = getData(query);
+                
+        System.out.println("Result List:" + anwesenheit);
+        document.open();
+        String tagZeile="";
+        tagZeile += "<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">\n";
+        tagZeile += AnwesenheitObjekt.getTRHead();        
+        for (AnwesenheitObjekt ao: anwesenheit) {
+            VerspaetungsUtil.parse(ao);
+            Schueler s = em.find(Schueler.class, ao.getId_Schueler());
+            System.out.println("Fehltage für Schuler "+s);
+            tagZeile+= ao.toHTML(s.getVNAME()+" "+s.getNNAME());
+        }
+        tagZeile += "</table>";
+        htmlString.append(tagZeile);
+        
+        // Dokument erzeugen
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        
+        document.close();
+        return document;
     }
 
     private Document createAnwesenheit(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
@@ -299,15 +344,7 @@ public class DokuServlet extends HttpServlet {
         List<Verlauf> verlauf = query.getResultList();
         System.out.println("Result List:" + verlauf);
         htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
-        String tagZeile = "";
-        tagZeile += ("<tr >");
-        tagZeile += ("<td  width='3%' style=\"font-size: 11;border: 1px solid black;\"><b>LK</b></td>");
-        tagZeile += ("<td  width='5%' style=\"font-size: 11;border: 1px solid black;\"><b>LF</b></td>");
-        tagZeile += ("<td  width='7%' style=\"font-size: 11;border: 1px solid black;\"><b>Stunde</b></td>");
-        tagZeile += ("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Inhalt</b></td>");
-        tagZeile += ("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Bemerkungen</b></td>");
-        tagZeile += ("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Lernsituation</b></td>");
-        tagZeile += ("</tr>");
+        String tagZeile = Verlauf.getTRHead();
         htmlString.append(tagZeile);
         String tag = " ";
         int kw = -1;
@@ -316,15 +353,7 @@ public class DokuServlet extends HttpServlet {
         for (Verlauf v : verlauf) {
             String str = v.getDATUM().toString();
             if (str.compareTo(tag) == 0) {
-                htmlString.append("<tr>");
-                htmlString.append("<td width='3%' style=\"font-size: 11;border: 1px solid black;\">" + v.getID_LEHRER() + "</td>");
-                htmlString.append("<td width='5%' style=\"font-size: 11;border: 1px solid black;\">" + v.getID_LERNFELD() + "</td>");
-                htmlString.append("<td width='7%' style=\"font-size: 11;border: 1px solid black;\">" + v.getSTUNDE() + "</td>");
-                htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getINHALT() + "</td>");
-                htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getBEMERKUNG() + "</td>");
-                htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getAUFGABE() + "</td>");
-                htmlString.append("</tr>");
-
+                htmlString.append(v.toHTML());
             } // ein neuer Tag
             else {
                 if (kw == -1) {
@@ -354,14 +383,7 @@ public class DokuServlet extends HttpServlet {
                 htmlString.append("<tr>");
                 htmlString.append("<td colspan=\"6\" align=\"center\" style=\"background-color: #cccccc; padding:4px;border: 1px solid black;\">KW " + v.getKw() + " / " + v.getWochentag() + " " + str.substring(0, str.indexOf(" ")) + "</td>");
                 htmlString.append("</tr>");
-                htmlString.append("<tr>");
-                htmlString.append("<td width='3%' style=\"font-size: 11;border: 1px solid black;\">" + v.getID_LEHRER() + "</td>");
-                htmlString.append("<td width='5%' style=\"font-size: 11;border: 1px solid black;\">" + v.getID_LERNFELD() + "</td>");
-                htmlString.append("<td width='7%' style=\"font-size: 11;border: 1px solid black;\">" + v.getSTUNDE() + "</td>");
-                htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getINHALT() + "</td>");
-                htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getBEMERKUNG() + "</td>");
-                htmlString.append("<td style=\"font-size: 11;border: 1px solid black;\">" + v.getAUFGABE() + "</td>");
-                htmlString.append("</tr>");
+                htmlString.append(v.toHTML());
                 firstPage = false;
                 tag = str;
             }

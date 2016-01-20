@@ -17,12 +17,14 @@ $("#endDate").datepicker("setDate", new Date());
 // Tooltip Aktivieren
 $('[data-toggle="tooltip"]').tooltip();
 $("#uploadBildButton").hide();
+$(".infoIcon").unbind();
 console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
     console.log("Build gui for logged in user");
     loggedIn();
 }
 
+// Ändern der Fileauswahl beim Bild Upload
 $(document).on('change', '.btn-file :file', function () {
 
     var input = $(this),
@@ -34,6 +36,7 @@ $(document).on('change', '.btn-file :file', function () {
     $("#uploadBildButton").show();
 });
 
+// Bild Upload Button gedrückt
 $('#bildUploadForm').on('submit', (function (e) {
     e.preventDefault();
     var formData = new FormData(this);
@@ -303,6 +306,7 @@ function refreshKlassenliste(kl) {
 }
 
 function getSchuelerInfo() {
+    $(".infoIcon").unbind();
     $(".infoIcon").click(function () {
         var id = $(this).attr("id");
         idSchueler = id.substring(1);

@@ -85,7 +85,11 @@
                                 <input type="hidden" name="idklasse" id="idklasse">
                                 <input type="hidden" name="from" id="from">
                                 <input type="hidden" name="to" id="to">
-                                <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
+                                
+                                <div class="row">
+                                    <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
+                                <input type="radio" name="type" value="pdf" checked> pdf <input type="radio" name="type" value="csv"> csv
+                                </div>
                             </form>
                         </div>
                     </div>
@@ -305,7 +309,7 @@
 
                             </div>
                             <div class="col-md-7">
-                                <p id="infoGeb"></p>
+                                <strong id="infoGeb"></strong>
                                 <h3>Ausbilder</h3>
                                 <p id="infoAusbilderName"></p>
                                 <a id="infoAusbilderMail" href="mailto:"></a>

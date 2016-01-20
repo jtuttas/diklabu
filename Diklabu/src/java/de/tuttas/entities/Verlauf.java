@@ -28,13 +28,12 @@ import org.apache.jasper.Constants;
  */
 @Entity
 @NamedQueries({
-     @NamedQuery(name = "findVerlaufbyKlasse", query= "select v from Verlauf v INNER JOIN Klasse k on v.ID_KLASSE=k.ID where k.KNAME like :paramKName and (v.DATUM between :paramFromDate and :paramToDate) ORDER BY v.DATUM,v.STUNDE "),
-     @NamedQuery(name = "findVerlaufbyDatumStundeAndKlassenID", query= "select v from Verlauf v where v.ID_KLASSE= :paramKlassenID and v.DATUM=:paramDatum and v.STUNDE = :paramStunde"),
-    
-})
+    @NamedQuery(name = "findVerlaufbyKlasse", query = "select v from Verlauf v INNER JOIN Klasse k on v.ID_KLASSE=k.ID where k.KNAME like :paramKName and (v.DATUM between :paramFromDate and :paramToDate) ORDER BY v.DATUM,v.STUNDE "),
+    @NamedQuery(name = "findVerlaufbyDatumStundeAndKlassenID", query = "select v from Verlauf v where v.ID_KLASSE= :paramKlassenID and v.DATUM=:paramDatum and v.STUNDE = :paramStunde"),})
 public class Verlauf implements Serializable {
+
     private static final long serialVersionUID = 1L;
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Integer ID;
     private int ID_KLASSE;
@@ -45,7 +44,7 @@ public class Verlauf implements Serializable {
     private String INHALT;
     private String BEMERKUNG;
     private String AUFGABE;
-    
+
     @Transient
     private String Wochentag;
     @Transient
@@ -61,24 +60,21 @@ public class Verlauf implements Serializable {
         return c.get(Calendar.WEEK_OF_YEAR);
     }
 
-    
     public void setWochentag(String Wochentag) {
         this.Wochentag = Wochentag;
     }
 
-    public String getWochentag() {        
+    public String getWochentag() {
         Calendar c = Calendar.getInstance();
         c.setTime(DATUM);
         int dayOfWeek = c.get(Calendar.DAY_OF_WEEK);
         return DatumUtil.getWochentag(dayOfWeek);
     }
-    
-    
 
     public Verlauf() {
     }
 
-    public Verlauf(int ID_KLASSE, Timestamp DATUM, String STUNDE, String ID_LEHRER, String ID_LERNFELD, String INHALT, String BEMERKUNG, String AUFGABE) {       
+    public Verlauf(int ID_KLASSE, Timestamp DATUM, String STUNDE, String ID_LEHRER, String ID_LERNFELD, String INHALT, String BEMERKUNG, String AUFGABE) {
         this.ID_KLASSE = ID_KLASSE;
         this.DATUM = DATUM;
         this.STUNDE = STUNDE;
@@ -89,8 +85,6 @@ public class Verlauf implements Serializable {
         this.AUFGABE = AUFGABE;
     }
 
-    
-    
     public Integer getID() {
         return ID;
     }
@@ -98,7 +92,6 @@ public class Verlauf implements Serializable {
     public void setID(Integer ID) {
         this.ID = ID;
     }
-    
 
     public int getID_KLASSE() {
         return ID_KLASSE;
@@ -163,9 +156,6 @@ public class Verlauf implements Serializable {
     public void setAUFGABE(String AUFGABE) {
         this.AUFGABE = AUFGABE;
     }
-    
-    
-    
 
     @Override
     public int hashCode() {
@@ -189,7 +179,33 @@ public class Verlauf implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Verlauf[ ID="+ID+" Datum=" + DATUM + " Klasse="+ID_KLASSE+" Stunde="+STUNDE+" Wochentag="+this.getWochentag()+"]\n";
+        return "de.tuttas.entities.Verlauf[ ID=" + ID + " Datum=" + DATUM + " Klasse=" + ID_KLASSE + " Stunde=" + STUNDE + " Wochentag=" + this.getWochentag() + "]\n";
     }
-    
+
+    public String toHTML() {
+        String h = "";
+        h += "<tr>";
+        h += "<td width='3%' style=\"font-size: 11;border: 1px solid black;\">" + getID_LEHRER() + "</td>";
+        h += "<td width='5%' style=\"font-size: 11;border: 1px solid black;\">" + getID_LERNFELD() + "</td>";
+        h += "<td width='7%' style=\"font-size: 11;border: 1px solid black;\">" + getSTUNDE() + "</td>";
+        h += "<td style=\"font-size: 11;border: 1px solid black;\">" + getINHALT() + "</td>";
+        h += "<td style=\"font-size: 11;border: 1px solid black;\">" + getBEMERKUNG() + "</td>";
+        h += "<td style=\"font-size: 11;border: 1px solid black;\">" + getAUFGABE() + "</td>";
+        h += "</tr>";
+        return h;
+    }
+
+    public static String getTRHead() {
+        String tagZeile = "";
+        tagZeile += ("<tr >");
+        tagZeile += ("<td  width='3%' style=\"font-size: 11;border: 1px solid black;\"><b>LK</b></td>");
+        tagZeile += ("<td  width='5%' style=\"font-size: 11;border: 1px solid black;\"><b>LF</b></td>");
+        tagZeile += ("<td  width='7%' style=\"font-size: 11;border: 1px solid black;\"><b>Stunde</b></td>");
+        tagZeile += ("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Inhalt</b></td>");
+        tagZeile += ("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Bemerkungen</b></td>");
+        tagZeile += ("<td  style=\"font-size: 11;border: 1px solid black;\"><b>Lernsituation</b></td>");
+        tagZeile += ("</tr>");
+        return tagZeile;
+    }
+
 }
