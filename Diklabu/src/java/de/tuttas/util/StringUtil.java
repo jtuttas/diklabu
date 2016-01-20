@@ -12,37 +12,68 @@ package de.tuttas.util;
 public class StringUtil {
 
     public static String removeGermanCharacters(String id) {
-        String out="";
-        for (int i=0;i<id.length();i++) {
+        String out = "";
+        for (int i = 0; i < id.length(); i++) {
             char c = id.charAt(i);
             switch (c) {
                 case 'ö':
-                    out+="oe";
+                    out += "oe";
                     break;
                 case 'ä':
-                    out+="ae";
+                    out += "ae";
                     break;
                 case 'ü':
-                    out+="ue";                    
+                    out += "ue";
                     break;
                 case 'ß':
-                    out+="ss";
+                    out += "ss";
                     break;
                 case 'Ä':
-                    out+="AE";
+                    out += "AE";
                     break;
                 case 'Ö':
-                    out+="OE";
+                    out += "OE";
                     break;
                 case 'Ü':
-                    out+="UE";
+                    out += "UE";
                     break;
                 default:
-                    out+=c;
+                    out += c;
                     break;
             }
         }
         return out;
     }
-    
+
+    public static String escapeHtml(String string) {
+        String escapedTxt = "";
+        char tmp = ' ';
+        for (int i = 0; i < string.length(); i++) {
+            tmp = string.charAt(i);
+            switch (tmp) {
+                case '<':
+                    escapedTxt += "&lt;";
+                    break;
+                case '>':
+                    escapedTxt += "&gt;";
+                    break;
+                case '&':
+                    escapedTxt += "&amp;";
+                    break;
+                case '"':
+                    escapedTxt += "&quot;";
+                    break;
+                case '\'':
+                    escapedTxt += "&#x27;";
+                    break;
+                case '/':
+                    escapedTxt += "&#x2F;";
+                    break;
+                default:
+                    escapedTxt += tmp;
+            }
+        }
+        return escapedTxt;
+    }
+
 }

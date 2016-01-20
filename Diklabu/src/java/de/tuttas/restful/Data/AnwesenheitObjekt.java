@@ -122,10 +122,10 @@ public class AnwesenheitObjekt {
     public static String getTRHead() {
          String tagZeile = "";
         tagZeile += "<tr >";
-        tagZeile += "<td width=\"25%\" rowspan=\"2\" style=\"padding:5px;font-size: 11;border: 1px solid black;\"><h3>Name</h3></td>";
+        tagZeile += "<td width=\"18%\" rowspan=\"2\" style=\"padding:5px;font-size: 11;border: 1px solid black;\"><h3>Name</h3></td>";
         tagZeile += "<td colspan=\"2\" style=\"padding:5px;font-size: 11;border: 1px solid black;\"><h3>Fehltage</h3></td>";
         tagZeile += "<td colspan=\"2\" style=\"padding:5px;font-size: 11;border: 1px solid black;\"><h3>Verspätungen</h3></td>";
-        tagZeile += "<td rowspan=\"2\" style=\"padding:5px;font-size: 11;border: 1px solid black;\"><h3>Eintragsfehler</h3></td>";
+        tagZeile += "<td width=\"18%\" rowspan=\"2\" style=\"padding:5px;font-size: 11;border: 1px solid black;\"><h3>Eintragsfehler</h3></td>";
         tagZeile += "</tr>";
         tagZeile += "<tr >";        
         tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\"><b>gesamt</b></td>";
@@ -149,7 +149,7 @@ public class AnwesenheitObjekt {
              Calendar c = df.getCalendar();
              c.setTimeInMillis(ae.getDATUM().getTime());
              String dat = c.get(Calendar.DAY_OF_MONTH) + "." + (c.get(Calendar.MONTH) + 1) + "." + c.get(Calendar.YEAR);
-             tagZeile+=ae.getID_LEHRER()+" ("+ae.getVERMERK()+") "+dat+" ";
+             tagZeile+=ae.getID_LEHRER()+" ("+ae.getVERMERK()+") "+dat+" <br></br>";
          }
          tagZeile += "</td></tr>";
          return tagZeile;

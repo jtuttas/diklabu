@@ -55,3 +55,32 @@ th{ height: 75px; }
     text-align: center;
     margin-bottom: 15px;
 }
+
+#chatFrom {
+    border-radius: 5px;
+    background: darkblue;
+    padding: 4px; 
+    width: 80px;
+    height: 10px; 
+    color: white;
+}
+#chatMeFrom {
+    border-radius: 5px;
+    background: #009245;
+    padding: 4px; 
+    width: 80px;
+    height: 10px; 
+    color: white;
+}
+#chatSystem {
+    border-radius: 5px;
+    background: #761c19;
+    padding: 4px; 
+    width: 80px;
+    height: 10px; 
+    color: white;
+}
+
+#chatLine {
+    margin-left: 10px;
+}
