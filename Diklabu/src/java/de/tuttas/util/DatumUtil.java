@@ -5,6 +5,9 @@
  */
 package de.tuttas.util;
 
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 /**
  *
  * @author Jörg
@@ -16,6 +19,12 @@ public class DatumUtil {
     public static String getWochentag(int v) {   
         v--;
         return WOCHENTAGE[v];
+    }
+    
+    public static  String format(Date d) {
+        GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
+        c.setTime(d);
+        return ""+c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR);
     }
     
 }

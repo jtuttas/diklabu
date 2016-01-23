@@ -448,23 +448,25 @@ function generateVerspaetungen() {
             var tr = "<tr>";
             tr += "<td><img src=\"img/Info.png\" id=\"S" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
             tr += "<td><strong>" + anwesenheit[i].summeFehltage+"</strong>&nbsp;";
+            tr += "<span class=\"fehltagEntschuldigt\">" + anwesenheit[i].summeFehltageEntschuldigt + "</span></td>";
+            tr += "<td>";
             var entschuldigt = anwesenheit[i].fehltageEntschuldigt;
             console.log("Fehltage Entschuldigt size=" + entschuldigt.length);
             for (var j=0;j<entschuldigt.length;j++) {
                 var dat = entschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagEntschuldigt\">" + dat + "</span>&nbsp;";
+                tr += "<span class=\"fehltagEntschuldigt\">" + dat + "</span> &nbsp;";
             }
             var unentschuldigt = anwesenheit[i].fehltageUnentschuldigt;
             console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
             for (var j=0;j<unentschuldigt.length;j++) {
                 var dat = unentschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagUnentschuldigt\">" + dat + "</span>&nbsp;";
+                tr += "<span class=\"fehltagUnentschuldigt\">" + dat + "</span> &nbsp;";
             }
             tr+="</td>";
             
-            tr += "<td><strong>" + anwesenheit[i].summeFehltageEntschuldigt + "</strong></td>";
+            
             tr += "<td>" + anwesenheit[i].anzahlVerspaetungen + " (" + anwesenheit[i].summeMinutenVerspaetungen + " min)</td>";
             tr += "<td>" + anwesenheit[i].summeMinutenVerspaetungenEntschuldigt + " min</td>";
             var fehler = anwesenheit[i].parseErrors;
@@ -473,7 +475,7 @@ function generateVerspaetungen() {
             for (var j = 0; j < fehler.length; j++) {
                 var dat = fehler[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"parseError\">" + fehler[j].ID_LEHRER + " (" + fehler[j].VERMERK + ") " + dat + "</span>&nbsp;";
+                tr += "<span class=\"parseErrors\">" + fehler[j].ID_LEHRER + " (" + fehler[j].VERMERK + ") " + dat + "</span> &nbsp;";
             }
             tr += "</td>";
 

@@ -80,27 +80,33 @@ th{ height: 75px; }
     height: 10px; 
     color: white;
 }
-.parseError {
+.parseErrors {
     border-radius: 5px;
     background: #F05F40;
     padding: 1px;     
     color: black;
-    
+    white-space:nowrap;
 }
 .fehltagEntschuldigt {
     border-radius: 5px;
     background: #009245;
-    padding: 1px;     
+    padding: 1px;   
+    padding-left: 5px;
+    padding-right: 5px;
     margin: 5px;
     color: white;
+    white-space:nowrap;
     
 }
 .fehltagUnentschuldigt {
     border-radius: 5px;
     margin: 5px;
-    background: #761c19;
+    background: #ac2925;
     padding: 1px;     
     color: white;
+    white-space:nowrap;
+    padding-left: 5px;
+    padding-right: 5px;
     
 }
 

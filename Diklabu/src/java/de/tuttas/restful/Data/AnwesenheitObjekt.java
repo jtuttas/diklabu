@@ -5,6 +5,8 @@
  */
 package de.tuttas.restful.Data;
 
+import com.sun.xml.wss.util.DateUtils;
+import de.tuttas.util.DatumUtil;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -148,8 +150,8 @@ public class AnwesenheitObjekt {
         tagZeile += "<td width=\"18%\" rowspan=\"2\" style=\"padding:5px;font-size: 11;border: 1px solid black;\"><h3>Eintragsfehler</h3></td>";
         tagZeile += "</tr>";
         tagZeile += "<tr >";        
-        tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\"><b>gesamt</b></td>";
-        tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\"><b>entschuldigt</b></td>";
+        tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">gesamt / <b>entschuldigt</b></td>";
+        tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\"><b>Tage</b></td>";
         tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\"><b>Anzahl (Minuten)</b></td>";
         tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\"><b>Minuten entschuldigt</b></td>";
         tagZeile += "</tr>";
@@ -159,8 +161,15 @@ public class AnwesenheitObjekt {
     public String toHTML(String schuelerName) {
          String tagZeile = "<tr>";
          tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">"+schuelerName+"</td>";         
-         tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">"+this.getSummeFehltage()+"</td>";         
-         tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">"+this.getSummeFehltageEntschuldigt()+"</td>";         
+         tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">"+this.getSummeFehltage()+" / <b>"+this.getSummeFehltageEntschuldigt()+"</b></td>";         
+         tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">";
+         for (AnwesenheitEintrag ae : fehltageEntschuldigt) {
+             tagZeile += "<b>"+DatumUtil.format(ae.getDATUM())+"</b> &nbsp;";
+         }
+         for (AnwesenheitEintrag ae : fehltageUnentschuldigt) {
+             tagZeile += "<i>"+DatumUtil.format(ae.getDATUM())+"</i> &nbsp;";
+         }
+         tagZeile += "</td>";
          tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">"+this.getAnzahlVerspaetungen()+" ("+this.getSummeMinutenVerspaetungen()+")</td>";         
          tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">"+this.getSummeMinutenVerspaetungenEntschuldigt()+"</td>";         
          tagZeile += "<td style=\"font-size: 11;border: 1px solid black;\">";         
