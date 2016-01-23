@@ -34,10 +34,12 @@ public class VerspaetungsUtil {
                         }
                     }
                 } else if (vermerk.charAt(0) == 'f') {
+                    ao.getFehltageUnentschuldigt().add(ae);
                     ao.incFehltage();
                 } else if (vermerk.charAt(0) == 'e') {
                     ao.incFehltage();
                     ao.incFehltageEntschuldigt();
+                    ao.getFehltageEntschuldigt().add(ae);
                 } else if (vermerk.charAt(0) == 'v') {
                     ao.incVerspaetungen();
                     int min = filterMinuten(vermerk, "v");

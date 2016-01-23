@@ -56,7 +56,7 @@ th{ height: 75px; }
     margin-bottom: 15px;
 }
 
-#chatFrom {
+.chatFrom {
     border-radius: 5px;
     background: darkblue;
     padding: 4px; 
@@ -64,7 +64,7 @@ th{ height: 75px; }
     height: 10px; 
     color: white;
 }
-#chatMeFrom {
+.chatMeFrom {
     border-radius: 5px;
     background: #009245;
     padding: 4px; 
@@ -72,13 +72,36 @@ th{ height: 75px; }
     height: 10px; 
     color: white;
 }
-#chatSystem {
+.chatSystem {
     border-radius: 5px;
     background: #761c19;
     padding: 4px; 
     width: 80px;
     height: 10px; 
     color: white;
+}
+.parseError {
+    border-radius: 5px;
+    background: #F05F40;
+    padding: 1px;     
+    color: black;
+    
+}
+.fehltagEntschuldigt {
+    border-radius: 5px;
+    background: #009245;
+    padding: 1px;     
+    margin: 5px;
+    color: white;
+    
+}
+.fehltagUnentschuldigt {
+    border-radius: 5px;
+    margin: 5px;
+    background: #761c19;
+    padding: 1px;     
+    color: white;
+    
 }
 
 #chatLine {

@@ -9,10 +9,10 @@ function chatConnect() {
         var chatLine = JSON.parse(event.data);
         if (chatLine.from == "System") {
             send(chatLine.from, sessionStorage.myself);
-            $("#chatLines").prepend('<small><span id="chatSystem"> ' + chatLine.from + ' </span><span id="chatLine">  ' + sessionStorage.myself + " ist beigetreten!" + '</span></small><br></br>');
+            $("#chatLines").prepend('<small><span class="chatSystem"> ' + chatLine.from + ' </span><span class="chatLine">  ' + sessionStorage.myself + " ist beigetreten!" + '</span></small><br></br>');
         }
         else {
-            $("#chatLines").prepend('<small><span id="chatFrom"> ' + chatLine.from + ' </span><span id="chatLine">  ' + chatLine.msg + '</span></small><br></br>');
+            $("#chatLines").prepend('<small><span class="chatFrom"> ' + chatLine.from + ' </span><span class="chatLine">  ' + chatLine.msg + '</span></small><br></br>');
             if (!chatLine.notoast) {
                 toastr["info"](chatLine.msg, "Chat from " + chatLine.from);
             }
@@ -32,7 +32,7 @@ $('#newChatLine').keyup(function (e) {
     if (e.keyCode == 13)
     {
         if ($("#newChatLine").val() != "") {
-            $("#chatLines").prepend('<small><span id="chatMeFrom"> ' + "me" + ' </span><span id="chatLine">  ' + escapeHtml($("#newChatLine").val()) + '</span></small><br></br>');
+            $("#chatLines").prepend('<small><span class="chatMeFrom"> ' + "me" + ' </span><span class="chatLine">  ' + escapeHtml($("#newChatLine").val()) + '</span></small><br></br>');
             send(sessionStorage.myself, $("#newChatLine").val());
             $("#newChatLine").val("");
         }
@@ -41,7 +41,7 @@ $('#newChatLine').keyup(function (e) {
 
 $("#sendChatLine").click(function () {
     if ($("#newChatLine").val() != "") {
-        $("#chatLines").prepend('<small><span id="chatMeFrom"> ' + "me" + ' </span><span id="chatLine">  ' + escapeHtml($("#newChatLine").val()) + '</span></small><br></br>');
+        $("#chatLines").prepend('<small><span class="chatMeFrom"> ' + "me" + ' </span><span class="chatLine">  ' + escapeHtml($("#newChatLine").val()) + '</span></small><br></br>');
         send(sessionStorage.myself, $("#newChatLine").val());
         $("#newChatLine").val("");
     }

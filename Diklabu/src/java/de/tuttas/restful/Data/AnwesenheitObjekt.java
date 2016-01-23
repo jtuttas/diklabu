@@ -23,6 +23,26 @@ public class AnwesenheitObjekt {
     private int summeMinutenVerspaetungen=0;
     private int summeMinutenVerspaetungenEntschuldigt=0;
     private List<AnwesenheitEintrag> parseErrors = new ArrayList<>();
+    private List<AnwesenheitEintrag> fehltageEntschuldigt = new ArrayList<>();
+    private List<AnwesenheitEintrag> fehltageUnentschuldigt = new ArrayList<>();
+
+    public void setFehltageEntschuldigt(List<AnwesenheitEintrag> fehltageEntschuldig) {
+        this.fehltageEntschuldigt = fehltageEntschuldig;
+    }
+
+    public void setFehltageUnentschuldigt(List<AnwesenheitEintrag> fehltageUnentschuldigt) {
+        this.fehltageUnentschuldigt = fehltageUnentschuldigt;
+    }
+
+    public List<AnwesenheitEintrag> getFehltageEntschuldigt() {
+        return fehltageEntschuldigt;
+    }
+
+    public List<AnwesenheitEintrag> getFehltageUnentschuldigt() {
+        return fehltageUnentschuldigt;
+    }
+    
+       
 
     public int getSummeFehltage() {
         return summeFehltage;

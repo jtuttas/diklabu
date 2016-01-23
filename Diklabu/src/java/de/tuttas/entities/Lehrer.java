@@ -32,6 +32,8 @@ public class Lehrer implements Serializable {
     private String id;
     private String NNAME;
     private String VNAME;
+    private String TELEFON;
+    private String EMAIL;
     
     @Transient
     private String idplain;
@@ -42,6 +44,22 @@ public class Lehrer implements Serializable {
 
     public void setIdplain(String idplain) {
         this.idplain = idplain;
+    }
+
+    public void setEMAIL(String EMAIL) {
+        this.EMAIL = EMAIL;
+    }
+
+    public void setTELEFON(String TELEFON) {
+        this.TELEFON = TELEFON;
+    }
+
+    public String getEMAIL() {
+        return EMAIL;
+    }
+
+    public String getTELEFON() {
+        return TELEFON;
     }
     
     
