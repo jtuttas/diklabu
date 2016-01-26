@@ -1,12 +1,12 @@
 [[BETRIEB_NAME]]
-[[BETRIEB_STRASSE] [[BETRIEB_STRASSE_NR]]
-[[BETRIEB_PLZ] [[BETRIEB_ORT]
+[[BETRIEB_STRASSE]] 
+[[BETRIEB_PLZ]] [[BETRIEB_ORT]]
 
 Sehr geehrte(r) [[AUSBILDER_NNAME]],
 
 wir informieren Sie hiermit über die Fehlzeiten Ihres Auszubildenden
 
-[[SCHUELER_VNAME]] [[SCHUELER_NNAME]], Klasse [[SCHUELER_KLASSE]].
+[[SCHUELER_NAME]], Klasse [[SCHUELER_KLASSE]].
 
 Schulversäumnisse im Zeitraum vom  [[START_DATUM]] bis  [[END_DATUM]]
 
@@ -18,7 +18,7 @@ Bitte gleichen Sie dies mit Ihren Informationen ab und klären Sie ggf. die unen
 Entschuldigungen senden Sie bitte zur Dokumentation an die u.a. Faxnummer oder meine E-Mail Adresse.
 
 Mit freundlichen Grüßen
-gez. [[LEHRER_NNAME]
+gez. [[LEHRER_NNAME]]
 <[[LEHRER_EMAIL]]>
 
 Multi-Media Berufsbildende Schulen Hannover

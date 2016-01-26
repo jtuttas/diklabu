@@ -28,6 +28,7 @@
 
     </head>
     <body id="page-top">
+        <input type="hidden" name="template" id="template"/>
         <div class="container-fluid">
             <div class="row">                
                 <div class="jumbotron">
@@ -105,6 +106,7 @@
                     <li><a data-toggle="tab" href="#tabVertretungsplan">Vertretungsplan</a></li>
                     <li><a data-toggle="tab" href="#tabChat">Chat</a></li>
                 </ul>
+                <br>
                 <div class="tab-content">
                     <div id="tabVerlauf" class="tab-pane fade in active">
                         <div class="col-md-12">
@@ -229,56 +231,67 @@
                         </div>
 
                     </div>
-                    <div id="tabFehlzeiten" class="tab-pane fade">
-                        <table style="display: none;" class="table table-bordered table-striped" id="tabelleFehlzeiten">
-                            <thead>
-                                <tr>
-                                    <th rowspan="2" width="25%"><h3>Name</h3></th>
-                            <th colspan="2"><h3>Fehltage</h3></th>
-                            <th colspan="2"><h3>Verspätungen</h3></th>
-                            <th rowspan="2">Eintragsfehler</th>
-                            </tr>
-                            <tr>
+                    <div id="tabFehlzeiten" class="tab-pane fade" style="display:none;">
+                        <ul class="nav nav-tabs" id="navTabs">
+                            <li class="active"><a data-toggle="tab" href="#tabUebersicht">Übersicht</a></li>                            
+                            <li><a data-toggle="tab" href="#tabMail">Mail</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tabUebersicht" class="tab-pane fade in active">
+                                <table style="display: none;" class="table table-bordered table-striped" id="tabelleFehlzeiten">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="2" width="25%"><h3>Name</h3></th>
+                                    <th colspan="2"><h3>Fehltage</h3></th>
+                                    <th colspan="2"><h3>Verspätungen</h3></th>
+                                    <th rowspan="2">Eintragsfehler</th>
+                                    </tr>
+                                    <tr>
 
-                                <td>gesamt / entschuldigt</td>
-                                <td>Tage</td>
-                                <td>Anzahl (Minuten)</td>
-                                <td>Minuten entschuldigt</td>          
-                            </tr>
-                            </thead>
-                            <tbody id="verspaetungenTabelle">
+                                        <td>gesamt / entschuldigt</td>
+                                        <td>Tage</td>
+                                        <td>Anzahl (Minuten)</td>
+                                        <td>Minuten entschuldigt</td>          
+                                    </tr>
+                                    </thead>
+                                    <tbody id="verspaetungenTabelle">
 
-                            </tbody>
-                        </table>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="fromMail">Absender:</label>
-                                    <input type="text" class="form-control" id="fromMail">
-                                </div>                            
-                                <div class="form-group">
-                                    <label for="toMail">Adresse:</label>
-                                    <input type="text" class="form-control" id="toMail" value="jtuttas@gmx.net">
-                                </div>                            
-                                <div class="form-group">
-                                    <label for="subjectMail">Betreff:</label>
-                                    <input type="text" class="form-control" id="subjectMail" value="MMBbS Fehlzeitenmeldung">
-                                </div>                            
-                                <div class="form-group">
-                                    <button class="btn">Zurück</button>
-                                    <button class="btn btn-danger">Absenden & Weiter</button>
-                                    <button class="btn">Weiter</button>
-                                </div>                            
-
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="col-md-8">
-                                <div class="form-group">
-                                    <label for="emailBody">Nachricht</label>
-                                    <textarea class="form-control" rows="25" id="emailBody">Hier steht der Inhalt</textarea>
+                            <div id="tabMail" class="tab-pane fade">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="fromMail">Absender:</label>
+                                        <input type="text" class="form-control" id="fromMail">
+                                    </div>                            
+                                    <div class="form-group">
+                                        <label for="toMail">Adresse:</label>
+                                        <input type="text" class="form-control" id="toMail" value="jtuttas@gmx.net">
+                                    </div>                            
+                                    <div class="form-group">
+                                        <label for="subjectMail">Betreff:</label>
+                                        <input type="text" class="form-control" id="subjectMail" value="MMBbS Fehlzeitenmeldung">
+                                    </div>                            
+                                    <div class="form-group">
+                                        <button id="emailZurueck" class="btn">Zurück</button>
+                                        <button id="emailAbsenden" class="btn btn-danger">Absenden</button>
+                                        <button id="emailWeiter" class="btn">Weiter</button>
+                                    </div>                            
+
                                 </div>
-                            </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label for="emailBody">Nachricht</label>
+                                        <textarea class="form-control" rows="25" id="emailBody">Hier steht der Inhalt</textarea>
+                                    </div>
+                                </div>
 
+                            </div>
                         </div>
+                        </div>
+                        
                     </div>
                     <div id="tabNoten" class="tab-pane fade">
                         <h1>Noten</h1>

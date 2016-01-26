@@ -7,6 +7,8 @@ var schueler;
 var anwesenheit;
 // ID eines ausgewählten Schülers
 var idSchueler;
+// Index für email Form Fehlzeiten
+var indexFehlzeiten;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -18,11 +20,54 @@ $("#endDate").datepicker("setDate", new Date());
 $('[data-toggle="tooltip"]').tooltip();
 $("#uploadBildButton").hide();
 $(".infoIcon").unbind();
+$("#template").load(SERVER + "/Diklabu/template.txt", function () {
+    console.log("Load Template")
+});
 console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
     console.log("Build gui for logged in user");
+    getLehrerData(sessionStorage.myself);
     loggedIn();
 }
+
+$("#emailZurueck").click(function() {
+    var found = false;
+    console.log("email zurück index="+indexFehlzeiten);
+    for (var i = indexFehlzeiten-1; i >=0 && !found; i--) {
+        var anwesenheitEintrag = anwesenheit[i];
+        if (anwesenheitEintrag.summeFehltage!=undefined && anwesenheitEintrag.summeFehltage != 0) {
+            console.log("Summe Fehltage = "+anwesenheitEintrag.summmeFehltag);
+            generateMailForm(anwesenheitEintrag);
+            indexFehlzeiten=i;
+            found = true;
+        }
+    }
+    console.log("Found a Item:" + found);
+
+    if (!found) {
+        toastr["warning"]("kein weiterer Fehlzeiteneintrag gefunden!", "Warnung!");
+        
+    }
+})
+$("#emailWeiter").click(function() {
+     var found = false;
+    console.log("email weiter index="+indexFehlzeiten);
+    for (var i = indexFehlzeiten+1; i <anwesenheit.length && !found; i++) {
+        var anwesenheitEintrag = anwesenheit[i];
+        if (anwesenheitEintrag.summeFehltage!=undefined && anwesenheitEintrag.summeFehltage != 0) {
+            console.log("Summe Fehltage = "+anwesenheitEintrag.summmeFehltag);
+            generateMailForm(anwesenheitEintrag);
+            indexFehlzeiten=i;
+            found = true;
+        }
+    }
+    console.log("Found a Item:" + found);
+
+    if (!found) {
+        toastr["warning"]("kein weiterer Fehlzeiteneintrag gefunden!", "Warnung!");
+        
+    }
+})
 
 // Ändern der Fileauswahl beim Bild Upload
 $(document).on('change', '.btn-file :file', function () {
@@ -53,8 +98,8 @@ $('#bildUploadForm').on('submit', (function (e) {
             if (data.success) {
                 toastr["success"](data.msg, "Info!");
                 getSchuelerBild(idSchueler);
-                 $("#fileBild").replaceWith($("#fileBild").val('').clone(true));
-                 $("#bildWahl").text("");
+                $("#fileBild").replaceWith($("#fileBild").val('').clone(true));
+                $("#bildWahl").text("");
             }
             else {
                 toastr["error"](data.msg, "Fehler!");
@@ -96,6 +141,66 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     }
 });
 
+function emptyMailForm() {
+    $("#emailBody").val("");
+    $("#toMail").val("");
+    $("#subjectMail").val("");
+    $("#emailZurueck").hide();
+    $("#emailWeiter").hide();
+    $("#emailAbsenden").hide();    
+}
+function generateMailForm(ae) {
+    console.log("Generate MAIL FORM");
+        $("#emailZurueck").show();
+    $("#emailWeiter").show();
+    $("#emailAbsenden").show();
+
+    $("#subjectMail").val("MMBbS Fehlzeitenmeldung");
+
+    template = $("#template").text();
+    //console.log("Template="+template);
+    template = template.replace("[[LEHRER_NNAME]]", sessionStorage.lehrerNNAME);
+    template = template.replace("[[LEHRER_EMAIL]]", sessionStorage.lehrerEMAIL);
+    template = template.replace("[[ANZAHL_FEHLTAGE]]", ae.summeFehltage);
+    var entschuldigt = ae.fehltageEntschuldigt;
+    var ent = "";
+    for (var i = 0; i < entschuldigt.length; i++) {
+        ent += getReadableDate(entschuldigt[i].DATUM) + " ";
+    }
+    template = template.replace("[[DATUM_ENTSCHULDIGT]]", ent);
+
+    var unentschuldigt = ae.fehltageUnentschuldigt;
+    ent = "";
+    for (var i = 0; i < unentschuldigt.length; i++) {
+        ent += getReadableDate(unentschuldigt[i].DATUM) + " ";
+    }
+    template = template.replace("[[DATUM_UNENTSCHULDIGT]]", ent);
+    template = template.replace("[[SCHUELER_NAME]]", getNameSchuler(ae.id_Schueler));
+    template = template.replace("[[SCHUELER_KLASSE]]", nameKlasse);
+
+    loadSchulerDaten(ae.id_Schueler, function (data) {
+
+        template = template.replace("[[BETRIEB_NAME]]", data.betrieb.NAME);
+        template = template.replace("[[BETRIEB_STRASSE]]", data.betrieb.STRASSE);
+        template = template.replace("[[BETRIEB_PLZ]]", data.betrieb.PLZ);
+        template = template.replace("[[BETRIEB_ORT]]", data.betrieb.ORT);
+
+        template = template.replace("[[AUSBILDER_NNAME]]", data.ausbilder.NNAME);
+        template = template.replace("[[START_DATUM]]", getReadableDate($("#startDate").val()));
+        template = template.replace("[[END_DATUM]]", getReadableDate($("#endDate").val()));
+        $("#toMail").val(data.ausbilder.EMAIL);
+
+        $("#emailBody").val(template);
+    });
+
+
+}
+
+function getReadableDate(d) {
+    var date = new Date(d);
+    return "" + date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+}
+
 $("#login").click(function () {
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {
         var myData = {
@@ -120,9 +225,10 @@ $("#login").click(function () {
                 sessionStorage.auth_token = jsonObj.auth_token;
                 console.log("Thoken = " + jsonObj.auth_token);
 
-                toastr["success"]("Login erfolgreich", "Info!");                
+                toastr["success"]("Login erfolgreich", "Info!");
                 sessionStorage.myselfplain = $('#lehrer').find(":selected").attr("idplain");
                 sessionStorage.myself = $('#lehrer').val();
+                getLehrerData(sessionStorage.myself);
                 loggedIn();
                 nameKlasse = $("#klassen").val();
                 refreshVerlauf(nameKlasse);
@@ -226,6 +332,28 @@ $.ajax({
 });
 
 
+function getLehrerData(id) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/lehrer/" + id + "/",
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            sessionStorage.lehrerNNAME = data.NNAME;
+            sessionStorage.lehrerEMAIL = data.EMAIL;
+            sessionStorage.lehrerVNAME = data.VNAME;
+            $("#fromMail").val(data.EMAIL);
+        },
+        error: function () {
+            toastr["error"]("kann Lehrerdaten nicht vom Server laden", "Fehler!");
+        }
+    });
+}
+
 function refreshVerlauf(kl) {
     console.log("Refresh Verlauf f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
     $.ajax({
@@ -277,6 +405,7 @@ function refreshVerlauf(kl) {
 
 function refreshKlassenliste(kl) {
     console.log("Refresh Klassenliste f. Klasse " + kl);
+    nameKlasse = kl;
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/klasse/" + kl,
         type: "GET",
@@ -296,8 +425,12 @@ function refreshKlassenliste(kl) {
                 $("#tabelleKlasse").append('<tr><td><img src="img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
             }
             $("#tabelleKlasse").append("</tbody>");
-            refreshAnwesenheit(kl);
+
+            refreshAnwesenheit(nameKlasse);
             getSchuelerInfo();
+
+
+
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Schüler der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
@@ -311,42 +444,48 @@ function getSchuelerInfo() {
         var id = $(this).attr("id");
         idSchueler = id.substring(1);
         console.log("lade Schuler ID=" + idSchueler);
-        $.ajax({
-            url: SERVER + "/Diklabu/api/v1/schueler/" + idSchueler,
-            type: "GET",
-            headers: {
-                "service_key": sessionStorage.service_key,
-                "auth_token": sessionStorage.auth_token
-            },
-            contentType: "application/json; charset=UTF-8",
-            success: function (data) {
-                $("#infoName").text(data.vorname + " " + data.name);
-                $("#infoGeb").text("Geburtsdatum " + data.gebDatum);
-                $("#infoAusbilderName").text(data.ausbilder.NNAME);
-                $("#infoAusbilderMail").text(data.ausbilder.EMAIL);
-                $("#infoAusbilderMail").attr("href", "mailto://" + data.ausbilder.EMAIL);
-                $("#infoAusbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
-                $("#infoAusbilderFax").text("Fax :" + data.ausbilder.FAX);
+        loadSchulerDaten(idSchueler, function (data) {
+            $("#infoName").text(data.vorname + " " + data.name);
+            $("#infoGeb").text("Geburtsdatum " + data.gebDatum);
+            $("#infoAusbilderName").text(data.ausbilder.NNAME);
+            $("#infoAusbilderMail").text(data.ausbilder.EMAIL);
+            $("#infoAusbilderMail").attr("href", "mailto://" + data.ausbilder.EMAIL);
+            $("#infoAusbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
+            $("#infoAusbilderFax").text("Fax :" + data.ausbilder.FAX);
 
-                $("#infoBetriebName").text(data.betrieb.NAME);
-                $("#infoBetriebStrasse").text(data.betrieb.STRASSE);
-                $("#infoBetriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
+            $("#infoBetriebName").text(data.betrieb.NAME);
+            $("#infoBetriebStrasse").text(data.betrieb.STRASSE);
+            $("#infoBetriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
 
-                $("#infoKlassen").empty();
-                for (var i = 0; i < data.klassen.length; i++) {
-                    var kl = data.klassen[i];
-                    $("#infoKlassen").append('<li>' + kl.KNAME + " (" + kl.ID_LEHRER + ")" + '</li>');
-                }
-
-                $('#schuelerinfo').modal('show');
-                getSchuelerBild(idSchueler);
-            },
-            error: function () {
-                toastr["error"]("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden", "Fehler!");
+            $("#infoKlassen").empty();
+            for (var i = 0; i < data.klassen.length; i++) {
+                var kl = data.klassen[i];
+                $("#infoKlassen").append('<li>' + kl.KNAME + " (" + kl.ID_LEHRER + ")" + '</li>');
             }
+
+            $('#schuelerinfo').modal('show');
+            getSchuelerBild(idSchueler);
+
         });
     });
+}
 
+function loadSchulerDaten(id, callback) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/schueler/" + id,
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden", "Fehler!");
+        }
+    });
 }
 
 /**
@@ -440,33 +579,34 @@ function refreshAnwesenheit(kl) {
     });
 }
 
+
 function generateVerspaetungen() {
     console.log("Generate Verspaetungen");
     $("#verspaetungenTabelle").empty();
     for (var i = 0; i < anwesenheit.length; i++) {
-        if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0 || anwesenheit[i].parseErrors.length!=0) {
+        if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0 || anwesenheit[i].parseErrors.length != 0) {
             var tr = "<tr>";
             tr += "<td><img src=\"img/Info.png\" id=\"S" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
-            tr += "<td><strong>" + anwesenheit[i].summeFehltage+"</strong>&nbsp;";
+            tr += "<td><strong>" + anwesenheit[i].summeFehltage + "</strong>&nbsp;";
             tr += "<span class=\"fehltagEntschuldigt\">" + anwesenheit[i].summeFehltageEntschuldigt + "</span></td>";
             tr += "<td>";
             var entschuldigt = anwesenheit[i].fehltageEntschuldigt;
             console.log("Fehltage Entschuldigt size=" + entschuldigt.length);
-            for (var j=0;j<entschuldigt.length;j++) {
+            for (var j = 0; j < entschuldigt.length; j++) {
                 var dat = entschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
                 tr += "<span class=\"fehltagEntschuldigt\">" + dat + "</span> &nbsp;";
             }
             var unentschuldigt = anwesenheit[i].fehltageUnentschuldigt;
             console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
-            for (var j=0;j<unentschuldigt.length;j++) {
+            for (var j = 0; j < unentschuldigt.length; j++) {
                 var dat = unentschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
                 tr += "<span class=\"fehltagUnentschuldigt\">" + dat + "</span> &nbsp;";
             }
-            tr+="</td>";
-            
-            
+            tr += "</td>";
+
+
             tr += "<td>" + anwesenheit[i].anzahlVerspaetungen + " (" + anwesenheit[i].summeMinutenVerspaetungen + " min)</td>";
             tr += "<td>" + anwesenheit[i].summeMinutenVerspaetungenEntschuldigt + " min</td>";
             var fehler = anwesenheit[i].parseErrors;
@@ -483,12 +623,30 @@ function generateVerspaetungen() {
             $("#verspaetungenTabelle").append(tr);
         }
     }
+    // Mail Form f. Fehltage aktualisieren
+    var found = false;
+    for (var i = 0; i < anwesenheit.length && !found; i++) {
+        var anwesenheitEintrag = anwesenheit[i];
+        if (anwesenheitEintrag.summeFehltage!=undefined && anwesenheitEintrag.summeFehltage != 0) {
+            console.log("Summe Fehltage = "+anwesenheitEintrag.summmeFehltag);
+            generateMailForm(anwesenheitEintrag);
+            indexFehlzeiten=i;
+            found = true;
+        }
+    }
+    console.log("Found a Item:" + found);
+
+    if (!found)
+        emptyMailForm();
+
     getSchuelerInfo();
+
 }
 
 function getNameSchuler(id) {
     for (var i = 0; i < schueler.length; i++) {
         if (schueler[i].id == id) {
+            console.log("Found Name for ID " + id + " " + schueler[i].VNAME + " " + schueler[i].NNAME)
             return schueler[i].VNAME + " " + schueler[i].NNAME;
         }
     }
@@ -686,9 +844,11 @@ function loggedOut() {
     $("#tabelleFehlzeiten").hide();
     $("#verspaetungenTabelle").empty();
     $("#chatContainer").hide();
-     chatDisconnect();
+    $("#tabFehlzeiten").hide();
+    chatDisconnect();
 }
 function loggedIn() {
+
     $("#kuerzelContainer").hide();
     $("#kennwortContainer").hide();
     $("#login").removeClass("btn-success");
@@ -720,6 +880,7 @@ function loggedIn() {
     $("#auth_token").val(sessionStorage.auth_token);
     $("#service_key").val(sessionStorage.service_key);
     $("#idklasse").val(idKlasse);
+    $("#tabFehlzeiten").show();
     $("#from").val($("#startDate").val());
     $("#to").val($("#endDate").val());
     $("#tabelleKlasse").show();
