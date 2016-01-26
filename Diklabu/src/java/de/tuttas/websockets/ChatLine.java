@@ -19,7 +19,7 @@ public class ChatLine {
     public ChatLine(String from, String msg) {
         this.from = from;
         this.msg = msg;
-        this.time = new Date();
+        this.time = new Date();        
     }
 
     public String getFrom() {

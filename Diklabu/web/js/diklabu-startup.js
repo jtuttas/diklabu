@@ -165,14 +165,14 @@ function generateMailForm(ae) {
     var entschuldigt = ae.fehltageEntschuldigt;
     var ent = "";
     for (var i = 0; i < entschuldigt.length; i++) {
-        ent += getReadableDate(entschuldigt[i].DATUM) + " ";
+        ent += getReadableDate(entschuldigt[i].DATUM) + ",";
     }
     template = template.replace("[[DATUM_ENTSCHULDIGT]]", ent);
 
     var unentschuldigt = ae.fehltageUnentschuldigt;
     ent = "";
     for (var i = 0; i < unentschuldigt.length; i++) {
-        ent += getReadableDate(unentschuldigt[i].DATUM) + " ";
+        ent += getReadableDate(unentschuldigt[i].DATUM) + ",";
     }
     template = template.replace("[[DATUM_UNENTSCHULDIGT]]", ent);
     template = template.replace("[[SCHUELER_NAME]]", getNameSchuler(ae.id_Schueler));
@@ -844,7 +844,8 @@ function loggedOut() {
     $("#tabelleFehlzeiten").hide();
     $("#verspaetungenTabelle").empty();
     $("#chatContainer").hide();
-    $("#tabFehlzeiten").hide();
+    $("#tabChat").hide();
+    $("#tabMail").hide();
     chatDisconnect();
 }
 function loggedIn() {
@@ -880,12 +881,13 @@ function loggedIn() {
     $("#auth_token").val(sessionStorage.auth_token);
     $("#service_key").val(sessionStorage.service_key);
     $("#idklasse").val(idKlasse);
-    $("#tabFehlzeiten").show();
     $("#from").val($("#startDate").val());
     $("#to").val($("#endDate").val());
     $("#tabelleKlasse").show();
     $("#tabelleAnwesenheit").show();
     $("#tabelleFehlzeiten").show();
     $("#chatContainer").show();
+    $("#tabChat").show();
+    $("#tabMail").show();
     chatConnect();
 }

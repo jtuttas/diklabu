@@ -76,20 +76,29 @@ public class VerlaufManager {
         List<Verlauf> verlauf = q.getResultList();
         System.out.println("Result List:" + verlauf);
         if (verlauf.size() != 0) {
-            System.out.println("Es gibt schon einen Eintrag, also updaten");
-            Verlauf ve = verlauf.get(0);
-            ve.setAUFGABE(v.getAUFGABE());
-            ve.setBEMERKUNG(v.getBEMERKUNG());
-            ve.setDATUM(ve.getDATUM());
-            ve.setID_KLASSE(v.getID_KLASSE());
-            ve.setID_LEHRER(v.getID_LEHRER());
-            ve.setID_LERNFELD(v.getID_LERNFELD());
-            ve.setINHALT(v.getINHALT());
-            ve.setSTUNDE(v.getSTUNDE());
-            em.merge(ve);
+            for (Verlauf ve : verlauf) {
+                if (ve.getID_LEHRER().compareTo(v.getID_LEHRER()) == 0) {
+                    System.out.println("Es existier bereits ein Eintrag von " + ve.getID_LEHRER() + " also Update");
+                    ve.setAUFGABE(v.getAUFGABE());
+                    ve.setBEMERKUNG(v.getBEMERKUNG());
+                    ve.setDATUM(ve.getDATUM());
+                    ve.setID_KLASSE(v.getID_KLASSE());
+                    ve.setID_LEHRER(v.getID_LEHRER());
+                    ve.setID_LERNFELD(v.getID_LERNFELD());
+                    ve.setINHALT(v.getINHALT());
+                    ve.setSTUNDE(v.getSTUNDE());
+                    em.merge(ve);
+                    v.setSuccess(true);
+                    return v;
+                }
+            }
+            v.setMsg("Es existieren bereits ein oder mehrere Einträge!");
+            System.out.println("Es existieren bereits ein oder mehrere Einträge! Als neuen Verlaufseintrag eintragen");
+            em.persist(v);
         } else {
             System.out.println("Neuen Verlaufseintrag erzeugen");
             em.persist(v);
+            v.setSuccess(true);
         }
         return v;
     }

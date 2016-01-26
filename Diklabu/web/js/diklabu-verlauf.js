@@ -68,6 +68,9 @@ $("#addVerlauf").click(function () {
                 var i = $("#stunde").prop('selectedIndex');
                 i++;
                 $("#stunde").prop('selectedIndex', i);
+                if (!data.success) {
+                    toastr["warning"](data.msg, "Warnung!");
+                }
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("kann Datensatz nicht eintragen! Status Code=" + xhr.status, "Fehler!");

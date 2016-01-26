@@ -44,12 +44,31 @@ public class Verlauf implements Serializable {
     private String INHALT;
     private String BEMERKUNG;
     private String AUFGABE;
-
+    @Transient
+    private boolean success;
+    @Transient
+    private String msg;
     @Transient
     private String Wochentag;
     @Transient
     private int kw;
 
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public boolean getSuccess() {
+        return this.success;
+    }
+    
     public void setKw(int kw) {
         this.kw = kw;
     }
@@ -179,7 +198,7 @@ public class Verlauf implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Verlauf[ ID=" + ID + " Datum=" + DATUM + " Klasse=" + ID_KLASSE + " Stunde=" + STUNDE + " Wochentag=" + this.getWochentag() + "]\n";
+        return "de.tuttas.entities.Verlauf[ ID=" + ID + " Datum=" + DATUM + " Klasse=" + ID_KLASSE + " Stunde=" + STUNDE + " Lehrer=" + this.ID_LEHRER + "]\n";
     }
 
     public String toHTML() {

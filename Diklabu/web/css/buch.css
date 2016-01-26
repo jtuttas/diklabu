@@ -115,6 +115,6 @@ th{ height: 75px; }
     
 }
 
-#chatLine {
+.chatLine {
     margin-left: 10px;
 }
