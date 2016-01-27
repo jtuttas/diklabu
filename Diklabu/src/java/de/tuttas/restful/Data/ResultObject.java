@@ -28,6 +28,9 @@ public class ResultObject {
     public void setMsg(String msg) {
         this.msg = msg;
     }
-    
-    
+
+    @Override
+    public String toString() {
+        return "{\"success\":"+success+",\"msg\":\""+msg+"\"}";
+    }    
 }
