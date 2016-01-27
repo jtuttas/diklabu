@@ -30,15 +30,15 @@ if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "unde
     loggedIn();
 }
 
-$("#emailZurueck").click(function() {
+$("#emailZurueck").click(function () {
     var found = false;
-    console.log("email zurück index="+indexFehlzeiten);
-    for (var i = indexFehlzeiten-1; i >=0 && !found; i--) {
+    console.log("email zurück index=" + indexFehlzeiten);
+    for (var i = indexFehlzeiten - 1; i >= 0 && !found; i--) {
         var anwesenheitEintrag = anwesenheit[i];
-        if (anwesenheitEintrag.summeFehltage!=undefined && anwesenheitEintrag.summeFehltage != 0) {
-            console.log("Summe Fehltage = "+anwesenheitEintrag.summmeFehltag);
+        if (anwesenheitEintrag.summeFehltage != undefined && anwesenheitEintrag.summeFehltage != 0) {
+            console.log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltag);
             generateMailForm(anwesenheitEintrag);
-            indexFehlzeiten=i;
+            indexFehlzeiten = i;
             found = true;
         }
     }
@@ -46,18 +46,18 @@ $("#emailZurueck").click(function() {
 
     if (!found) {
         toastr["warning"]("kein weiterer Fehlzeiteneintrag gefunden!", "Warnung!");
-        
+
     }
 })
-$("#emailWeiter").click(function() {
-     var found = false;
-    console.log("email weiter index="+indexFehlzeiten);
-    for (var i = indexFehlzeiten+1; i <anwesenheit.length && !found; i++) {
+$("#emailWeiter").click(function () {
+    var found = false;
+    console.log("email weiter index=" + indexFehlzeiten);
+    for (var i = indexFehlzeiten + 1; i < anwesenheit.length && !found; i++) {
         var anwesenheitEintrag = anwesenheit[i];
-        if (anwesenheitEintrag.summeFehltage!=undefined && anwesenheitEintrag.summeFehltage != 0) {
-            console.log("Summe Fehltage = "+anwesenheitEintrag.summmeFehltag);
+        if (anwesenheitEintrag.summeFehltage != undefined && anwesenheitEintrag.summeFehltage != 0) {
+            console.log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltag);
             generateMailForm(anwesenheitEintrag);
-            indexFehlzeiten=i;
+            indexFehlzeiten = i;
             found = true;
         }
     }
@@ -65,7 +65,7 @@ $("#emailWeiter").click(function() {
 
     if (!found) {
         toastr["warning"]("kein weiterer Fehlzeiteneintrag gefunden!", "Warnung!");
-        
+
     }
 })
 
@@ -147,11 +147,11 @@ function emptyMailForm() {
     $("#subjectMail").val("");
     $("#emailZurueck").hide();
     $("#emailWeiter").hide();
-    $("#emailAbsenden").hide();    
+    $("#emailAbsenden").hide();
 }
 function generateMailForm(ae) {
     console.log("Generate MAIL FORM");
-        $("#emailZurueck").show();
+    $("#emailZurueck").show();
     $("#emailWeiter").show();
     $("#emailAbsenden").show();
 
@@ -189,7 +189,6 @@ function generateMailForm(ae) {
         template = template.replace("[[START_DATUM]]", getReadableDate($("#startDate").val()));
         template = template.replace("[[END_DATUM]]", getReadableDate($("#endDate").val()));
         $("#toMail").val(data.ausbilder.EMAIL);
-
         $("#emailBody").val(template);
     });
 
@@ -201,7 +200,17 @@ function getReadableDate(d) {
     return "" + date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 }
 
-$("#login").click(function () {
+$('body').on('keydown', "#kennwort", function (e) {
+     var keyCode = e.keyCode || e.which;
+    //console.log("key Pressed" + keyCode);
+    if (keyCode == 13) {
+        performLogin();
+    }
+    
+});
+$("#login").click(performLogin());
+
+function performLogin() {
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {
         var myData = {
             "benutzer": $('#lehrer').find(":selected").attr("idplain"),
@@ -277,7 +286,8 @@ $("#login").click(function () {
         });
 
     }
-});
+}
+
 
 
 $.ajax({
@@ -496,6 +506,7 @@ function loadSchulerDaten(id, callback) {
 function getSchuelerBild(id) {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
+        cache: false,
         type: 'HEAD',
         error:
                 function () {
@@ -503,7 +514,8 @@ function getSchuelerBild(id) {
                 },
         success:
                 function () {
-                    $("#infoBild").attr("src", SERVER + "/Diklabu/api/v1/schueler/bild/" + id);
+                    d = new Date();
+                    $("#infoBild").attr("src", SERVER + "/Diklabu/api/v1/schueler/bild/" + id + "?" + d.getTime());
                 }
     });
 }
@@ -554,7 +566,7 @@ function refreshAnwesenheit(kl) {
                     var dat = eintraege[j].DATUM;
                     dat = dat.substring(0, dat.indexOf("T"));
                     var id = eintraege[j].ID_SCHUELER + "_" + dat;
-                    console.log("suche html id " + id);
+                    //console.log("suche html id " + id);
                     //$("#" + id).text(eintraege[j].VERMERK);
                     $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + '">' + eintraege[j].VERMERK + '</a>');
                     $("#" + id).attr("id_lehrer", eintraege[j].ID_LEHRER);
@@ -627,10 +639,10 @@ function generateVerspaetungen() {
     var found = false;
     for (var i = 0; i < anwesenheit.length && !found; i++) {
         var anwesenheitEintrag = anwesenheit[i];
-        if (anwesenheitEintrag.summeFehltage!=undefined && anwesenheitEintrag.summeFehltage != 0) {
-            console.log("Summe Fehltage = "+anwesenheitEintrag.summmeFehltag);
+        if (anwesenheitEintrag.summeFehltage != undefined && anwesenheitEintrag.summeFehltage != 0) {
+            console.log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltag);
             generateMailForm(anwesenheitEintrag);
-            indexFehlzeiten=i;
+            indexFehlzeiten = i;
             found = true;
         }
     }

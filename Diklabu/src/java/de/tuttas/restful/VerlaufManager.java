@@ -59,8 +59,10 @@ public class VerlaufManager {
         Verlauf v = em.find(Verlauf.class, id);
         if (v != null) {
             em.remove(v);
+            v.setSuccess(true);
+            v.setMsg("Eintrag gelöscht !");
             return v;
-        }
+        }        
         return null;
 
     }
@@ -88,10 +90,12 @@ public class VerlaufManager {
                     ve.setINHALT(v.getINHALT());
                     ve.setSTUNDE(v.getSTUNDE());
                     em.merge(ve);
-                    v.setSuccess(true);
+                    v.setSuccess(false);
+                    v.setMsg("Eintrag aktualisiert!");
                     return v;
                 }
             }
+            v.setSuccess(false);
             v.setMsg("Es existieren bereits ein oder mehrere Einträge!");
             System.out.println("Es existieren bereits ein oder mehrere Einträge! Als neuen Verlaufseintrag eintragen");
             em.persist(v);

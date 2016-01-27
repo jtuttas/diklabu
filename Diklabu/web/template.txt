@@ -11,7 +11,7 @@ wir informieren Sie hiermit über die Fehlzeiten Ihres Auszubildenden
 Schulversäumnisse im Zeitraum vom  [[START_DATUM]] bis  [[END_DATUM]]
 
 Anzahl der Fehltage: [[ANZAHL_FEHLTAGE]]
-Davon entschuldigt: [[DATUM_ENTSCHULDIGT]],  
+Davon entschuldigt: [[DATUM_ENTSCHULDIGT]]  
 Davon unentschuldigt:  [[DATUM_UNENTSCHULDIGT]] 
 
 Bitte gleichen Sie dies mit Ihren Informationen ab und klären Sie ggf. die unentschuldigten Fehltage.
