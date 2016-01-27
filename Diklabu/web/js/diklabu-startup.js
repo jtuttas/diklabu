@@ -140,7 +140,39 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         });
     }
 });
+/*
+$("#emailAbsenden").click(function () {
+    var fd = new FormData();
+    console.log("email absenden");
+    fd.append('klassenName', nameKlasse);
+    fd.append('lehrerId', sessionStorage.myself);
+    fd.append('fromMail', $("#fromMail").val());
+    fd.append('toMail', "toMail");
+    fd.append('subjectMail', $("#subjectMail").val());
+    fd.append('emailBody', $("#emailBody").val());
 
+
+    $.ajax({
+        url: SERVER + "/Diklabu/MailServlet",
+        processData: false,
+        contentType: false,
+        data: { "toMail": $('#toMail').val() },
+        type: 'POST',
+        success: function (data) {
+            if (!data.success) {
+                toastr["error"](data.msg, "Mail Service");
+            }
+            else {
+                toastr["info"]("EMail erfolgreich versandt!", "Mail Service");
+            }
+        },
+        error: function () {
+            toastr["error"]("Fehler beim EMail versandt!", "Mail Service");
+        }
+    });
+
+});
+*/
 function emptyMailForm() {
     $("#emailBody").val("");
     $("#toMail").val("");
@@ -154,6 +186,8 @@ function generateMailForm(ae) {
     $("#emailZurueck").show();
     $("#emailWeiter").show();
     $("#emailAbsenden").show();
+    $("#klassenName").val(nameKlasse);
+    $("#lehrerId").val(sessionStorage.myself);
 
     $("#subjectMail").val("MMBbS Fehlzeitenmeldung");
 
@@ -201,14 +235,16 @@ function getReadableDate(d) {
 }
 
 $('body').on('keydown', "#kennwort", function (e) {
-     var keyCode = e.keyCode || e.which;
+    var keyCode = e.keyCode || e.which;
     //console.log("key Pressed" + keyCode);
     if (keyCode == 13) {
+        console.log("key Down Kennwort");
         performLogin();
     }
-    
 });
-$("#login").click(performLogin());
+$("#login").click(function () {
+    performLogin();
+});
 
 function performLogin() {
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {

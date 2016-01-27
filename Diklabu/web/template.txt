@@ -19,7 +19,7 @@ Entschuldigungen senden Sie bitte zur Dokumentation an die u.a. Faxnummer oder m
 
 Mit freundlichen Grüßen
 gez. [[LEHRER_NNAME]]
-<[[LEHRER_EMAIL]]>
+([[LEHRER_EMAIL]])
 
 Multi-Media Berufsbildende Schulen Hannover
 Expo Plaza 3

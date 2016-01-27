@@ -76,4 +76,20 @@ public class StringUtil {
         return escapedTxt;
     }
 
+    public static String addBR(String content) {
+        String txt = "";
+        char tmp = ' ';
+        for (int i = 0; i < content.length(); i++) {
+            tmp = content.charAt(i);
+            switch (tmp) {
+                case 13:
+                    txt += "<br></br>";
+                    break;
+                default:
+                    txt += tmp;
+            }
+        }
+        return txt;
+    }
+
 }

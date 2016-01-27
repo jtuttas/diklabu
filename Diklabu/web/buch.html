@@ -260,33 +260,36 @@
                             </div>
                             <div id="tabMail" class="tab-pane fade" style="display:  none;">
                                 <div class="row">
-                                    <div class="col-md-4">
-                                        <div class="form-group">
-                                            <label for="fromMail">Absender:</label>
-                                            <input type="text" class="form-control" id="fromMail">
-                                        </div>                            
-                                        <div class="form-group">
-                                            <label for="toMail">Adresse:</label>
-                                            <input type="text" class="form-control" id="toMail" value="jtuttas@gmx.net">
-                                        </div>                            
-                                        <div class="form-group">
-                                            <label for="subjectMail">Betreff:</label>
-                                            <input type="text" class="form-control" id="subjectMail" value="MMBbS Fehlzeitenmeldung">
-                                        </div>                            
-                                        <div class="form-group">
-                                            <button id="emailZurueck" class="btn">Zurück</button>
-                                            <button id="emailAbsenden" class="btn btn-danger">Absenden</button>
-                                            <button id="emailWeiter" class="btn">Weiter</button>
-                                        </div>                            
+                                    <form id="emailForm" method="POST" action="/Diklabu/MailServlet" accept-charset="ISO-8859-1">
+                                        <div class="col-md-4">
+                                            <div class="form-group">
+                                                <label for="fromMail">Absender:</label>
+                                                <input type="text" class="form-control" name="fromMail" id="fromMail">
+                                                <input type="hidden" name="klassenName" id="klassenName">
+                                                <input type="hidden" name="lehrerId" id="lehrerId">
+                                            </div>                            
+                                            <div class="form-group">
+                                                <label for="toMail">Adresse:</label>
+                                                <input type="text" class="form-control" name="toMail" id="toMail" value="jtuttas@gmx.net">
+                                            </div>                            
+                                            <div class="form-group">
+                                                <label for="subjectMail">Betreff:</label>
+                                                <input type="text" class="form-control" id="subjectMail" name="subjectMail" value="MMBbS Fehlzeitenmeldung">
+                                            </div>                            
+                                            <div class="form-group">
+                                                <a id="emailZurueck" href="#" class="btn btn-default" role="button">zurück</a>                                                
+                                                <input type="submit" class="btn btn-danger" value="Absenden">                                                                                                
+                                                <a id="emailWeiter" href="#" class="btn btn-default" role="button">weiter</a>                                                
+                                            </div>                            
 
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="form-group">
-                                            <label for="emailBody">Nachricht</label>
-                                            <textarea class="form-control" rows="25" id="emailBody" name="emailBody">Hier steht der Inhalt</textarea>
                                         </div>
-                                    </div>
-
+                                        <div class="col-md-8">
+                                            <div class="form-group">
+                                                <label for="emailBody">Nachricht</label>
+                                                <textarea class="form-control" rows="25" id="emailBody" name="emailBody">Hier steht der Inhalt</textarea>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -302,26 +305,26 @@
                     <div id="tabStundenplan" class="tab-pane fade">
                         <h1>Stundenplan</h1>
                     </div>
-                    
+
                     <div id="tabVertretungsplan" class="tab-pane fade">
                         <h1>Vertretungsplan</h1>
                     </div>
                     <div id="tabChat" class="tab-pane fade">
                         <div id="chatContainer" style="display: none;">
-                                <div class="col-md-1"></div>
-                                <div class="col-md-9">
-                                    <input type="text" id="newChatLine" class="form-control">
-                                </div>
-                                <div class="col-md-1">
-                                    <button class="btn btn-primary" id="sendChatLine">send</button>
-                                </div>
-                                <div class="col-md-1"></div>
-                                <br>
-                                <br>
-                                <br>
-                                <div class="col-md-offset-1 col-md-10" id="chatLines">
-                                    &nbsp;
-                                </div>
+                            <div class="col-md-1"></div>
+                            <div class="col-md-9">
+                                <input type="text" id="newChatLine" class="form-control">
+                            </div>
+                            <div class="col-md-1">
+                                <button class="btn btn-primary" id="sendChatLine">send</button>
+                            </div>
+                            <div class="col-md-1"></div>
+                            <br>
+                            <br>
+                            <br>
+                            <div class="col-md-offset-1 col-md-10" id="chatLines">
+                                &nbsp;
+                            </div>
                         </div>
                     </div>
                 </div>
