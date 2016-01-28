@@ -67,6 +67,15 @@ public class MailServlet extends HttpServlet {
     private Matcher matcher;
 
     public void init() {
+        /*
+        {
+         "host": "xxxx",
+         "port": "587",
+         "user": "xxxx",
+         "pass": "xxxx"
+        }
+
+        */
         pattern = Pattern.compile(EMAIL_PATTERN);
         try {
             // reads SMTP server setting from web.xml file
