@@ -167,39 +167,7 @@ $("#emailForm").submit(function( event ) {
   }
     
 });
-/*
-$("#emailAbsenden").click(function () {
-    var fd = new FormData();
-    console.log("email absenden");
-    fd.append('klassenName', nameKlasse);
-    fd.append('lehrerId', sessionStorage.myself);
-    fd.append('fromMail', $("#fromMail").val());
-    fd.append('toMail', "toMail");
-    fd.append('subjectMail', $("#subjectMail").val());
-    fd.append('emailBody', $("#emailBody").val());
 
-
-    $.ajax({
-        url: SERVER + "/Diklabu/MailServlet",
-        processData: false,
-        contentType: false,
-        data: { "toMail": $('#toMail').val() },
-        type: 'POST',
-        success: function (data) {
-            if (!data.success) {
-                toastr["error"](data.msg, "Mail Service");
-            }
-            else {
-                toastr["info"]("EMail erfolgreich versandt!", "Mail Service");
-            }
-        },
-        error: function () {
-            toastr["error"]("Fehler beim EMail versandt!", "Mail Service");
-        }
-    });
-
-});
-*/
 
 function isValidEmailAddress(emailAddress) {
     var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
@@ -220,6 +188,8 @@ function generateMailForm(ae) {
     $("#emailAbsenden").show();
     $("#klassenName").val(nameKlasse);
     $("#lehrerId").val(sessionStorage.myself);
+    $("#mailauth_token").val(sessionStorage.auth_token);
+    $("#mailservice_key").val(sessionStorage.service_key);
 
     $("#subjectMail").val("MMBbS Fehlzeitenmeldung");
 

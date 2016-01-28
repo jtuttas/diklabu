@@ -38,9 +38,9 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         // Then check is the service key exists and is valid.
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = requestCtx.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
-
-        if (path.startsWith("/noauth") || path.startsWith("/kurswahl") || Config.debug) {
-
+        System.out.println("path=("+path+")");
+        if (path.startsWith("noauth") || path.startsWith("kurswahl") || Config.debug) {
+            System.out.println("path start with noauth");
         } else {
             if (!demoAuthenticator.isServiceKeyValid(serviceKey)) {
                 log.info("no Service Key found");
@@ -51,7 +51,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
             }
             log.info("found Valid Key");
             // For any pther methods besides login, the authToken must be verified
-            if (!path.startsWith("/auth/login/") ) {
+            if (!path.startsWith("auth/login/") ) {
                 String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
 
                 // if it isn't valid, just kick them out.

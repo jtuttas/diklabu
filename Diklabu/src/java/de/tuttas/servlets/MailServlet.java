@@ -118,7 +118,11 @@ public class MailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        System.out.println("POST MailServlet toMail=" + request.getParameter("toMail"));
+         String auth = request.getParameter("auth_token");
+        String service = request.getParameter("service_key");
+        System.out.println("auth_token=" + auth);
+        
+        if (de.tuttas.config.Config.debug || service != null && auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(service, auth)) {
         response.setContentType("application/json;charset=UTF-8");
         ResultObject result = new ResultObject();
         // reads form fields
@@ -129,9 +133,9 @@ public class MailServlet extends HttpServlet {
         String klassenName = request.getParameter("klassenName");
         String lehrerID = request.getParameter("lehrerId");
         
-        if (Config.debug) {
+        //if (Config.debug) {
             recipient="tuttas@mmbbs.de";
-        }
+        //}
         
         boolean fromMailOk=false;
         if (from!=null && from.length()!=0){
@@ -169,6 +173,22 @@ public class MailServlet extends HttpServlet {
                 out.println(result.toString());
             }
         }
+        }
+        else {
+          response.setContentType("text/html;charset=UTF-8");
+                try (PrintWriter out = response.getWriter()) {
+                    out.println("<!DOCTYPE html>");
+                    out.println("<html>");
+                    out.println("<head>");
+                    out.println("<title>Mail Servlet</title>");
+                    out.println("</head>");
+                    out.println("<body>");
+                    out.println("<h1>You are not authorized</h1>");
+                    out.println("</body>");
+                    out.println("</html>");
+                }  
+        }
+        
     }
     
     /**
