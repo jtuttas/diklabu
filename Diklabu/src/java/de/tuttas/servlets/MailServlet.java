@@ -56,59 +56,20 @@ import org.json.simple.parser.ParseException;
 @WebServlet(name = "MailServlet", urlPatterns = {"/MailServlet"})
 public class MailServlet extends HttpServlet {
 
-    private String host;
-    private String port;
-    private String user;
-    private String pass;
+    
     private static final String EMAIL_PATTERN
             = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
             + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     private Pattern pattern;
     private Matcher matcher;
+    private MailSender mailSender;
 
     public void init() {
-        /*
-        {
-         "host": "xxxx",
-         "port": "587",
-         "user": "xxxx",
-         "pass": "xxxx"
-        }
-
-        */
         pattern = Pattern.compile(EMAIL_PATTERN);
-        try {
-            // reads SMTP server setting from web.xml file
-            String conf = this.getFile("/de/tuttas/servlets/mailconfig.json");
-            JSONParser parser = new JSONParser();
-
-            JSONObject jo = (JSONObject) parser.parse(conf);
-            host = (String) jo.get("host");
-            port = (String) jo.get("port");
-            user = (String) jo.get("user");
-            pass = (String) jo.get("pass");
-            System.out.println("host=" + host);
-        } catch (ParseException ex) {
-            Logger.getLogger(MailServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        mailSender = new MailSender();
     }
 
-    private String getFile(String fileName) {
-        StringBuilder result = new StringBuilder("");
-        //Get file from resources folder
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource(fileName).getFile());
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                result.append(line).append("\n");
-            }
-            scanner.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result.toString();
-    }
+    
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -197,43 +158,11 @@ public class MailServlet extends HttpServlet {
             result.setSuccess(false);
             result.setMsg("Fehler beim EMail Versand: Falsche Adresse EMail Adresse!");
         } else {
-            try {
-                // sets SMTP server properties
-                Properties properties = new Properties();
-                properties.put("mail.smtp.host", host);
-                properties.put("mail.smtp.port", port);
-                properties.put("mail.smtp.auth", "true");
-                properties.put("mail.smtp.starttls.enable", "true");
-
-                // creates a new session with an authenticator
-                Authenticator auth = new Authenticator() {
-                    public PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(user, pass);
-                    }
-                };
-                Session session = Session.getInstance(properties, auth);
-                // creates a new e-mail message
-                Message msg = new MimeMessage(session);
-                msg.setFrom(new InternetAddress(from));
-                InternetAddress[] toAddresses = {new InternetAddress(recipient)};
-                msg.setRecipients(Message.RecipientType.TO, toAddresses);
-                msg.setSubject(subject);
-                msg.setSentDate(new Date());
-                msg.setText(content);
-                // sends the e-mail
-                // TODO Kommentar entfernen
-                //Transport.send(msg);
-                result.setSuccess(true);
-                result.setMsg("EMail erfolgreich versandt");
-                createPdf(response, recipient,content,klassenName,lehrerID);
-
-            } catch (AddressException ex) {
-                result.setSuccess(false);
-                result.setMsg("Fehler beim EMail Versand:" + ex.getMessage());
-            } catch (MessagingException ex) {
-                result.setSuccess(false);
-                result.setMsg("Fehler beim EMail Versand:" + ex.getMessage());
-            }
+            MailObject mo = new MailObject(from, recipient, subject, content);
+            mailSender.sendMail(mo);
+            result.setSuccess(true);
+            result.setMsg("EMail erfolgreich versandt");
+            createPdf(response, recipient,content,klassenName,lehrerID);
         }
         if (!result.isSuccess()) {
             try (PrintWriter out = response.getWriter()) {
