@@ -139,6 +139,15 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             }
         });
     }
+    else if ($(e.target).text() == "Stundenplan") {
+        $("#stundenplan").load(SERVER+"/Diklabu/api/v1/noauth/plan/stundenplan/"+nameKlasse);
+    }
+    else if ($(e.target).text() == "Vertretungsplan") {
+        $("#vertertungsplan").load(SERVER+"/Diklabu/api/v1/noauth/plan/vertertungsplan/"+nameKlasse);        
+    }
+
+
+
 });
 
 $("#emailForm").submit(function( event ) {
@@ -896,12 +905,16 @@ function loggedOut() {
     $("#chatContainer").hide();
     $("#tabChat").hide();
     $("#tabMail").hide();
+    $("#stundenplan").hide();
+    $("#vertertungsplan").hide();
     chatDisconnect();
 }
 function loggedIn() {
 
     $("#kuerzelContainer").hide();
     $("#kennwortContainer").hide();
+    $("#stundenplan").show();
+    $("#vertertungsplan").show();
     $("#login").removeClass("btn-success");
     $("#login").addClass("btn-danger");
     $("#login").text("Logout " + sessionStorage.myself);
@@ -926,6 +939,8 @@ function loggedIn() {
         refreshVerlauf($("#klassen").val());
         refreshKlassenliste($("#klassen").val());
         $("#idklasse").val(idKlasse);
+        $("#stundenplan").load(SERVER+"/Diklabu/api/v1/noauth/plan/stundenplan/"+nameKlasse);
+        $("#vertertungsplan").load(SERVER+"/Diklabu/api/v1/noauth/plan/vertertungsplan/"+nameKlasse);
 
     });
     $("#auth_token").val(sessionStorage.auth_token);
