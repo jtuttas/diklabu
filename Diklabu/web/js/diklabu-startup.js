@@ -680,8 +680,28 @@ function getSchuelerBild(id) {
                 },
         success:
                 function () {
+                    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/schueler/bild64/" + id,
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        
+        success: function (data) {
+            data = data.replace(/(?:\r\n|\r|\n)/g, '');
+            console.log("Bild Daten geladen:"+data);
+            $("#infoBild").attr('src', "data:image/png;base64,"+data);
+            
+        },
+        error: function () {
+            toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
+        }
+    });
+                    /*
                     d = new Date();
                     $("#infoBild").attr("src", SERVER + "/Diklabu/api/v1/schueler/bild/" + id + "?" + d.getTime());
+                    */
                 }
     });
 }

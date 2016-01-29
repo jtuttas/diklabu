@@ -13,6 +13,7 @@ import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.ResultObject;
+import de.tuttas.util.ImageUtil;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -101,6 +102,28 @@ public class SchuelerManager {
                 "attachment; filename=image_from_server.png");
         return response.build();
 
+    }
+
+    @GET
+    @Path("/bild64/{idschueler}")
+    @Produces("text/plain")
+    public String getFile64(@PathParam("idschueler") int idschueler) {
+
+        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        System.out.println("Lade file " + filename);
+        File file = new File(filename);
+
+        if (!file.exists()) {
+            return null;
+        }
+        BufferedImage img = null;
+        try {
+            img = ImageIO.read(file);
+            return ImageUtil.encodeToString(img, "jpeg");
+
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @POST
