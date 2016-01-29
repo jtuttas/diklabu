@@ -76,9 +76,9 @@ public class BemerkungManager {
             b.setSuccess(true);
             b.setMsg("Bemerkung eingetragen");
         } else {
+            b.setMsg("Bemerkung von " + be.getID_LEHRER() + " überschrieben");
             em.merge(b);
             b.setSuccess(true);
-            b.setMsg("Bemerkung von " + be.getID_LEHRER() + " überschrieben");
         }
 
         return b;

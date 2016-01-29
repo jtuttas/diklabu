@@ -31,7 +31,7 @@
         <input type="hidden" name="template" id="template"/>
         <div class="container-fluid">
             <div class="row">                
-                <div class="jumbotron">
+                <div class="jumbotron jhead">
                     <div class="row">
                         <div class="col-md-offset-11">
                             <a href="https://github.com/jtuttas/diklabu/issues" target="bugs" id="version">&nbsp;</a>
@@ -79,19 +79,25 @@
                         </div>
                         <div class="col-md-1">
                             <br>
-                            <form action="/Diklabu/DokuServlet" target="_blank" method="POST" role="form" class="form-horizontal">
-                                <input id="dokumentationType" type="hidden" name="cmd" value="Verlauf">
-                                <input type="hidden" name="auth_token" id="auth_token">
-                                <input type="hidden" name="service_key" id="service_key">
-                                <input type="hidden" name="idklasse" id="idklasse">
-                                <input type="hidden" name="from" id="from">
-                                <input type="hidden" name="to" id="to">
+                            <div id="dokumentationContainer" style="display: none;">
+                                <form action="/Diklabu/DokuServlet" target="_blank" method="POST" role="form" class="form-horizontal">
+                                    <input id="dokumentationType" type="hidden" name="cmd" value="Verlauf">
+                                    <input type="hidden" name="auth_token" id="auth_token">
+                                    <input type="hidden" name="service_key" id="service_key">
+                                    <input type="hidden" name="idklasse" id="idklasse">
+                                    <input type="hidden" name="from" id="from">
+                                    <input type="hidden" name="to" id="to">
 
-                                <div class="row">
-                                    <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
-                                    <input type="radio" name="type" value="pdf" checked> pdf <input type="radio" name="type" value="csv"> csv
-                                </div>
-                            </form>
+                                    <div class="row">
+                                        <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
+                                        <input type="radio" name="type" value="pdf" checked> pdf <input type="radio" name="type" value="csv"> csv
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="printContainer" style="display: none;">
+                                <button id="print"  class="btn  btn-success mybutton">Ausdrucken</button>                                
+                                <br>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -302,19 +308,21 @@
                         <h1>Noten</h1>
                     </div>
                     <div id="tabBemerkungen" class="tab-pane fade">
-                        <table class="table table-striped table-hover">
-    <thead>
-      <tr>
-          <th width="20%"><h3>Name</h3></th>
-        <th width="10%">Datum</th>
-        <th width="5%">LK</th>
-        <th>Bemerkung</th>
-      </tr>
-    </thead>
-    <tbody id="tabelleBemerkungen">
-     
-    </tbody>
-  </table>
+                        <div id="bemerkungContainer" style="display: none;">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="20%"><h3>Name</h3></th>
+                                <th width="10%">Datum</th>
+                                <th width="5%">LK</th>
+                                <th>Bemerkung</th>
+                                </tr>
+                                </thead>
+                                <tbody id="tabelleBemerkungen">
+
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     <div id="tabStundenplan" class="tab-pane fade">
                         <div id="stundenplan" style="display: none;"></div>
@@ -444,5 +452,6 @@
         <script src="js/diklabu-chat.js"></script>
         <script src="js/diklabu-startup.js"></script>
         <script src="js/diklabu-verlauf.js"></script>
+        <script src="js/printthis/printThis.js"></script>
     </body>
 </html>

@@ -9,6 +9,8 @@ var anwesenheit;
 var idSchueler;
 // Index für email Form Fehlzeiten
 var indexFehlzeiten;
+// Name des aktuell ausgewählten Reiters
+var currentView;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -26,9 +28,29 @@ $("#template").load(SERVER + "/Diklabu/template.txt", function () {
 console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
     console.log("Build gui for logged in user");
+    $("#dokumentationContainer").show();
     getLehrerData(sessionStorage.myself);
     loggedIn();
 }
+$("#print").click(function () {
+    if (currentView == "Stundenplan") {
+        $("#stundenplan").printThis({
+            debug: false,
+            printContainer: true,
+            pageTitle: "Stundenplan " + nameKlasse,
+            removeInline: false
+        });
+    }
+    else if (currentView == "Vertretungsplan") {
+        $("#vertertungsplan").printThis({
+            debug: false,
+            printContainer: true,
+            pageTitle: "Stundenplan " + nameKlasse,
+            removeInline: false
+        });
+    }
+});
+
 
 $("#emailZurueck").click(function () {
     var found = false;
@@ -118,9 +140,11 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
 //show selected tab / active
     console.log($(e.target).text());
     $("#dokumentationType").val($(e.target).text());
-
+    currentView = $(e.target).text();
     // Bei Verspätungen neu vom Server laden
     if ($(e.target).text() == "Fehlzeiten") {
+        $("#dokumentationContainer").show();
+        $("#printContainer").hide();
         console.log("Erneuere Fehlzeiten f. Klasse " + nameKlasse);
         $.ajax({
             // anwesenheit/FISI13A/2015-09-08/2015-09-15
@@ -139,8 +163,30 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
             }
         });
     }
-
-
+    if ($(e.target).text() == "Chat") {
+        $("#dokumentationContainer").hide();
+        $("#printContainer").hide();
+    }
+    if ($(e.target).text() == "Stundenplan") {
+        $("#dokumentationContainer").hide();
+        $("#printContainer").show();
+    }
+    if ($(e.target).text() == "Bemerkungen") {
+        $("#dokumentationContainer").hide();
+        $("#printContainer").hide();
+    }
+    if ($(e.target).text() == "Vertretungsplan") {
+        $("#dokumentationContainer").hide();
+        $("#printContainer").show();
+    }
+    if ($(e.target).text() == "Verlauf") {
+        $("#dokumentationContainer").show();
+        $("#printContainer").hide();
+    }
+    if ($(e.target).text() == "Anwesenheit") {
+        $("#dokumentationContainer").show();
+        $("#printContainer").hide();
+    }
 
 });
 
@@ -284,6 +330,7 @@ function performLogin() {
                 nameKlasse = $("#klassen").val();
                 refreshVerlauf(nameKlasse);
                 refreshKlassenliste(nameKlasse);
+                refreshBemerkungen(nameKlasse);
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Login fehlgeschlagen", "Fehler!");
@@ -979,6 +1026,7 @@ function loggedOut() {
     $("#tabMail").hide();
     $("#stundenplan").hide();
     $("#vertertungsplan").hide();
+    $("#bemerkungContainer").hide();
     chatDisconnect();
 }
 function loggedIn() {
@@ -1026,8 +1074,8 @@ function loggedIn() {
     $("#chatContainer").show();
     $("#tabChat").show();
     $("#tabMail").show();
-    
-    
+    $("#bemerkungContainer").show();
+
     chatConnect();
 }
 
