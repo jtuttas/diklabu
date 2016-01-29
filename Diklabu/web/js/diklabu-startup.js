@@ -27,7 +27,6 @@ console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
     console.log("Build gui for logged in user");
     getLehrerData(sessionStorage.myself);
-
     loggedIn();
 }
 
@@ -350,6 +349,7 @@ $.ajax({
             refreshKlassenliste(nameKlasse)
             loadStundenPlan();
             loadVertertungsPlan();
+            refreshBemerkungen(nameKlasse);
         }
     },
     error: function () {
@@ -458,6 +458,75 @@ function refreshVerlauf(kl) {
     });
 }
 
+function refreshBemerkungen(kl) {
+    console.log("Refresh Bemerkungen f. Klasse " + kl);
+
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/bemerkungen/" + kl,
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            for (i = 0; i < data.length; i++) {
+
+                $("#dat" + data[i].ID_SCHUELER).text(getReadableDate(data[i].DATUM));
+                $("#lk" + data[i].ID_SCHUELER).text(data[i].ID_LEHRER);
+                $("#bem" + data[i].ID_SCHUELER).val(data[i].BEMERKUNG);
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+
+    /*
+     * Bemerkungen eintragen
+     */
+    $('body').off('keydown', ".bemerkung");
+    $("body").on('keydown', ".bemerkung", function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13) {
+            var sid = $(this).attr("sid");
+            var eintr = {
+                "DATUM": toSQLString(new Date()) + "T00:00:00",
+                "ID_LEHRER": sessionStorage.myself,
+                "ID_SCHUELER": parseInt(sid),
+                "BEMERKUNG": $(this).val()
+            };
+            console.log("Sende Bemerkung " + JSON.stringify(eintr));
+            $.ajax({
+                url: SERVER + "/Diklabu/api/v1/bemerkungen/",
+                type: "POST",
+                cache: false,
+                data: JSON.stringify(eintr),
+                headers: {
+                    "service_key": sessionStorage.service_key,
+                    "auth_token": sessionStorage.auth_token
+                },
+                contentType: "application/json; charset=UTF-8",
+                success: function (data) {
+                    if (data.success) {
+                        toastr["success"](data.msg, "Bemerkung");
+                        $("#dat" + data.ID_SCHUELER).text(getReadableDate(data.DATUM));
+                        $("#lk" + data.ID_SCHUELER).text(data.ID_LEHRER);
+                        $("#bem" + data.ID_SCHUELER).val(data.BEMERKUNG);
+                    }
+                    else {
+                        toastr["warning"](data.msg, "Bemerkung");
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    toastr["error"]("kann Bemerkungen nicht Eintragen! Status Code=" + xhr.status, "Fehler!");
+                }
+            });
+        }
+    });
+}
+
 function refreshKlassenliste(kl) {
     console.log("Refresh Klassenliste f. Klasse " + kl);
     nameKlasse = kl;
@@ -473,14 +542,16 @@ function refreshKlassenliste(kl) {
         success: function (data) {
             schueler = data;
             $("#tabelleKlasse").empty();
-
+            $("#tabelleBemerkungen").empty();
+            ;
             $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
                 $("#tabelleKlasse").append('<tr><td><img src="img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
+                $("#tabelleBemerkungen").append('<tr><td><img src="img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td id="dat' + data[i].id + '"></td><td id="lk' + data[i].id + '"></td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
             }
             $("#tabelleKlasse").append("</tbody>");
-
+            $("#tabelleBemerkungen").append("</tbody>");
             refreshAnwesenheit(nameKlasse);
             getSchuelerInfo();
 
@@ -911,7 +982,6 @@ function loggedOut() {
     chatDisconnect();
 }
 function loggedIn() {
-
     $("#kuerzelContainer").hide();
     $("#kennwortContainer").hide();
     $("#stundenplan").show();
@@ -942,6 +1012,7 @@ function loggedIn() {
         $("#idklasse").val(idKlasse);
         loadStundenPlan();
         loadVertertungsPlan();
+        refreshBemerkungen(nameKlasse);
     });
     $("#klassen").val(nameKlasse);
     $("#auth_token").val(sessionStorage.auth_token);
@@ -955,7 +1026,8 @@ function loggedIn() {
     $("#chatContainer").show();
     $("#tabChat").show();
     $("#tabMail").show();
-
+    
+    
     chatConnect();
 }
 

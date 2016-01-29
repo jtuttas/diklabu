@@ -22,6 +22,7 @@ import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.DatumUtil;
+import de.tuttas.util.StundenplanUtil;
 import de.tuttas.util.VerspaetungsUtil;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
@@ -118,6 +119,10 @@ public class DokuServlet extends HttpServlet {
                         kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Anwesenheit</b></td>");
                     } else if (cmd.compareTo("Fehlzeiten") == 0) {
                         kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Fehlzeiten</b></td>");
+                    } else if (cmd.compareTo("Stundenplan") == 0) {
+                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Stundenplan</b></td>");
+                    } else if (cmd.compareTo("Vertretungsplan") == 0) {
+                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Vertretungsplan</b></td>");
                     }
                     kopf += ("</tr>");
                     kopf += ("<tr>");
@@ -141,7 +146,7 @@ public class DokuServlet extends HttpServlet {
                     Date parsedTo;
                     if (request.getParameter("to") == null) {
                         parsedTo = new java.sql.Date(System.currentTimeMillis());
-                    } else {                        
+                    } else {
                         parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
                     }
                     System.out.println("setze To auf " + new java.sql.Date(parsedTo.getTime()));
@@ -152,10 +157,16 @@ public class DokuServlet extends HttpServlet {
                         document = createVerlauf(kl, kopf, parsedFrom, parsedTo, out);
                     } else if (cmd.compareTo("Anwesenheit") == 0) {
                         response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out);                        
+                        document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out);
                     } else if (cmd.compareTo("Fehlzeiten") == 0) {
                         response.addHeader("Content-Disposition", "attachment; filename=Fehlzeiten_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createFehlzeiten(kl, kopf, parsedFrom, parsedTo, out);                        
+                        document = createFehlzeiten(kl, kopf, parsedFrom, parsedTo, out);
+                    } else if (cmd.compareTo("Stundenplan") == 0) {
+                        response.addHeader("Content-Disposition", "attachment; filename=Stundenplan_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                        document = createStundenplan(kl, kopf, parsedFrom, parsedTo, out);
+                    } else if (cmd.compareTo("Vertretungsplan") == 0) {
+                        response.addHeader("Content-Disposition", "attachment; filename=Vertretungsplan_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                        document = createVertretungsplan(kl, kopf, parsedFrom, parsedTo, out);
                     }
 
                 } catch (DocumentException exc) {
@@ -182,6 +193,51 @@ public class DokuServlet extends HttpServlet {
             }
         }
     }
+
+    private Document createStundenplan(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
+        htmlString.append(StundenplanUtil.getPlan(kl.getKNAME(), StundenplanUtil.klassListStundenplan, StundenplanUtil.stundenPlanURL));
+        document.open();
+        // Dokument erzeugen
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+
+        document.close();
+        return document;
+    }
+
+    private Document createVertretungsplan(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
+        htmlString.append(StundenplanUtil.getPlan(kl.getKNAME(), StundenplanUtil.klassListVertretungsplan, StundenplanUtil.vertertungsPlanURL));
+        document.open();
+        // Dokument erzeugen
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+
+        document.close();
+        return document;
+    }
+
     private Document createFehlzeiten(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
         Document document = new Document();
         /* Basic PDF Creation inside servlet */
@@ -194,21 +250,21 @@ public class DokuServlet extends HttpServlet {
         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
         System.out.println("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
         List<AnwesenheitObjekt> anwesenheit = getData(query);
-                
+
         System.out.println("Result List:" + anwesenheit);
         document.open();
-        String tagZeile="";
+        String tagZeile = "";
         tagZeile += "<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">\n";
-        tagZeile += AnwesenheitObjekt.getTRHead();        
-        for (AnwesenheitObjekt ao: anwesenheit) {
+        tagZeile += AnwesenheitObjekt.getTRHead();
+        for (AnwesenheitObjekt ao : anwesenheit) {
             VerspaetungsUtil.parse(ao);
             Schueler s = em.find(Schueler.class, ao.getId_Schueler());
-            System.out.println("Fehltage für Schuler "+s);
-            tagZeile+= ao.toHTML(s.getVNAME()+" "+s.getNNAME());
+            System.out.println("Fehltage für Schuler " + s);
+            tagZeile += ao.toHTML(s.getVNAME() + " " + s.getNNAME());
         }
         tagZeile += "</table>";
         htmlString.append(tagZeile);
-        
+
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
@@ -218,7 +274,7 @@ public class DokuServlet extends HttpServlet {
         image.scalePercent(50f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-        
+
         document.close();
         return document;
     }
@@ -313,19 +369,18 @@ public class DokuServlet extends HttpServlet {
             tagZeile += "</table>\n";
             htmlString.append(tagZeile);
             System.out.println("fertig");
-        System.out.println("html String =" + htmlString.toString());
-        //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
-        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-        // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
-        Image image = Image.getInstance(url);
-        image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
-        document.add(image);
-        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+            System.out.println("html String =" + htmlString.toString());
+            //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
+            InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+            // Bild einfügen
+            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            Image image = Image.getInstance(url);
+            image.setAbsolutePosition(45f, 720f);
+            image.scalePercent(50f);
+            document.add(image);
+            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
         }
 
-        
         document.close();
         return document;
     }
