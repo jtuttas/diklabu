@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <title>Diklabu mobile</title>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
+        <link rel="stylesheet" href="css/buchmobile.css" />
+
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
+
+
+    </head>
+
+    <body>
+        <div data-theme="a" data-role="page" id="login" data-title="Diklabu Mobile">
+            <div data-role="header">
+                <h1>Login</h1>
+            </div>
+            <div data-role="content">
+                <div data-role="fieldcontain">
+                    <label for="benutzer">Benutzername</label>
+                    <input type="text" id="benutzer" placeholder="Lehrerkürzel"
+                           />
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="kennwort">Kennwort</label>
+                    <input type="text" id="kennwort" placeholder="Kennwort" />
+                </div>
+                <a data-role="button" id="btnLogin" href="#klassenliste" data-icon="check">Login</a>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+            </div>
+        </div>
+        <div data-role="page" id="klassenliste" data-title="Klassenliste">
+            <div data-role="header">
+                <a data-role="button" class="ui-btn-left" id="btnLogout" href="#login"
+                   data-icon="back">Logout</a>
+                <h1>Klassen</h1>
+                <a data-role="button" class="ui-btn-right" id="btnAbout" href="#about"
+                   data-icon="info">About</a>
+            </div>
+            <div data-role="content">                
+                <ul data-role="listview" data-filter="true" data-theme="b" >
+                    <li>
+                        <a href="#anwesenheit">Fisi13A</a>
+                    </li>
+                    <li>
+                        <a href="#anwesenheit">Fisi13C</a>
+                    </li>
+                    <li>
+                        <a href="#anwesenheit">Fisi13B</a>
+                    </li>
+                </ul>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+            </div>
+        </div>
+        </div>
+        <div data-role="page" id="anwesenheit" data-title="Klasse">
+            <div data-role="header">
+                <h1>Fisi13A</h1>
+                <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
+                <a data-role="button" id="btnRefresh" data-icon="refresh">Refresh</a>
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#anwesenheit" class="ui-btn-active ui-state-persist">Anwesenheit</a></li>
+                        <li><a href="#verlauf">Verlauf</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="content">
+                <ul data-role="listview" data-split-icon="gear" data-theme="b" data-split-theme="b" >
+                    <li> <a href="#schuelerdetails">
+                            <img src="img/anonym.gif"/>                       
+                            <h3>VorName NachName</h3><small>V60e</small></a>
+                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                    </li>
+                    <li> <a href="#schuelerdetails">
+                            <img src="img/anonym.gif"/>                       
+                            <h3>VorName NachName</h3><small>a</small></a></a>
+                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                    </li>
+                    <li> <a href="#schuelerdetails">
+                            <img src="img/anonym.gif"/>                       
+                            <h3>VorName NachName</h3><small>V60e</small></a></a>
+                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                    </li>
+                    <li> <a href="#schuelerdetails">
+                            <img src="img/anonym.gif"/>                       
+                            <h3>VorName NachName</h3></a>
+                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
+                    </li>
+                </ul>
+                <div data-role="popup" id="anwesenheitDetails" class="ui-content" data-history="false">
+                    <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                    <h3>Vorname NachName</h3>
+                    <div data-role="controlgroup">
+                        <a href="#" data-role="button">anwesend</a>
+                        <a href="#"  data-role="button">entschuldigt</a>
+                        <a href="#"  data-role="button">fehlend</a>
+                    </div>
+                    <input type="text" value=""/>                    
+                    <a href="#" data-role="button" class="btn-default" >OK</a>
+
+                </div>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+                <h2 style="font-size: 50%;" >17.1.2016 9:35</h2>                  
+
+            </div>
+        </div>
+        <div data-role="page" id="verlauf" data-title="Verlauf">
+            <div data-role="header">
+                <h1>Fisi13A</h1>
+                <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
+                <a href="#addVerlauf" data-icon="add" data-rel="popup" data-position-to="window" data-transition="popup">Hinzufügen</a>                                
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#anwesenheit">Anwesenheit</a></li>
+                        <li><a href="#verlauf" class="ui-btn-active ui-state-persist">Verlauf</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div data-role="content">
+
+                <ul data-role="listview" data-theme="b" data-split-theme="b" >
+                    <li>  
+                        <h1>LF1</h1>
+                        <small>Hier steht der Inhalt</small>                       
+                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                    </li>
+                    <li>  
+                        <h1>LF1</h1>
+                        <small>Hier steht der Inhalt</small>                       
+                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                    </li>
+                    <li>  
+                        <h1>LF1</h1>
+                        <small>Hier steht der Inhalt</small>                       
+                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                    </li>
+                    <li>  
+                        <h1>LF1</h1>
+                        <small>Hier steht der Inhalt</small>                       
+                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                    </li>
+                    <li>  
+                        <h1>LF1</h1>
+                        <small>Hier steht der Inhalt</small>                       
+                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                    </li>
+
+                </ul>
+                <div data-role="popup" id="addVerlauf" class="ui-content" data-history="false">
+                    <a href="#verlauf"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                    <fieldset class="ui-field-contain">
+                        <h3>17.1.2016</h3>
+                        <label for="lf">Lernfeld</label>
+                        <select name="lf" id="lf">
+                            <optgroup label="Lernfelder">
+                                <option value="lf1">LF1</option>
+                                <option value="lf2">LF2</option>
+                                <option value="lf3">LF3</option>
+                                <option value="lf4">LF4</option>
+                                <option value="lf5">LF5</option>
+                            </optgroup>          
+                        </select>
+                        <label for="std">Stunde</label>
+                        <select name="std" id="std">
+                            <optgroup label="Stunde">
+                                <option value="01">01</option>
+                                <option value="02">02</option>
+                                <option value="03">03</option>
+                                <option value="04">04</option>
+                                <option value="05">04</option>
+                            </optgroup>          
+                        </select>
+                        <p>&nbsp;</p>
+                        <input type="text" id="lernsituation" placeholder="Lernsituation" />
+
+                        <input type="text" id="inhalt" placeholder="Inhalt"/>
+
+                        <input type="text" id="bemerkungen" placeholder="Bemerkungen"/>
+                    </fieldset>            
+                    <a href="#" data-role="button" class="btn-default" >OK</a>
+
+                </div>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+                <h2 style="font-size: 50%;" >17.1.2016 9:35</h2>                
+            </div>
+        </div>
+
+        <div data-role="page" id="schuelerdetails" data-title="Schueler">
+            <div data-role="header">
+                <h1>Name1</h1>
+                <a data-role="button" id="btnBack" href="#anwesenheit" data-icon="back">zurück</a>
+            </div>
+            <div data-role="content">
+                <img id="imgSchueler" src="img/anonym.gif" 
+                     style="display: block; margin: 0 auto" />
+                <ul data-role="listview" data-inset="true">
+                    <li data-role="list-divider">Daten</li>
+                    <li>Geb. Tag</li>
+                    <li data-role="list-divider">Ausbilder</li>
+                    <li>Name</li>
+                    <li>EMail</li>
+                    <li data-role="list-divider">Betrieb</li>
+                    <li>FA Name</li>
+                    <li>Straße</li>
+                    <li>Ort</li>
+                    <li data-role="list-divider">Klasse(n) / Kurse</li>
+                    <li>Fisi13A</li>
+                    <li>WPK</li>
+                    <li data-role="list-divider">Bemerkungen</li>
+                    <li>bem1</li>
+                    <li>Bem2</li>
+                </ul>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+            </div>
+        </div>
+        <div data-role="page" id="about" data-title="About">
+            <div data-role="header">
+                <h1>About</h1>
+                <a data-role="button" id="btnAbout" href="#klassenliste" data-icon="home">zurück</a>
+            </div>
+            <div data-role="content"></div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+            </div>
+        </div>
+
+    </body>
+
+</html>

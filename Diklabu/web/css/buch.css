@@ -121,3 +121,21 @@ th{ height: 75px; }
 .chatLine {
     margin-left: 10px;
 }
+
+.anwesend {
+    border-radius: 20px;    
+    padding: 10px;
+    background: lightgreen;
+}
+
+.fehlend {
+    border-radius: 20px;    
+    padding: 10px;
+    background: lightcoral;
+}
+
+.unbekannt {
+    border-radius: 20px;    
+    padding: 10px;
+    
+}

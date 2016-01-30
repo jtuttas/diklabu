@@ -119,7 +119,7 @@ $('#bildUploadForm').on('submit', (function (e) {
             console.log("success");
             if (data.success) {
                 toastr["success"](data.msg, "Info!");
-                getSchuelerBild(idSchueler);
+                getSchuelerBild(idSchueler, "#infoBild");
                 $("#fileBild").replaceWith($("#fileBild").val('').clone(true));
                 $("#bildWahl").text("");
             }
@@ -136,7 +136,62 @@ $('#bildUploadForm').on('submit', (function (e) {
     });
 }));
 
-$('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+$('#anwesenheitTabs').on('shown.bs.tab', function (e) {
+    console.log($(e.target).text());
+
+    if ($(e.target).text() == "Bilder") {
+        refreshAnwesenheit(nameKlasse, function () {
+            $("#klassenBilder").empty();
+            console.log("lade Bilder:");
+            var tr = "<tr>";
+            for (i = 1; i <= schueler.length; i++) {
+                var status = anwesenheitHeute(schueler[i - 1].id);
+                if (status.charAt(0) == "a" || status.charAt(0) == "v") {
+                    tr += '<td align="center" class="anwesend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="80%" id="bild' + schueler[i - 1].id + '"></td>';
+                }
+                else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
+                    tr += '<td align="center" class="fehlend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="80%" id="bild' + schueler[i - 1].id + '"></td>';
+                }
+                else {
+                    tr += '<td align="center" class="unbekannt"><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="80%" id="bild' + schueler[i - 1].id + '"></td>';
+                }
+                if (i % 5 == 0) {
+                    tr += "</tr></tr>";
+                }
+            }
+            tr += "</tr>";
+            $("#klassenBilder").append(tr);
+
+            for (i = 0; i < schueler.length; i++) {
+                console.log("Lade Bild f. Schüler " + schueler[i].id)
+                getSchuelerBild(schueler[i].id, "#bild" + schueler[i].id);
+            }
+            $("#tabAnwesenheitBilder").fadeIn();
+        });
+    }
+});
+
+function anwesenheitHeute(id) {
+
+    var ds = toSQLString(new Date());
+
+    for (k = 0; k < anwesenheit.length; k++) {
+        if (anwesenheit[k].id_Schueler == id) {
+            eintraege = anwesenheit[k].eintraege;
+            for (j = 0; j < eintraege.length; j++) {
+                var datum = eintraege[j].DATUM;
+                datum = datum.substring(0, datum.indexOf('T'));
+                if (datum == ds) {
+                    return eintraege[j].VERMERK;
+                }
+            }
+            return "?";
+        }
+    }
+    return "?";
+}
+
+$('#navTabs').on('shown.bs.tab', function (e) {
 //show selected tab / active
     console.log($(e.target).text());
     $("#dokumentationType").val($(e.target).text());
@@ -187,6 +242,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         $("#dokumentationContainer").show();
         $("#printContainer").hide();
     }
+
 
 });
 
@@ -640,7 +696,7 @@ function getSchuelerInfo() {
             }
 
             $('#schuelerinfo').modal('show');
-            getSchuelerBild(idSchueler);
+            getSchuelerBild(idSchueler, "#infoBild");
 
         });
     });
@@ -669,43 +725,39 @@ function loadSchulerDaten(id, callback) {
  * @param {type} id
  * @returns {undefined}
  */
-function getSchuelerBild(id) {
+function getSchuelerBild(id, elem) {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
         cache: false,
         type: 'HEAD',
         error:
                 function () {
-                    $("#infoBild").attr("src", "img/anonym.gif");
+                    $(elem).attr("src", "img/anonym.gif");
                 },
         success:
                 function () {
                     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/schueler/bild64/" + id,
-        type: "GET",
-        headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
-        },
-        
-        success: function (data) {
-            data = data.replace(/(?:\r\n|\r|\n)/g, '');
-            console.log("Bild Daten geladen:"+data);
-            $("#infoBild").attr('src', "data:image/png;base64,"+data);
-            
-        },
-        error: function () {
-            toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
-        }
-    });
-                    /*
-                    d = new Date();
-                    $("#infoBild").attr("src", SERVER + "/Diklabu/api/v1/schueler/bild/" + id + "?" + d.getTime());
-                    */
+                        url: SERVER + "/Diklabu/api/v1/schueler/bild64/" + id,
+                        type: "GET",
+                        headers: {
+                            "service_key": sessionStorage.service_key,
+                            "auth_token": sessionStorage.auth_token
+                        },
+                        success: function (data) {
+                            console.log("Bild Daten geladen:" + data.id + " elem=" + elem);
+                            data = data.base64.replace(/(?:\r\n|\r|\n)/g, '');
+                            $(elem).attr('src', "data:image/png;base64," + data);
+
+                        },
+                        error: function () {
+                            toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
+                        }
+                    });
+
                 }
     });
 }
-function refreshAnwesenheit(kl) {
+function refreshAnwesenheit(kl, callback) {
     console.log("Refresh Anwesenheit f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
     var url = SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + $("#startDate").val() + "/" + $("#endDate").val();
     console.log("URL=" + url);
@@ -766,9 +818,9 @@ function refreshAnwesenheit(kl) {
             $(".anwesenheitsPopup").hover(function () {
                 //alert("popup anzeigen");
             }, function () {
-
+                
             });
-
+            callback();
 
         },
         error: function (xhr, textStatus, errorThrown) {

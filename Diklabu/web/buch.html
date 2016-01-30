@@ -224,17 +224,32 @@
                         </div>
                     </div>
                     <div id="tabAnwesenheit" class="tab-pane fade">
-                        <br>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <table class="table table-bordered" id="tabelleKlasse">
+                        <ul class="nav nav-tabs" id="anwesenheitTabs">
+                            <li class="active"><a data-toggle="tab" href="#tabAnwesenheitDetails">Details</a></li>
+                            <li><a data-toggle="tab" href="#tabAnwesenheitBilder">Bilder</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tabAnwesenheitDetails" class="tab-pane fade in active" >
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <table class="table table-bordered" id="tabelleKlasse">
+                                        </table>
+                                    </div>
+                                    <div class="col-md-9 table-responsive">
+                                        <table class="table table-bordered" id="tabelleAnwesenheit">
+                                        </table>                                
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="tabAnwesenheitBilder" class="tab-pane " style="display:  none;">
+                                <table class="table">
+
+                                    <tbody id="klassenBilder">
+                                    </tbody>
                                 </table>
                             </div>
-                            <div class="col-md-9 table-responsive">
-                                <table class="table table-bordered" id="tabelleAnwesenheit">
-                                </table>                                
-                            </div>
                         </div>
+
                     </div>
                     <div id="tabFehlzeiten" class="tab-pane fade">
                         <ul class="nav nav-tabs" id="navTabs">
@@ -264,7 +279,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div id="tabMail" class="tab-pane fade" style="display:  none;">
+                            <div id="tabMail" class="tab-pane fade in" style="display:  none;">
                                 <div class="row">
                                     <form id="emailForm" method="POST" action="/Diklabu/MailServlet" accept-charset="ISO-8859-1">
                                         <div class="col-md-4">

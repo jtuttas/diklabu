@@ -12,6 +12,7 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
+import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.util.ImageUtil;
 import java.awt.AlphaComposite;
@@ -90,7 +91,7 @@ public class SchuelerManager {
     @Path("/bild/{idschueler}")
     @Produces("image/jpg")
     public Response getFile(@PathParam("idschueler") int idschueler) {
-
+        if (Config.debug) {
         String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
         System.out.println("Lade file " + filename);
         File file = new File(filename);
@@ -101,14 +102,17 @@ public class SchuelerManager {
         response.header("Content-Disposition",
                 "attachment; filename=image_from_server.png");
         return response.build();
+        }
+        return null;
 
     }
 
     @GET
     @Path("/bild64/{idschueler}")
-    @Produces("text/plain")
-    public String getFile64(@PathParam("idschueler") int idschueler) {
-
+    
+    public BildObject getFile64(@PathParam("idschueler") int idschueler) {
+        BildObject bo = new BildObject();
+        bo.setId(idschueler);
         String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
         System.out.println("Lade file " + filename);
         File file = new File(filename);
@@ -119,10 +123,11 @@ public class SchuelerManager {
         BufferedImage img = null;
         try {
             img = ImageIO.read(file);
-            return ImageUtil.encodeToString(img, "jpeg");
+            bo.setBase64(ImageUtil.encodeToString(img, "jpeg"));
+            return bo;
 
         } catch (IOException e) {
-            return null;
+            return bo;
         }
     }
 
