@@ -5,18 +5,17 @@
         <title>Diklabu mobile</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.css" />
-        <link rel="stylesheet" href="css/buchmobile.css" />
-
-        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script src="http://code.jquery.com/mobile/1.3.2/jquery.mobile-1.3.2.min.js"></script>
-
-
+      <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+      <link rel="stylesheet" href="http://demos.jquerymobile.com/1.4.0/theme-classic/theme-classic.css" />
+      <link rel="stylesheet" href="css/buchmobile.css"/>
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+<script src="js/jquery.mobile.toast.js"></script>
     </head>
 
     <body>
-        <div data-theme="a" data-role="page" id="login" data-title="Diklabu Mobile">
-            <div data-role="header">
+        <div data-theme="b" data-role="page" id="login" data-title="Diklabu Mobile">
+            <div data-role="header" data-theme="a">
                 <h1>Login</h1>
             </div>
             <div data-role="content">
@@ -31,12 +30,12 @@
                 </div>
                 <a data-role="button" id="btnLogin" href="#klassenliste" data-icon="check">Login</a>
             </div>
-            <div data-role="footer" data-position="fixed">
+            <div data-role="footer" data-position="fixed" data-theme="a">
                 <h1>Diklabu mobile</h1>
             </div>
         </div>
-        <div data-role="page" id="klassenliste" data-title="Klassenliste">
-            <div data-role="header">
+        <div data-role="page" data-theme="b" id="klassenliste" data-title="Klassenliste">
+            <div data-role="header" data-theme="a">
                 <a data-role="button" class="ui-btn-left" id="btnLogout" href="#login"
                    data-icon="back">Logout</a>
                 <h1>Klassen</h1>
@@ -44,7 +43,7 @@
                    data-icon="info">About</a>
             </div>
             <div data-role="content">                
-                <ul data-role="listview" data-filter="true" data-theme="b" >
+                <ul data-role="listview" data-filter="true"  id="klassenListView">
                     <li>
                         <a href="#anwesenheit">Fisi13A</a>
                     </li>
@@ -56,25 +55,19 @@
                     </li>
                 </ul>
             </div>
-            <div data-role="footer" data-position="fixed">
+            <div data-role="footer" data-position="fixed" data-theme="a">
                 <h1>Diklabu mobile</h1>
             </div>
         </div>
-        </div>
-        <div data-role="page" id="anwesenheit" data-title="Klasse">
+
+        <div data-role="page" id="anwesenheit" data-theme="a" data-title="Klasse">
             <div data-role="header">
-                <h1>Fisi13A</h1>
+                <h1 id="anwesenheitKlassenName">Fisi13A</h1>
                 <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
                 <a data-role="button" id="btnRefresh" data-icon="refresh">Refresh</a>
-                <div data-role="navbar">
-                    <ul>
-                        <li><a href="#anwesenheit" class="ui-btn-active ui-state-persist">Anwesenheit</a></li>
-                        <li><a href="#verlauf">Verlauf</a></li>
-                    </ul>
-                </div>
             </div>
-            <div data-role="content">
-                <ul data-role="listview" data-split-icon="gear" data-theme="b" data-split-theme="b" >
+            <div data-role="content" data-theme="b">
+                <ul id="namensListView" data-role="listview" data-split-icon="gear"  data-split-theme="a" >
                     <li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>                       
                             <h3>VorName NachName</h3><small>V60e</small></a>
@@ -100,60 +93,77 @@
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                     <h3>Vorname NachName</h3>
                     <div data-role="controlgroup">
-                        <a href="#" data-role="button">anwesend</a>
-                        <a href="#"  data-role="button">entschuldigt</a>
-                        <a href="#"  data-role="button">fehlend</a>
+                        <a href="#" id="btnAnwesend" data-role="button">anwesend</a>
+                        <a href="#" id="btnEntschuldigt" data-role="button">entschuldigt</a>
+                        <a href="#" id="btnFehlend" data-role="button">fehlend</a>
                     </div>
-                    <input type="text" value=""/>                    
-                    <a href="#" data-role="button" class="btn-default" >OK</a>
+                    <input type="text" id="anwesenheitText" value=""/>                    
+                    <a href="#" id="btnOkAnwesenheit" data-role="button" class="btn-default" >OK</a>
 
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h1>Diklabu mobile</h1>
-                <h2 style="font-size: 50%;" >17.1.2016 9:35</h2>                  
+                <h2 style="font-size: 60%;" >17.1.2016 9:35</h2>                  
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#anwesenheit" class="ui-btn-active ui-state-persist">Anwesenheit</a></li>
+                        <li><a href="#verlauf">Verlauf</a></li>
+                    </ul>
+                </div>
 
             </div>
         </div>
-        <div data-role="page" id="verlauf" data-title="Verlauf">
+        <div data-role="page" data-theme="a"  id="verlauf" data-title="Verlauf">
             <div data-role="header">
                 <h1>Fisi13A</h1>
                 <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
-                <a href="#addVerlauf" data-icon="add" data-rel="popup" data-position-to="window" data-transition="popup">Hinzufügen</a>                                
-                <div data-role="navbar">
-                    <ul>
-                        <li><a href="#anwesenheit">Anwesenheit</a></li>
-                        <li><a href="#verlauf" class="ui-btn-active ui-state-persist">Verlauf</a></li>
-                    </ul>
-                </div>
+                <a href="#addVerlauf" data-icon="plus" data-rel="popup" data-position-to="window" data-transition="popup">&nbsp;</a>                                
+                
             </div>
-            <div data-role="content">
+            <div data-role="content" data-theme="b">
 
-                <ul data-role="listview" data-theme="b" data-split-theme="b" >
+                <ul data-role="listview" data-split-theme="a" >
                     <li>  
+                        <a href="#">
                         <h1>LF1</h1>
                         <small>Hier steht der Inhalt</small>                       
                         <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                        </a>
                     </li>
-                    <li>  
+                    <li>
+                        <a href="#">
                         <h1>LF1</h1>
                         <small>Hier steht der Inhalt</small>                       
                         <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                        </a>
                     </li>
-                    <li>  
+                    <li>
+                        <a href="#">
                         <h1>LF1</h1>
                         <small>Hier steht der Inhalt</small>                       
                         <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                        </a>
                     </li>
-                    <li>  
+                    <li>
+                        <a href="#">
                         <h1>LF1</h1>
                         <small>Hier steht der Inhalt</small>                       
                         <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                        </a>
                     </li>
-                    <li>  
+                    <li>
+                        <a href="#">
                         <h1>LF1</h1>
                         <small>Hier steht der Inhalt</small>                       
                         <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                        <h1>LF1</h1>
+                        <small>Hier steht der Inhalt</small>                       
+                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                        </a>
                     </li>
 
                 </ul>
@@ -163,7 +173,7 @@
                         <h3>17.1.2016</h3>
                         <label for="lf">Lernfeld</label>
                         <select name="lf" id="lf">
-                            <optgroup label="Lernfelder">
+                            <optgroup label="Lernfelder" id="lernfelder">
                                 <option value="lf1">LF1</option>
                                 <option value="lf2">LF2</option>
                                 <option value="lf3">LF3</option>
@@ -178,7 +188,19 @@
                                 <option value="02">02</option>
                                 <option value="03">03</option>
                                 <option value="04">04</option>
-                                <option value="05">04</option>
+                                <option value="05">05</option>
+                                <option value="06">06</option>
+                                <option value="07">07</option>
+                                <option value="08">08</option>
+                                <option value="09">09</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                
                             </optgroup>          
                         </select>
                         <p>&nbsp;</p>
@@ -188,35 +210,42 @@
 
                         <input type="text" id="bemerkungen" placeholder="Bemerkungen"/>
                     </fieldset>            
-                    <a href="#" data-role="button" class="btn-default" >OK</a>
+                    <a href="#" id="btnAddVerlauf" data-role="button" class="btn-default" >Hinzufügen</a>
 
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h1>Diklabu mobile</h1>
-                <h2 style="font-size: 50%;" >17.1.2016 9:35</h2>                
+                <h2 style="font-size: 60%;" >17.1.2016 9:35</h2>                
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#anwesenheit">Anwesenheit</a></li>
+                        <li><a href="#verlauf" class="ui-btn-active ui-state-persist">Verlauf</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
         <div data-role="page" id="schuelerdetails" data-title="Schueler">
             <div data-role="header">
-                <h1>Name1</h1>
+                <h1 id="detailName">Name1</h1>
                 <a data-role="button" id="btnBack" href="#anwesenheit" data-icon="back">zurück</a>
             </div>
-            <div data-role="content">
+            <div data-role="content"  data-theme="b">
                 <img id="imgSchueler" src="img/anonym.gif" 
                      style="display: block; margin: 0 auto" />
                 <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider">Daten</li>
-                    <li>Geb. Tag</li>
+                    <li data-role="list-divider">Geburtstag</li>
+                    <li id="detailGeb">Geb. Tag</li>
                     <li data-role="list-divider">Ausbilder</li>
-                    <li>Name</li>
-                    <li>EMail</li>
+                    <li id="ausbilderName">Name</li>
+                    <li id="ausbilderTel">Tel</li>
+                    <li id="ausbilderFax">Fax</li>
+                    <li id="ausbilderEmail">EMail</li>
                     <li data-role="list-divider">Betrieb</li>
-                    <li>FA Name</li>
-                    <li>Straße</li>
-                    <li>Ort</li>
-                    <li data-role="list-divider">Klasse(n) / Kurse</li>
+                    <li id="betriebName">FA Name</li>
+                    <li id="betriebStrasse">Straße</li>
+                    <li id="betriebOrt">Ort</li>
+                    <li id="kurse" data-role="list-divider">Klasse(n) / Kurse</li>
                     <li>Fisi13A</li>
                     <li>WPK</li>
                     <li data-role="list-divider">Bemerkungen</li>
@@ -233,12 +262,24 @@
                 <h1>About</h1>
                 <a data-role="button" id="btnAbout" href="#klassenliste" data-icon="home">zurück</a>
             </div>
-            <div data-role="content"></div>
+            <div data-role="content">
+                <div data-role="content">
+                <div class="ui-body ui-body-d ui-corner-all">
+                    <img src="img/joerg.png" alt="joerg"/>
+                    <h2>Diklabu mobile</h2>
+                    <h3 id="version">&nbsp;</h3>
+                    (c) 2016 by <a href="mailto:tuttas@mmbbs.de">Dr. Jörg Tuttas</a>
+                </div>
+            </div>
+                
+            </div>
             <div data-role="footer" data-position="fixed">
                 <h1>Diklabu mobile</h1>
             </div>
         </div>
 
     </body>
+    <script src="js/config.js"></script>
+    <script src="js/buchmobile.js"></script>
 
 </html>

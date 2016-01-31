@@ -5,6 +5,8 @@
  */
 package de.tuttas.util;
 
+import java.awt.Graphics2D;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -43,5 +45,23 @@ public class ImageUtil {
         return imageString;
     }
 
-    
+public static BufferedImage resizeImage(BufferedImage originalImage, int type, int w, int h){
+	BufferedImage resizedImage = new BufferedImage(w, h, type);
+	Graphics2D g = resizedImage.createGraphics();
+	g.drawImage(originalImage, 0, 0, w, h, null);
+	g.dispose();
+		
+	return resizedImage;
+    }
+
+public static BufferedImage cropImage(BufferedImage originalImage, int type, int w){
+	BufferedImage resizedImage = new BufferedImage(w, w, type);
+	Graphics2D g = resizedImage.createGraphics();
+	g.drawImage(originalImage, 0, 0, w, originalImage.getHeight(), null);
+	g.dispose();
+		
+	return resizedImage;
+    }
+	
+	
 }

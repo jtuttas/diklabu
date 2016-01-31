@@ -92,24 +92,26 @@ public class SchuelerManager {
     @Produces("image/jpg")
     public Response getFile(@PathParam("idschueler") int idschueler) {
         if (Config.debug) {
-        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
-        System.out.println("Lade file " + filename);
-        File file = new File(filename);
-        if (!file.exists()) {
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
-        ResponseBuilder response = Response.ok((Object) file);
-        response.header("Content-Disposition",
-                "attachment; filename=image_from_server.png");
-        return response.build();
+            String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+            System.out.println("Lade file " + filename);
+            File file = new File(filename);
+            if (!file.exists()) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            ResponseBuilder response = Response.ok((Object) file);
+            response.header("Content-Disposition",
+                    "attachment; filename=image_from_server.png");
+            return response.build();
         }
         return null;
 
     }
 
+   
+
     @GET
     @Path("/bild64/{idschueler}")
-    
+
     public BildObject getFile64(@PathParam("idschueler") int idschueler) {
         BildObject bo = new BildObject();
         bo.setId(idschueler);
