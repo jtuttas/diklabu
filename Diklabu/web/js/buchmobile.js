@@ -256,7 +256,7 @@ function buildNamensliste(data) {
 function renderSchuelerDetails(sid) {
     $("#detailName").text(getNameSchuler(sid));
         loadSchulerDaten(sid, function (data) {
-            $("#detailGeb").text(data.gebDatum);
+            $("#detailGeb").text("Geb.:"+getReadableDate(data.gebDatum));
             if (data.email!=undefined) {
                 $("#detailEmail").show();
                 $("#detailEmail").text(data.email);
