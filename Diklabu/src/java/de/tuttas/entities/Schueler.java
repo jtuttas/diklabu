@@ -40,11 +40,24 @@ public class Schueler implements Serializable {
      * Geburtsdatum in der Form yyyy-mm-dd
      */
     private Date GEBDAT;
+    
+    private String EMAIL;
+    
 
     private String ACC;
     
     private int ID_AUSBILDER;
 
+    public void setEMAIL(String EMAIL) {
+        this.EMAIL = EMAIL;
+    }
+
+    public String getEMAIL() {
+        return EMAIL;
+    }
+
+    
+    
     public void setID_AUSBILDER(int ID_AUSBILDER) {
         this.ID_AUSBILDER = ID_AUSBILDER;
     }

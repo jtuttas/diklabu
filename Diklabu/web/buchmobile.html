@@ -226,36 +226,65 @@
 
         <div data-role="page" id="schuelerdetails" data-title="Schueler">
             <div data-role="header">
-                <h1 id="detailName">Name1</h1>
+                <h3 id="detailName">Name1</h3>
                 <a data-role="button" id="btnBack" href="#anwesenheit" data-icon="back">zurück</a>
             </div>
             <div data-role="content"  data-theme="b">
                 <img id="imgSchueler" src="img/anonym.gif" 
                      style="display: block; margin: 0 auto" />
+                <form enctype="multipart/form-data" id="bildUploadForm" action="/Diklabu/api/v1/schueler/bild/14279">
+                    <input data-icon="camera" id="fileBild" name="file" type="file" accept="image/*" capture="camera">
+                        <button id="uploadBildButton" type="submit" >Upload</button>
+                </form>
+
                 <ul data-role="listview" data-inset="true">
-                    <li data-role="list-divider">Geburtstag</li>
-                    <li id="detailGeb">Geb. Tag</li>
-                    <li data-role="list-divider">Ausbilder</li>
-                    <li id="ausbilderName">Name</li>
-                    <li id="ausbilderTel">Tel</li>
-                    <li id="ausbilderFax">Fax</li>
-                    <li id="ausbilderEmail">EMail</li>
-                    <li data-role="list-divider">Betrieb</li>
-                    <li id="betriebName">FA Name</li>
-                    <li id="betriebStrasse">Straße</li>
-                    <li id="betriebOrt">Ort</li>
-                    <li id="kurse" data-role="list-divider">Klasse(n) / Kurse</li>
-                    <li>Fisi13A</li>
-                    <li>WPK</li>
-                    <li data-role="list-divider">Bemerkungen</li>
-                    <li>bem1</li>
-                    <li>Bem2</li>
+                    <li data-role="collapsible" data-iconpos="right"  data-inset="false" >
+                        <h2>Pers. Daten</h2>
+                        <ul data-role="listview">
+                            <li id="detailGeb">Geb. Tag</li>
+                            <li ><a  id="detailEmail" data-icon="mail" data-role="button" href="mailto:jtuttas@gmx.net">EMail</a></li>
+                        </ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="right"  data-inset="false">
+                        <h2>Ausbilder</h2>
+                        <ul data-role="listview">
+                            <li data-role="list-divider">Ausbilder</li>
+                            <li id="ausbilderName">Name</li>
+                            <li id="ausbilderFax">Fax</li>                            
+                            <li ><a  id="ausbilderTel" data-icon="phone" data-role="button" href="tel:+491234">Tel</a></li>                        
+                            <li ><a  id="ausbilderEmail" data-icon="mail" data-role="button" href="mailto:jtuttas@gmx.net">EMail</a></li>                        
+                        </ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="right"  data-inset="false">
+                        <h2>Betrieb</h2>
+                        <ul data-role="listview">
+                            <li><a  id="betriebName" data-icon="location" data-role="button" href="https://www.google.de/maps/place/Ellernbuschfeld+23,+30539+Hannover">FA Name</a></li>                            
+                            <li id="betriebStrasse">Straße</li>
+                            <li id="betriebOrt">Ort</li>
+                        </ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="right"  data-inset="false">
+                        <h2>Klassen/Kurse</h2>
+                        <ul data-role="listview" id="detailsKlassen">                                                
+                            <li>Fisi13A</li>
+                            <li>WPK</li>
+                        </ul>
+                    </li>
+                    <li data-role="collapsible" data-iconpos="right"  data-inset="false">
+                        <h2>Bemerkungen</h2>
+                        <ul data-role="listview">                                                
+                            <li>bem1</li>
+                            <li>Bem2</li>
+                        </ul>                            
+                    </li>
                 </ul>
+
+
             </div>
             <div data-role="footer" data-position="fixed">
                 <div data-role="navbar">
                     <ul>
-                        <li><a  data-icon="arrow-l" href="#" class="ui-btn-active ui-state-persist">zurück</a></li>
+                        <li><a  data-icon="arrow-l" href="#" >zurück</a></li>
                         <li><a  data-icon="arrow-r" href="#">weiter</a></li>
                     </ul>
                 </div>
@@ -285,6 +314,6 @@
     </body>
 
     <script src="js/config.js"></script>
-    <script src="js/buchmobile.js"></script>
+     <script src="js/buchmobile.js"></script>
 
 </html>

@@ -69,6 +69,7 @@ public class SchuelerManager {
             so.setGebDatum(s.getGEBDAT());
             so.setName(s.getNNAME());
             so.setVorname(s.getVNAME());
+            so.setEmail(s.getEMAIL());
             Query query = em.createNamedQuery("findKlassenbySchuelerID");
             query.setParameter("paramIDSchueler", so.getId());
             List<Klasse> klassen = query.getResultList();

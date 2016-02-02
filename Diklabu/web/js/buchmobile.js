@@ -110,6 +110,10 @@ $(document).on("pagebeforeshow", "#anwesenheit", function () {
     console.log("Seite Anwesenheit wurde aktualisiert");
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
+$(document).on("pagebeforeshow", "#schuelerdetails", function () {
+    console.log("Seite schuelerdetails wurde aktualisiert");    
+    renderSchuelerDetails(sessionStorage.idSchueler);
+});
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
@@ -150,7 +154,7 @@ function buildKlassenListeView(data) {
     $(".selectKlasse").click(function () {
         kl = $(this).text();
         console.log("nameKlasse=" + kl);
-        $("#anwesenheitKlassenName").text(kl);
+        
         refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
@@ -188,9 +192,10 @@ else {
 
 function refreshKlassenliste(kl) {
     console.log("Refresh Klassenliste f. Klasse " + kl + " alte Klassenbezeichnung==" + sessionStorage.nameKlasse);
-
+    $("#anwesenheitKlassenName").text(kl);
     if (sessionStorage.nameKlasse == kl && sessionStorage.schueler != undefined) {
         console.log("Schülerdaten schon geladen !");
+        
         data = JSON.parse(sessionStorage.schueler);
         buildNamensliste(data);
         refreshBilderKlasse(kl);
@@ -242,25 +247,82 @@ function buildNamensliste(data) {
     $(".schueler").click(function () {
         sid = $(this).attr("sid");
         console.log("klick auf Schueler mit id =" + sid);
-        $("#detailName").text(getNameSchuler(sid));
+        sessionStorage.idSchueler=sid;
+        //renderSchuelerDetails(sid);
+    });
+}
+
+
+function renderSchuelerDetails(sid) {
+    $("#detailName").text(getNameSchuler(sid));
         loadSchulerDaten(sid, function (data) {
             $("#detailGeb").text(data.gebDatum);
+            if (data.email!=undefined) {
+                $("#detailEmail").show();
+                $("#detailEmail").text(data.email);
+                $("#detailEmail").attr("href","mailto:"+data.email);
+            }
+            else {
+                $("#detailEmail").hide();
+            }            
             if (data.ausbilder != undefined) {
                 $("#ausbilderName").text(data.ausbilder.NNAME);
                 $("#ausbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
+                $("#ausbilderTel").attr("href","tel:" + data.ausbilder.TELEFON);
                 $("#ausbilderFax").text("Fax:" + data.ausbilder.FAX);
                 $("#ausbilderEmail").text("EMail:" + data.ausbilder.EMAIL);
+                $("#ausbilderEmail").attr("href","mailto:"+data.ausbilder.EMAIL);
             }
             if (data.betrieb != undefined) {
                 $("#betriebName").text(data.betrieb.NAME);
+                $("#betriebName").attr("href","https://www.google.de/maps/place/"+data.betrieb.STRASSE+","+data.betrieb.PLZ+"+"+data.betrieb.ORT);             
                 $("#betriebStrasse").text(data.betrieb.STRASSE);
                 $("#betriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
             }
             kurse = data.klassen;
+            $("#detailsKlassen").empty();
             for (i = 0; i < kurse.length; i++) {
-
+                $("#detailsKlassen").append('<li class="ui-li-static ui-body-inherit ui-last-child">'+kurse[i].KNAME+'</li>');
             }
+            getSchuelerBild(sid,"#imgSchueler");
+            
         });
+}
+/**
+ * Anzeige des Schülerbiles einer Schülers
+ * @param {type} id
+ * @returns {undefined}
+ */
+function getSchuelerBild(id, elem) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
+        cache: false,
+        type: 'HEAD',
+        error:
+                function () {
+                    $(elem).attr("src", "img/anonym.gif");
+                },
+        success:
+                function () {
+                    $.ajax({
+                        url: SERVER + "/Diklabu/api/v1/schueler/bild64/" + id,
+                        type: "GET",
+                        headers: {
+                            "service_key": sessionStorage.service_key,
+                            "auth_token": sessionStorage.auth_token
+                        },
+                        success: function (data) {
+                            console.log("Bild Daten geladen:" + data.id + " elem=" + elem);
+                            data = data.base64.replace(/(?:\r\n|\r|\n)/g, '');
+                            $(elem).attr('src', "data:image/png;base64," + data);
+
+                        },
+                        error: function () {
+                            toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
+                        }
+                    });
+
+                }
     });
 }
 
@@ -298,7 +360,7 @@ function renderAnwesenheit(data) {
         $("#anw" + data[i].id_Schueler).removeClass("parseError");
         var v = data[i].eintraege[0].VERMERK;
         console.log("VERMERK = " + v + " id=" + data[i].id_Schueler);
-        $("#anw" + data[i].id_Schueler).text(v);
+        $("#anw" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER+":"+v);
         if (data[i].eintraege[0].parseError) {
             $("#anw" + data[i].id_Schueler).addClass("parseError");
         }
@@ -372,9 +434,22 @@ function setAnwesenheitsEintrag(id, txt,err) {
             anwesenheit[i].eintraege[0].VERMERK = txt;
             anwesenheit[i].eintraege[0].ID_LEHRER = sessionStorage.myself;
             anwesenheit[i].eintraege[0].DATUM = toSQLString(new Date()) + "T00:00:00+01:00";
+            return ;
         }
     }
-    return "unknown ID " + id;
+    var anw = {
+        "id_Schueler":id,
+        "eintraege":[{        
+            "DATUM": toSQLString(new Date())+ "T00:00:00",
+            "ID_LEHRER": sessionStorage.myself,
+            "ID_SCHUELER": id,
+            "VERMERK": txt,
+            "parseError":err
+        }]
+    };
+    i = anwesenheit.length;
+    anwesenheit.push(anw);    
+    console.log("Neuen Eintrag erzeugt:"+JSON.stringify(anwesenheit[i]));
 }
 
 
