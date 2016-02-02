@@ -5,12 +5,11 @@
         <title>Diklabu mobile</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
-      <link rel="stylesheet" href="http://demos.jquerymobile.com/1.4.0/theme-classic/theme-classic.css" />
-      <link rel="stylesheet" href="css/buchmobile.css"/>
-<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-<script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-<script src="js/jquery.mobile.toast.js"></script>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+        <link rel="stylesheet" href="http://demos.jquerymobile.com/1.4.0/theme-classic/theme-classic.css" />
+        <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+        <link rel="stylesheet" href="css/buchmobile.css"/>
     </head>
 
     <body>
@@ -75,12 +74,12 @@
                     </li>
                     <li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3><small>a</small></a></a>
-                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                            <h3>VorName NachName</h3><small>a</small></a>
+                        <a  href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li>
                     <li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3><small>V60e</small></a></a>
+                            <h3>VorName NachName</h3><small>V60e</small></a>
                         <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li>
                     <li> <a href="#schuelerdetails">
@@ -91,7 +90,7 @@
                 </ul>
                 <div data-role="popup" id="anwesenheitDetails" class="ui-content" data-history="false">
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-                    <h3>Vorname NachName</h3>
+                    <h3 id="anwName">Vorname NachName</h3>
                     <div data-role="controlgroup">
                         <a href="#" id="btnAnwesend" data-role="button">anwesend</a>
                         <a href="#" id="btnEntschuldigt" data-role="button">entschuldigt</a>
@@ -103,7 +102,7 @@
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2 style="font-size: 60%;" >17.1.2016 9:35</h2>                  
+                <h2 id="currentDate" style="font-size: 60%;" >17.1.2016 9:35</h2>                  
                 <div data-role="navbar">
                     <ul>
                         <li><a href="#anwesenheit" class="ui-btn-active ui-state-persist">Anwesenheit</a></li>
@@ -118,51 +117,51 @@
                 <h1>Fisi13A</h1>
                 <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
                 <a href="#addVerlauf" data-icon="plus" data-rel="popup" data-position-to="window" data-transition="popup">&nbsp;</a>                                
-                
+
             </div>
             <div data-role="content" data-theme="b">
 
                 <ul data-role="listview" data-split-theme="a" >
                     <li>  
                         <a href="#">
-                        <h1>LF1</h1>
-                        <small>Hier steht der Inhalt</small>                       
-                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <h1>LF1</h1>
+                            <small>Hier steht der Inhalt</small>                       
+                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                        <h1>LF1</h1>
-                        <small>Hier steht der Inhalt</small>                       
-                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <h1>LF1</h1>
+                            <small>Hier steht der Inhalt</small>                       
+                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                        <h1>LF1</h1>
-                        <small>Hier steht der Inhalt</small>                       
-                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <h1>LF1</h1>
+                            <small>Hier steht der Inhalt</small>                       
+                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                        <h1>LF1</h1>
-                        <small>Hier steht der Inhalt</small>                       
-                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <h1>LF1</h1>
+                            <small>Hier steht der Inhalt</small>                       
+                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                        <h1>LF1</h1>
-                        <small>Hier steht der Inhalt</small>                       
-                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <h1>LF1</h1>
+                            <small>Hier steht der Inhalt</small>                       
+                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
                         </a>
                     </li>
                     <li>
                         <a href="#">
-                        <h1>LF1</h1>
-                        <small>Hier steht der Inhalt</small>                       
-                        <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <h1>LF1</h1>
+                            <small>Hier steht der Inhalt</small>                       
+                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
                         </a>
                     </li>
 
@@ -200,7 +199,7 @@
                                 <option value="14">14</option>
                                 <option value="15">15</option>
                                 <option value="16">16</option>
-                                
+
                             </optgroup>          
                         </select>
                         <p>&nbsp;</p>
@@ -254,7 +253,12 @@
                 </ul>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h1>Diklabu mobile</h1>
+                <div data-role="navbar">
+                    <ul>
+                        <li><a  data-icon="arrow-l" href="#" class="ui-btn-active ui-state-persist">zurück</a></li>
+                        <li><a  data-icon="arrow-r" href="#">weiter</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div data-role="page" id="about" data-title="About">
@@ -264,14 +268,14 @@
             </div>
             <div data-role="content">
                 <div data-role="content">
-                <div class="ui-body ui-body-d ui-corner-all">
-                    <img src="img/joerg.png" alt="joerg"/>
-                    <h2>Diklabu mobile</h2>
-                    <h3 id="version">&nbsp;</h3>
-                    (c) 2016 by <a href="mailto:tuttas@mmbbs.de">Dr. Jörg Tuttas</a>
+                    <div class="ui-body ui-body-d ui-corner-all">
+                        <img src="img/joerg.png" alt="joerg"/>
+                        <h2>Diklabu mobile</h2>
+                        <h3 id="version">&nbsp;</h3>
+                        (c) 2016 by <a href="mailto:tuttas@mmbbs.de">Dr. Jörg Tuttas</a>
+                    </div>
                 </div>
-            </div>
-                
+
             </div>
             <div data-role="footer" data-position="fixed">
                 <h1>Diklabu mobile</h1>
@@ -279,6 +283,7 @@
         </div>
 
     </body>
+
     <script src="js/config.js"></script>
     <script src="js/buchmobile.js"></script>
 

@@ -2,3 +2,37 @@
     margin: 10px;
     font-size: 16px;
 }
+
+
+
+.anwesend {
+ border-radius: 5px;
+ background: #009245;
+ padding: 4px; 
+ color: white;   
+}
+
+.parseError {
+ border-radius: 5px;
+ background: darkred;
+ padding: 4px; 
+ color: white;   
+ 
+}
+
+.fehlend {
+ border-radius: 5px;
+ background: #843534;
+ padding: 4px; 
+ color: white;   
+ 
+}
+
+.entschuldigt {
+ border-radius: 5px;
+ background: #8a6d3b;
+ padding: 4px; 
+ color: white;  
+ 
+}
+ 

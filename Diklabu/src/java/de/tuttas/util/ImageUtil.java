@@ -5,6 +5,8 @@
  */
 package de.tuttas.util;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
@@ -54,10 +56,14 @@ public static BufferedImage resizeImage(BufferedImage originalImage, int type, i
 	return resizedImage;
     }
 
-public static BufferedImage cropImage(BufferedImage originalImage, int type, int w){
-	BufferedImage resizedImage = new BufferedImage(w, w, type);
+public static BufferedImage cropImage(BufferedImage originalImage, int type, int h){
+	BufferedImage resizedImage = new BufferedImage(h, h, type);
 	Graphics2D g = resizedImage.createGraphics();
-	g.drawImage(originalImage, 0, 0, w, originalImage.getHeight(), null);
+        g.setBackground(new Color(58, 58, 58));
+            
+            g.clearRect(0,0, h, h);
+        int d = h-originalImage.getWidth();
+	g.drawImage(originalImage, d/2, 0, originalImage.getWidth(), h, null);
 	g.dispose();
 		
 	return resizedImage;

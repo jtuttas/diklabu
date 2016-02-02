@@ -139,3 +139,6 @@ th{ height: 75px; }
     padding: 10px;
     
 }
+.setAnwesenheit {
+    background: red;
+}

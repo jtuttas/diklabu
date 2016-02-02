@@ -51,9 +51,9 @@ public class KlassenManager {
     }
 
     @GET
-    @Path("/{klasse}/bilder64/{width}")
-    public List<BildObject> getBilder(@PathParam("klasse") String kl, @PathParam("width") int width) {
-        System.out.println("Webservice klasse GET bilder64: klasse=" + kl + " scale=" + width);
+    @Path("/{klasse}/bilder64/{height}")
+    public List<BildObject> getBilder(@PathParam("klasse") String kl, @PathParam("height") int height) {
+        System.out.println("Webservice klasse GET bilder64: klasse=" + kl + " scale=" + height);
         Query query = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
         query.setParameter("paramNameKlasse", kl);
         List<Schueler> schueler = query.getResultList();
@@ -74,12 +74,13 @@ public class KlassenManager {
                     System.out.println("Original Width = "+img.getWidth()+" Height = "+img.getHeight());
                     double ow = img.getWidth();
                     double oh=img.getHeight();
-                    double ratio = ow/oh;
-                    System.out.println("ratio="+ratio);
+                    double ratio = (double)(height*ow)/oh;
+                    System.out.println("ratio="+ratio+ " New Width="+(int)ratio);
+                    
                     int type = img.getType() == 0? BufferedImage.TYPE_INT_ARGB : img.getType();
-                    img = ImageUtil.resizeImage(img, type, width, (int) (width/ratio));
+                    img = ImageUtil.resizeImage(img, type, (int) ratio,height);
                     System.out.println("Resized Width = "+img.getWidth()+" Height = "+img.getHeight());
-                    img = ImageUtil.cropImage(img, type, width);
+                    img = ImageUtil.cropImage(img, type, height);
                     System.out.println("Cropped Width = "+img.getWidth()+" Height = "+img.getHeight());
                     bo.setBase64(ImageUtil.encodeToString(img, "jpeg"));
 
