@@ -78,16 +78,29 @@
                         <a  href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li>
                     <li> <a href="#schuelerdetails">
-                            <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3><small>V60e</small></a>
-                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                            <img style="margin-top:10px;" src="img/anonym.gif"/>                      
+
+                            <label for="checkbox-h-6a"><small>VorName NachName</small></label>                  
+                            <input data-iconpos="right" 
+                                   name="checkbox-h-6a"
+                                   id="checkbox-h-6a" 
+                                   type="checkbox"> 
+
+                            </input>
+                            <small>&nbsp;</small>
+                        </a>
+
+                        <a  href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+
                     </li>
-                    <li> <a href="#schuelerdetails">
-                            <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3></a>
-                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
-                    </li>
+
+
                 </ul>
+
+
+
+
+
                 <div data-role="popup" id="anwesenheitDetails" class="ui-content" data-history="false">
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                     <h3 id="anwName">Vorname NachName</h3>
@@ -121,95 +134,116 @@
             </div>
             <div data-role="content" data-theme="b">
 
-                <ul data-role="listview" data-split-theme="a" >
+                <ul data-role="listview"  data-split-icon="gear"  data-split-theme="a">
                     <li>  
-                        <a href="#">
+                        <a href="#verlaufDetail">
                             <h1>LF1</h1>
                             <small>Hier steht der Inhalt</small>                       
                             <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
+                    </li>
+                    <li>
+                        <a href="#verlaufDetail">
+                            <h1>LF1</h1>
+                            <small>Hier steht der Inhalt</small>                       
+                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="#verlaufDetail">
                             <h1>LF1</h1>
                             <small>Hier steht der Inhalt</small>                       
                             <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="#verlaufDetail">
                             <h1>LF1</h1>
                             <small>Hier steht der Inhalt</small>                       
                             <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="#verlaufDetail">
                             <h1>LF1</h1>
                             <small>Hier steht der Inhalt</small>                       
                             <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                         </a>
                     </li>
                     <li>
-                        <a href="#">
+                        <a href="#verlaufDetail">
                             <h1>LF1</h1>
                             <small>Hier steht der Inhalt</small>                       
                             <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#">
-                            <h1>LF1</h1>
-                            <small>Hier steht der Inhalt</small>                       
-                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                         </a>
                     </li>
 
                 </ul>
                 <div data-role="popup" id="addVerlauf" class="ui-content" data-history="false">
                     <a href="#verlauf"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                    <h3>17.1.2016</h3>
                     <fieldset class="ui-field-contain">
-                        <h3>17.1.2016</h3>
-                        <label for="lf">Lernfeld</label>
-                        <select name="lf" id="lf">
-                            <optgroup label="Lernfelder" id="lernfelder">
-                                <option value="lf1">LF1</option>
-                                <option value="lf2">LF2</option>
-                                <option value="lf3">LF3</option>
-                                <option value="lf4">LF4</option>
-                                <option value="lf5">LF5</option>
-                            </optgroup>          
-                        </select>
-                        <label for="std">Stunde</label>
-                        <select name="std" id="std">
-                            <optgroup label="Stunde">
-                                <option value="01">01</option>
-                                <option value="02">02</option>
-                                <option value="03">03</option>
-                                <option value="04">04</option>
-                                <option value="05">05</option>
-                                <option value="06">06</option>
-                                <option value="07">07</option>
-                                <option value="08">08</option>
-                                <option value="09">09</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
-                                <option value="13">13</option>
-                                <option value="14">14</option>
-                                <option value="15">15</option>
-                                <option value="16">16</option>
+                        <fieldset class="ui-grid-a">
+                            <div class="ui-block-a">
+                                <label for="lf">Lernfeld</label>
+                                <select name="lf" id="lf">
+                                    <optgroup label="Lernfelder" id="lernfelder">
+                                        <option value="lf1">LF1</option>
+                                        <option value="lf2">LF2</option>
+                                        <option value="lf3">LF3</option>
+                                        <option value="lf4">LF4</option>
+                                        <option value="lf5">LF5</option>
+                                    </optgroup>          
+                                </select>
+                            </div>
+                            <div class="ui-block-b">
+                                <label for="std">Stunde</label>
+                                <select name="std" id="std">
+                                    <optgroup label="Stunde">
+                                        <option value="01">01</option>
+                                        <option value="02">02</option>
+                                        <option value="03">03</option>
+                                        <option value="04">04</option>
+                                        <option value="05">05</option>
+                                        <option value="06">06</option>
+                                        <option value="07">07</option>
+                                        <option value="08">08</option>
+                                        <option value="09">09</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                        <option value="13">13</option>
+                                        <option value="14">14</option>
+                                        <option value="15">15</option>
+                                        <option value="16">16</option>
 
-                            </optgroup>          
-                        </select>
-                        <p>&nbsp;</p>
-                        <input type="text" id="lernsituation" placeholder="Lernsituation" />
+                                    </optgroup>          
+                                </select>
+                            </div>	   
+                        </fieldset>
 
-                        <input type="text" id="inhalt" placeholder="Inhalt"/>
+                        <div data-role="collapsible-set">
 
-                        <input type="text" id="bemerkungen" placeholder="Bemerkungen"/>
+                            <div data-role="collapsible">
+                                <h4>Lernsituation</h4>                                                
+                                <textarea name="textarea" id="lernsituation"></textarea>
+                            </div>
+                            <div data-role="collapsible" data-collapsed="false">
+                                <h4>Inhalt</h4>                                                
+                                <textarea name="textarea" id="inhalt"></textarea>
+
+                            </div>
+                            <div data-role="collapsible">
+                                <h4>Bemerkungen</h4>                                                
+                                <textarea name="textarea" id="bemerkungen"></textarea>
+                            </div>
                     </fieldset>            
-                    <a href="#" id="btnAddVerlauf" data-role="button" class="btn-default" >Hinzufügen</a>
+                    <a href="#" id="btnAddVerlauf" data-role="button" class="btn-default" >OK</a>
 
                 </div>
             </div>
@@ -230,65 +264,75 @@
                 <a data-role="button" id="btnBack" href="#anwesenheit" data-icon="back">zurück</a>
             </div>
             <div data-role="content"  data-theme="b">
-                <img id="imgSchueler" src="img/anonym.gif" 
+                <img id="imgSchueler" src="img/loading.gif" 
                      style="display: block; margin: 0 auto" />
-                <form enctype="multipart/form-data" id="bildUploadForm" action="/Diklabu/api/v1/schueler/bild/14279">
-                    <input data-icon="camera" id="fileBild" name="file" type="file" accept="image/*" capture="camera">
-                        <button id="uploadBildButton" type="submit" >Upload</button>
-                </form>
+                <div>
+                    <form enctype="multipart/form-data" id="bildUploadForm" action="/Diklabu/api/v1/schueler/bild/14279">
+                        <fieldset class="ui-grid-a">
+                            <div class="ui-block-a">
+                                <span  class="ui-btn ui-icon-camera ui-btn-icon-left ui-corner-all fileinput-button">
+                                    <span>File</span>
+                                    <input id="fileBild" name="file" type="file" accept="image/*" capture="camera" data-role="none"/>
+                                </span>
+
+                            </div>
+                            <div class="ui-block-b">
+                                <input data-icon="action" id="fileUpload" type="submit" value="Upload"/>        
+                            </div>	   
+                        </fieldset>                                                
+                    </form>
+                </div>
+
+
                 <div data-role="collapsible-set">
-                
+
                     <div data-role="collapsible">
-                        <h4>Pers. Daten</h4>
-                        <ul data-role="listview">
-                            <li id="detailGeb">Geb. Tag</li>
-                            <li ><a  data-theme="a" id="detailEmail" data-icon="mail" data-role="button" href="mailto:jtuttas@gmx.net">EMail</a></li>
-                        </ul>
+                        <h4>Pers. Daten</h4>                        
+                        <p id="detailGeb">Geb. Tag</p>
+                        <p><a  data-theme="a" id="detailEmail" data-icon="mail" data-role="button" href="mailto:jtuttas@gmx.net">EMail</a></p>
+
                     </div>
                     <div data-role="collapsible">
-                        <h4>Ausbilder</h4>
-                        <ul data-role="listview">
-                            <li data-role="list-divider">Ausbilder</li>
-                            <li id="ausbilderName">Name</li>
-                            <li id="ausbilderFax">Fax</li>                            
-                            <li ><a data-theme="a" id="ausbilderTel" data-icon="phone" data-role="button" href="tel:+491234">Tel</a></li>                        
-                            <li ><a data-theme="a" id="ausbilderEmail" data-icon="mail" data-role="button" href="mailto:jtuttas@gmx.net">EMail</a></li>                        
-                        </ul>
+                        <h4>Ausbilder</h4>                        
+                        <p data-role="list-divider">Ausbilder</p>
+                        <p id="ausbilderName">Name</p>
+                        <p id="ausbilderFax">Fax</p>                            
+                        <p ><a data-theme="a" id="ausbilderTel" data-icon="phone" data-role="button" href="tel:+491234">Tel</a></p>                        
+                        <p ><a data-theme="a" id="ausbilderEmail" data-icon="mail" data-role="button" href="mailto:jtuttas@gmx.net">EMail</a></p>                        
+
                     </div>
                     <div data-role="collapsible">
                         <h4>Betrieb</h4>
-                        <ul data-role="listview">
-                            <li><a data-theme="a" id="betriebName" data-icon="location" data-role="button" href="https://www.google.de/maps/place/Ellernbuschfeld+23,+30539+Hannover">FA Name</a></li>                            
-                            <li id="betriebStrasse">Straße</li>
-                            <li id="betriebOrt">Ort</li>
-                        </ul>
+                        <p><a data-theme="a" id="betriebName" data-icon="location" data-role="button" href="https://www.google.de/maps/place/Ellernbuschfeld+23,+30539+Hannover">FA Name</a></p>                            
+                        <p id="betriebStrasse">Straße</p>
+                        <p id="betriebOrt">Ort</p>
+
                     </div>
-                   <div data-role="collapsible">
+                    <div data-role="collapsible">
                         <h4>Klassen/Kurse</h4>
-                        <ul data-role="listview" id="detailsKlassen">                                                
-                            <li>Fisi13A</li>
-                            <li>WPK</li>
-                        </ul>
+                        <p>Fisi13A</p>
+                        <p>WPK</p>
                     </div>
                     <div data-role="collapsible">
                         <h4>Bemerkungen</h4>
-                        <ul data-role="listview">                                                
-                            <li>bem1</li>
-                            <li>Bem2</li>
-                        </ul>                            
+
+                        <p><span class="bemDatum">17.1.2016</span><span class="bemLehrer">TU</span>Eine Bemerkung</p>
+                        <p><span class="bemDatum">17.1.2016</span><span class="bemLehrer">TU</span>Eine Bemerkung mit ganz viel Text, mal sehen wie das formatiert wird</p>
+
                     </div>
                 </div>
                 <div data-role="collapsible-set">
 
 
 
-            </div>
-            <div data-role="footer" data-position="fixed">
-                <div data-role="navbar">
-                    <ul>
-                        <li><a  data-icon="arrow-l" href="#" >zurück</a></li>
-                        <li><a  data-icon="arrow-r" href="#">weiter</a></li>
-                    </ul>
+                </div>
+                <div data-role="footer" data-theme="a" data-position="fixed" >
+                    <div data-role="navbar" >
+                        <ul>
+                            <li><a data-theme="a" data-icon="arrow-l" href="#" >zurück</a></li>
+                            <li><a data-theme="a" data-icon="arrow-r" href="#">weiter</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -313,9 +357,35 @@
             </div>
         </div>
 
+        <div data-role="page" id="verlaufDetail" data-title="Detail Verlauf">
+            <div data-role="header">
+                <a data-role="button" id="btnAbout" href="#verlauf" data-icon="back">zurück</a>
+                <h1>Fisi13A</h1>                   
+            </div>
+            <div class="ui-grid-b">
+                <div class="ui-block-a">LF1</div>
+                <div class="ui-block-b">Std1</div>
+                <div class="ui-block-c">TU</div>
+            </div>            
+            <div data-role="content" data-theme="b">
+                <h3>Lernsituation</h3>
+                <p>Hier steht eine lange Bschreibung der Lernsituation!</p>
+                <h3>Inhalt</h3>
+                <p>Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
+                <h3>Bemerkungen</h3>
+                <p>Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
+            </div>
+
+
+
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+            </div>
+        </div>
+
     </body>
 
     <script src="js/config.js"></script>
-    <script src="js/buchmobile.js"></script>
+    <!--<script src="js/buchmobile.js"></script>-->
 
 </html>
