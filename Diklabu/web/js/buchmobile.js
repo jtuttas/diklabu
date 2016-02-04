@@ -233,6 +233,7 @@ function buildNamensliste(data) {
         //console.log("Füge Listview " + data[i].NNAME + " an");
         $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a href="#schuelerdetails" class="schueler ui-btn" sid="' + data[i].id + '"><img id="bild' + data[i].id + '" src="img/anonym.gif" ><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a setAnwesenheit" title="Edit"></a></li>')
     }
+
     $(".setAnwesenheit").click(function () {
         sid = $(this).attr("sid");
         console.log("klick Anwesenheitsetails id=" + sid);
@@ -250,6 +251,7 @@ function buildNamensliste(data) {
         sessionStorage.idSchueler=sid;
         //renderSchuelerDetails(sid);
     });
+
 }
 
 

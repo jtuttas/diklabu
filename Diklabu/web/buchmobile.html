@@ -65,34 +65,27 @@
                 <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
                 <a data-role="button" id="btnRefresh" data-icon="refresh">Refresh</a>
             </div>
-            <div data-role="content" data-theme="b">
+            <div data-role="content" data-theme="b" >
+
+
+
                 <ul id="namensListView" data-role="listview" data-split-icon="gear"  data-split-theme="a" >
+
+
                     <li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>                       
                             <h3>VorName NachName</h3><small>V60e</small></a>
                         <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
-                    </li>
-                    <li> <a href="#schuelerdetails">
+                    </li><li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3><small>a</small></a>
-                        <a  href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                            <h3>VorName NachName</h3><small>V60e</small></a>
+                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                    </li><li> <a href="#schuelerdetails">
+                            <img src="img/anonym.gif"/>                       
+                            <h3>VorName NachName</h3><small>V60e</small></a>
+                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li>
-                    <li> <a href="#schuelerdetails">
-                            <img style="margin-top:10px;" src="img/anonym.gif"/>                      
 
-                            <label for="checkbox-h-6a"><small>VorName NachName</small></label>                  
-                            <input data-iconpos="right" 
-                                   name="checkbox-h-6a"
-                                   id="checkbox-h-6a" 
-                                   type="checkbox"> 
-
-                            </input>
-                            <small>&nbsp;</small>
-                        </a>
-
-                        <a  href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
-
-                    </li>
 
 
                 </ul>
@@ -310,15 +303,60 @@
                     </div>
                     <div data-role="collapsible">
                         <h4>Klassen/Kurse</h4>
-                        <p>Fisi13A</p>
-                        <p>WPK</p>
+                        <ul id="detailsKlassenListView" data-role="listview" data-inset="true" >
+
+
+                            <li> <a href="#">                            
+                                    <b>Fisi13A</b></a>                        
+                            </li>
+                            <li> <a href="#">                            
+                                    <b>Fisi13A</b></a>                        
+                            </li>
+                            <li> <a href="#">                            
+                                    <b>Fisi13A</b></a>                        
+                            </li>
+
+                        </ul>
                     </div>
                     <div data-role="collapsible">
                         <h4>Bemerkungen</h4>
+                        <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-role="button" data-icon="plus" data-transition="popup">hinzufügen</a>                        
+                        <ul data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
+                            <li>  
+                                <a href="#">                            
+                                    <small>Hier steht eine Bemerkung</small>                       
+                                    <p class="ui-li-aside">TU</p>                            
+                                    <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
+                                </a>
+                            </li>
+                            <li>  
+                                <a href="#">                            
+                                    <small>Hier steht eine Bemerkung</small>                       
+                                    <p class="ui-li-aside">TU</p>                            
+                                    <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
+                                </a>
+                            </li>
+                            <li>  
+                                <a href="#">                            
+                                    <small>Hier steht eine Bemerkung</small>                       
+                                    <p class="ui-li-aside">TU</p>                            
+                                    <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
+                                </a>
+                            </li>
+                        </ul>
 
-                        <p><span class="bemDatum">17.1.2016</span><span class="bemLehrer">TU</span>Eine Bemerkung</p>
-                        <p><span class="bemDatum">17.1.2016</span><span class="bemLehrer">TU</span>Eine Bemerkung mit ganz viel Text, mal sehen wie das formatiert wird</p>
-
+                        <div data-role="popup" id="editBemerkung" class="ui-content" data-history="false">
+                    <a href="#schuelerdetails"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                    <h4 id="editBemerkungName">Vorname NachName</h4>
+                    <div class="ui-field-contain">
+<label for="editBemerkung">Bemerkung</label>
+  <textarea name="textarea" id="editBemerkung"></textarea>
+</div>
+                    <fieldset class="ui-grid-a">
+	<div class="ui-block-a"><button type="button" data-theme="c">Cancel</button></div>
+	<div class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
+</fieldset>
+                </div>
                     </div>
                 </div>
                 <div data-role="collapsible-set">
@@ -386,6 +424,6 @@
     </body>
 
     <script src="js/config.js"></script>
-    <!--<script src="js/buchmobile.js"></script>-->
+    <script src="js/buchmobile.js"></script>
 
 </html>
