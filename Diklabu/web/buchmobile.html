@@ -270,7 +270,7 @@
 
                             </div>
                             <div class="ui-block-b">
-                                <input data-icon="action" id="fileUpload" type="submit" value="Upload"/>        
+                                <input data-icon="action" id="bildUploadButton" type="submit" value="Upload"/>        
                             </div>	   
                         </fieldset>                                                
                     </form>
@@ -286,8 +286,7 @@
 
                     </div>
                     <div data-role="collapsible">
-                        <h4>Ausbilder</h4>                        
-                        <p data-role="list-divider">Ausbilder</p>
+                        <h4>Ausbilder</h4>                                                
                         <p id="ausbilderName">Name</p>
                         <p id="ausbilderFax">Fax</p>                            
                         <p ><a data-theme="a" id="ausbilderTel" data-icon="phone" data-role="button" href="tel:+491234">Tel</a></p>                        
@@ -346,17 +345,17 @@
                         </ul>
 
                         <div data-role="popup" id="editBemerkung" class="ui-content" data-history="false">
-                    <a href="#schuelerdetails"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-                    <h4 id="editBemerkungName">Vorname NachName</h4>
-                    <div class="ui-field-contain">
-<label for="editBemerkung">Bemerkung</label>
-  <textarea name="textarea" id="editBemerkung"></textarea>
-</div>
-                    <fieldset class="ui-grid-a">
-	<div class="ui-block-a"><button type="button" data-theme="c">Cancel</button></div>
-	<div class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
-</fieldset>
-                </div>
+                            <a href="#schuelerdetails"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                            <h4 id="editBemerkungName">Vorname NachName</h4>
+                            <div class="ui-field-contain">
+                                <label for="editBemerkung">Bemerkung</label>
+                                <textarea name="textarea" id="editBemerkung"></textarea>
+                            </div>                            
+                            <fieldset class="ui-grid-a">
+                                <div class="ui-block-a"><button type="button" data-theme="c">Delete</button></div>
+                                <div class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 <div data-role="collapsible-set">
@@ -365,12 +364,8 @@
 
                 </div>
                 <div data-role="footer" data-theme="a" data-position="fixed" >
-                    <div data-role="navbar" >
-                        <ul>
-                            <li><a data-theme="a" data-icon="arrow-l" href="#" >zurück</a></li>
-                            <li><a data-theme="a" data-icon="arrow-r" href="#">weiter</a></li>
-                        </ul>
-                    </div>
+                    <a id="btnDetailsZurueck" data-theme="a" data-icon="arrow-l" href="#" >zurück</a>                    
+                    <a id="btnDetailsWeiter" class="ui-btn-right" data-theme="a" data-icon="arrow-r" href="#">weiter</a>
                 </div>
             </div>
         </div>

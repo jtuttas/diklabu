@@ -1,20 +1,20 @@
 var anwesenheit;
 sessionStorage.myself = "TU";
 
-var toast=function(msg){
-	$("<div class='ui-loader ui-overlay-shadow ui-body-e ui-corner-all'><h3>"+msg+"</h3></div>")
-	.css({ display: "block", 
-		opacity: 0.90, 
-		position: "fixed",
-		padding: "7px",
-		"text-align": "center",
-		width: "270px",
-		left: ($(window).width() - 284)/2,
-		top: $(window).height()/2 })
-	.appendTo( $.mobile.pageContainer ).delay( 1500 )
-	.fadeOut( 400, function(){
-		$(this).remove();
-	});
+var toast = function (msg) {
+    $("<div class='ui-loader ui-overlay-shadow ui-body-e ui-corner-all'><h3>" + msg + "</h3></div>")
+            .css({display: "block",
+                opacity: 0.90,
+                position: "fixed",
+                padding: "7px",
+                "text-align": "center",
+                width: "270px",
+                left: ($(window).width() - 284) / 2,
+                top: $(window).height() / 2})
+            .appendTo($.mobile.pageContainer).delay(1500)
+            .fadeOut(400, function () {
+                $(this).remove();
+            });
 }
 
 $("#version").text(VERSION);
@@ -45,16 +45,16 @@ $("#btnOkAnwesenheit").click(function () {
     console.log("Übertrage Anwesenheit f. " + sid);
     commitAnwesenheit(sid, $("#anwesenheitText").val());
 });
- $('body').on('keydown', "#anwesenheitText", function(e) {
-     var keyCode = e.keyCode || e.which;
+$('body').on('keydown', "#anwesenheitText", function (e) {
+    var keyCode = e.keyCode || e.which;
     //console.log("key Pressed" + keyCode);
     if (keyCode == 13) {
         $("#anwesenheitDetails").popup("close");
         sid = $("#anwName").attr("sid");
-    console.log("Übertrage Anwesenheit f. " + sid);
-    commitAnwesenheit(sid, $("#anwesenheitText").val());
-    }  
- });
+        console.log("Übertrage Anwesenheit f. " + sid);
+        commitAnwesenheit(sid, $("#anwesenheitText").val());
+    }
+});
 
 
 function commitAnwesenheit(sid, txt) {
@@ -78,17 +78,15 @@ function commitAnwesenheit(sid, txt) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            setAnwesenheitsEintrag(sid, txt,data.parseError);
+            setAnwesenheitsEintrag(sid, txt, data.parseError);
             if (data.parseError) {
-                toast("Der Eintrag enthält Formatierungsfehler");                
+                toast("Der Eintrag enthält Formatierungsfehler");
             }
-            
+
             renderAnwesenheit(anwesenheit);
         },
         error: function (xhr, textStatus, errorThrown) {
-            $.mobile.toast({
-                message: "kann Anwesenheitseintrag nicht zum Server senden!" + textStatus
-            });
+            toast("kann Anwesenheitseintrag nicht zum Server senden!");
         }
     });
 }
@@ -111,14 +109,85 @@ $(document).on("pagebeforeshow", "#anwesenheit", function () {
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 $(document).on("pagebeforeshow", "#schuelerdetails", function () {
-    console.log("Seite schuelerdetails wurde aktualisiert");    
+    console.log("Seite schuelerdetails wurde aktualisiert");
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
-    refreshKlassenliste(sessionStorage.nameKlasse);   
+    refreshKlassenliste(sessionStorage.nameKlasse);
 });
+
+$("#btnDetailsZurueck").click(function () {
+    sessionStorage.idSchueler=prevSchueler();
+    renderSchuelerDetails(sessionStorage.idSchueler);
+});
+$("#btnDetailsWeiter").click(function () {
+    sessionStorage.idSchueler=nextSchueler();
+    renderSchuelerDetails(sessionStorage.idSchueler);
+});
+
+
+function prevSchueler() {
+    var s = JSON.parse(sessionStorage.schueler);
+    prev=s[0].id;
+    for (var i=1;i<s.length;i++) {
+        if (s[i].id==sessionStorage.idSchueler) {
+            return prev;
+        }
+        prev=s[i].id;
+    }
+    return s[s.length-1].id;
+}
+
+function nextSchueler() {
+    var s = JSON.parse(sessionStorage.schueler);
+    for (var i=0;i<s.length-1;i++) {
+        if (s[i].id==sessionStorage.idSchueler) {
+            return s[i+1].id;
+        }
+    }
+    return s[0].id;
+}
+
+// Bild Upload Button gedrückt
+$('#bildUploadForm').on('submit', (function (e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    if ($("#fileBild").val() == "") {
+        console.log("kein Bild gewählt");
+        toast("kein Bild gewählt!");
+    }
+    else {
+        console.log("Upload Bild f. Schüler " + sessionStorage.idSchueler);
+        $("#uploadBildButton").hide();
+        $.ajax({
+            type: 'POST',
+            url: SERVER + "/Diklabu/api/v1/schueler/bild/" + sessionStorage.idSchueler,
+            data: formData,
+            cache: false,
+            contentType: false,
+            processData: false,
+            success: function (data) {
+                console.log("success");
+                if (data.success) {
+                    getSchuelerBild(sessionStorage.idSchueler, "#imgSchueler");
+                    //$("#imgSchueler").replaceWith($("#imgSchueler").val('').clone(true));
+
+                }
+                else {
+                    toast(data.msg);
+                    
+                }
+            },
+            error: function (data) {
+                console.log("error");
+                toast("Fehler beim Hochladen des Bildes!");
+            }
+        });
+    }
+}));
+
 
 if (sessionStorage.klassen != undefined) {
     console.log("Liste der Klassen bereits geladen!");
@@ -154,7 +223,7 @@ function buildKlassenListeView(data) {
     $(".selectKlasse").click(function () {
         kl = $(this).text();
         console.log("nameKlasse=" + kl);
-        
+
         refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
@@ -195,7 +264,7 @@ function refreshKlassenliste(kl) {
     $("#anwesenheitKlassenName").text(kl);
     if (sessionStorage.nameKlasse == kl && sessionStorage.schueler != undefined) {
         console.log("Schülerdaten schon geladen !");
-        
+
         data = JSON.parse(sessionStorage.schueler);
         buildNamensliste(data);
         refreshBilderKlasse(kl);
@@ -248,7 +317,7 @@ function buildNamensliste(data) {
     $(".schueler").click(function () {
         sid = $(this).attr("sid");
         console.log("klick auf Schueler mit id =" + sid);
-        sessionStorage.idSchueler=sid;
+        sessionStorage.idSchueler = sid;
         //renderSchuelerDetails(sid);
     });
 
@@ -257,38 +326,47 @@ function buildNamensliste(data) {
 
 function renderSchuelerDetails(sid) {
     $("#detailName").text(getNameSchuler(sid));
-        loadSchulerDaten(sid, function (data) {
-            $("#detailGeb").text("Geb.:"+getReadableDate(data.gebDatum));
-            if (data.email!=undefined) {
-                $("#detailEmail").show();
-                $("#detailEmail").text(data.email);
-                $("#detailEmail").attr("href","mailto:"+data.email);
-            }
-            else {
-                $("#detailEmail").hide();
-            }            
-            if (data.ausbilder != undefined) {
-                $("#ausbilderName").text(data.ausbilder.NNAME);
-                $("#ausbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
-                $("#ausbilderTel").attr("href","tel:" + data.ausbilder.TELEFON);
-                $("#ausbilderFax").text("Fax:" + data.ausbilder.FAX);
-                $("#ausbilderEmail").text("EMail:" + data.ausbilder.EMAIL);
-                $("#ausbilderEmail").attr("href","mailto:"+data.ausbilder.EMAIL);
-            }
-            if (data.betrieb != undefined) {
-                $("#betriebName").text(data.betrieb.NAME);
-                $("#betriebName").attr("href","https://www.google.de/maps/place/"+data.betrieb.STRASSE+","+data.betrieb.PLZ+"+"+data.betrieb.ORT);             
-                $("#betriebStrasse").text(data.betrieb.STRASSE);
-                $("#betriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
-            }
-            kurse = data.klassen;
-            $("#detailsKlassen").empty();
-            for (i = 0; i < kurse.length; i++) {
-                $("#detailsKlassen").append('<li class="ui-li-static ui-body-inherit ui-last-child">'+kurse[i].KNAME+'</li>');
-            }
-            getSchuelerBild(sid,"#imgSchueler");
-            
+    loadSchulerDaten(sid, function (data) {
+        $("#detailGeb").text("Geb.:" + getReadableDate(data.gebDatum));
+        if (data.email != undefined) {
+            $("#detailEmail").show();
+            $("#detailEmail").text(data.email);
+            $("#detailEmail").attr("href", "mailto:" + data.email);
+        }
+        else {
+            $("#detailEmail").hide();
+        }
+        if (data.ausbilder != undefined) {
+            $("#ausbilderName").text(data.ausbilder.NNAME);
+            $("#ausbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
+            $("#ausbilderTel").attr("href", "tel:" + data.ausbilder.TELEFON);
+            $("#ausbilderFax").text("Fax:" + data.ausbilder.FAX);
+            $("#ausbilderEmail").text("EMail:" + data.ausbilder.EMAIL);
+            $("#ausbilderEmail").attr("href", "mailto:" + data.ausbilder.EMAIL);
+        }
+        if (data.betrieb != undefined) {
+            $("#betriebName").text(data.betrieb.NAME);
+            $("#betriebName").attr("href", "https://www.google.de/maps/place/" + data.betrieb.STRASSE + "," + data.betrieb.PLZ + "+" + data.betrieb.ORT);
+            $("#betriebStrasse").text(data.betrieb.STRASSE);
+            $("#betriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
+        }
+        kurse = data.klassen;
+        $("#detailsKlassenListView").empty();
+        for (i = 0; i < kurse.length; i++) {
+            $("#detailsKlassenListView").append('<li> <a href="#"  kname="'+kurse[i].KNAME+'"class="ui-btn ui-btn-icon-right ui-icon-carat-r detailsKlasse"><b>'+kurse[i].KNAME+'</b></a></li>');
+        }
+        $(".detailsKlasse").click(function () {
+            var kname=$(this).attr("kname");
+            console.log("Wechsel zu Klasse "+kname);
+            refreshKlassenliste(kname);
+            $.mobile.changePage("#anwesenheit", {transition: "fade"});
         });
+            
+        
+        
+        getSchuelerBild(sid, "#imgSchueler");
+
+    });
 }
 /**
  * Anzeige des Schülerbiles einer Schülers
@@ -362,7 +440,7 @@ function renderAnwesenheit(data) {
         $("#anw" + data[i].id_Schueler).removeClass("parseError");
         var v = data[i].eintraege[0].VERMERK;
         console.log("VERMERK = " + v + " id=" + data[i].id_Schueler);
-        $("#anw" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER+":"+v);
+        $("#anw" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER + ":" + v);
         if (data[i].eintraege[0].parseError) {
             $("#anw" + data[i].id_Schueler).addClass("parseError");
         }
@@ -428,30 +506,30 @@ function getAnwesenheitsEintrag(id) {
     return "unknown ID " + id;
 }
 
-function setAnwesenheitsEintrag(id, txt,err) {
+function setAnwesenheitsEintrag(id, txt, err) {
 
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].id_Schueler == id) {
-            anwesenheit[i].eintraege[0].parseError=err;
+            anwesenheit[i].eintraege[0].parseError = err;
             anwesenheit[i].eintraege[0].VERMERK = txt;
             anwesenheit[i].eintraege[0].ID_LEHRER = sessionStorage.myself;
             anwesenheit[i].eintraege[0].DATUM = toSQLString(new Date()) + "T00:00:00+01:00";
-            return ;
+            return;
         }
     }
     var anw = {
-        "id_Schueler":id,
-        "eintraege":[{        
-            "DATUM": toSQLString(new Date())+ "T00:00:00",
-            "ID_LEHRER": sessionStorage.myself,
-            "ID_SCHUELER": id,
-            "VERMERK": txt,
-            "parseError":err
-        }]
+        "id_Schueler": id,
+        "eintraege": [{
+                "DATUM": toSQLString(new Date()) + "T00:00:00",
+                "ID_LEHRER": sessionStorage.myself,
+                "ID_SCHUELER": id,
+                "VERMERK": txt,
+                "parseError": err
+            }]
     };
     i = anwesenheit.length;
-    anwesenheit.push(anw);    
-    console.log("Neuen Eintrag erzeugt:"+JSON.stringify(anwesenheit[i]));
+    anwesenheit.push(anw);
+    console.log("Neuen Eintrag erzeugt:" + JSON.stringify(anwesenheit[i]));
 }
 
 
