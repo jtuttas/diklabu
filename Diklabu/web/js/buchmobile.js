@@ -172,8 +172,8 @@ $('#bildUploadForm').on('submit', (function (e) {
                 console.log("success");
                 if (data.success) {
                     getSchuelerBild(sessionStorage.idSchueler, "#imgSchueler");
-                    //$("#imgSchueler").replaceWith($("#imgSchueler").val('').clone(true));
-
+                    $("#imgSchueler").replaceWith($("#imgSchueler").val('').clone(true));
+                    $("#fileBild").val("");
                 }
                 else {
                     toast(data.msg);
@@ -214,14 +214,14 @@ function buildKlassenListeView(data) {
 
 
     for (i = 0; i < data.length; i++) {
-        $("#klassenListView").append('<li><a href="#" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r">' + data[i].KNAME + '</a></li>');
+        $("#klassenListView").append('<li><a href="#" klid="'+data[i].KNAME+'" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">'+data[i].ID_LEHRER+'</p>' + data[i].KNAME + '</a></li>');
         //console.log("append " + data[i].KNAME);
     }
     /*
      * Eine Klasse wird ausgewählt
      */
     $(".selectKlasse").click(function () {
-        kl = $(this).text();
+        kl = $(this).attr("klid");
         console.log("nameKlasse=" + kl);
 
         refreshKlassenliste(kl);
@@ -300,7 +300,7 @@ function buildNamensliste(data) {
     $("#namensListView").empty();
     for (i = 0; i < data.length; i++) {
         //console.log("Füge Listview " + data[i].NNAME + " an");
-        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a href="#schuelerdetails" class="schueler ui-btn" sid="' + data[i].id + '"><img id="bild' + data[i].id + '" src="img/anonym.gif" ><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a setAnwesenheit" title="Edit"></a></li>')
+        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a href="#schuelerdetails" class="schueler ui-btn" sid="' + data[i].id + '"><img id="bild' + data[i].id + '" src="img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a setAnwesenheit" title="Edit"></a></li>')
     }
 
     $(".setAnwesenheit").click(function () {
@@ -351,6 +351,7 @@ function renderSchuelerDetails(sid) {
             $("#betriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
         }
         kurse = data.klassen;
+        $("#klassenCount").text(kurse.length);
         $("#detailsKlassenListView").empty();
         for (i = 0; i < kurse.length; i++) {
             $("#detailsKlassenListView").append('<li> <a href="#"  kname="'+kurse[i].KNAME+'"class="ui-btn ui-btn-icon-right ui-icon-carat-r detailsKlasse"><b>'+kurse[i].KNAME+'</b></a></li>');
@@ -440,7 +441,9 @@ function renderAnwesenheit(data) {
         $("#anw" + data[i].id_Schueler).removeClass("parseError");
         var v = data[i].eintraege[0].VERMERK;
         console.log("VERMERK = " + v + " id=" + data[i].id_Schueler);
-        $("#anw" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER + ":" + v);
+        $("#anw" + data[i].id_Schueler).text(v);
+        $("#anwLehrer" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER);
+        
         if (data[i].eintraege[0].parseError) {
             $("#anw" + data[i].id_Schueler).addClass("parseError");
         }

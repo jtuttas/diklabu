@@ -44,13 +44,22 @@
             <div data-role="content">                
                 <ul data-role="listview" data-filter="true"  id="klassenListView">
                     <li>
-                        <a href="#anwesenheit">Fisi13A</a>
+                            
+                        <a href="#anwesenheit">Fisi13D
+                        <p class="ui-li-aside">TU</p>      
+                        </a>
                     </li>
                     <li>
-                        <a href="#anwesenheit">Fisi13C</a>
+                                 
+                        <a href="#anwesenheit">Fisi13C
+                        <p class="ui-li-aside">TU</p> 
+                        </a>
                     </li>
                     <li>
-                        <a href="#anwesenheit">Fisi13B</a>
+                        
+                        <a href="#anwesenheit">Fisi13B
+                        <p class="ui-li-aside">TU</p> 
+                        </a>
                     </li>
                 </ul>
             </div>
@@ -73,16 +82,19 @@
 
 
                     <li> <a href="#schuelerdetails">
-                            <img src="img/anonym.gif"/>                       
+                            <img src="img/anonym.gif"/>     
+                             <p  class="ui-li-aside">TU</p>         
+                            <h3>VorName NachName</h3><small>V60e</small></a>
+                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
+                    </li><li> <a href="#schuelerdetails">
+                            <img src="img/anonym.gif"/>  
+                             <p class="ui-li-aside">TU</p>         
                             <h3>VorName NachName</h3><small>V60e</small></a>
                         <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li><li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3><small>V60e</small></a>
-                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
-                    </li><li> <a href="#schuelerdetails">
-                            <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3><small>V60e</small></a>
+                            <h3>VorName NachName</h3><small>V60e</small>
+                         <p class="ui-li-aside">TU</p>         </a>
                         <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li>
 
@@ -130,50 +142,23 @@
                 <ul data-role="listview"  data-split-icon="gear"  data-split-theme="a">
                     <li>  
                         <a href="#verlaufDetail">
-                            <h1>LF1</h1>
+                            <h1>Std.:01</h1>
                             <small>Hier steht der Inhalt</small>                       
-                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <p class="ui-li-aside"><span class="lehrer">LF1</span><strong>TU</strong></p>                            
                             <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                     </li>
-                    <li>
+                     <li>  
                         <a href="#verlaufDetail">
-                            <h1>LF1</h1>
+                            <h1>Std.:01</h1>
                             <small>Hier steht der Inhalt</small>                       
-                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <p class="ui-li-aside"><span class="lehrer">LF1</span><strong>TU</strong></p>                            
                             <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
-                        </a>
-                    </li>
-                    <li>
+                    </li> <li>  
                         <a href="#verlaufDetail">
-                            <h1>LF1</h1>
+                            <h1>Std.:01</h1>
                             <small>Hier steht der Inhalt</small>                       
-                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
+                            <p class="ui-li-aside"><span class="lehrer">LF1</span><strong>TU</strong></p>                            
                             <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#verlaufDetail">
-                            <h1>LF1</h1>
-                            <small>Hier steht der Inhalt</small>                       
-                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
-                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#verlaufDetail">
-                            <h1>LF1</h1>
-                            <small>Hier steht der Inhalt</small>                       
-                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
-                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#verlaufDetail">
-                            <h1>LF1</h1>
-                            <small>Hier steht der Inhalt</small>                       
-                            <p class="ui-li-aside"><span class="lehrer">TU</span><strong>Std. 01</strong></p>                            
-                            <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
-                        </a>
                     </li>
 
                 </ul>
@@ -301,7 +286,7 @@
 
                     </div>
                     <div data-role="collapsible">
-                        <h4>Klassen/Kurse</h4>
+                        <h4><div id="klassenCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Klassen/Kurse</h4>
                         <ul id="detailsKlassenListView" data-role="listview" data-inset="true" >
 
 
@@ -318,7 +303,7 @@
                         </ul>
                     </div>
                     <div data-role="collapsible">
-                        <h4>Bemerkungen</h4>
+                        <h4><div id="bemerkungCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Bemerkungen</h4>
                         <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-role="button" data-icon="plus" data-transition="popup">hinzufügen</a>                        
                         <ul data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
                             <li>  

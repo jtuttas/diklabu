@@ -66,3 +66,11 @@
  color: white;   
 }
 
+.custom-count-pos{
+    font-size: 11px;
+    font-weight: bold;
+    padding: 0.2em 0.5em;
+    float: right;
+    background: white;
+    color: #222222;
+}
