@@ -13,6 +13,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
@@ -23,13 +24,15 @@ import javax.persistence.Transient;
  */
 @Entity
 @NamedQueries({  
-     @NamedQuery(name = "findBemerkungbyKlasse", query= "select b from Bemerkung b INNER JOIN Schueler s on b.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on sk.ID_SCHUELER=s.ID INNER JOIN Klasse k on k.ID=sk.ID_KLASSE where k.KNAME like :paramKName order by s.NNAME")
+     @NamedQuery(name = "findBemerkungbySchuelerId", query= "select b from Bemerkung b where b.ID_SCHUELER= :paramSchuelerId order by b.DATUM")
 })
+@IdClass(BemerkungId.class)
 public class Bemerkung implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    private int ID_SCHUELER;    
+    private int ID_SCHUELER;        
     private Timestamp DATUM;
+    @Id
     private String ID_LEHRER;    
     private String BEMERKUNG;
     @Transient
@@ -40,6 +43,12 @@ public class Bemerkung implements Serializable {
     public Bemerkung() {
     }
 
+    public Bemerkung(int ID_SCHUELER, String ID_LEHRER) {
+        this.ID_SCHUELER = ID_SCHUELER;
+        this.ID_LEHRER = ID_LEHRER;
+    }
+
+    
     public Bemerkung(int ID_SCHUELER, String ID_LEHRER, String BEMERKUNG) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.DATUM = new Timestamp(GregorianCalendar.getInstance().getTimeInMillis());
