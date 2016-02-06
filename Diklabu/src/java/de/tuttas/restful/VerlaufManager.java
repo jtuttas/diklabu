@@ -79,7 +79,7 @@ public class VerlaufManager {
         System.out.println("Result List:" + verlauf);
         if (verlauf.size() != 0) {
             for (Verlauf ve : verlauf) {
-                if (ve.getID_LEHRER().compareTo(v.getID_LEHRER()) == 0) {
+                if (ve.getID_LEHRER()!=null && ve.getID_LEHRER().compareTo(v.getID_LEHRER()) == 0) {
                     System.out.println("Es existier bereits ein Eintrag von " + ve.getID_LEHRER() + " also Update");
                     ve.setAUFGABE(v.getAUFGABE());
                     ve.setBEMERKUNG(v.getBEMERKUNG());

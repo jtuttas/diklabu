@@ -132,14 +132,15 @@
         </div>
         <div data-role="page" data-theme="a"  id="verlauf" data-title="Verlauf">
             <div data-role="header">
-                <h1>Fisi13A</h1>
+                <h1 id="verlaufNameKlasse">Fisi13A</h1>
                 <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
-                <a href="#addVerlauf" data-icon="plus" data-rel="popup" data-position-to="window" data-transition="popup">&nbsp;</a>                                
+                <a id="newVerlauf" href="#" data-icon="plus" data-rel="popup" data-position-to="window" data-transition="popup">&nbsp;</a>                                
 
             </div>
             <div data-role="content" data-theme="b">
 
-                <ul data-role="listview"  data-split-icon="gear"  data-split-theme="a">
+                <ul id="verlaufList" data-role="listview"  data-split-icon="gear"  data-split-theme="a">
+                    <!--
                     <li>  
                         <a href="#verlaufDetail">
                             <h1>Std.:01</h1>
@@ -160,11 +161,12 @@
                             <p class="ui-li-aside"><span class="lehrer">LF1</span><strong>TU</strong></p>                            
                             <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                     </li>
+                    -->
 
                 </ul>
                 <div data-role="popup" id="addVerlauf" class="ui-content" data-history="false">
                     <a href="#verlauf"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-                    <h3>17.1.2016</h3>
+                    <h3 id="datumAddVerlauf">17.1.2016</h3>
                     <fieldset class="ui-field-contain">
                         <fieldset class="ui-grid-a">
                             <div class="ui-block-a">
@@ -220,13 +222,17 @@
                                 <h4>Bemerkungen</h4>                                                
                                 <textarea name="textarea" id="bemerkungen"></textarea>
                             </div>
-                    </fieldset>            
-                    <a href="#" id="btnAddVerlauf" data-role="button" class="btn-default" >OK</a>
+                    </fieldset>    
+                    <fieldset class="ui-grid-a">
+                                <div id="btnDeleteVerlauf" class="ui-block-a"><button type="button" data-theme="d">Delete</button></div>
+                                <div id="btnAddVerlauf" class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
+                            </fieldset>
+                    
 
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2 style="font-size: 60%;" >17.1.2016 9:35</h2>                
+                <h2 id="currentDateVerlauf" style="font-size: 60%;" >17.1.2016 9:35</h2>                
                 <div data-role="navbar">
                     <ul>
                         <li><a href="#anwesenheit">Anwesenheit</a></li>
@@ -305,7 +311,8 @@
                     <div data-role="collapsible">
                         <h4><div id="bemerkungCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Bemerkungen</h4>
                         <a id="neueBemerkung" href="#" data-rel="popup" data-position-to="window" data-role="button" data-icon="plus" data-transition="popup">hinzufügen</a>                        
-                        <ul id="bemerkungListView" data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
+                        <ul id="bemerkungListView" data-filter="true" data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
+                            <!--
                             <li>  
                                 <a href="#">                            
                                     <small>Hier steht eine Bemerkung</small>                       
@@ -327,6 +334,7 @@
                                     <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
                                 </a>
                             </li>
+                            -->
                         </ul>
 
                         <div data-role="popup" id="editBemerkung" class="ui-content" data-history="false">
@@ -379,20 +387,20 @@
         <div data-role="page" id="verlaufDetail" data-title="Detail Verlauf">
             <div data-role="header">
                 <a data-role="button" id="btnAbout" href="#verlauf" data-icon="back">zurück</a>
-                <h1>Fisi13A</h1>                   
+                <h1 id="nameKlasseVerlaufDetail">Fisi13A</h1>                   
             </div>
             <div class="ui-grid-b">
-                <div class="ui-block-a">LF1</div>
-                <div class="ui-block-b">Std1</div>
-                <div class="ui-block-c">TU</div>
+                <div id="lfVerlaufDetail" class="ui-block-a">LF1</div>
+                <div id="stdVerlaufDetail" class="ui-block-b">Std1</div>
+                <div id="lehrerVerlaufDetail" class="ui-block-c">TU</div>
             </div>            
             <div data-role="content" data-theme="b">
                 <h3>Lernsituation</h3>
-                <p>Hier steht eine lange Bschreibung der Lernsituation!</p>
+                <p id="lsVerlaufDetail">Hier steht eine lange Bschreibung der Lernsituation!</p>
                 <h3>Inhalt</h3>
-                <p>Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
+                <p id="inhaltVerlaufDetail">Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
                 <h3>Bemerkungen</h3>
-                <p>Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
+                <p id="bemVerlaufDetail">Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
             </div>
 
 
