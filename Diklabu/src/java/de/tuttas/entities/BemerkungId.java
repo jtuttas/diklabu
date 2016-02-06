@@ -5,7 +5,9 @@
  */
 package de.tuttas.entities;
 
+import de.tuttas.util.DatumUtil;
 import java.io.Serializable;
+import java.sql.Timestamp;
 import javax.persistence.Id;
 
 /**
@@ -15,16 +17,22 @@ import javax.persistence.Id;
 public class BemerkungId implements Serializable {
     @Id
     private int ID_SCHUELER;    
-    
+     @Id
+    private Timestamp DATUM;
     @Id
     private String ID_LEHRER;    
 
     public BemerkungId() {
     }
 
-    public BemerkungId(int ID_SCHUELER, String ID_LEHRER) {
+    public BemerkungId(int ID_SCHUELER, String ID_LEHRER, Timestamp Datum) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.ID_LEHRER = ID_LEHRER;
+        this.DATUM=Datum;
+    }
+
+    public Timestamp getDATUM() {
+        return DATUM;
     }
 
     public String getID_LEHRER() {
@@ -41,7 +49,7 @@ public class BemerkungId implements Serializable {
 		int result = 1;
 		result = prime * result
 				+ ((ID_LEHRER == null) ? 0 : ID_LEHRER.hashCode());
-		result = prime * result + ID_SCHUELER;
+		result = prime * result + ID_SCHUELER+DatumUtil.hash(DATUM) ;                
 		return result;
 	}
  
@@ -61,6 +69,9 @@ public class BemerkungId implements Serializable {
 			return false;
 		if (ID_SCHUELER != other.ID_SCHUELER)
 			return false;
+                if (!DATUM.equals(other.DATUM)) {
+                    return false;
+                }
 		return true;
 	}
     

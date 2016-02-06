@@ -17,7 +17,114 @@ var toast = function (msg) {
             });
 }
 
+
 $("#version").text(VERSION);
+
+$("#neueBemerkung").click(function () {
+    var dat = toUrlString(new Date());
+    dat=dat.replace("T"," ");
+    console.log("newBemerkung dat="+dat);
+    $("#editBemerkungDatum").text(dat);
+    $("#textBemerkung").val("");
+    $("#editBemerkung").popup("open");
+});
+
+$("#btnAddBemerkung").click(function () {
+    if ($("#textBemerkung").val()!="") {
+        submitBemerkung($("#textBemerkung").val());
+    }
+    else {
+        console.log("Eine leere Bemerkung!");
+    }
+});
+
+$("#btnDeleteBemerkung").click (function () {
+   deleteBemerkung(); 
+});
+
+function deleteBemerkung() {
+    var d = $("#editBemerkungDatum").text();
+    d.replace(" ","T")
+    console.log("Delete Bemerkung Datum = "+d); 
+    
+        $.ajax({
+        url: SERVER + "/Diklabu/api/v1/bemerkungen/"+sessionStorage.myself+"/"+sessionStorage.idSchueler+"/"+d,
+        type: "DELETE",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            console.log("Eintrag gelöscht success="+data.success);
+             $("#editBemerkung").popup("close");
+             if (!data.success) {
+                 toast(data.msg);
+             }
+             renderSchuelerDetails(sessionStorage.idSchueler);
+            
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("kann Bemerkung nicht löschen!");
+        }
+    });
+}
+
+function submitBemerkung(bem) {
+    var d = $("#editBemerkungDatum").text();
+    d.replace(" ","T")
+    console.log("Datum = "+d); 
+    var eintr = {
+        "ID_LEHRER": sessionStorage.myself,
+        "ID_SCHUELER": sessionStorage.idSchueler,
+        "BEMERKUNG": bem
+    };
+
+    console.log("Sende zum Server:" + JSON.stringify(eintr));
+    console.log("URL:" + SERVER + "/Diklabu/api/v1/bemerkungen/"+d);
+    
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/bemerkungen/"+d,
+        type: "POST",
+        cache: false,
+        data: JSON.stringify(eintr),
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            console.log("Eintrag eingetragedetails success="+data.success);
+             $("#editBemerkung").popup("close");
+             if (!data.success) {
+                 toast(data.msg);
+             }
+             renderSchuelerDetails(sessionStorage.idSchueler);
+            
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("kann Bemerkung nicht zum Server senden!");
+        }
+    });
+}
+
+function toUrlString(d) {
+    std = d.getHours();
+    min = d.getMinutes();
+    sec = d.getSeconds();
+    if (std<10) {
+        std="0"+std;
+    }
+    if (min<10) {
+        min="0"+min;
+    }
+    if (sec<10) {
+        sec="0"+sec;
+    }
+    return toSQLString(d)+"T"+std+":"+min+":"+sec;
+}
+
 $("#btnAnwesend").click(function () {
     $("#anwesenheitText").val("a");
     $("#anwesenheitDetails").popup("close");
@@ -326,7 +433,10 @@ function buildNamensliste(data) {
 
 function renderSchuelerDetails(sid) {
     $("#detailName").text(getNameSchuler(sid));
+    $("#editBemerkungName").text(getNameSchuler(sid));
+    
     loadSchulerDaten(sid, function (data) {
+       
         $("#detailGeb").text("Geb.:" + getReadableDate(data.gebDatum));
         if (data.email != undefined) {
             $("#detailEmail").show();
@@ -362,8 +472,42 @@ function renderSchuelerDetails(sid) {
             refreshKlassenliste(kname);
             $.mobile.changePage("#anwesenheit", {transition: "fade"});
         });
-            
         
+        bemerkungen = data.bemerkungen;
+        $("#bemerkungCount").text(bemerkungen.length);
+        $("#bemerkungListView").empty();
+        for (i=0;i<bemerkungen.length;i++) {
+            dat = bemerkungen[i].DATUM;
+            dat=dat.replace("T"," ");
+            dat=dat.substr(0,dat.indexOf("+"));
+            bem = bemerkungen[i].BEMERKUNG;
+            if (bem.length>20) {
+                bem=bem.substr(0,17);
+                bem=bem+"..";
+            }
+            $("#bemerkungListView").append('<li class="ui-li-has-alt"><a href="#" index="'+i+'" class="ui-btn toastBemerkung"><p>'+dat+'</p><small>'+bem+'</small><p class="ui-li-aside">'+bemerkungen[i].ID_LEHRER+'</p></a><a index="'+i+'" href="#" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="editBemerkung" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a editBemerkung" title="Edit"></a></li>')
+        }
+        $(".toastBemerkung").click(function () {
+           index = $(this).attr("index");
+           console.log("Toast Bemerkung"+index);
+           toast(data.bemerkungen[index].BEMERKUNG);
+        });
+        $(".editBemerkung").click(function () {
+           index = $(this).attr("index");
+           console.log("Edit Bemerkung"+index);
+           lehrer = data.bemerkungen[index].ID_LEHRER;
+           if (lehrer!=sessionStorage.myself) {
+            toast("Nur eigene Einträge editierbar");
+           }
+           else {
+           dat = data.bemerkungen[index].DATUM;
+            dat=dat.replace("T"," ");
+            dat=dat.substr(0,dat.indexOf("+"));
+           $("#editBemerkungDatum").text(dat);
+           $("#textBemerkung").val(data.bemerkungen[index].BEMERKUNG);
+           $("#editBemerkung").popup("open");
+       }
+        });
         
         getSchuelerBild(sid, "#imgSchueler");
 

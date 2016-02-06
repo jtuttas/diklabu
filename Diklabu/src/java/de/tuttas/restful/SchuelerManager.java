@@ -7,6 +7,7 @@ package de.tuttas.restful;
 
 import de.tuttas.config.Config;
 import de.tuttas.entities.Ausbilder;
+import de.tuttas.entities.Bemerkung;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.LoginSchueler;
@@ -83,6 +84,12 @@ public class SchuelerManager {
                 Betrieb b = em.find(Betrieb.class, a.getID_BETRIEB());
                 so.setBetrieb(b);
             }
+            Query squery = em.createNamedQuery("findBemerkungbySchuelerId");
+            squery.setParameter("paramSchuelerId", so.getId());
+            List<Bemerkung> bemerkungen = squery.getResultList();
+            System.out.println("Result List:" + klassen);
+            so.setBemerkungen(bemerkungen);
+            
             return so;
         }
         return null;

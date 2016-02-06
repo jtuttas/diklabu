@@ -6,6 +6,7 @@
 package de.tuttas.restful.Data;
 
 import de.tuttas.entities.Ausbilder;
+import de.tuttas.entities.Bemerkung;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import java.sql.Date;
@@ -19,6 +20,7 @@ public class SchuelerObject {
     
     private Auth auth;
     private List<Klasse>klassen;
+    private List<Bemerkung>bemerkungen;
     private String name;
     private String vorname;
     private int id;
@@ -33,6 +35,14 @@ public class SchuelerObject {
 
     public String getEmail() {
         return email;
+    }
+
+    public List<Bemerkung> getBemerkungen() {
+        return bemerkungen;
+    }
+
+    public void setBemerkungen(List<Bemerkung> bemerkungen) {
+        this.bemerkungen = bemerkungen;
     }
     
     

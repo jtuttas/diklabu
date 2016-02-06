@@ -24,13 +24,14 @@ import javax.persistence.Transient;
  */
 @Entity
 @NamedQueries({  
-     @NamedQuery(name = "findBemerkungbySchuelerId", query= "select b from Bemerkung b where b.ID_SCHUELER= :paramSchuelerId order by b.DATUM")
+     @NamedQuery(name = "findBemerkungbySchuelerId", query= "select b from Bemerkung b where b.ID_SCHUELER= :paramSchuelerId order by b.DATUM DESC")
 })
 @IdClass(BemerkungId.class)
 public class Bemerkung implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    private int ID_SCHUELER;        
+    private int ID_SCHUELER;
+    @Id
     private Timestamp DATUM;
     @Id
     private String ID_LEHRER;    
@@ -111,7 +112,7 @@ public class Bemerkung implements Serializable {
     
     @Override
     public String toString() {
-        return "de.tuttas.entities.Bemerkung[ ID_SCHUELER=" + ID_SCHUELER +" ID_LEHRER="+ID_LEHRER+ " ]";
+        return "de.tuttas.entities.Bemerkung[ ID_SCHUELER=" + ID_SCHUELER +" ID_LEHRER="+ID_LEHRER+ " Datum="+DATUM+"]";
     }
     
 }

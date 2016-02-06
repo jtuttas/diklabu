@@ -304,8 +304,8 @@
                     </div>
                     <div data-role="collapsible">
                         <h4><div id="bemerkungCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Bemerkungen</h4>
-                        <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-role="button" data-icon="plus" data-transition="popup">hinzufügen</a>                        
-                        <ul data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
+                        <a id="neueBemerkung" href="#" data-rel="popup" data-position-to="window" data-role="button" data-icon="plus" data-transition="popup">hinzufügen</a>                        
+                        <ul id="bemerkungListView" data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
                             <li>  
                                 <a href="#">                            
                                     <small>Hier steht eine Bemerkung</small>                       
@@ -332,13 +332,14 @@
                         <div data-role="popup" id="editBemerkung" class="ui-content" data-history="false">
                             <a href="#schuelerdetails"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                             <h4 id="editBemerkungName">Vorname NachName</h4>
+                            <h5 id="editBemerkungDatum">Datum</h5>
                             <div class="ui-field-contain">
                                 <label for="editBemerkung">Bemerkung</label>
-                                <textarea name="textarea" id="editBemerkung"></textarea>
+                                <textarea name="textarea" id="textBemerkung"></textarea>
                             </div>                            
                             <fieldset class="ui-grid-a">
-                                <div class="ui-block-a"><button type="button" data-theme="c">Delete</button></div>
-                                <div class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
+                                <div id="btnDeleteBemerkung" class="ui-block-a"><button type="button" data-theme="d">Delete</button></div>
+                                <div id="btnAddBemerkung" class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
                             </fieldset>
                         </div>
                     </div>

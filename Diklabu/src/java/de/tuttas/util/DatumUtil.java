@@ -27,4 +27,14 @@ public class DatumUtil {
         return ""+c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR);
     }
     
+    public static int hash(Date d) {
+        return (int) (d.getTime()/(1000*60));
+    }
+
+    public static String minuteTimeStamp(long timeInMillis) {
+        GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();        
+        c.setTime(new Date(timeInMillis));
+        return ""+c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR)+" "+c.get(GregorianCalendar.HOUR_OF_DAY)+":"+c.get(GregorianCalendar.MINUTE)+":"+c.get(GregorianCalendar.SECOND);        
+    }
+    
 }
