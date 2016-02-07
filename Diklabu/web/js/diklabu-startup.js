@@ -650,8 +650,8 @@ function refreshKlassenliste(kl) {
             $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
-                $("#tabelleKlasse").append('<tr><td><img src="img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
-                $("#tabelleBemerkungen").append('<tr><td><img src="img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td id="dat' + data[i].id + '"></td><td id="lk' + data[i].id + '"></td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
+                $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
+                $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td id="dat' + data[i].id + '"></td><td id="lk' + data[i].id + '"></td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
             }
             $("#tabelleKlasse").append("</tbody>");
             $("#tabelleBemerkungen").append("</tbody>");
@@ -729,10 +729,14 @@ function getSchuelerBild(id, elem) {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
         cache: false,
+        headers: {
+                            "service_key": sessionStorage.service_key,
+                            "auth_token": sessionStorage.auth_token
+                        },
         type: 'HEAD',
         error:
                 function () {
-                    $(elem).attr("src", "img/anonym.gif");
+                    $(elem).attr("src", "../img/anonym.gif");
                 },
         success:
                 function () {
@@ -836,7 +840,7 @@ function generateVerspaetungen() {
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0 || anwesenheit[i].parseErrors.length != 0) {
             var tr = "<tr>";
-            tr += "<td><img src=\"img/Info.png\" id=\"S" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
+            tr += "<td><img src=\"../img/Info.png\" id=\"S" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
             tr += "<td><strong>" + anwesenheit[i].summeFehltage + "</strong>&nbsp;";
             tr += "<span class=\"fehltagEntschuldigt\">" + anwesenheit[i].summeFehltageEntschuldigt + "</span></td>";
             tr += "<td>";

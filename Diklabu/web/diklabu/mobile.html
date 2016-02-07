@@ -6,29 +6,29 @@
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-        <link rel="apple-touch-icon" sizes="57x57" href="img/apple-icon-57x57.png"/>
-        <link rel="apple-touch-icon" sizes="60x60" href="img/apple-icon-60x60.png"/>
-        <link rel="apple-touch-icon" sizes="72x72" href="img/apple-icon-72x72.png"/>
-        <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon-76x76.png"/>
-        <link rel="apple-touch-icon" sizes="114x114" href="img/apple-icon-114x114.png"/>
-        <link rel="apple-touch-icon" sizes="120x120" href="img/apple-icon-120x120.png"/>
-        <link rel="apple-touch-icon" sizes="144x144" href="img/apple-icon-144x144.png"/>
-        <link rel="apple-touch-icon" sizes="152x152" href="img/apple-icon-152x152.png"/>
-        <link rel="apple-touch-icon" sizes="180x180" href="img/apple-icon-180x180.png"/>
-        <link rel="icon" type="image/png" sizes="192x192"  href="img/android-icon-192x192.png"/>
-        <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png"/>
-        <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png"/>
-        <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png"/>
-        <link rel="manifest" href="img/manifest.json"/>
+        <link rel="apple-touch-icon" sizes="57x57" href="../img/apple-icon-57x57.png"/>
+        <link rel="apple-touch-icon" sizes="60x60" href="../img/apple-icon-60x60.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="../img/apple-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="76x76" href="../img/apple-icon-76x76.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="../img/apple-icon-114x114.png"/>
+        <link rel="apple-touch-icon" sizes="120x120" href="../img/apple-icon-120x120.png"/>
+        <link rel="apple-touch-icon" sizes="144x144" href="../img/apple-icon-144x144.png"/>
+        <link rel="apple-touch-icon" sizes="152x152" href="../img/apple-icon-152x152.png"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="../img/apple-icon-180x180.png"/>
+        <link rel="icon" type="image/png" sizes="192x192"  href="../img/android-icon-192x192.png"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png"/>
+        <link rel="icon" type="image/png" sizes="96x96" href="../img/favicon-96x96.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png"/>
+        <link rel="manifest" href="../img/manifest.json"/>
         <meta name="msapplication-TileColor" content="#ffffff"/>
-        <meta name="msapplication-TileImage" content="img/ms-icon-144x144.png"/>
+        <meta name="msapplication-TileImage" content="../img/ms-icon-144x144.png"/>
         <meta name="theme-color" content="#ffffff"/>
 
-        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
-        <link rel="stylesheet" href="http://demos.jquerymobile.com/1.4.0/theme-classic/theme-classic.css" />
-        <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
-        <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
-        <link rel="stylesheet" href="css/buchmobile.css"/>
+        <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css" />
+        <link rel="stylesheet" href="../css/theme-classic.css" />
+        <script src="../js/jquery-1.11.1.min.js"></script>
+        <script src="../js/jquery.mobile-1.4.5.min.js"></script>
+        <link rel="stylesheet" href="../css/buchmobile.css"/>
        
         
     </head>
@@ -57,7 +57,7 @@
         </div>
         <div data-role="page" data-theme="b" id="klassenliste" data-title="Klassenliste">
             <div data-role="header" data-theme="a">
-                <a data-role="button" class="ui-btn-left" id="btnLogout" href="#login"
+                <a data-role="button" class="ui-btn-left" id="btnLogout" href="#"
                    data-icon="back">Logout</a>
                 <h1>Klassen</h1>
                 <a data-role="button" class="ui-btn-right" id="btnAbout" href="#about"
@@ -101,7 +101,7 @@
             <div data-role="content" data-theme="b" >
 
                 <div class="loadingContainer">
-                    <img src="img/loading.gif" />
+                    <img src="../img/loading.gif" />
                     <h3 class="loadingMsg">Lade Daten</h3>
                 </div>
                 <div id="anwContainer">
@@ -276,7 +276,7 @@
                 <a data-role="button" id="btnBack" href="#anwesenheit" data-icon="back">zurück</a>
             </div>
             <div data-role="content"  data-theme="b">
-                <img id="imgSchueler" src="img/loading.gif" 
+                <img id="imgSchueler" src="../img/loading.gif" 
                      style="display: block; margin: 0 auto" />
                 <div>
                     <form enctype="multipart/form-data" id="bildUploadForm" action="/Diklabu/api/v1/schueler/bild/14279">
@@ -399,7 +399,7 @@
             <div data-role="content">
                 <div data-role="content">
                     <div class="ui-body ui-body-d ui-corner-all">
-                        <img src="img/joerg.png" alt="joerg"/>
+                        <img src="../img/joerg.png" alt="joerg"/>
                         <h2>Diklabu mobile</h2>
                         <h3 id="version">&nbsp;</h3>
                         (c) 2016 by <a href="mailto:tuttas@mmbbs.de">Dr. Jörg Tuttas</a>
@@ -441,7 +441,7 @@
 
     </body>
 
-    <script src="js/config.js"></script>
-    <script src="js/buchmobile.js"></script>
+    <script src="../js/config.js"></script>
+    <script src="../js/buchmobile.js"></script>
 
 </html>

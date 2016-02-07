@@ -101,7 +101,7 @@ public class SchuelerManager {
     public Response getFile(@PathParam("idschueler") int idschueler) {
         
             String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
-            System.out.println("Lade file " + filename);
+            System.out.println("Lade  file " + filename);
             File file = new File(filename);
             if (!file.exists()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
@@ -145,7 +145,7 @@ public class SchuelerManager {
 
         ResultObject r = new ResultObject();
         String fileLocation = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
-        System.out.println("upload File for " + idschueler);
+        System.out.println("upload  File for " + idschueler);
         try {
 
             Image image = ImageIO.read(uploadedInputStream);

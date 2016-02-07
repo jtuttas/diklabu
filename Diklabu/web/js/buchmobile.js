@@ -104,7 +104,7 @@ function deleteBemerkung() {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Bemerkung nicht löschen!");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
         }
     });
@@ -145,7 +145,7 @@ function submitBemerkung(bem) {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Bemerkung nicht zum Server senden!");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
         }
     });
@@ -210,8 +210,6 @@ $("#btnLogin").click(function () {
 });
 $("#btnLogout").click(function () {
     performLogout();
-    sessionStorage.clear();
-    localStorage.clear();
 })
 
 function getIdPlain(id) {
@@ -252,11 +250,12 @@ function performLogin() {
     if (localStorage.auth_token == undefined || localStorage.auth_token == "undefined") {
         benutzer = $("#benutzer").val();
         benutzer = benutzer.toUpperCase();
+        idplain = getIdPlain(benutzer);
         var myData = {
-            "benutzer": benutzer,
+            "benutzer": idplain,
             "kennwort": $("#kennwort").val()
         };
-        idplain = getIdPlain(benutzer);
+        
         console.log("idplain = " + idplain);
         localStorage.service_key = idplain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
         console.log("Service key =" + localStorage.service_key);
@@ -311,16 +310,20 @@ function performLogout() {
         type: "POST",
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
-            localStorage.auth_token = undefined;
-            localStorage.myself = undefined;
-            sessionStorage.kennwort = undefined;
-            $.mobile.changePage("#login", {transition: "fade"});
+            sessionStorage.clear();
+            localStorage.clear();            
             $("#benutzer").val("");
             $("#kennwort").val("");
+            $.mobile.changePage("#login", {transition: "fade"});
 
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("Logout fehlgeschlagen! Status Code=" + xhr.status);
+            sessionStorage.clear();
+            localStorage.clear();            
+            $("#benutzer").val("");
+            $("#kennwort").val("");
+            $.mobile.changePage("#login", {transition: "fade"});
         }
     });
 
@@ -358,7 +361,7 @@ function commitAnwesenheit(sid, txt) {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Anwesenheitseintrag nicht zum Server senden!");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
         }
     });
@@ -437,7 +440,7 @@ function deleteVerlauf(id) {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf nicht löschen!");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+               performLogout();
             }
         }
     });
@@ -473,7 +476,7 @@ function submitVerlauf(verl) {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf nicht zum Server senden!");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
         }
     });
@@ -508,7 +511,7 @@ $(document).on("pagebeforeshow", "#schuelerdetails", function () {
     else {
         console.log("Seite schuelerdetails wurde aktualisiert");
 
-        $("#imgSchueler").attr("src", 'img/loading.gif');
+        $("#imgSchueler").attr("src", '../img/loading.gif');
         renderSchuelerDetails(sessionStorage.idSchueler);
     }
 });
@@ -549,12 +552,12 @@ $("#btnRefresh").click(function () {
 
 
 $("#btnDetailsZurueck").click(function () {
-    $("#imgSchueler").attr("src", 'img/loading.gif');
+    $("#imgSchueler").attr("src", '../img/loading.gif');
     sessionStorage.idSchueler = prevSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
 $("#btnDetailsWeiter").click(function () {
-    $("#imgSchueler").attr("src", 'img/loading.gif');
+    $("#imgSchueler").attr("src", '../img/loading.gif');
     sessionStorage.idSchueler = nextSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
@@ -620,7 +623,7 @@ $('#bildUploadForm').on('submit', (function (e) {
                 console.log("error");
                 toast("Fehler beim Hochladen des Bildes!");
                 if (xhr.status == 401) {
-                    $.mobile.changePage("#login", {transition: "fade"});
+                   performLogout();
                 }
             }
         });
@@ -741,7 +744,7 @@ function refreshKlassenliste(kl) {
                 toast("kann Klassenliste f. Klasse " + kl + " nicht vom Server laden");
 
                 if (xhr.status == 401) {
-                    $.mobile.changePage("#login", {transition: "fade"});
+                    performLogout();
                 }
             }
         });
@@ -771,7 +774,7 @@ function loadVerlauf() {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf f. Klasse " + sessionStorage.nameKlasse + " nicht vom Server laden");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
         }
     });
@@ -822,7 +825,7 @@ function buildNamensliste(data) {
     $("#namensListView").empty();
     for (i = 0; i < data.length; i++) {
         //console.log("Füge Listview " + data[i].NNAME + " an");
-        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a href="#schuelerdetails" class="schueler ui-btn" sid="' + data[i].id + '"><img id="bild' + data[i].id + '" src="img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a setAnwesenheit" title="Edit"></a></li>')
+        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a href="#schuelerdetails" class="schueler ui-btn" sid="' + data[i].id + '"><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a setAnwesenheit" title="Edit"></a></li>')
     }
 
     $(".setAnwesenheit").click(function () {
@@ -944,7 +947,7 @@ function getSchuelerBild(id, elem) {
         type: 'HEAD',
         error:
                 function () {
-                    $(elem).attr("src", "img/anonym.gif");
+                    $(elem).attr("src", "../img/anonym.gif");
                 },
         success:
                 function () {
@@ -964,7 +967,7 @@ function getSchuelerBild(id, elem) {
                         error: function (xhr, textStatus, errorThrown) {
                             toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
                             if (xhr.status == 401) {
-                                $.mobile.changePage("#login", {transition: "fade"});
+                                performLogout();
                             }
                         }
                     });
@@ -995,7 +998,7 @@ function buildAnwesenheit(kl) {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Anwesenheit d. Klasse " + kl + " nicht vom Server laden");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
         }
     });
@@ -1057,7 +1060,7 @@ function refreshBilderKlasse(kl) {
             $(".loadingContainer").hide();
             $("#anwContainer").show();
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
 
         }
@@ -1128,7 +1131,7 @@ function loadSchulerDaten(id, callback) {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden");
             if (xhr.status == 401) {
-                $.mobile.changePage("#login", {transition: "fade"});
+                performLogout();
             }
         }
     });
