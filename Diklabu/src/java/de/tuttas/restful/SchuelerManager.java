@@ -99,20 +99,14 @@ public class SchuelerManager {
     @Path("/bild/{idschueler}")
     @Produces("image/jpg")
     public Response getFile(@PathParam("idschueler") int idschueler) {
-        if (Config.debug) {
+        
             String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
             System.out.println("Lade file " + filename);
             File file = new File(filename);
             if (!file.exists()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            ResponseBuilder response = Response.ok((Object) file);
-            response.header("Content-Disposition",
-                    "attachment; filename=image_from_server.png");
-            return response.build();
-        }
-        return null;
-
+            return Response.status(Response.Status.OK).build();       
     }
 
    

@@ -29,6 +29,8 @@
         <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
         <script src="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
         <link rel="stylesheet" href="css/buchmobile.css"/>
+       
+        
     </head>
 
     <body>
@@ -45,9 +47,9 @@
                 </div>
                 <div data-role="fieldcontain">
                     <label for="kennwort">Kennwort</label>
-                    <input type="text" id="kennwort" placeholder="Kennwort" />
+                    <input type="password" id="kennwort" placeholder="Kennwort" />
                 </div>
-                <a data-role="button" id="btnLogin" href="#klassenliste" data-icon="check">Login</a>
+                <a data-role="button" id="btnLogin" href="#" data-icon="check">Login</a>
             </div>
             <div data-role="footer" data-position="fixed" data-theme="a">
                 <h1>Diklabu mobile</h1>
@@ -134,9 +136,9 @@
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                     <h3 id="anwName">Vorname NachName</h3>
                     <div data-role="controlgroup">
-                        <a href="#" id="btnAnwesend" data-role="button">anwesend</a>
-                        <a href="#" id="btnEntschuldigt" data-role="button">entschuldigt</a>
-                        <a href="#" id="btnFehlend" data-role="button">fehlend</a>
+                        <a href="#" data-theme="b" id="btnAnwesend" data-role="button">anwesend</a>
+                        <a href="#" data-theme="c" id="btnEntschuldigt" data-role="button">entschuldigt</a>
+                        <a href="#" data-theme="e" id="btnFehlend" data-role="button">fehlend</a>
                     </div>
                     <input type="text" id="anwesenheitText" value=""/>                    
                     <a href="#" id="btnOkAnwesenheit" data-role="button" class="btn-default" >OK</a>
@@ -197,11 +199,13 @@
                                 <label for="lf">Lernfeld</label>
                                 <select name="lf" id="lf">
                                     <optgroup label="Lernfelder" id="lernfelder">
+                                        <!--
                                         <option value="lf1">LF1</option>
                                         <option value="lf2">LF2</option>
                                         <option value="lf3">LF3</option>
                                         <option value="lf4">LF4</option>
                                         <option value="lf5">LF5</option>
+                                        -->
                                     </optgroup>          
                                 </select>
                             </div>
@@ -248,7 +252,7 @@
                             </div>
                     </fieldset>    
                     <fieldset class="ui-grid-a">
-                        <div id="btnDeleteVerlauf" class="ui-block-a"><button type="button" data-theme="d">Delete</button></div>
+                        <div id="btnDeleteVerlauf" class="ui-block-a"><button type="button" data-theme="e">Delete</button></div>
                         <div id="btnAddVerlauf" class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
                     </fieldset>
 
@@ -319,7 +323,7 @@
                         <h4><div id="klassenCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Klassen/Kurse</h4>
                         <ul id="detailsKlassenListView" data-role="listview" data-inset="true" >
 
-
+                            <!--
                             <li> <a href="#">                            
                                     <b>Fisi13A</b></a>                        
                             </li>
@@ -329,7 +333,7 @@
                             <li> <a href="#">                            
                                     <b>Fisi13A</b></a>                        
                             </li>
-
+                            -->
                         </ul>
                     </div>
                     <div data-role="collapsible">
@@ -370,7 +374,7 @@
                                 <textarea name="textarea" id="textBemerkung"></textarea>
                             </div>                            
                             <fieldset class="ui-grid-a">
-                                <div id="btnDeleteBemerkung" class="ui-block-a"><button type="button" data-theme="d">Delete</button></div>
+                                <div id="btnDeleteBemerkung" class="ui-block-a"><button type="button" data-theme="e">Delete</button></div>
                                 <div id="btnAddBemerkung" class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
                             </fieldset>
                         </div>
@@ -420,11 +424,11 @@
             </div>            
             <div data-role="content" data-theme="b">
                 <h3>Lernsituation</h3>
-                <p id="lsVerlaufDetail">Hier steht eine lange Bschreibung der Lernsituation!</p>
+                <p id="lsVerlaufDetail"></p>
                 <h3>Inhalt</h3>
-                <p id="inhaltVerlaufDetail">Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
+                <p id="inhaltVerlaufDetail"></p>
                 <h3>Bemerkungen</h3>
-                <p id="bemVerlaufDetail">Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!Hier steht ganz viel Inhalt!</p>
+                <p id="bemVerlaufDetail"></p>
             </div>
 
 

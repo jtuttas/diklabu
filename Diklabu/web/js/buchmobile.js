@@ -1,16 +1,30 @@
 var anwesenheit;
 var verlaufId;
-sessionStorage.myself = "TU";
+
 $(document).on({
-  ajaxStart: function() { 
-    $.mobile.loading('show');    
-    console.log('getJSON starts...');
-  },
-  ajaxStop: function() {
-    $.mobile.loading('hide');
-    console.log('getJSON ends...');
-  }    
+    ajaxStart: function () {
+        $.mobile.loading('show');
+        console.log('getJSON starts...');
+    },
+    ajaxStop: function () {
+        $.mobile.loading('hide');
+        console.log('getJSON ends...');
+    }
 });
+
+$(document).ready(function () {
+
+    if (localStorage.myself != "undefined") {
+        $("#benutzer").val(localStorage.myself);
+    }
+    if (sessionStorage.kennwort != "undefined") {
+        $("#kennwort").val(sessionStorage.kennwort);
+    }
+            
+    
+    
+});
+
 var toast = function (msg) {
     $("<div class='ui-loader ui-overlay-shadow ui-body-e ui-corner-all'><h3>" + msg + "</h3></div>")
             .css({display: "block",
@@ -29,6 +43,8 @@ var toast = function (msg) {
 
 
 $("#version").text(VERSION);
+
+
 
 $("#neueBemerkung").click(function () {
     var dat = toUrlString(new Date());
@@ -68,12 +84,12 @@ function deleteBemerkung() {
     console.log("Delete Bemerkung Datum = " + d);
 
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/bemerkungen/" + sessionStorage.myself + "/" + sessionStorage.idSchueler + "/" + d,
+        url: SERVER + "/Diklabu/api/v1/bemerkungen/" + localStorage.myself + "/" + sessionStorage.idSchueler + "/" + d,
         type: "DELETE",
         cache: false,
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -87,6 +103,9 @@ function deleteBemerkung() {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Bemerkung nicht löschen!");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 }
@@ -96,7 +115,7 @@ function submitBemerkung(bem) {
     d.replace(" ", "T")
     console.log("Datum = " + d);
     var eintr = {
-        "ID_LEHRER": sessionStorage.myself,
+        "ID_LEHRER": localStorage.myself,
         "ID_SCHUELER": sessionStorage.idSchueler,
         "BEMERKUNG": bem
     };
@@ -110,8 +129,8 @@ function submitBemerkung(bem) {
         cache: false,
         data: JSON.stringify(eintr),
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -125,6 +144,9 @@ function submitBemerkung(bem) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Bemerkung nicht zum Server senden!");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 }
@@ -183,12 +205,133 @@ $('body').on('keydown', "#anwesenheitText", function (e) {
     }
 });
 
+$("#btnLogin").click(function () {
+    performLogin();
+});
+$("#btnLogout").click(function () {
+    performLogout();
+    sessionStorage.clear();
+    localStorage.clear();
+})
+
+function getIdPlain(id) {
+    out = ""
+    for (i = 0; i < id.length; i++) {
+        c = id.charAt(i);
+        switch (c) {
+            case 'ö':
+                out += "oe";
+                break;
+            case 'ä':
+                out += "ae";
+                break;
+            case 'ü':
+                out += "ue";
+                break;
+            case 'ß':
+                out += "ss";
+                break;
+            case 'Ä':
+                out += "AE";
+                break;
+            case 'Ö':
+                out += "OE";
+                break;
+            case 'Ü':
+                out += "UE";
+                break;
+            default:
+                out += c;
+                break;
+        }
+    }
+    return out;
+}
+
+function performLogin() {
+    if (localStorage.auth_token == undefined || localStorage.auth_token == "undefined") {
+        benutzer = $("#benutzer").val();
+        benutzer = benutzer.toUpperCase();
+        var myData = {
+            "benutzer": benutzer,
+            "kennwort": $("#kennwort").val()
+        };
+        idplain = getIdPlain(benutzer);
+        console.log("idplain = " + idplain);
+        localStorage.service_key = idplain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
+        console.log("Service key =" + localStorage.service_key);
+
+        $.ajax({
+            cache: false,
+            contentType: "application/json; charset=UTF-8",
+            headers: {
+                "service_key": localStorage.service_key
+            },
+            dataType: "json",
+            url: "/Diklabu/api/v1/auth/login/",
+            type: "POST",
+            data: JSON.stringify(myData),
+            success: function (jsonObj, textStatus, xhr) {
+                localStorage.auth_token = jsonObj.auth_token;
+                console.log("Thoken = " + jsonObj.auth_token);
+
+                localStorage.myself = benutzer;
+                sessionStorage.kennwort = $('#kennwort').val();
+                $.mobile.changePage("#klassenliste", {transition: "fade"});
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                toast("Login fehlgeschlagen");
+                console.log("HTTP Status: " + xhr.status);
+                console.log("Error textStatus: " + textStatus);
+                console.log("Error thrown: " + errorThrown);
+            }
+        });
+    }
+    else {
+        $.mobile.changePage("#klassenliste", {transition: "fade"});
+    }
+}
+
+function performLogout() {
+
+    var myData = {
+        "benutzer": localStorage.myself,
+        "kennwort": sessionStorage.lennwort
+    };
+
+    $.ajax({
+        cache: false,
+        contentType: "application/json; charset=UTF-8",
+        headers: {
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
+        },
+        dataType: "json",
+        url: "/Diklabu/api/v1/auth/logout/",
+        type: "POST",
+        data: JSON.stringify(myData),
+        success: function (jsonObj, textStatus, xhr) {
+            localStorage.auth_token = undefined;
+            localStorage.myself = undefined;
+            sessionStorage.kennwort = undefined;
+            $.mobile.changePage("#login", {transition: "fade"});
+            $("#benutzer").val("");
+            $("#kennwort").val("");
+
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("Logout fehlgeschlagen! Status Code=" + xhr.status);
+        }
+    });
+
+}
+
 
 function commitAnwesenheit(sid, txt) {
     dat = toSQLString(new Date());
     var eintr = {
         "DATUM": dat + "T00:00:00",
-        "ID_LEHRER": sessionStorage.myself,
+        "ID_LEHRER": localStorage.myself,
         "ID_SCHUELER": sid,
         "VERMERK": txt
     };
@@ -200,8 +343,8 @@ function commitAnwesenheit(sid, txt) {
         cache: false,
         data: JSON.stringify(eintr),
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -214,6 +357,9 @@ function commitAnwesenheit(sid, txt) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Anwesenheitseintrag nicht zum Server senden!");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 }
@@ -246,7 +392,7 @@ $("#btnAddVerlauf").click(function () {
             "BEMERKUNG": $("#bemerkungen").val(),
             "DATUM": toSQLString(d) + "T00:00:00",
             "ID_KLASSE": sessionStorage.idKlasse,
-            "ID_LEHRER": sessionStorage.myself,
+            "ID_LEHRER": localStorage.myself,
             "ID_LERNFELD": $("#lf").val(),
             "INHALT": $("#inhalt").val(),
             "STUNDE": $("#std").val()
@@ -277,8 +423,8 @@ function deleteVerlauf(id) {
         type: "DELETE",
         cache: false,
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -290,6 +436,9 @@ function deleteVerlauf(id) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf nicht löschen!");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 }
@@ -304,8 +453,8 @@ function submitVerlauf(verl) {
         cache: false,
         data: JSON.stringify(verl),
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -323,6 +472,9 @@ function submitVerlauf(verl) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf nicht zum Server senden!");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 }
@@ -330,25 +482,69 @@ function submitVerlauf(verl) {
 console.log("Load Klassenliste");
 
 $(document).on("pagebeforecreate", "#anwesenheit", function () {
-    $.mobile.loading('show');
-    console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
-    refreshKlassenliste(sessionStorage.nameKlasse);
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
+        refreshKlassenliste(sessionStorage.nameKlasse);
+    }
 });
-
+$(document).on("pagebeforecreate", "#login", function () {
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        
+    }
+    else {
+        $.mobile.changePage("#klassenliste", {transition: "fade"});
+    }
+});
 $(document).on("pagebeforeshow", "#schuelerdetails", function () {
-    console.log("Seite schuelerdetails wurde aktualisiert");
-    $("#imgSchueler").attr("src", 'img/loading.gif');
-    renderSchuelerDetails(sessionStorage.idSchueler);
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        console.log("Seite schuelerdetails wurde aktualisiert");
+
+        $("#imgSchueler").attr("src", 'img/loading.gif');
+        renderSchuelerDetails(sessionStorage.idSchueler);
+    }
 });
 $(document).on("pagebeforeshow", "#verlauf", function () {
-    console.log("Seite verkauf wurde aktualisiert");
-    loadVerlauf();
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        console.log("Seite verkauf wurde aktualisiert");
+        loadVerlauf();
+    }
+});
+$(document).on("pagebeforeshow", "#about", function () {
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        
+    }
+});
+$(document).on("pagebeforecreate", "#verlaufDetail", function () {
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        //$.mobile.changePage("#verlauf", {transition: "fade"});
+    }
 });
 
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
-    refreshKlassenliste(sessionStorage.nameKlasse);    
+    refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
 
@@ -402,8 +598,8 @@ $('#bildUploadForm').on('submit', (function (e) {
             url: SERVER + "/Diklabu/api/v1/schueler/bild/" + sessionStorage.idSchueler,
             data: formData,
             headers: {
-                "service_key": sessionStorage.service_key,
-                "auth_token": sessionStorage.auth_token
+                "service_key": localStorage.service_key,
+                "auth_token": localStorage.auth_token
             },
             cache: false,
             contentType: false,
@@ -420,9 +616,12 @@ $('#bildUploadForm').on('submit', (function (e) {
 
                 }
             },
-            error: function (data) {
+            error: function (xhr, textStatus, errorThrown) {
                 console.log("error");
                 toast("Fehler beim Hochladen des Bildes!");
+                if (xhr.status == 401) {
+                    $.mobile.changePage("#login", {transition: "fade"});
+                }
             }
         });
     }
@@ -465,7 +664,7 @@ function buildKlassenListeView(data) {
         klid = $(this).attr("klid");
         sessionStorage.idKlasse = klid;
         console.log("nameKlasse=" + kl + "idKlasse=" + klid);
-         $("#namensListView").empty();
+        $("#namensListView").empty();
         refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
@@ -502,9 +701,9 @@ else {
 }
 
 function refreshKlassenliste(kl) {
-    
+
     $("#anwContainer").hide();
-                $(".loadingContainer").show();
+    $(".loadingContainer").show();
 
     console.log("Refresh Klassenliste f. Klasse " + kl + " alte Klassenbezeichnung==" + sessionStorage.nameKlasse);
     $("#anwesenheitKlassenName").text(kl);
@@ -519,14 +718,16 @@ function refreshKlassenliste(kl) {
     }
     else {
         console.log("Schülerdaten vom Server geladen !");
+        console.log("service_key=" + localStorage.service_key);
+        console.log("auth_token=" + localStorage.auth_token);
         sessionStorage.nameKlasse = kl;
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/klasse/" + kl,
             type: "GET",
             cache: false,
             headers: {
-                "service_key": sessionStorage.service_key,
-                "auth_token": sessionStorage.auth_token
+                "service_key": localStorage.service_key,
+                "auth_token": localStorage.auth_token
             },
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
@@ -538,12 +739,17 @@ function refreshKlassenliste(kl) {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toast("kann Klassenliste f. Klasse " + kl + " nicht vom Server laden");
+
+                if (xhr.status == 401) {
+                    $.mobile.changePage("#login", {transition: "fade"});
+                }
             }
         });
     }
 }
 
 function loadVerlauf() {
+    $("#verlaufList").empty();
     d = new Date();
     $("#currentDateVerlauf").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
     $("#verlaufNameKlasse").text(sessionStorage.nameKlasse);
@@ -553,8 +759,8 @@ function loadVerlauf() {
         type: "GET",
         cache: false,
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -564,6 +770,9 @@ function loadVerlauf() {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf f. Klasse " + sessionStorage.nameKlasse + " nicht vom Server laden");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 }
@@ -571,7 +780,7 @@ function loadVerlauf() {
 function renderVerlauf(data) {
     console.log("renderVerlauf eintäge=" + data.length);
     $("#datumAddVerlauf").text(getReadableDate(new Date()));
-    $("#verlaufList").empty();
+
     for (i = 0; i < data.length; i++) {
         verlauf = data[i];
         console.log("appen " + verlauf.INHALT);
@@ -594,7 +803,7 @@ function renderVerlauf(data) {
         index = $(this).attr("index");
         verlaufId = $(this).attr("verlaufId");
         console.log("Edit Verlauf index = " + index + " verlaufId=" + verlaufId);
-        if (data[index].ID_LEHRER != sessionStorage.myself) {
+        if (data[index].ID_LEHRER != localStorage.myself) {
             toast("Sie können nur eigene Einträge editieren!");
         }
         else {
@@ -702,7 +911,7 @@ function renderSchuelerDetails(sid) {
             index = $(this).attr("index");
             console.log("Edit Bemerkung" + index);
             lehrer = data.bemerkungen[index].ID_LEHRER;
-            if (lehrer != sessionStorage.myself) {
+            if (lehrer != localStorage.myself) {
                 toast("Nur eigene Einträge editierbar");
             }
             else {
@@ -729,8 +938,8 @@ function getSchuelerBild(id, elem) {
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
         cache: false,
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         type: 'HEAD',
         error:
@@ -743,8 +952,8 @@ function getSchuelerBild(id, elem) {
                         url: SERVER + "/Diklabu/api/v1/schueler/bild64/" + id,
                         type: "GET",
                         headers: {
-                            "service_key": sessionStorage.service_key,
-                            "auth_token": sessionStorage.auth_token
+                            "service_key": localStorage.service_key,
+                            "auth_token": localStorage.auth_token
                         },
                         success: function (data) {
                             console.log("Bild Daten geladen:" + data.id + " elem=" + elem);
@@ -752,8 +961,11 @@ function getSchuelerBild(id, elem) {
                             $(elem).attr('src', "data:image/png;base64," + data);
 
                         },
-                        error: function () {
+                        error: function (xhr, textStatus, errorThrown) {
                             toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
+                            if (xhr.status == 401) {
+                                $.mobile.changePage("#login", {transition: "fade"});
+                            }
                         }
                     });
 
@@ -770,8 +982,8 @@ function buildAnwesenheit(kl) {
         type: "GET",
         cache: false,
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -782,6 +994,9 @@ function buildAnwesenheit(kl) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Anwesenheit d. Klasse " + kl + " nicht vom Server laden");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 
@@ -820,8 +1035,8 @@ function refreshBilderKlasse(kl) {
         type: "GET",
         cache: false,
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -835,12 +1050,16 @@ function refreshBilderKlasse(kl) {
 
             }
             $(".loadingContainer").hide();
-    $("#anwContainer").show();        
+            $("#anwContainer").show();
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Bilder d. Klasse " + kl + " nicht vom Server laden");
             $(".loadingContainer").hide();
-            $("#anwContainer").show();        
+            $("#anwContainer").show();
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
+
         }
     });
 
@@ -873,7 +1092,7 @@ function setAnwesenheitsEintrag(id, txt, err) {
         if (anwesenheit[i].id_Schueler == id) {
             anwesenheit[i].eintraege[0].parseError = err;
             anwesenheit[i].eintraege[0].VERMERK = txt;
-            anwesenheit[i].eintraege[0].ID_LEHRER = sessionStorage.myself;
+            anwesenheit[i].eintraege[0].ID_LEHRER = localStorage.myself;
             anwesenheit[i].eintraege[0].DATUM = toSQLString(new Date()) + "T00:00:00+01:00";
             return;
         }
@@ -882,7 +1101,7 @@ function setAnwesenheitsEintrag(id, txt, err) {
         "id_Schueler": id,
         "eintraege": [{
                 "DATUM": toSQLString(new Date()) + "T00:00:00",
-                "ID_LEHRER": sessionStorage.myself,
+                "ID_LEHRER": localStorage.myself,
                 "ID_SCHUELER": id,
                 "VERMERK": txt,
                 "parseError": err
@@ -899,15 +1118,18 @@ function loadSchulerDaten(id, callback) {
         url: SERVER + "/Diklabu/api/v1/schueler/" + id,
         type: "GET",
         headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             callback(data);
         },
-        error: function () {
+        error: function (xhr, textStatus, errorThrown) {
             toast("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden");
+            if (xhr.status == 401) {
+                $.mobile.changePage("#login", {transition: "fade"});
+            }
         }
     });
 }
