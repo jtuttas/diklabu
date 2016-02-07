@@ -5,6 +5,25 @@
         <title>Diklabu mobile</title>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="apple-touch-icon" sizes="57x57" href="img/apple-icon-57x57.png"/>
+        <link rel="apple-touch-icon" sizes="60x60" href="img/apple-icon-60x60.png"/>
+        <link rel="apple-touch-icon" sizes="72x72" href="img/apple-icon-72x72.png"/>
+        <link rel="apple-touch-icon" sizes="76x76" href="img/apple-icon-76x76.png"/>
+        <link rel="apple-touch-icon" sizes="114x114" href="img/apple-icon-114x114.png"/>
+        <link rel="apple-touch-icon" sizes="120x120" href="img/apple-icon-120x120.png"/>
+        <link rel="apple-touch-icon" sizes="144x144" href="img/apple-icon-144x144.png"/>
+        <link rel="apple-touch-icon" sizes="152x152" href="img/apple-icon-152x152.png"/>
+        <link rel="apple-touch-icon" sizes="180x180" href="img/apple-icon-180x180.png"/>
+        <link rel="icon" type="image/png" sizes="192x192"  href="img/android-icon-192x192.png"/>
+        <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png"/>
+        <link rel="icon" type="image/png" sizes="96x96" href="img/favicon-96x96.png"/>
+        <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png"/>
+        <link rel="manifest" href="img/manifest.json"/>
+        <meta name="msapplication-TileColor" content="#ffffff"/>
+        <meta name="msapplication-TileImage" content="img/ms-icon-144x144.png"/>
+        <meta name="theme-color" content="#ffffff"/>
+
         <link rel="stylesheet" href="http://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
         <link rel="stylesheet" href="http://demos.jquerymobile.com/1.4.0/theme-classic/theme-classic.css" />
         <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
@@ -13,6 +32,7 @@
     </head>
 
     <body>
+
         <div data-theme="b" data-role="page" id="login" data-title="Diklabu Mobile">
             <div data-role="header" data-theme="a">
                 <h1>Login</h1>
@@ -43,24 +63,26 @@
             </div>
             <div data-role="content">                
                 <ul data-role="listview" data-filter="true"  id="klassenListView">
+                    <!--
                     <li>
-                            
+
                         <a href="#anwesenheit">Fisi13D
-                        <p class="ui-li-aside">TU</p>      
+                            <p class="ui-li-aside">TU</p>      
                         </a>
                     </li>
                     <li>
-                                 
+
                         <a href="#anwesenheit">Fisi13C
-                        <p class="ui-li-aside">TU</p> 
+                            <p class="ui-li-aside">TU</p> 
                         </a>
                     </li>
                     <li>
-                        
+
                         <a href="#anwesenheit">Fisi13B
-                        <p class="ui-li-aside">TU</p> 
+                            <p class="ui-li-aside">TU</p> 
                         </a>
                     </li>
+                    -->
                 </ul>
             </div>
             <div data-role="footer" data-position="fixed" data-theme="a">
@@ -76,35 +98,37 @@
             </div>
             <div data-role="content" data-theme="b" >
 
-
-
+                <div class="loadingContainer">
+                    <img src="img/loading.gif" />
+                    <h3 class="loadingMsg">Lade Daten</h3>
+                </div>
+                <div id="anwContainer">
                 <ul id="namensListView" data-role="listview" data-split-icon="gear"  data-split-theme="a" >
 
-
+                    <!--
                     <li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>     
-                             <p  class="ui-li-aside">TU</p>         
+                            <p  class="ui-li-aside">TU</p>         
                             <h3>VorName NachName</h3><small>V60e</small></a>
                         <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li><li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>  
-                             <p class="ui-li-aside">TU</p>         
+                            <p class="ui-li-aside">TU</p>         
                             <h3>VorName NachName</h3><small>V60e</small></a>
                         <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li><li> <a href="#schuelerdetails">
                             <img src="img/anonym.gif"/>                       
                             <h3>VorName NachName</h3><small>V60e</small>
-                         <p class="ui-li-aside">TU</p>         </a>
+                            <p class="ui-li-aside">TU</p>         </a>
                         <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
                     </li>
-
+                    -->
 
 
                 </ul>
-
-
-
-
+</div>
+               
+                
 
                 <div data-role="popup" id="anwesenheitDetails" class="ui-content" data-history="false">
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
@@ -211,23 +235,23 @@
 
                             <div data-role="collapsible">
                                 <h4>Lernsituation</h4>                                                
-                                <textarea name="textarea" id="lernsituation"></textarea>
+                                <textarea maxlength="99" name="textarea" id="lernsituation"></textarea>
                             </div>
                             <div data-role="collapsible" data-collapsed="false">
                                 <h4>Inhalt</h4>                                                
-                                <textarea name="textarea" id="inhalt"></textarea>
+                                <textarea maxlength="99" name="textarea" id="inhalt"></textarea>
 
                             </div>
                             <div data-role="collapsible">
                                 <h4>Bemerkungen</h4>                                                
-                                <textarea name="textarea" id="bemerkungen"></textarea>
+                                <textarea maxlength="99" name="textarea" id="bemerkungen"></textarea>
                             </div>
                     </fieldset>    
                     <fieldset class="ui-grid-a">
-                                <div id="btnDeleteVerlauf" class="ui-block-a"><button type="button" data-theme="d">Delete</button></div>
-                                <div id="btnAddVerlauf" class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
-                            </fieldset>
-                    
+                        <div id="btnDeleteVerlauf" class="ui-block-a"><button type="button" data-theme="d">Delete</button></div>
+                        <div id="btnAddVerlauf" class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
+                    </fieldset>
+
 
                 </div>
             </div>
@@ -409,6 +433,7 @@
                 <h1>Diklabu mobile</h1>
             </div>
         </div>
+             
 
     </body>
 

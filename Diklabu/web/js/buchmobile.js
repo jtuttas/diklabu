@@ -1,7 +1,16 @@
 var anwesenheit;
 var verlaufId;
 sessionStorage.myself = "TU";
-
+$(document).on({
+  ajaxStart: function() { 
+    $.mobile.loading('show');    
+    console.log('getJSON starts...');
+  },
+  ajaxStop: function() {
+    $.mobile.loading('hide');
+    console.log('getJSON ends...');
+  }    
+});
 var toast = function (msg) {
     $("<div class='ui-loader ui-overlay-shadow ui-body-e ui-corner-all'><h3>" + msg + "</h3></div>")
             .css({display: "block",
@@ -219,6 +228,7 @@ $("#newVerlauf").click(function () {
     $("#lernsituation").val("");
     $("#inhalt").val("");
     $("#bemerkungen").val("");
+    verlaufId = -1;
     $("#addVerlauf").popup("open");
 
 });
@@ -246,8 +256,13 @@ $("#btnAddVerlauf").click(function () {
 
 });
 $("#btnDeleteVerlauf").click(function () {
-    console.log("Delete Verlauf! id="+verlaufId);
-    deleteVerlauf(verlaufId);
+    console.log("Delete Verlauf! id=" + verlaufId);
+    if (verlaufId == -1) {
+        // toast("Löschen nicht möglich!");
+    }
+    else {
+        deleteVerlauf(verlaufId);
+    }
     $("#addVerlauf").popup("close");
 });
 $("#btnLogout").click(function () {
@@ -258,7 +273,7 @@ $("#btnLogout").click(function () {
 function deleteVerlauf(id) {
 
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/verlauf/"+id,
+        url: SERVER + "/Diklabu/api/v1/verlauf/" + id,
         type: "DELETE",
         cache: false,
         headers: {
@@ -307,19 +322,22 @@ function submitVerlauf(verl) {
 
         },
         error: function (xhr, textStatus, errorThrown) {
-            toast("kann Bemerkung nicht zum Server senden!");
+            toast("kann Verlauf nicht zum Server senden!");
         }
     });
 }
 
 console.log("Load Klassenliste");
 
-$(document).on("pagebeforeshow", "#anwesenheit", function () {
-    console.log("Seite Anwesenheit wurde aktualisiert");
+$(document).on("pagebeforecreate", "#anwesenheit", function () {
+    $.mobile.loading('show');
+    console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
+
 $(document).on("pagebeforeshow", "#schuelerdetails", function () {
     console.log("Seite schuelerdetails wurde aktualisiert");
+    $("#imgSchueler").attr("src", 'img/loading.gif');
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
 $(document).on("pagebeforeshow", "#verlauf", function () {
@@ -330,14 +348,17 @@ $(document).on("pagebeforeshow", "#verlauf", function () {
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
-    refreshKlassenliste(sessionStorage.nameKlasse);
+    refreshKlassenliste(sessionStorage.nameKlasse);    
 });
 
+
 $("#btnDetailsZurueck").click(function () {
+    $("#imgSchueler").attr("src", 'img/loading.gif');
     sessionStorage.idSchueler = prevSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
 $("#btnDetailsWeiter").click(function () {
+    $("#imgSchueler").attr("src", 'img/loading.gif');
     sessionStorage.idSchueler = nextSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
@@ -380,6 +401,10 @@ $('#bildUploadForm').on('submit', (function (e) {
             type: 'POST',
             url: SERVER + "/Diklabu/api/v1/schueler/bild/" + sessionStorage.idSchueler,
             data: formData,
+            headers: {
+                "service_key": sessionStorage.service_key,
+                "auth_token": sessionStorage.auth_token
+            },
             cache: false,
             contentType: false,
             processData: false,
@@ -440,7 +465,7 @@ function buildKlassenListeView(data) {
         klid = $(this).attr("klid");
         sessionStorage.idKlasse = klid;
         console.log("nameKlasse=" + kl + "idKlasse=" + klid);
-
+         $("#namensListView").empty();
         refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
@@ -477,6 +502,10 @@ else {
 }
 
 function refreshKlassenliste(kl) {
+    
+    $("#anwContainer").hide();
+                $(".loadingContainer").show();
+
     console.log("Refresh Klassenliste f. Klasse " + kl + " alte Klassenbezeichnung==" + sessionStorage.nameKlasse);
     $("#anwesenheitKlassenName").text(kl);
     if (sessionStorage.nameKlasse == kl && sessionStorage.schueler != undefined) {
@@ -484,6 +513,7 @@ function refreshKlassenliste(kl) {
 
         data = JSON.parse(sessionStorage.schueler);
         buildNamensliste(data);
+        $.mobile.loading('show');
         refreshBilderKlasse(kl);
         buildAnwesenheit(kl);
     }
@@ -530,7 +560,7 @@ function loadVerlauf() {
         success: function (data) {
             console.log("Verlauf Empfangen");
             renderVerlauf(data);
-             $("#addVerlauf").popup("close");
+            $("#addVerlauf").popup("close");
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf f. Klasse " + sessionStorage.nameKlasse + " nicht vom Server laden");
@@ -545,7 +575,7 @@ function renderVerlauf(data) {
     for (i = 0; i < data.length; i++) {
         verlauf = data[i];
         console.log("appen " + verlauf.INHALT);
-        $("#verlaufList").append('<li class="ui-li-has-alt"><a href="#" index="' + i + '" class="ui-btn detailVerlauf"><h1>Std. ' + verlauf.STUNDE + '</h1><small>' + verlauf.INHALT + '</small><p class="ui-li-aside"><span class="lehrer">' + verlauf.ID_LERNFELD + '</span><strong>' + verlauf.ID_LEHRER + '</strong></p></a><a href="#" index="' + i + '" verlaufId="'+data[i].ID+'" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="addVerlauf" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a editVerlauf" title="Edit"></a></li>');
+        $("#verlaufList").append('<li class="ui-li-has-alt"><a href="#" index="' + i + '" class="ui-btn detailVerlauf"><h1>Std. ' + verlauf.STUNDE + '</h1><small>' + verlauf.INHALT + '</small><p class="ui-li-aside"><span class="lehrer">' + verlauf.ID_LERNFELD + '</span><strong>' + verlauf.ID_LEHRER + '</strong></p></a><a href="#" index="' + i + '" verlaufId="' + data[i].ID + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="addVerlauf" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a editVerlauf" title="Edit"></a></li>');
     }
     $(".detailVerlauf").click(function () {
         index = $(this).attr("index");
@@ -562,8 +592,8 @@ function renderVerlauf(data) {
 
     $(".editVerlauf").click(function () {
         index = $(this).attr("index");
-        verlaufId=$(this).attr("verlaufId");
-        console.log("Edit Verlauf index = " + index+" verlaufId="+verlaufId);
+        verlaufId = $(this).attr("verlaufId");
+        console.log("Edit Verlauf index = " + index + " verlaufId=" + verlaufId);
         if (data[index].ID_LEHRER != sessionStorage.myself) {
             toast("Sie können nur eigene Einträge editieren!");
         }
@@ -698,6 +728,10 @@ function getSchuelerBild(id, elem) {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
         cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
         type: 'HEAD',
         error:
                 function () {
@@ -800,9 +834,13 @@ function refreshBilderKlasse(kl) {
                 }
 
             }
+            $(".loadingContainer").hide();
+    $("#anwContainer").show();        
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Bilder d. Klasse " + kl + " nicht vom Server laden");
+            $(".loadingContainer").hide();
+            $("#anwContainer").show();        
         }
     });
 
