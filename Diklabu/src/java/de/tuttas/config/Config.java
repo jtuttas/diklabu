@@ -13,4 +13,6 @@ public class Config {
     public static final boolean debug=false;
     
     public static final String IMAGE_FILE_PATH = "c:\\Temp\\";
+    //public static final String IMAGE_FILE_PATH = "/home/pi/diklabuimages/";
+    
 }
