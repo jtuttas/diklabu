@@ -882,11 +882,12 @@ function renderSchuelerDetails(sid) {
         $("#klassenCount").text(kurse.length);
         $("#detailsKlassenListView").empty();
         for (i = 0; i < kurse.length; i++) {
-            $("#detailsKlassenListView").append('<li> <a href="#"  kname="' + kurse[i].KNAME + '"class="ui-btn ui-btn-icon-right ui-icon-carat-r detailsKlasse"><b>' + kurse[i].KNAME + '</b></a></li>');
+            $("#detailsKlassenListView").append('<li> <a href="#" kid="'+kurse[i].id+'"  kname="' + kurse[i].KNAME + '"class="ui-btn ui-btn-icon-right ui-icon-carat-r detailsKlasse"><b>' + kurse[i].KNAME + '</b></a></li>');
         }
         $(".detailsKlasse").click(function () {
             var kname = $(this).attr("kname");
-            console.log("Wechsel zu Klasse " + kname);
+            sessionStorage.idKlasse = $(this).attr("kid");
+            console.log("Wechsel zu Klasse " + kname+ "mit ID="+sessionStorage.idKlasse);
             refreshKlassenliste(kname);
             $.mobile.changePage("#anwesenheit", {transition: "fade"});
         });
@@ -916,11 +917,15 @@ function renderSchuelerDetails(sid) {
             lehrer = data.bemerkungen[index].ID_LEHRER;
             if (lehrer != localStorage.myself) {
                 toast("Nur eigene Einträge editierbar");
+                console.log("nicht meine Bemerkung!");
             }
             else {
                 dat = data.bemerkungen[index].DATUM;
+                console.log("Das Datum der Bemerklung ist "+dat);
                 dat = dat.replace("T", " ");
-                dat = dat.substr(0, dat.indexOf("+"));
+                //console.log("Das Datum der Bemerklung ist "+dat);
+                //dat = dat.substr(0, dat.indexOf("+"));
+                console.log("Das Datum der Bemerklung ist "+dat);
                 $("#editBemerkungDatum").text(dat);
                 $("#textBemerkung").val(data.bemerkungen[index].BEMERKUNG);
                 $("#editBemerkung").popup("open");
