@@ -872,11 +872,27 @@ function renderSchuelerDetails(sid) {
             $("#ausbilderEmail").text("EMail:" + data.ausbilder.EMAIL);
             $("#ausbilderEmail").attr("href", "mailto:" + data.ausbilder.EMAIL);
         }
+        else {
+            $("#ausbilderName").text("");
+            $("#ausbilderTel").text("Tel.:");
+            $("#ausbilderTel").attr("href", "#");
+            $("#ausbilderFax").text("Fax:");
+            $("#ausbilderEmail").text("EMail:");
+            $("#ausbilderEmail").attr("href", "#");
+            
+        }
         if (data.betrieb != undefined) {
             $("#betriebName").text(data.betrieb.NAME);
             $("#betriebName").attr("href", "https://www.google.de/maps/place/" + data.betrieb.STRASSE + "," + data.betrieb.PLZ + "+" + data.betrieb.ORT);
             $("#betriebStrasse").text(data.betrieb.STRASSE);
             $("#betriebOrt").text(data.betrieb.PLZ + " " + data.betrieb.ORT);
+        }
+        else {
+            $("#betriebName").text("N.N.");
+            $("#betriebName").attr("href", "#");
+            $("#betriebStrasse").text("");
+            $("#betriebOrt").text("");
+            
         }
         kurse = data.klassen;
         $("#klassenCount").text(kurse.length);
