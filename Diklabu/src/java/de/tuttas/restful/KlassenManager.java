@@ -58,6 +58,7 @@ public class KlassenManager {
     public KlasseDetails getDetails(@PathParam("id") int id) {
         System.out.println("Webservice klasse GET details: klasse=" + id);  
         Klasse k = em.find(Klasse.class, id);
+        if (k==null) return null;
         System.out.println("Klasse = "+k.toString());
         Lehrer l = em.find(Lehrer.class, k.getID_LEHRER());
         System.out.println("Klassenlehrer = "+l.toString());
@@ -68,13 +69,16 @@ public class KlassenManager {
     @POST
     @Path("/details/{id}")
     public Klasse setDetails(@PathParam("id") int id,Klasse k) {
-        System.out.println("Webservice klasse POST details: klasse=" + k.toString());  
-        Klasse kl = em.find(Klasse.class, k.getId());
+        System.out.println("Webservice klasse POST details: klasse=" + id);  
+        Klasse kl = em.find(Klasse.class, id);
+       
         if (kl!=null) {
+             System.out.println("Klasse = "+kl.toString());
             em.merge(k);
             System.out.println("Eintrag aktualisiert");
+            return k;        
         }
-        return k;        
+        return null;
     }
 
     @GET
