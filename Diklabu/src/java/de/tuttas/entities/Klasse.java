@@ -19,7 +19,7 @@ import javax.persistence.NamedQuery;
 
    @NamedQuery(name = "findKlassebyKurswunsch", query= "select k from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE JOIN Schueler s on s.ID=sk.ID_SCHUELER where (k.ID= :paramWunsch1ID OR k.ID= :paramWunsch2ID OR k.ID= :paramWunsch3ID) AND s.ID= :paramIDSchueler"),
    @NamedQuery(name = "findKlassenbySchuelerID", query= "select k from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE  where sk.ID_SCHUELER= :paramIDSchueler"),
-   @NamedQuery(name = "findAllKlassen", query= "select k from Klasse k ORDER BY k.KNAME"),
+   @NamedQuery(name = "findAllKlassen", query= "select NEW de.tuttas.restful.Data.KlasseShort(k.ID,k.ID_LEHRER,k.KNAME) from Klasse k ORDER BY k.KNAME"),
    @NamedQuery(name = "findSchuelerEinerBenanntenKlasse", query= "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE where k.KNAME like :paramNameKlasse ORDER BY s.NNAME")
 })
 
@@ -40,6 +40,17 @@ public class Klasse implements Serializable {
      */
     private String TITEL;
     private String KNAME;
+    private String NOTIZ;
+
+    public String getNOTIZ() {
+        return NOTIZ;
+    }
+
+    public void setNOTIZ(String NOTIZ) {
+        this.NOTIZ = NOTIZ;
+    }
+    
+    
 
     public String getKNAME() {
         return KNAME;

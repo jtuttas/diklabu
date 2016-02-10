@@ -5,8 +5,10 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.util.ImageUtil;
@@ -21,6 +23,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
@@ -48,6 +51,30 @@ public class KlassenManager {
         List<Schueler> schueler = query.getResultList();
         System.out.println("Result List:" + schueler);
         return schueler;
+    }
+    
+    @GET
+    @Path("/details/{id}")
+    public KlasseDetails getDetails(@PathParam("id") int id) {
+        System.out.println("Webservice klasse GET details: klasse=" + id);  
+        Klasse k = em.find(Klasse.class, id);
+        System.out.println("Klasse = "+k.toString());
+        Lehrer l = em.find(Lehrer.class, k.getID_LEHRER());
+        System.out.println("Klassenlehrer = "+l.toString());
+        KlasseDetails d = new KlasseDetails(k,l);        
+        return d;        
+    }
+    
+    @POST
+    @Path("/details/{id}")
+    public Klasse setDetails(@PathParam("id") int id,Klasse k) {
+        System.out.println("Webservice klasse POST details: klasse=" + k.toString());  
+        Klasse kl = em.find(Klasse.class, k.getId());
+        if (kl!=null) {
+            em.merge(k);
+            System.out.println("Eintrag aktualisiert");
+        }
+        return k;        
     }
 
     @GET

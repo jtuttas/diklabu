@@ -2,6 +2,9 @@ var anwesenheit;
 var verlaufId;
 
 $(document).on({
+    
+     
+    
     ajaxStart: function () {
         $.mobile.loading('show');
         console.log('getJSON starts...');
@@ -10,6 +13,8 @@ $(document).on({
         $.mobile.loading('hide');
         console.log('getJSON ends...');
     }
+    
+   
 });
 
 $(document).ready(function () {
@@ -20,7 +25,9 @@ $(document).ready(function () {
     if (sessionStorage.kennwort != "undefined") {
         $("#kennwort").val(sessionStorage.kennwort);
     }
-            
+     if (navigator.userAgent.match(/Android/i)){
+    window.scrollTo(0,1);
+}          
     
     
 });

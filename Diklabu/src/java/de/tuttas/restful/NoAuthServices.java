@@ -9,13 +9,16 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Lernfeld;
 import de.tuttas.entities.Schueler;
+import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
+import de.tuttas.restful.Data.KlasseShort;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.GET;
 import static javax.ws.rs.HttpMethod.PUT;
 import javax.ws.rs.PUT;
@@ -49,10 +52,10 @@ public class NoAuthServices {
 
     @GET
     @Path("klassen")
-    public List<Klasse> getClasses() {
+    public List<KlasseShort> getClasses() {
         System.out.println("Webservice klasse GET");
-        Query query = em.createNamedQuery("findAllKlassen");
-        List<Klasse> klassen = query.getResultList();
+        TypedQuery<KlasseShort> query = em.createNamedQuery("findAllKlassen", KlasseShort.class);
+        List<KlasseShort> klassen = query.getResultList();
         System.out.println("Result List:" + klassen);
         return klassen;
     }

@@ -18,8 +18,13 @@ public class AnwesenheitEintrag {
     private String ID_LEHRER;
     private int ID_SCHUELER;
     private String VERMERK;
+    
+    
     private boolean parseError = false;
 
+
+    
+    
     public void setParseError(boolean b) {
         this.parseError=b;
     }
@@ -37,6 +42,7 @@ public class AnwesenheitEintrag {
         this.ID_LEHRER = ID_LEHRER;
         this.ID_SCHUELER = ID_SCHUELER;
         this.VERMERK = VERMERK;
+
     }
 
     public void setDATUM(Timestamp DATUM) {

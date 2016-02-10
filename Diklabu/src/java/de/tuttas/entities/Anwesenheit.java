@@ -40,8 +40,7 @@ public class Anwesenheit implements Serializable {
     public Anwesenheit() {
     }
 
-    
-    
+        
     public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM, String ID_LEHRER, String VERMERK) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.DATUM = DATUM;
@@ -49,6 +48,8 @@ public class Anwesenheit implements Serializable {
         this.VERMERK = VERMERK;
     }
 
+   
+    
     
     public void setDATUM(Timestamp DATUM) {
         this.DATUM = DATUM;
