@@ -52,31 +52,34 @@ public class KlassenManager {
         System.out.println("Result List:" + schueler);
         return schueler;
     }
-    
+
     @GET
     @Path("/details/{id}")
     public KlasseDetails getDetails(@PathParam("id") int id) {
-        System.out.println("Webservice klasse GET details: klasse=" + id);  
+        System.out.println("Webservice klasse GET details: klasse=" + id);
         Klasse k = em.find(Klasse.class, id);
-        if (k==null) return null;
-        System.out.println("Klasse = "+k.toString());
+        if (k == null) {
+            return null;
+        }
+        System.out.println("Klasse = " + k.toString());
         Lehrer l = em.find(Lehrer.class, k.getID_LEHRER());
-        System.out.println("Klassenlehrer = "+l.toString());
-        KlasseDetails d = new KlasseDetails(k,l);        
-        return d;        
+        System.out.println("Klassenlehrer = " + l.toString());
+        KlasseDetails d = new KlasseDetails(k, l);
+        return d;
     }
-    
+
     @POST
     @Path("/details/{id}")
-    public Klasse setDetails(@PathParam("id") int id,Klasse k) {
-        System.out.println("Webservice klasse POST details: klasse=" + id);  
+    public Klasse setDetails(@PathParam("id") int id, Klasse k) {
+        System.out.println("Webservice klasse POST details: klasse=" + id);
         Klasse kl = em.find(Klasse.class, id);
-       
-        if (kl!=null) {
-             System.out.println("Klasse = "+kl.toString());
-            em.merge(k);
+
+        if (kl != null) {
+            kl.setNOTIZ(k.getNOTIZ());
+            System.out.println("Klasse = " + kl.toString());
+            em.merge(kl);
             System.out.println("Eintrag aktualisiert");
-            return k;        
+            return k;
         }
         return null;
     }
@@ -101,24 +104,24 @@ public class KlassenManager {
                 BufferedImage img = null;
                 try {
                     img = ImageIO.read(file);
-                    
-                    System.out.println("Original Width = "+img.getWidth()+" Height = "+img.getHeight());
+
+                    System.out.println("Original Width = " + img.getWidth() + " Height = " + img.getHeight());
                     double ow = img.getWidth();
-                    double oh=img.getHeight();
-                    double ratio = (double)(height*ow)/oh;
-                    System.out.println("ratio="+ratio+ " New Width="+(int)ratio);
-                    
-                    int type = img.getType() == 0? BufferedImage.TYPE_INT_ARGB : img.getType();
-                    img = ImageUtil.resizeImage(img, type, (int) ratio,height);
-                    System.out.println("Resized Width = "+img.getWidth()+" Height = "+img.getHeight());
+                    double oh = img.getHeight();
+                    double ratio = (double) (height * ow) / oh;
+                    System.out.println("ratio=" + ratio + " New Width=" + (int) ratio);
+
+                    int type = img.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : img.getType();
+                    img = ImageUtil.resizeImage(img, type, (int) ratio, height);
+                    System.out.println("Resized Width = " + img.getWidth() + " Height = " + img.getHeight());
                     img = ImageUtil.cropImage(img, type, height);
-                    System.out.println("Cropped Width = "+img.getWidth()+" Height = "+img.getHeight());
+                    System.out.println("Cropped Width = " + img.getWidth() + " Height = " + img.getHeight());
                     bo.setBase64(ImageUtil.encodeToString(img, "jpeg"));
 
                 } catch (IOException e) {
                 }
             }
-            bilder.add(bo);            
+            bilder.add(bo);
         }
         return bilder;
     }
