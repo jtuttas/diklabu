@@ -73,42 +73,45 @@
 
                         <a href="#anwesenheit">Fisi13D
                             <p class="ui-li-aside">TU</p>      
-                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info</a>                        </a>
+                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info
+                            </a>                        </a>
                     </li>
                     <li>
 
                         <a href="#anwesenheit">Fisi13C
                             <p class="ui-li-aside">TU</p> 
-                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info</a>                        </a>
-                        </a>
+                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info
+                            </a>                        </a>
+                       
                     </li>
                     <li>
 
                         <a href="#anwesenheit">Fisi13B
                             <p class="ui-li-aside">TU</p> 
-                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info</a>                        </a>
-                        </a>
+                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info
+                            </a>                        </a>
+                       
                     </li>
                 </ul>
                 <div data-role="popup" id="klassenDetails" class="ui-content" data-history="false">
                     <a href="#klassenliste"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-                    <h3 id="anwName">KNAME</h3>
+                    <h3 id="klDetailsName">KNAME</h3>
                     <fieldset class="ui-field-contain">
 
                         <div data-role="collapsible-set">
-                            <p><strong>Titel: <span>FISI</span></strong></p>
-                            <p><strong>Klassenlehrer: <span>Tuttas </span><span>(TU)</span></strong></p>
+                            <p id="pklDetailsTitel"><strong><span id="klDetailsTitel"></span></strong></p>
+                            <p><strong><span id="klDetailsKlassenlehrer">Tuttas </span><span id="klDetailsKlassenlehrerKurz">(TU)</span></strong></p>
 
-                            <a data-theme="a" href="mailto://tuttas@mmbbs.de" data-role="button" data-icon="mail">tuttas@mmbbs.de</a>
-                            <a data-theme="a" href="tel://12345" data-role="button" data-icon="phone">Tel: 12345</a>
+                            <a id="klDetailsKlassenlehrerMail" data-theme="a" href="mailto://tuttas@mmbbs.de" data-role="button" data-icon="mail">tuttas@mmbbs.de</a>
+                            <a id="klDetailsKlassenlehrerTel" data-theme="a" href="tel://12345" data-role="button" data-icon="phone">Tel: 12345</a>
 
                             <div data-role="collapsible">
                                 <h4>Bemerkungen</h4>                                                
-                                <textarea maxlength="99" name="textarea" id="klasseBemerkungen"></textarea>
-                                <button >Aktualisieren</button>
+                                <textarea id="klDetailsBemerklungen" maxlength="99" name="textarea" id="klasseBemerkungen"></textarea>
+                                <button id="klassenEintragAktualisieren" >Aktualisieren</button>
                             </div>
-                            <a data-theme="a" href="www" data-role="button" data-icon="tag">Stundenplan</a>
-                            <a data-theme="a" href="www" data-role="button" data-icon="tag">Vertretungsplan</a>
+                            <a id="klDetailsStundenplan" data-theme="a" href="www" data-role="button" data-icon="tag">Stundenplan</a>
+                            <a id="klDetailsVertretungsplan" data-theme="a" href="www" data-role="button" data-icon="tag">Vertretungsplan</a>
 
                     </fieldset>                      
                 </div>
@@ -482,6 +485,6 @@
     </body>
 
     <script src="../js/config.js"></script>
-    <!--<script src="../js/buchmobile.js"></script>-->
+    <script src="../js/buchmobile.js"></script>
 
 </html>

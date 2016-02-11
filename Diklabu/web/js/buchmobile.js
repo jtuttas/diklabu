@@ -374,6 +374,41 @@ function commitAnwesenheit(sid, txt) {
     });
 }
 
+$("#klassenEintragAktualisieren").click(function () {
+    console.log("Aktualisiere KlassenEintrag f. id ="+sessionStorage.idKlasse)
+    var eintr = {
+        "NOTIZ": $("#klDetailsBemerklungen").val()
+    }
+    commitKlassenBemerkung(eintr,sessionStorage.idKlasse);
+});
+
+function commitKlassenBemerkung(eintr,klid) {
+     console.log("Sende zum Server:" + JSON.stringify(eintr));
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/details/"+klid,
+        type: "POST",
+        cache: false,
+        data: JSON.stringify(eintr),
+        headers: {
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            $("#klassenDetails").popup("close");
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("kann Klassenbemerkung nicht zum Server senden!");
+            if (xhr.status == 401) {
+                performLogout();
+            }
+            else {
+                $("#klassenDetails").popup("close");
+            }
+        }
+    });
+}
+
 $("#newVerlauf").click(function () {
     console.log("new Verlauf");
     $("#std").prop('selectedIndex', 0);
@@ -663,7 +698,8 @@ function buildKlassenListeView(data) {
 
 
     for (i = 0; i < data.length; i++) {
-        $("#klassenListView").append('<li><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a></li>');
+        //$("#klassenListView").append('<li><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a></li>');
+        $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="'+data[i].id+'" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
         //console.log("append " + data[i].KNAME);
     }
     /*
@@ -678,6 +714,71 @@ function buildKlassenListeView(data) {
         refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
+    
+    /*
+     * Details Einer Klasse wird ausgewählt
+     */
+    $(".klassendetails").click(function () {        
+        klid = $(this).attr("klid");
+        sessionStorage.idKlasse=klid;
+        console.log("Details der Klasse id=" + klid);
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
+            type: "GET",
+            cache: false,
+            headers: {
+                "service_key": localStorage.service_key,
+                "auth_token": localStorage.auth_token
+            },
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                $("#klDetailsName").text(data.KNAME);
+                console.log("Empfange:"+JSON.stringify(data));
+                if (data.TITEL!=undefined) {
+                    $("#klDetailsTitel").text(data.TITEL)
+                    $("#pklDetailsTitel").show();
+                }
+                else {
+                    $("#pklDetailsTitel").hide();
+                }
+                if (data.ID_LEHRER!=undefined) {                    
+                    lname="";
+                    if (data.LEHRER_VNAME!=undefined) {
+                        lname=data.LEHRER_VNAME+" ";
+                    }
+                    if (data.LEHRER_NNAME!=undefined) {
+                        lname=lname+ data.LEHRER_NNAME;
+                    }
+                    $("#klDetailsKlassenlehrer").text(lname);
+                    $("#klDetailsKlassenlehrerKurz").text(" ("+data.ID_LEHRER+")");
+                    $("#klDetailsKlassenlehrerMail").text(data.LEHRER_EMAIL);
+                    $("#klDetailsKlassenlehrerMail").attr("href","mailto://"+data.LEHRER_EMAIL);
+                    if (data.LEHRER_TELEFON!=undefined && data.LEHRER_TELEFON.length>=3) {
+                        $("#klDetailsKlassenlehrerTel").text(data.LEHRER_TELEFON);
+                        $("#klDetailsKlassenlehrerTel").attr("href","tel://"+data.LEHRER_TELEFON);                    
+                        $("#klDetailsKlassenlehrerTel").show();
+                    }
+                    else {
+                        $("#klDetailsKlassenlehrerTel").hide();
+                    }
+                }
+                else {
+                }
+                $("#klDetailsBemerklungen").val(data.NOTIZ);
+                $("#klDetailsStundenplan").attr("href",data.stundenplan);
+                $("#klDetailsVertretungsplan").attr("href",data.vertretungsplan);
+                $("#klassenDetails").popup("open");
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                toast("Kann Details der Klasse niocht laden");
+                if (xhr.status == 401) {
+                    performLogout();
+                }
+            }
+        });                
+    });
+    
 
 }
 
