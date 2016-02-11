@@ -22,6 +22,8 @@ public class KlasseDetails {
     private String LEHRER_VNAME;
     private String LEHRER_TELEFON;
     private String LEHRER_EMAIL;
+    private String Stundenplan;
+    private String Vertretungsplan;
 
     public KlasseDetails() {
     }
@@ -37,7 +39,28 @@ public class KlasseDetails {
         this.LEHRER_NNAME=l.getNNAME();
         this.LEHRER_TELEFON=l.getTELEFON();
         this.LEHRER_VNAME=l.getVNAME();
+        
+        
+        
     }
+
+    public void setStundenplan(String Stundenplan) {
+        this.Stundenplan = Stundenplan;
+    }
+
+    public void setVertretungsplan(String Vertretungsplan) {
+        this.Vertretungsplan = Vertretungsplan;
+    }
+
+    public String getStundenplan() {
+        return Stundenplan;
+    }
+
+    public String getVertretungsplan() {
+        return Vertretungsplan;
+    }
+    
+    
 
     public String getLEHRER_NNAME() {
         return LEHRER_NNAME;

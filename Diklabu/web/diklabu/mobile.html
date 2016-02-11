@@ -4,11 +4,11 @@
     <head>
         <title>Diklabu mobile</title>
         <meta charset="utf-8"/>
-        
+
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-<meta name="mobile-web-app-capable" content="yes"/>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <meta name="mobile-web-app-capable" content="yes"/>
 
         <link rel="apple-touch-icon" sizes="57x57" href="../img/apple-icon-57x57.png"/>
         <link rel="apple-touch-icon" sizes="60x60" href="../img/apple-icon-60x60.png"/>
@@ -33,8 +33,8 @@
         <script src="../js/jquery-1.11.1.min.js"></script>
         <script src="../js/jquery.mobile-1.4.5.min.js"></script>
         <link rel="stylesheet" href="../css/buchmobile.css"/>
-       
-        
+
+
     </head>
 
     <body>
@@ -68,28 +68,51 @@
                    data-icon="info">About</a>
             </div>
             <div data-role="content">                
-                <ul data-role="listview" data-filter="true"  id="klassenListView">
-                    <!--
+                <ul data-role="listview" data-filter="true"  id="klassenListView" data-split-icon="info"  data-split-theme="a">
                     <li>
 
                         <a href="#anwesenheit">Fisi13D
                             <p class="ui-li-aside">TU</p>      
-                        </a>
+                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info</a>                        </a>
                     </li>
                     <li>
 
                         <a href="#anwesenheit">Fisi13C
                             <p class="ui-li-aside">TU</p> 
+                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info</a>                        </a>
                         </a>
                     </li>
                     <li>
 
                         <a href="#anwesenheit">Fisi13B
                             <p class="ui-li-aside">TU</p> 
+                            <a href="#klassenDetails" data-rel="popup" data-position-to="window" data-transition="popup">Info</a>                        </a>
                         </a>
                     </li>
-                    -->
                 </ul>
+                <div data-role="popup" id="klassenDetails" class="ui-content" data-history="false">
+                    <a href="#klassenliste"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+                    <h3 id="anwName">KNAME</h3>
+                    <fieldset class="ui-field-contain">
+
+                        <div data-role="collapsible-set">
+                            <p><strong>Titel: <span>FISI</span></strong></p>
+                            <p><strong>Klassenlehrer: <span>Tuttas </span><span>(TU)</span></strong></p>
+
+                            <a data-theme="a" href="mailto://tuttas@mmbbs.de" data-role="button" data-icon="mail">tuttas@mmbbs.de</a>
+                            <a data-theme="a" href="tel://12345" data-role="button" data-icon="phone">Tel: 12345</a>
+
+                            <div data-role="collapsible">
+                                <h4>Bemerkungen</h4>                                                
+                                <textarea maxlength="99" name="textarea" id="klasseBemerkungen"></textarea>
+                                <button >Aktualisieren</button>
+                            </div>
+                            <a data-theme="a" href="www" data-role="button" data-icon="tag">Stundenplan</a>
+                            <a data-theme="a" href="www" data-role="button" data-icon="tag">Vertretungsplan</a>
+
+                    </fieldset>                      
+                </div>
+
             </div>
             <div data-role="footer" data-position="fixed" data-theme="a">
                 <h1>Diklabu mobile</h1>
@@ -109,32 +132,30 @@
                     <h3 class="loadingMsg">Lade Daten</h3>
                 </div>
                 <div id="anwContainer">
-                <ul id="namensListView" data-role="listview" data-split-icon="gear"  data-split-theme="a" >
+                    <ul id="namensListView" data-role="listview" data-split-icon="info"  data-split-theme="a" >
 
-                    <!--
-                    <li> <a href="#schuelerdetails">
-                            <img src="img/anonym.gif"/>     
-                            <p  class="ui-li-aside">TU</p>         
-                            <h3>VorName NachName</h3><small>V60e</small></a>
-                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
-                    </li><li> <a href="#schuelerdetails">
-                            <img src="img/anonym.gif"/>  
-                            <p class="ui-li-aside">TU</p>         
-                            <h3>VorName NachName</h3><small>V60e</small></a>
-                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
-                    </li><li> <a href="#schuelerdetails">
-                            <img src="img/anonym.gif"/>                       
-                            <h3>VorName NachName</h3><small>V60e</small>
-                            <p class="ui-li-aside">TU</p>         </a>
-                        <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>
-                    </li>
-                    -->
+                        <li> <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">
+                                <img src="../img/anonym.gif"/>     
+                                <p  class="ui-li-aside">TU</p>         
+                                <h3>VorName NachName</h3><small>V60e</small></a>
+                            <a href="#schuelerdetails" >Edit</a>
+                        </li><li> <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">
+                                <img src="../img/anonym.gif"/>  
+                                <p class="ui-li-aside">TU</p>         
+                                <h3>VorName NachName</h3><small>V60e</small></a>
+                            <a href="#schuelerdetails" >Edit</a>
+                        </li><li> <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">
+                                <img src="../img/anonym.gif"/>                       
+                                <h3>VorName NachName</h3><small>V60e</small>
+                                <p class="ui-li-aside">TU</p>         </a>
+                            <a href="#schuelerdetails" >Edit</a>
+                        </li>
 
 
-                </ul>
-</div>
-               
-                
+                    </ul>
+                </div>
+
+
 
                 <div data-role="popup" id="anwesenheitDetails" class="ui-content" data-history="false">
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
@@ -170,7 +191,6 @@
             <div data-role="content" data-theme="b">
 
                 <ul id="verlaufList" data-role="listview"  data-split-icon="gear"  data-split-theme="a">
-                    <!--
                     <li>  
                         <a href="#verlaufDetail">
                             <h1>Std.:01</h1>
@@ -178,7 +198,7 @@
                             <p class="ui-li-aside"><span class="lehrer">LF1</span><strong>TU</strong></p>                            
                             <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                     </li>
-                     <li>  
+                    <li>  
                         <a href="#verlaufDetail">
                             <h1>Std.:01</h1>
                             <small>Hier steht der Inhalt</small>                       
@@ -191,7 +211,6 @@
                             <p class="ui-li-aside"><span class="lehrer">LF1</span><strong>TU</strong></p>                            
                             <a  href="#addVerlauf" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        </a>
                     </li>
-                    -->
 
                 </ul>
                 <div data-role="popup" id="addVerlauf" class="ui-content" data-history="false">
@@ -203,13 +222,11 @@
                                 <label for="lf">Lernfeld</label>
                                 <select name="lf" id="lf">
                                     <optgroup label="Lernfelder" id="lernfelder">
-                                        <!--
                                         <option value="lf1">LF1</option>
                                         <option value="lf2">LF2</option>
                                         <option value="lf3">LF3</option>
                                         <option value="lf4">LF4</option>
                                         <option value="lf5">LF5</option>
-                                        -->
                                     </optgroup>          
                                 </select>
                             </div>
@@ -327,7 +344,6 @@
                         <h4><div id="klassenCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Klassen/Kurse</h4>
                         <ul id="detailsKlassenListView" data-role="listview" data-inset="true" >
 
-                            <!--
                             <li> <a href="#">                            
                                     <b>Fisi13A</b></a>                        
                             </li>
@@ -337,14 +353,12 @@
                             <li> <a href="#">                            
                                     <b>Fisi13A</b></a>                        
                             </li>
-                            -->
                         </ul>
                     </div>
                     <div data-role="collapsible">
                         <h4><div id="bemerkungCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Bemerkungen</h4>
                         <a id="neueBemerkung" href="#" data-rel="popup" data-position-to="window" data-role="button" data-icon="plus" data-transition="popup">hinzufügen</a>                        
                         <ul id="bemerkungListView" data-filter="true" data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
-                            <!--
                             <li>  
                                 <a href="#">                            
                                     <small>Hier steht eine Bemerkung</small>                       
@@ -366,7 +380,6 @@
                                     <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
                                 </a>
                             </li>
-                            -->
                         </ul>
 
                         <div data-role="popup" id="editBemerkung" class="ui-content" data-history="false">
@@ -400,15 +413,25 @@
                 <h1>About</h1>
                 <a data-role="button" id="btnAbout" href="#klassenliste" data-icon="home">zurück</a>
             </div>
-            <div data-role="content">
-                <div data-role="content">
-                    <div class="ui-body ui-body-d ui-corner-all">
-                        <img src="../img/joerg.png" alt="joerg"/>
+            <div data-role="content" data-theme="b">
+                 <fieldset class="ui-field-contain">
+                    <div data-role="collapsible-set">
+                        <div style="text-align: center;">
+                            <img src="../img/joerg.png" alt="joerg"/>
+                            </div>
                         <h2>Diklabu mobile</h2>
                         <h3 id="version">&nbsp;</h3>
-                        (c) 2016 by <a href="mailto:tuttas@mmbbs.de">Dr. Jörg Tuttas</a>
+                        <p><strong>(c) 2016 by</p></strong> 
+                        <a data-role="button" data-theme="a" data-icon="mail" href="mailto:tuttas@mmbbs.de">Dr. Jörg Tuttas</a>
+
+                        <div data-role="collapsible">
+                            <h4>Neuerungen</h4>                                                
+                            <ul>
+                                <li>Erste Version</li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
+
 
             </div>
             <div data-role="footer" data-position="fixed">
@@ -421,31 +444,44 @@
                 <a data-role="button" id="btnAbout" href="#verlauf" data-icon="back">zurück</a>
                 <h1 id="nameKlasseVerlaufDetail">Fisi13A</h1>                   
             </div>
-            <div class="ui-grid-b">
-                <div id="lfVerlaufDetail" class="ui-block-a">LF1</div>
-                <div id="stdVerlaufDetail" class="ui-block-b">Std1</div>
-                <div id="lehrerVerlaufDetail" class="ui-block-c">TU</div>
-            </div>            
             <div data-role="content" data-theme="b">
-                <h3>Lernsituation</h3>
-                <p id="lsVerlaufDetail"></p>
-                <h3>Inhalt</h3>
-                <p id="inhaltVerlaufDetail"></p>
-                <h3>Bemerkungen</h3>
-                <p id="bemVerlaufDetail"></p>
+                <div class="ui-grid-b">
+                    <div  class="ui-block-a"><h3 id="lfVerlaufDetail">LF1</h3></div>
+                    <div  class="ui-block-b"><h3 id="stdVerlaufDetail">Std1</h3></div>
+                    <div class="ui-block-c"><h3 id="lehrerVerlaufDetail" >TU</h3></div>
+                </div>    
+
+                <fieldset class="ui-field-contain">
+
+                    <div data-role="collapsible-set">
+
+                        <div data-role="collapsible">
+                            <h4>Lernsituation</h4>                                                
+                            <p id="lsVerlaufDetail"></p>
+                        </div>
+                        <div data-role="collapsible" data-collapsed="false">
+                            <h4>Inhalt</h4>                                                
+                            <p id="inhaltVerlaufDetail">Hier steht der Inhalt</p>
+                        </div>
+                        <div data-role="collapsible">
+                            <h4>Bemerkungen</h4>                                                
+                            <p id="bemVerlaufDetail"></p>
+                        </div>
+                    </div>
+
+                </fieldset>   
+
             </div>
-
-
-
             <div data-role="footer" data-position="fixed">
-                <h1>Diklabu mobile</h1>
+                <a id="btnVerlaufZurueck" data-theme="a" data-icon="arrow-l" href="#" >zurück</a>                    
+                <a id="btnVerlaufWeiter" class="ui-btn-right" data-theme="a" data-icon="arrow-r" href="#">weiter</a>
             </div>
         </div>
-             
+
 
     </body>
 
     <script src="../js/config.js"></script>
-    <script src="../js/buchmobile.js"></script>
+    <!--<script src="../js/buchmobile.js"></script>-->
 
 </html>
