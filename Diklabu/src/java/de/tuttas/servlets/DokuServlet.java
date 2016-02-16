@@ -22,6 +22,7 @@ import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.DatumUtil;
+import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
 import de.tuttas.util.VerspaetungsUtil;
 import java.io.BufferedReader;
@@ -200,7 +201,7 @@ public class DokuServlet extends HttpServlet {
         PdfWriter writer = PdfWriter.getInstance(document, out);
         StringBuilder htmlString = new StringBuilder();
         htmlString.append(kopf);
-        htmlString.append(StundenplanUtil.getPlan(kl.getKNAME(), StundenplanUtil.klassListStundenplan, StundenplanUtil.stundenPlanURL));
+        htmlString.append(StundenplanUtil.getInstance().getPlan(kl.getKNAME(),PlanType.STDPlanSchueler));
         document.open();
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
@@ -222,7 +223,7 @@ public class DokuServlet extends HttpServlet {
         PdfWriter writer = PdfWriter.getInstance(document, out);
         StringBuilder htmlString = new StringBuilder();
         htmlString.append(kopf);
-        htmlString.append(StundenplanUtil.getPlan(kl.getKNAME(), StundenplanUtil.klassListVertretungsplan, StundenplanUtil.vertertungsPlanURL));
+        htmlString.append(StundenplanUtil.getInstance().getPlan(kl.getKNAME(),PlanType.VERTRPlanSchueler));
         document.open();
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());

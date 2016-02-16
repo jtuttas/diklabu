@@ -1,10 +1,8 @@
 var anwesenheit;
 var verlaufId;
+var lastAnnwesenheitUpdate;
 
 $(document).on({
-    
-     
-    
     ajaxStart: function () {
         $.mobile.loading('show');
         console.log('getJSON starts...');
@@ -13,8 +11,8 @@ $(document).on({
         $.mobile.loading('hide');
         console.log('getJSON ends...');
     }
-    
-   
+
+
 });
 
 $(document).ready(function () {
@@ -25,11 +23,11 @@ $(document).ready(function () {
     if (sessionStorage.kennwort != "undefined") {
         $("#kennwort").val(sessionStorage.kennwort);
     }
-     if (navigator.userAgent.match(/Android/i)){
-    window.scrollTo(0,1);
-}          
-    
-    
+    if (navigator.userAgent.match(/Android/i)) {
+        window.scrollTo(0, 1);
+    }
+
+
 });
 
 var toast = function (msg) {
@@ -262,7 +260,7 @@ function performLogin() {
             "benutzer": idplain,
             "kennwort": $("#kennwort").val()
         };
-        
+
         console.log("idplain = " + idplain);
         localStorage.service_key = idplain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
         console.log("Service key =" + localStorage.service_key);
@@ -318,7 +316,7 @@ function performLogout() {
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
             sessionStorage.clear();
-            localStorage.clear();            
+            localStorage.clear();
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
@@ -327,7 +325,7 @@ function performLogout() {
         error: function (xhr, textStatus, errorThrown) {
             toast("Logout fehlgeschlagen! Status Code=" + xhr.status);
             sessionStorage.clear();
-            localStorage.clear();            
+            localStorage.clear();
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
@@ -362,8 +360,8 @@ function commitAnwesenheit(sid, txt) {
             if (data.parseError) {
                 toast("Der Eintrag enthält Formatierungsfehler");
             }
-
-            renderAnwesenheit(anwesenheit);
+            buildAnwesenheit(sessionStorage.nameKlasse);
+            
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Anwesenheitseintrag nicht zum Server senden!");
@@ -375,17 +373,17 @@ function commitAnwesenheit(sid, txt) {
 }
 
 $("#klassenEintragAktualisieren").click(function () {
-    console.log("Aktualisiere KlassenEintrag f. id ="+sessionStorage.idKlasse)
+    console.log("Aktualisiere KlassenEintrag f. id =" + sessionStorage.idKlasse)
     var eintr = {
         "NOTIZ": $("#klDetailsBemerklungen").val()
     }
-    commitKlassenBemerkung(eintr,sessionStorage.idKlasse);
+    commitKlassenBemerkung(eintr, sessionStorage.idKlasse);
 });
 
-function commitKlassenBemerkung(eintr,klid) {
-     console.log("Sende zum Server:" + JSON.stringify(eintr));
+function commitKlassenBemerkung(eintr, klid) {
+    console.log("Sende zum Server:" + JSON.stringify(eintr));
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/klasse/details/"+klid,
+        url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
         type: "POST",
         cache: false,
         data: JSON.stringify(eintr),
@@ -482,7 +480,7 @@ function deleteVerlauf(id) {
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf nicht löschen!");
             if (xhr.status == 401) {
-               performLogout();
+                performLogout();
             }
         }
     });
@@ -533,13 +531,19 @@ $(document).on("pagebeforecreate", "#anwesenheit", function () {
     }
     else {
         console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
+        lastAnnwesenheitUpdate=undefined;
         refreshKlassenliste(sessionStorage.nameKlasse);
     }
 });
+$(document).on("pagebeforeshow", "#anwesenheit", function () {
+    console.log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
+    buildAnwesenheit(sessionStorage.nameKlasse);
+});
+
 $(document).on("pagebeforecreate", "#login", function () {
     if (localStorage.auth_token == undefined) {
         console.log("Habe kein auth Token");
-        
+
     }
     else {
         $.mobile.changePage("#klassenliste", {transition: "fade"});
@@ -573,7 +577,7 @@ $(document).on("pagebeforeshow", "#about", function () {
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        
+
     }
 });
 $(document).on("pagebeforecreate", "#verlaufDetail", function () {
@@ -665,7 +669,7 @@ $('#bildUploadForm').on('submit', (function (e) {
                 console.log("error");
                 toast("Fehler beim Hochladen des Bildes!");
                 if (xhr.status == 401) {
-                   performLogout();
+                    performLogout();
                 }
             }
         });
@@ -699,7 +703,7 @@ function buildKlassenListeView(data) {
 
     for (i = 0; i < data.length; i++) {
         //$("#klassenListView").append('<li><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a></li>');
-        $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="'+data[i].id+'" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
+        $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="' + data[i].id + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
         //console.log("append " + data[i].KNAME);
     }
     /*
@@ -714,13 +718,13 @@ function buildKlassenListeView(data) {
         refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
-    
+
     /*
      * Details Einer Klasse wird ausgewählt
      */
-    $(".klassendetails").click(function () {        
+    $(".klassendetails").click(function () {
         klid = $(this).attr("klid");
-        sessionStorage.idKlasse=klid;
+        sessionStorage.idKlasse = klid;
         console.log("Details der Klasse id=" + klid);
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
@@ -733,29 +737,29 @@ function buildKlassenListeView(data) {
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
                 $("#klDetailsName").text(data.KNAME);
-                console.log("Empfange:"+JSON.stringify(data));
-                if (data.TITEL!=undefined) {
+                console.log("Empfange:" + JSON.stringify(data));
+                if (data.TITEL != undefined) {
                     $("#klDetailsTitel").text(data.TITEL)
                     $("#pklDetailsTitel").show();
                 }
                 else {
                     $("#pklDetailsTitel").hide();
                 }
-                if (data.ID_LEHRER!=undefined) {                    
-                    lname="";
-                    if (data.LEHRER_VNAME!=undefined) {
-                        lname=data.LEHRER_VNAME+" ";
+                if (data.ID_LEHRER != undefined) {
+                    lname = "";
+                    if (data.LEHRER_VNAME != undefined) {
+                        lname = data.LEHRER_VNAME + " ";
                     }
-                    if (data.LEHRER_NNAME!=undefined) {
-                        lname=lname+ data.LEHRER_NNAME;
+                    if (data.LEHRER_NNAME != undefined) {
+                        lname = lname + data.LEHRER_NNAME;
                     }
                     $("#klDetailsKlassenlehrer").text(lname);
-                    $("#klDetailsKlassenlehrerKurz").text(" ("+data.ID_LEHRER+")");
+                    $("#klDetailsKlassenlehrerKurz").text(" (" + data.ID_LEHRER + ")");
                     $("#klDetailsKlassenlehrerMail").text(data.LEHRER_EMAIL);
-                    $("#klDetailsKlassenlehrerMail").attr("href","mailto://"+data.LEHRER_EMAIL);
-                    if (data.LEHRER_TELEFON!=undefined && data.LEHRER_TELEFON.length>=3) {
+                    $("#klDetailsKlassenlehrerMail").attr("href", "mailto://" + data.LEHRER_EMAIL);
+                    if (data.LEHRER_TELEFON != undefined && data.LEHRER_TELEFON.length >= 3) {
                         $("#klDetailsKlassenlehrerTel").text(data.LEHRER_TELEFON);
-                        $("#klDetailsKlassenlehrerTel").attr("href","tel://"+data.LEHRER_TELEFON);                    
+                        $("#klDetailsKlassenlehrerTel").attr("href", "tel://" + data.LEHRER_TELEFON);
                         $("#klDetailsKlassenlehrerTel").show();
                     }
                     else {
@@ -765,8 +769,8 @@ function buildKlassenListeView(data) {
                 else {
                 }
                 $("#klDetailsBemerklungen").val(data.NOTIZ);
-                $("#klDetailsStundenplan").attr("href",data.stundenplan);
-                $("#klDetailsVertretungsplan").attr("href",data.vertretungsplan);
+                $("#klDetailsStundenplan").attr("href", data.stundenplan);
+                $("#klDetailsVertretungsplan").attr("href", data.vertretungsplan);
                 $("#klassenDetails").popup("open");
 
             },
@@ -776,9 +780,9 @@ function buildKlassenListeView(data) {
                     performLogout();
                 }
             }
-        });                
+        });
     });
-    
+
 
 }
 
@@ -933,7 +937,7 @@ function buildNamensliste(data) {
     $("#namensListView").empty();
     for (i = 0; i < data.length; i++) {
         //console.log("Füge Listview " + data[i].NNAME + " an");
-        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a href="#schuelerdetails" class="schueler ui-btn" sid="' + data[i].id + '"><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a setAnwesenheit" title="Edit"></a></li>')
+        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="setAnwesenheit ui-btn" ><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#schuelerdetails"  class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a schueler" title="Edit"></a></li>')
     }
 
     $(".setAnwesenheit").click(function () {
@@ -987,7 +991,7 @@ function renderSchuelerDetails(sid) {
             $("#ausbilderFax").text("Fax:");
             $("#ausbilderEmail").text("EMail:");
             $("#ausbilderEmail").attr("href", "#");
-            
+
         }
         if (data.betrieb != undefined) {
             $("#betriebName").text(data.betrieb.NAME);
@@ -1000,18 +1004,18 @@ function renderSchuelerDetails(sid) {
             $("#betriebName").attr("href", "#");
             $("#betriebStrasse").text("");
             $("#betriebOrt").text("");
-            
+
         }
         kurse = data.klassen;
         $("#klassenCount").text(kurse.length);
         $("#detailsKlassenListView").empty();
         for (i = 0; i < kurse.length; i++) {
-            $("#detailsKlassenListView").append('<li> <a href="#" kid="'+kurse[i].id+'"  kname="' + kurse[i].KNAME + '"class="ui-btn ui-btn-icon-right ui-icon-carat-r detailsKlasse"><b>' + kurse[i].KNAME + '</b></a></li>');
+            $("#detailsKlassenListView").append('<li> <a href="#" kid="' + kurse[i].id + '"  kname="' + kurse[i].KNAME + '"class="ui-btn ui-btn-icon-right ui-icon-carat-r detailsKlasse"><b>' + kurse[i].KNAME + '</b></a></li>');
         }
         $(".detailsKlasse").click(function () {
             var kname = $(this).attr("kname");
             sessionStorage.idKlasse = $(this).attr("kid");
-            console.log("Wechsel zu Klasse " + kname+ "mit ID="+sessionStorage.idKlasse);
+            console.log("Wechsel zu Klasse " + kname + "mit ID=" + sessionStorage.idKlasse);
             refreshKlassenliste(kname);
             $.mobile.changePage("#anwesenheit", {transition: "fade"});
         });
@@ -1045,11 +1049,11 @@ function renderSchuelerDetails(sid) {
             }
             else {
                 dat = data.bemerkungen[index].DATUM;
-                console.log("Das Datum der Bemerklung ist "+dat);
+                console.log("Das Datum der Bemerklung ist " + dat);
                 dat = dat.replace("T", " ");
                 //console.log("Das Datum der Bemerklung ist "+dat);
                 //dat = dat.substr(0, dat.indexOf("+"));
-                console.log("Das Datum der Bemerklung ist "+dat);
+                console.log("Das Datum der Bemerklung ist " + dat);
                 $("#editBemerkungDatum").text(dat);
                 $("#textBemerkung").val(data.bemerkungen[index].BEMERKUNG);
                 $("#editBemerkung").popup("open");
@@ -1106,31 +1110,40 @@ function getSchuelerBild(id, elem) {
 }
 
 function buildAnwesenheit(kl) {
-    console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server!");
     d = new Date();
-    $("#currentDate").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
-    $.ajax({
-        url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl,
-        type: "GET",
-        cache: false,
-        headers: {
-            "service_key": localStorage.service_key,
-            "auth_token": localStorage.auth_token
-        },
-        contentType: "application/json; charset=UTF-8",
-        success: function (data) {
-            console.log("Anwesenheit geladen!");
-            anwesenheit = data;
-            renderAnwesenheit(data);
+    if (lastAnnwesenheitUpdate==undefined || d.getTime() > lastAnnwesenheitUpdate + 1000 * 60) {
+        console.log("Letzte Aktualisierung der Anwesenheit ist älter alos 30 Min!");
+        console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server!");
 
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            toast("kann Anwesenheit d. Klasse " + kl + " nicht vom Server laden");
-            if (xhr.status == 401) {
-                performLogout();
+        lastAnnwesenheitUpdate = d.getTime();
+        $("#currentDate").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl,
+            type: "GET",
+            cache: false,
+            headers: {
+                "service_key": localStorage.service_key,
+                "auth_token": localStorage.auth_token
+            },
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                console.log("Anwesenheit geladen!");
+                anwesenheit = data;
+                renderAnwesenheit(data);
+
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                toast("kann Anwesenheit d. Klasse " + kl + " nicht vom Server laden");
+                if (xhr.status == 401) {
+                    performLogout();
+                }
             }
-        }
-    });
+        });
+    }
+    else {
+        console.log("Anwesenheit ist wohl aktuell !"+lastAnnwesenheitUpdate);
+        renderAnwesenheit(anwesenheit);
+    }
 
 }
 

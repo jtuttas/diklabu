@@ -6,6 +6,7 @@
 package de.tuttas.restful;
 
 import de.tuttas.restful.Data.PlanObject;
+import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -38,7 +39,7 @@ public class Plan {
     @Path("/stundenplanurl/{klasse}")
     public PlanObject getStundenplan(@PathParam("klasse") String kl) {        
         System.out.println("Get Stundenplan von Klasse " + kl);        
-        return StundenplanUtil.getPlanObject(kl,StundenplanUtil.klassListStundenplan,StundenplanUtil.stundenPlanURL);
+        return StundenplanUtil.getInstance().getPlanObject(kl,PlanType.STDPlanSchueler);
     }
 
     @GET
@@ -46,20 +47,20 @@ public class Plan {
     @Produces("text/html")
     public String getStundenplanHtml(@PathParam("klasse") String kl) {
         System.out.println("Get Stundenplan HTML von Klasse " + kl);
-        return StundenplanUtil.getPlan(kl,StundenplanUtil.klassListStundenplan,StundenplanUtil.stundenPlanURL);
+        return StundenplanUtil.getInstance().getPlan(kl,PlanType.STDPlanSchueler);
     }
 
     @GET
     @Path("/vertertungsplanurl/{klasse}")
     public PlanObject getVertretungsplan(@PathParam("klasse") String kl) {
-        return StundenplanUtil.getPlanObject(kl,StundenplanUtil.klassListVertretungsplan,StundenplanUtil.vertertungsPlanURL);
+        return StundenplanUtil.getInstance().getPlanObject(kl,PlanType.VERTRPlanSchueler);
     }
 
     @GET
     @Path("/vertertungsplan/{klasse}")
     @Produces("text/html")
     public String getVerterungsplanHtml(@PathParam("klasse") String kl) {
-        return StundenplanUtil.getPlan(kl,StundenplanUtil.klassListVertretungsplan,StundenplanUtil.vertertungsPlanURL);        
+        return StundenplanUtil.getInstance().getPlan(kl,PlanType.VERTRPlanSchueler);        
     }
 
 }

@@ -37,6 +37,29 @@ public class Lehrer implements Serializable {
     
     @Transient
     private String idplain;
+    @Transient
+    private String vPlan="#"; 
+    @Transient
+    private String stdPlan="#";
+
+    public String getStdPlan() {
+        return stdPlan;
+    }
+
+    public String getvPlan() {
+        return vPlan;
+    }
+
+    public void setStdPlan(String stdPlan) {
+        this.stdPlan = stdPlan;
+    }
+
+    public void setvPlan(String vPlan) {
+        this.vPlan = vPlan;
+    }
+    
+    
+    
 
     public String getIdplain() {
         return StringUtil.removeGermanCharacters(this.id);

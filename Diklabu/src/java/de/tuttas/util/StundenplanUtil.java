@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,41 +23,115 @@ import java.util.logging.Logger;
  * @author Jörg
  */
 public class StundenplanUtil {
-    public static final String klassListStundenplan = "http://stundenplan.mmbbs.de/plan1011/lehrkraft/plan/frames/navbar.htm";
-    public static final String stundenPlanURL = "http://stundenplan.mmbbs.de/plan1011/lehrkraft/plan/";
-    public static final String klassListVertretungsplan = "http://stundenplan.mmbbs.de/plan1011/ver_kla/frames/navbar.htm";
-    public static final String vertertungsPlanURL = "http://stundenplan.mmbbs.de/plan1011/ver_kla/";
-    public static HashMap klassenMap;
-    
-    public static PlanObject getPlanObject(String kl,String url,String basicUrl) {
-        PlanObject po = new PlanObject();
-        try {
-            klassenMap = generateKlassMap(url);
-            System.out.println(" index von kl=" + kl + " ist " + klassenMap.get(kl));
-            if (klassenMap!=null && klassenMap.get(kl) != null) {
-                po.setSuccess(true);
-                po.setMsg("Klassenliste geladen");
-                po.setUrl(generatePlanUrl(kl, basicUrl));
-            } else {
-                po.setSuccess(false);
-                po.setMsg("Kann Stundenplan von Klasse " + kl + " nicht finden!");
-            }
 
-        } catch (MalformedURLException ex) {
-            po.setSuccess(false);
-            po.setMsg(ex.getMessage());
-            Logger.getLogger(Plan.class.getName()).log(Level.SEVERE, null, ex);
+    public static StundenplanUtil instance;
+    private static long timestamp;
+
+    // Schüler Pläne
+    private final String klassListStundenplan = "http://stundenplan.mmbbs.de/plan1011/lehrkraft/plan/frames/navbar.htm";
+    private final String stundenPlanURL = "http://stundenplan.mmbbs.de/plan1011/lehrkraft/plan/";
+    private final String klassListVertretungsplan = "http://stundenplan.mmbbs.de/plan1011/ver_kla/frames/navbar.htm";
+    private final String vertertungsPlanURL = "http://stundenplan.mmbbs.de/plan1011/ver_kla/";
+
+    // LehrePläne
+    private final String lehrerListStundenplan = "http://stundenplan.mmbbs.de/plan1011/lehrkraft/plan/frames/navbar.htm";
+    private final String lehrerPlanUrl = "http://stundenplan.mmbbs.de/plan1011/lehrkraft/plan/";
+    private final String lehrerListVertretungsplan = "http://stundenplan.mmbbs.de/plan1011/ver_leh/frames/navbar.htm";
+    private final String lehrerVPlanUrl = "http://stundenplan.mmbbs.de/plan1011/ver_leh/";
+
+    
+    private HashMap klassenStdMap;
+    private HashMap klassenVertrMap;
+    private HashMap lehrerStdMap;
+    private HashMap lehrerVertrMap;
+
+    public static StundenplanUtil getInstance() {
+        if (instance == null) {
+            timestamp = new Date().getTime();
+            instance = new StundenplanUtil();
+            return instance;
+        }
+        if (timestamp < new Date().getTime()) {
+            System.out.println("Instanz von StundenplanUtil ist zu alt, also eine neuer erzeugen!");
+            timestamp = new Date().getTime();
+            instance = new StundenplanUtil();
+            return instance;
+        }
+        return instance;
+    }
+
+    public StundenplanUtil() {
+        try {
+            klassenStdMap = generateKlassMap(klassListStundenplan," var classes = [");
         } catch (IOException ex) {
+            Logger.getLogger(StundenplanUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            klassenVertrMap = generateKlassMap(klassListVertretungsplan," var classes = [");
+        } catch (IOException ex) {
+            Logger.getLogger(StundenplanUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         try {
+            lehrerStdMap = generateKlassMap(lehrerListStundenplan," var teachers = [");
+        } catch (IOException ex) {
+            Logger.getLogger(StundenplanUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         try {
+            lehrerVertrMap = generateKlassMap(lehrerListVertretungsplan," var teachers = [");
+        } catch (IOException ex) {
+            Logger.getLogger(StundenplanUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public PlanObject getPlanObject(String identifier, PlanType pt) {
+        PlanObject po = new PlanObject();
+
+        HashMap theMap = null;
+        String basicUrl = "";
+        String planType = "";
+        char seperator=' ';
+        switch (pt) {
+            case STDPlanSchueler:
+                theMap = klassenStdMap;
+                basicUrl = stundenPlanURL;
+                planType = "Stundenplan";
+                seperator='c';
+                break;
+            case VERTRPlanSchueler:
+                theMap = klassenVertrMap;
+                basicUrl = vertertungsPlanURL;
+                planType = "Vertertungsplan";
+                seperator='c';
+                break;
+            case STDPlanLehrer:
+                theMap = lehrerStdMap;
+                basicUrl = lehrerPlanUrl;
+                planType = "Stundenplan";
+                seperator='t';
+                break;
+            case VERTRPlanLehrer:
+                theMap = lehrerVertrMap;
+                basicUrl = lehrerVPlanUrl;
+                planType = "Vertretungsplan";
+                seperator='t';
+                break;
+        }
+        if (theMap != null && theMap.get(identifier) != null) {
+            po.setSuccess(true);
+            po.setMsg(planType + " geladen");
+            int id = (int) theMap.get(identifier);
+            System.out.println("Generate URL for id="+id);
+            po.setUrl(generatePlanUrl( id, basicUrl,seperator));
+        } else {
+            System.out.println(" Kann "+identifier+" nicht finden");
             po.setSuccess(false);
-            po.setMsg(ex.getMessage());
-            Logger.getLogger(Plan.class.getName()).log(Level.SEVERE, null, ex);
+            po.setMsg("Kann " + planType + " von " + identifier + " nicht finden!");
         }
         return po;
     }
 
-    
-    public static String getPlan(String kl, String url,String basicUrl) {
-        PlanObject po = getPlanObject(kl, url,basicUrl);
+    public String getPlan(String identifier, PlanType pt) {
+        PlanObject po = getPlanObject(identifier, pt);
         try {
             return filterHtml(po.getUrl());
         } catch (IOException ex) {
@@ -64,8 +139,8 @@ public class StundenplanUtil {
         }
         return null;
     }
-    
-    private static HashMap generateKlassMap(String url) throws MalformedURLException, IOException {
+
+    private HashMap generateKlassMap(String url,String sPattern) throws MalformedURLException, IOException {
         URL oracle = new URL(url);
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(oracle.openStream()));
@@ -74,12 +149,12 @@ public class StundenplanUtil {
 
         while ((inputLine = in.readLine()) != null) {
 
-            if (inputLine.startsWith(" var classes = [")) {
+            if (inputLine.startsWith(sPattern)) {
                 System.out.println("found:" + inputLine);
                 HashMap map = new HashMap();
                 String r = inputLine.substring(inputLine.indexOf("[") + 1, inputLine.indexOf("]"));
                 r = r.replace("\"", "");
-                System.out.println("r=" + r);
+                //System.out.println("r=" + r);
                 String[] sa = r.split(",");
                 for (int i = 0; i < sa.length; i++) {
                     map.put(sa[i], i);
@@ -91,17 +166,16 @@ public class StundenplanUtil {
         in.close();
         return null;
     }
-    
-      private static String generatePlanUrl(String kl, String u) {
-        int id = (int) klassenMap.get(kl);
+
+    private String generatePlanUrl(int id, String u,char c) {        
         id++;
         String sid = "";
         if (id < 10) {
-            sid = "c0000" + id;
+            sid = c+"0000" + id;
         } else if (id < 100) {
-            sid = "c000" + id;
+            sid = c+"000" + id;
         } else {
-            sid = "c00" + id;
+            sid = c+"00" + id;
         }
         Calendar cal = Calendar.getInstance();
 
@@ -110,11 +184,10 @@ public class StundenplanUtil {
         if (kw < 10) {
             skw = "0" + skw;
         }
-        return u + skw + "/c/" + sid + ".htm";
-
+        return u + skw + "/"+c+"/" + sid + ".htm";
     }
-      
-      private static String filterHtml(String url) throws MalformedURLException, IOException {
+
+    private String filterHtml(String url) throws MalformedURLException, IOException {
         URL oracle = new URL(url);
         BufferedReader in = new BufferedReader(
                 new InputStreamReader(oracle.openStream()));
@@ -135,16 +208,9 @@ public class StundenplanUtil {
             }
         }
         in.close();
-        out=out.replace("<BR>", "<BR></BR>\n");
-        
-       // out=removeTag("font",out);
-          System.out.println("HTML="+out);
+        out = out.replace("<BR>", "<BR></BR>\n");
+        System.out.println("HTML=" + out);
         return out;
 
     }
-
-   
-
-    
-
 }

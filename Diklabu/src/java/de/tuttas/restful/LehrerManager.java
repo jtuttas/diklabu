@@ -6,6 +6,8 @@
 package de.tuttas.restful;
 
 import de.tuttas.entities.Lehrer;
+import de.tuttas.util.PlanType;
+import de.tuttas.util.StundenplanUtil;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -41,6 +43,8 @@ public class LehrerManager {
     public Lehrer getLehrer(@PathParam("idLehrer") String idLehrer) {
         System.out.println("Webservice Lehrer Get:"+idLehrer);        
         Lehrer lehrer = em.find(Lehrer.class, idLehrer);
+        lehrer.setStdPlan(StundenplanUtil.getInstance().getPlanObject(lehrer.getNNAME(), PlanType.STDPlanLehrer).getUrl());
+        lehrer.setvPlan(StundenplanUtil.getInstance().getPlanObject(lehrer.getNNAME(), PlanType.VERTRPlanLehrer).getUrl());
         return lehrer;
     }
 }

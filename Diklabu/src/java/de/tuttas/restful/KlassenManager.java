@@ -13,6 +13,7 @@ import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.PlanObject;
 import de.tuttas.util.ImageUtil;
+import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -67,11 +68,10 @@ public class KlassenManager {
         Lehrer l = em.find(Lehrer.class, k.getID_LEHRER());
         System.out.println("Klassenlehrer = " + l.toString());
         KlasseDetails d = new KlasseDetails(k, l);
-        PlanObject po = StundenplanUtil.getPlanObject(k.getKNAME(),StundenplanUtil.klassListStundenplan,StundenplanUtil.stundenPlanURL);
+        PlanObject po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(),PlanType.STDPlanSchueler);
         d.setStundenplan(po.getUrl());
-        po = StundenplanUtil.getPlanObject(k.getKNAME(),StundenplanUtil.klassListVertretungsplan,StundenplanUtil.vertertungsPlanURL);
-        d.setVertretungsplan(po.getUrl());
-        
+        po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(),PlanType.VERTRPlanSchueler);
+        d.setVertretungsplan(po.getUrl());        
         return d;
     }
 
