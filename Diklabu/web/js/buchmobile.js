@@ -2,6 +2,8 @@ var anwesenheit;
 var verlaufId;
 var lastAnnwesenheitUpdate;
 var anwKlasse;
+var verlaufData;
+var verlaufDetailsIndex;
 
 $(document).on({
     ajaxStart: function () {
@@ -67,6 +69,27 @@ $("#neueBemerkung").click(function () {
     $("#editBemerkung").popup("open");
 });
 
+$("#btnVerlaufWeiter").click(function () {
+    if (verlaufDetailsIndex<verlaufData.length-1) {
+        renderVerlaufDetails(++verlaufDetailsIndex);
+    }
+    else {
+        console.log("kein weiterer Verlaufseintrag");
+        verlaufDetailsIndex=0;
+        renderVerlaufDetails(verlaufDetailsIndex);
+    }
+});
+
+$("#btnVerlaufZurueck").click(function () {
+    if (verlaufDetailsIndex<=0) {
+        console.log("kein weiterer Verlaufseintrag");
+        verlaufDetailsIndex=verlaufData.length-1;
+        renderVerlaufDetails(verlaufDetailsIndex);
+    }
+    else {
+        renderVerlaufDetails(--verlaufDetailsIndex);
+    }
+});
 $("#btnAddBemerkung").click(function () {
     if ($("#textBemerkung").val() != "") {
         submitBemerkung($("#textBemerkung").val());
@@ -595,7 +618,7 @@ $(document).on("pagebeforecreate", "#verlaufDetail", function () {
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        //$.mobile.changePage("#verlauf", {transition: "fade"});
+        $.mobile.changePage("#verlauf", {transition: "fade"});
     }
 });
 
@@ -910,6 +933,7 @@ function loadVerlauf() {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             console.log("Verlauf Empfangen");
+            verlaufData=data;
             renderVerlauf(data);
             $("#addVerlauf").popup("close");
         },
@@ -933,14 +957,9 @@ function renderVerlauf(data) {
     }
     $(".detailVerlauf").click(function () {
         index = $(this).attr("index");
+        verlaufDetailsIndex=index;
+        renderVerlaufDetails(index);
         console.log("Detail Verlauf index = " + index);
-        $("#nameKlasseVerlaufDetail").text(sessionStorage.nameKlasse);
-        $("#lfVerlaufDetail").text(data[index].ID_LERNFELD);
-        $("#stdVerlaufDetail").text("Std. " + data[index].STUNDE);
-        $("#lehrerVerlaufDetail").text(data[index].ID_LEHRER);
-        $("#lsVerlaufDetail").text(data[index].AUFGABE);
-        $("#inhaltVerlaufDetail").text(data[index].INHALT);
-        $("#bemVerlaufDetail").text(data[index].BEMERKUNG);
         $.mobile.changePage("#verlaufDetail", {transition: "fade"});
     });
 
@@ -963,6 +982,18 @@ function renderVerlauf(data) {
         }
     });
 }
+
+function renderVerlaufDetails(index) {
+            $("#nameKlasseVerlaufDetail").text(sessionStorage.nameKlasse);
+        $("#lfVerlaufDetail").text(verlaufData[index].ID_LERNFELD);
+        $("#stdVerlaufDetail").text("Std. " + verlaufData[index].STUNDE);
+        $("#lehrerVerlaufDetail").text(verlaufData[index].ID_LEHRER);
+        $("#lsVerlaufDetail").text(verlaufData[index].AUFGABE);
+        $("#inhaltVerlaufDetail").text(verlaufData[index].INHALT);
+        $("#bemVerlaufDetail").text(verlaufData[index].BEMERKUNG);
+
+}
+
 function buildNamensliste(data) {
     $("#namensListView").empty();
     for (i = 0; i < data.length; i++) {
