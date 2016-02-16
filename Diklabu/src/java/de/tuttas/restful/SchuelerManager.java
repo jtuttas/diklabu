@@ -5,6 +5,8 @@
  */
 package de.tuttas.restful;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Ausbilder;
 import de.tuttas.entities.Bemerkung;
@@ -20,6 +22,8 @@ import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -27,8 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageInputStream;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -41,6 +48,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import org.apache.commons.io.IOUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
@@ -147,8 +155,20 @@ public class SchuelerManager {
         String fileLocation = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
         System.out.println("upload  File for " + idschueler);
         try {
-
-            Image image = ImageIO.read(uploadedInputStream);
+            
+            byte[] imageBytes = IOUtils.toByteArray(uploadedInputStream);
+            
+            int i = uploadedInputStream.read(imageBytes);
+            System.out.println("habe "+i+" bytes gelesen!");
+            InputStream myInputStream = new ByteArrayInputStream(imageBytes); 
+            Image image = ImageIO.read(myInputStream);
+            System.out.println("Image gelesen ="+image);
+            InputStream myExifInputStream = new ByteArrayInputStream(imageBytes); 
+            int orientation = ImageUtil.getImageOrientation(myExifInputStream);
+            BufferedImage bImage = ImageUtil.toBufferedImage(image);
+            System.out.println("Image hat w="+bImage.getWidth()+" h="+bImage.getHeight());
+            bImage = ImageUtil.transformImage(bImage, ImageUtil.getExifTransformation(orientation, image.getWidth(null), image.getHeight(null)));
+            System.out.println("Image hat nach Transformation w="+bImage.getWidth()+" h="+bImage.getHeight());            
             if (image != null) {
                 int originalWidth = image.getWidth(null);
                 int originalHeight = image.getHeight(null);
@@ -167,11 +187,19 @@ public class SchuelerManager {
             System.out.println("Error");
             r.setMsg(e.getMessage());
             r.setSuccess(false);
+        } catch (MetadataException ex) {
+            Logger.getLogger(SchuelerManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ImageProcessingException ex) {
+            Logger.getLogger(SchuelerManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex) {
+            Logger.getLogger(SchuelerManager.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return r;
     }
 
+    
+    
     private BufferedImage createResizedCopy(Image originalImage, int scaledWidth, int scaledHeight, boolean preserveAlpha) {
         int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);
