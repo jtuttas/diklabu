@@ -51,7 +51,7 @@ public class StundenplanUtil {
             instance = new StundenplanUtil();
             return instance;
         }
-        if (timestamp < new Date().getTime()) {
+        if (timestamp < new Date().getTime()-1000*60*60) {
             System.out.println("Instanz von StundenplanUtil ist zu alt, also eine neuer erzeugen!");
             timestamp = new Date().getTime();
             instance = new StundenplanUtil();
