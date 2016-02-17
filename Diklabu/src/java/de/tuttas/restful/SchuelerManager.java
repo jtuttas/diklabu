@@ -170,11 +170,11 @@ public class SchuelerManager {
             bImage = ImageUtil.transformImage(bImage, ImageUtil.getExifTransformation(orientation, image.getWidth(null), image.getHeight(null)));
             System.out.println("Image hat nach Transformation w="+bImage.getWidth()+" h="+bImage.getHeight());            
             if (image != null) {
-                int originalWidth = image.getWidth(null);
-                int originalHeight = image.getHeight(null);
+                int originalWidth = bImage.getWidth();
+                int originalHeight = bImage.getHeight();
                 int newWidth = 200;
                 int newHeight = Math.round(newWidth * ((float) originalHeight / originalWidth));
-                BufferedImage bi = this.createResizedCopy(image, newWidth, newHeight, true);
+                BufferedImage bi = this.createResizedCopy(bImage, newWidth, newHeight, true);
                 ImageIO.write(bi, "jpg", new File(Config.IMAGE_FILE_PATH + idschueler + ".jpg"));
                 r.setMsg("Bild erfolgreich hochgeladen!");
                 r.setSuccess(true);

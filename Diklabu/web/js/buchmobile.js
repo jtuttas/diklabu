@@ -70,20 +70,20 @@ $("#neueBemerkung").click(function () {
 });
 
 $("#btnVerlaufWeiter").click(function () {
-    if (verlaufDetailsIndex<verlaufData.length-1) {
+    if (verlaufDetailsIndex < verlaufData.length - 1) {
         renderVerlaufDetails(++verlaufDetailsIndex);
     }
     else {
         console.log("kein weiterer Verlaufseintrag");
-        verlaufDetailsIndex=0;
+        verlaufDetailsIndex = 0;
         renderVerlaufDetails(verlaufDetailsIndex);
     }
 });
 
 $("#btnVerlaufZurueck").click(function () {
-    if (verlaufDetailsIndex<=0) {
+    if (verlaufDetailsIndex <= 0) {
         console.log("kein weiterer Verlaufseintrag");
-        verlaufDetailsIndex=verlaufData.length-1;
+        verlaufDetailsIndex = verlaufData.length - 1;
         renderVerlaufDetails(verlaufDetailsIndex);
     }
     else {
@@ -311,7 +311,7 @@ function performLogin() {
 
                 localStorage.myself = benutzer;
                 getLehrerData(benutzer);
-               
+
                 sessionStorage.kennwort = $('#kennwort').val();
                 $.mobile.changePage("#klassenliste", {transition: "fade"});
             },
@@ -393,7 +393,7 @@ function commitAnwesenheit(sid, txt) {
                 toast("Der Eintrag enthält Formatierungsfehler");
             }
             buildAnwesenheit(sessionStorage.nameKlasse);
-            
+
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Anwesenheitseintrag nicht zum Server senden!");
@@ -563,7 +563,7 @@ $(document).on("pagebeforecreate", "#anwesenheit", function () {
     }
     else {
         console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
-        lastAnnwesenheitUpdate=undefined;
+        lastAnnwesenheitUpdate = undefined;
         refreshKlassenliste(sessionStorage.nameKlasse);
     }
 });
@@ -710,24 +710,26 @@ $('#bildUploadForm').on('submit', (function (e) {
 
 
 function getLehrerData(le) {
-    console.log("Get Lehrer Data für "+le);
-     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/lehrer/"+le,
-        type: "GET",
-         headers: {
+    if (le != undefined) {
+        console.log("Get Lehrer Data für " + le);
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/lehrer/" + le,
+            type: "GET",
+            headers: {
                 "service_key": localStorage.service_key,
                 "auth_token": localStorage.auth_token
             },
-        contentType: "application/json; charset=UTF-8",
-        success: function (data) {
-            $("#lehrerShort").text(le);
-            $("#btnStdPlanLehrer").attr("href",data.stdPlan);
-            $("#btnVertrPlanLehrer").attr("href",data.vPlan);
-        },
-        error: function () {
-            toast("kann Daten für "+le+" nicht vom Server laden");
-        }
-    });
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                $("#lehrerShort").text(le);
+                $("#btnStdPlanLehrer").attr("href", data.stdPlan);
+                $("#btnVertrPlanLehrer").attr("href", data.vPlan);
+            },
+            error: function () {
+                toast("kann Daten für " + le + " nicht vom Server laden");
+            }
+        });
+    }
 }
 
 if (sessionStorage.klassen != undefined) {
@@ -809,10 +811,10 @@ function buildKlassenListeView(data) {
                     $("#klDetailsKlassenlehrer").text(lname);
                     $("#klDetailsKlassenlehrerKurz").text(" (" + data.ID_LEHRER + ")");
                     $("#klDetailsKlassenlehrerMail").text(data.LEHRER_EMAIL);
-                    $("#klDetailsKlassenlehrerMail").attr("href", "mailto://" + data.LEHRER_EMAIL);
+                    $("#klDetailsKlassenlehrerMail").attr("href", "mailto:" + data.LEHRER_EMAIL);
                     if (data.LEHRER_TELEFON != undefined && data.LEHRER_TELEFON.length >= 3) {
                         $("#klDetailsKlassenlehrerTel").text(data.LEHRER_TELEFON);
-                        $("#klDetailsKlassenlehrerTel").attr("href", "tel://" + data.LEHRER_TELEFON);
+                        $("#klDetailsKlassenlehrerTel").attr("href", "tel:" + data.LEHRER_TELEFON);
                         $("#klDetailsKlassenlehrerTel").show();
                     }
                     else {
@@ -933,7 +935,7 @@ function loadVerlauf() {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             console.log("Verlauf Empfangen");
-            verlaufData=data;
+            verlaufData = data;
             renderVerlauf(data);
             $("#addVerlauf").popup("close");
         },
@@ -957,7 +959,7 @@ function renderVerlauf(data) {
     }
     $(".detailVerlauf").click(function () {
         index = $(this).attr("index");
-        verlaufDetailsIndex=index;
+        verlaufDetailsIndex = index;
         renderVerlaufDetails(index);
         console.log("Detail Verlauf index = " + index);
         $.mobile.changePage("#verlaufDetail", {transition: "fade"});
@@ -984,13 +986,13 @@ function renderVerlauf(data) {
 }
 
 function renderVerlaufDetails(index) {
-            $("#nameKlasseVerlaufDetail").text(sessionStorage.nameKlasse);
-        $("#lfVerlaufDetail").text(verlaufData[index].ID_LERNFELD);
-        $("#stdVerlaufDetail").text("Std. " + verlaufData[index].STUNDE);
-        $("#lehrerVerlaufDetail").text(verlaufData[index].ID_LEHRER);
-        $("#lsVerlaufDetail").text(verlaufData[index].AUFGABE);
-        $("#inhaltVerlaufDetail").text(verlaufData[index].INHALT);
-        $("#bemVerlaufDetail").text(verlaufData[index].BEMERKUNG);
+    $("#nameKlasseVerlaufDetail").text(sessionStorage.nameKlasse);
+    $("#lfVerlaufDetail").text(verlaufData[index].ID_LERNFELD);
+    $("#stdVerlaufDetail").text("Std. " + verlaufData[index].STUNDE);
+    $("#lehrerVerlaufDetail").text(verlaufData[index].ID_LEHRER);
+    $("#lsVerlaufDetail").text(verlaufData[index].AUFGABE);
+    $("#inhaltVerlaufDetail").text(verlaufData[index].INHALT);
+    $("#bemVerlaufDetail").text(verlaufData[index].BEMERKUNG);
 
 }
 
@@ -1172,12 +1174,12 @@ function getSchuelerBild(id, elem) {
 
 function buildAnwesenheit(kl) {
     d = new Date();
-    if (anwKlasse!=kl || anwesenheit==undefined || lastAnnwesenheitUpdate==undefined || d.getTime() > lastAnnwesenheitUpdate + 1000 * 60*60) {
+    if (anwKlasse != kl || anwesenheit == undefined || lastAnnwesenheitUpdate == undefined || d.getTime() > lastAnnwesenheitUpdate + 1000 * 60 * 60) {
         console.log(" Aktualisierung der Anwesenheit !");
         console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server!");
 
         lastAnnwesenheitUpdate = d.getTime();
-        anwKlasse=kl;
+        anwKlasse = kl;
         $("#currentDate").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl,
@@ -1203,7 +1205,7 @@ function buildAnwesenheit(kl) {
         });
     }
     else {
-        console.log("Anwesenheit ist wohl aktuell !"+lastAnnwesenheitUpdate+ "anwesenheit="+anwesenheit);
+        console.log("Anwesenheit ist wohl aktuell !" + lastAnnwesenheitUpdate + "anwesenheit=" + anwesenheit);
         renderAnwesenheit(anwesenheit);
     }
 
