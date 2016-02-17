@@ -42,6 +42,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         if (path.startsWith("/noauth") || path.startsWith("/kurswahl") || Config.debug) {
             System.out.println("path start with noauth");
         } else {
+            /*
             if (!demoAuthenticator.isServiceKeyValid(serviceKey)) {
                 log.info("no Service Key found");
                 // Kick anyone without a valid service key
@@ -50,10 +51,11 @@ public class RESTRequestFilter implements ContainerRequestFilter {
                 return;
             }
             log.info("found Valid Key");
+                    */
             // For any pther methods besides login, the authToken must be verified
             if (!path.startsWith("/auth/login/") ) {
                 String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-
+                System.out.println("auth Token="+authToken);
                 // if it isn't valid, just kick them out.
                 if (!demoAuthenticator.isAuthTokenValid(serviceKey, authToken)) {
                     requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());

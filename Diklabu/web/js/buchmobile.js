@@ -291,26 +291,27 @@ function performLogin() {
             "kennwort": $("#kennwort").val()
         };
 
-        console.log("idplain = " + idplain);
-        localStorage.service_key = idplain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
-        console.log("Service key =" + localStorage.service_key);
+
 
         $.ajax({
             cache: false,
             contentType: "application/json; charset=UTF-8",
             headers: {
-                "service_key": localStorage.service_key
+                "service_key": idplain+"f80ebc87-ad5c-4b29-9366-5359768df5a1"
             },
             dataType: "json",
             url: "/Diklabu/api/v1/auth/login/",
             type: "POST",
             data: JSON.stringify(myData),
             success: function (jsonObj, textStatus, xhr) {
+                console.log("Login receive " + JSON.stringify(jsonObj));
                 localStorage.auth_token = jsonObj.auth_token;
                 console.log("Thoken = " + jsonObj.auth_token);
-
-                localStorage.myself = benutzer;
-                getLehrerData(benutzer);
+                console.log("idplain = " + jsonObj.idPlain);
+                localStorage.service_key = jsonObj.idPlain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
+                console.log("Service key =" + localStorage.service_key);
+                localStorage.myself = jsonObj.ID_LEHRER;
+                getLehrerData(jsonObj.ID_LEHRER);
 
                 sessionStorage.kennwort = $('#kennwort').val();
                 $.mobile.changePage("#klassenliste", {transition: "fade"});
@@ -711,7 +712,7 @@ $('#bildUploadForm').on('submit', (function (e) {
 
 function getLehrerData(le) {
     if (le != undefined) {
-        console.log("Get Lehrer Data für " + le);
+        console.log("Get Lehrer Data für " + le+ "service Key="+localStorage.service_key+" auth Token="+localStorage.auth_token);
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/lehrer/" + le,
             type: "GET",

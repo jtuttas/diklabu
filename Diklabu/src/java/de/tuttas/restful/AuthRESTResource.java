@@ -5,11 +5,13 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.config.Config;
 import de.tuttas.restful.AuthRESTResourceProxy;
 import de.tuttas.restful.Data.Auth;
 import de.tuttas.restful.auth.Authenticator;
 
 import de.tuttas.restful.auth.HTTPHeaderNames;
+import de.tuttas.util.LDAPUser;
 import java.security.GeneralSecurityException;
 import javax.ejb.Stateless;
 import javax.json.Json;
@@ -37,17 +39,18 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
 
         String username=a.getBenutzer();
         String password=a.getKennwort();
-        System.out.println("login post empfangen f. "+a.toString());
+        System.out.println("login post empfangen f. "+a.toString()+" debug="+Config.debug);
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = httpHeaders.getHeaderString( HTTPHeaderNames.SERVICE_KEY );
 
         try {
-            String authToken = demoAuthenticator.login( serviceKey, username, password );
-
+            LDAPUser u = demoAuthenticator.login( serviceKey, username, password );
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
-            jsonObjBuilder.add( "auth_token", authToken );
+            jsonObjBuilder.add( "auth_token", u.getAuthToken() );
+            jsonObjBuilder.add( "ID_LEHRER", u.getShortName() );
+            jsonObjBuilder.add( "idPlain", u.getIdPlain());
+            
             JsonObject jsonObj = jsonObjBuilder.build();
-
             return getNoCacheResponseBuilder( Response.Status.OK ).entity( jsonObj.toString() ).build();
 
         } catch ( final LoginException ex ) {

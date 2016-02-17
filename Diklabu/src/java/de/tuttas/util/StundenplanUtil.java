@@ -60,7 +60,7 @@ public class StundenplanUtil {
         return instance;
     }
 
-    public StundenplanUtil() {
+    private StundenplanUtil() {
         try {
             klassenStdMap = generateKlassMap(klassListStundenplan," var classes = [");
         } catch (IOException ex) {

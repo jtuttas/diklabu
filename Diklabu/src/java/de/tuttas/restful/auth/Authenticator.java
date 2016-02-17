@@ -5,17 +5,21 @@
  */
 package de.tuttas.restful.auth;
 
+import de.tuttas.config.Config;
 import de.tuttas.entities.Lehrer;
+import de.tuttas.util.LDAPUser;
+import de.tuttas.util.LDAPUtil;
+import de.tuttas.util.StringUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.security.GeneralSecurityException;
 import java.util.List;
-import javax.ejb.Stateless;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.security.auth.login.LoginException;
 
@@ -37,11 +41,11 @@ public final class Authenticator {
         EntityManager em = emf.createEntityManager();
         Query query = em.createNamedQuery("findAllTeachers");
         List<Lehrer> lehrer = query.getResultList();
-        
+
         for (Lehrer l : lehrer) {
-            System.out.println("Anlegen Benutzer (" + l.getId()+")");
+            System.out.println("Anlegen Benutzer (" + l.getId() + ")");
             usersStorage.put(l.getIdplain(), "mmbbs");
-            serviceKeysStorage.put(l.getIdplain()+"f80ebc87-ad5c-4b29-9366-5359768df5a1", l.getIdplain());
+            serviceKeysStorage.put(l.getIdplain() + "f80ebc87-ad5c-4b29-9366-5359768df5a1", l.getIdplain());
         }
     }
 
@@ -53,41 +57,60 @@ public final class Authenticator {
         return authenticator;
     }
 
-    public String login(String serviceKey, String username, String password) throws LoginException {
-        if (serviceKeysStorage.containsKey(serviceKey)) {
-            String usernameMatch = serviceKeysStorage.get(serviceKey);
+    public LDAPUser login(String serviceKey, String username, String password) throws LoginException {
 
-            if (usernameMatch.equals(username) && usersStorage.containsKey(username)) {
-                String passwordMatch = usersStorage.get(username);
+        if (!Config.debug) {
+            LDAPUtil ldap;
+            try {
+                ldap = LDAPUtil.getInstance();
+                LDAPUser u = ldap.authenticateJndi(username, password);
+                if (u != null) {
+                    System.out.println("found User " + u.toString());
+                    serviceKey = StringUtil.removeGermanCharacters(u.getShortName()) + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
+                    if (serviceKeysStorage.containsKey(serviceKey)) {
+                        String authToken = UUID.randomUUID().toString();
+                        authorizationTokensStorage.put(authToken, u.getShortName());
+                        System.out.println("Login Successfull!");
+                        u.setAuthToken(authToken);
+                        return u;
+                    }
+                    throw new LoginException("Don't Come Here Again!");
+                }
+                throw new LoginException("Don't Come Here Again!");
+            } catch (Exception ex) {
+                Logger.getLogger(Authenticator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            throw new LoginException("Don't Come Here Again!");
+        } else {
+            System.out.println("Login im Debug Mode serviceKey="+serviceKey);
+            if (serviceKeysStorage.containsKey(serviceKey)) {
+                String usernameMatch = serviceKeysStorage.get(serviceKey);
 
-                if (passwordMatch.equals(password)) {
+                if (usernameMatch.equals(username) && usersStorage.containsKey(username)) {
+                    String passwordMatch = usersStorage.get(username);
 
-                    /**
-                     * Once all params are matched, the authToken will be
-                     * generated and will be stored in the
-                     * authorizationTokensStorage. The authToken will be needed
-                     * for every REST API invocation and is only valid within
-                     * the login session
-                     */
-                    String authToken = UUID.randomUUID().toString();
-                    authorizationTokensStorage.put(authToken, username);
+                    if (passwordMatch.equals(password)) {
 
-                    return authToken;
+                        String authToken = UUID.randomUUID().toString();
+                        authorizationTokensStorage.put(authToken, username);
+                        LDAPUser u = new LDAPUser();
+                        u.setShortName(username);
+                        u.setAuthToken(authToken);
+                        return u;
+                    }
                 }
             }
+            throw new LoginException("Don't Come Here Again!");
         }
-
-        throw new LoginException("Don't Come Here Again!");
     }
-
-    /**
-     * The method that pre-validates if the client which invokes the REST API is
-     * from a authorized and authenticated source.
-     *
-     * @param serviceKey The service key
-     * @param authToken The authorization token generated after login
-     * @return TRUE for acceptance and FALSE for denied.
-     */
+        /**
+         * The method that pre-validates if the client which invokes the REST
+         * API is from a authorized and authenticated source.
+         *
+         * @param serviceKey The service key
+         * @param authToken The authorization token generated after login
+         * @return TRUE for acceptance and FALSE for denied.
+         */
     public boolean isAuthTokenValid(String serviceKey, String authToken) {
         if (isServiceKeyValid(serviceKey)) {
             String usernameMatch1 = serviceKeysStorage.get(serviceKey);
