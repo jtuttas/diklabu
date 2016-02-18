@@ -60,14 +60,7 @@ $("#version").text(VERSION);
 
 
 
-$("#neueBemerkung").click(function () {
-    var dat = toUrlString(new Date());
-    dat = dat.replace("T", " ");
-    console.log("newBemerkung dat=" + dat);
-    $("#editBemerkungDatum").text(dat);
-    $("#textBemerkung").val("");
-    $("#editBemerkung").popup("open");
-});
+
 
 $("#btnVerlaufWeiter").click(function () {
     if (verlaufDetailsIndex < verlaufData.length - 1) {
@@ -90,76 +83,21 @@ $("#btnVerlaufZurueck").click(function () {
         renderVerlaufDetails(--verlaufDetailsIndex);
     }
 });
-$("#btnAddBemerkung").click(function () {
-    if ($("#textBemerkung").val() != "") {
-        submitBemerkung($("#textBemerkung").val());
-    }
-    else {
-        console.log("Eine leere Bemerkung!");
-        $("#editBemerkung").popup("close");
-        //toast("Leere Bemerkungen unzulässig!");
-    }
+$("#btnChangeBemerkung").click(function () {
+    submitBemerkung($("#textBemerkung").val());
 });
 
-$("#btnDeleteBemerkung").click(function () {
-    if ($("#textBemerkung").val() != "") {
-        deleteBemerkung();
-    }
-    else {
-        console.log("Eine leere Bemerkung!");
-        //toast("Leere Bemerkungen unzulässig!");
-        $("#editBemerkung").popup("close");
-    }
-
-});
-
-function deleteBemerkung() {
-    var d = $("#editBemerkungDatum").text();
-    d.replace(" ", "T")
-    console.log("Delete Bemerkung Datum = " + d);
-
-    $.ajax({
-        url: SERVER + "/Diklabu/api/v1/bemerkungen/" + localStorage.myself + "/" + sessionStorage.idSchueler + "/" + d,
-        type: "DELETE",
-        cache: false,
-        headers: {
-            "service_key": localStorage.service_key,
-            "auth_token": localStorage.auth_token
-        },
-        contentType: "application/json; charset=UTF-8",
-        success: function (data) {
-            console.log("Eintrag gelöscht success=" + data.success);
-            $("#editBemerkung").popup("close");
-            if (!data.success) {
-                toast(data.msg);
-            }
-            renderSchuelerDetails(sessionStorage.idSchueler);
-
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            toast("kann Bemerkung nicht löschen!");
-            if (xhr.status == 401) {
-                performLogout();
-            }
-        }
-    });
-}
 
 function submitBemerkung(bem) {
-    var d = $("#editBemerkungDatum").text();
-    d.replace(" ", "T")
-    console.log("Datum = " + d);
-    var eintr = {
-        "ID_LEHRER": localStorage.myself,
-        "ID_SCHUELER": sessionStorage.idSchueler,
-        "BEMERKUNG": bem
-    };
+    var eintr = { 
+    "id": sessionStorage.idSchueler,
+    "info": bem
+    }
 
-    console.log("Sende zum Server:" + JSON.stringify(eintr));
-    console.log("URL:" + SERVER + "/Diklabu/api/v1/bemerkungen/" + d);
+    console.log("Sende zum Server:" + JSON.stringify(eintr));   
 
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/bemerkungen/" + d,
+        url: SERVER + "/Diklabu/api/v1/schueler/" + sessionStorage.idSchueler,
         type: "POST",
         cache: false,
         data: JSON.stringify(eintr),
@@ -169,13 +107,7 @@ function submitBemerkung(bem) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Eintrag eingetragedetails success=" + data.success);
-            $("#editBemerkung").popup("close");
-            if (!data.success) {
-                toast(data.msg);
-            }
             renderSchuelerDetails(sessionStorage.idSchueler);
-
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Bemerkung nicht zum Server senden!");
@@ -207,27 +139,32 @@ $("#btnAnwesend").click(function () {
     $("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
     console.log("Übertrage Anwesenheit f. " + sid);
-    commitAnwesenheit(sid, $("#anwesenheitText").val());
+    commitAnwesenheit(sid, $("#anwesenheitText").val(),$("#anwBemerkung").val());
 });
 $("#btnFehlend").click(function () {
     $("#anwesenheitText").val("f");
     $("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
     console.log("Übertrage Anwesenheit f. " + sid);
-    commitAnwesenheit(sid, $("#anwesenheitText").val());
+    commitAnwesenheit(sid, $("#anwesenheitText").val(),$("#anwBemerkung").val());
 });
 $("#btnEntschuldigt").click(function () {
     $("#anwesenheitText").val("e");
     $("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
     console.log("Übertrage Anwesenheit f. " + sid);
-    commitAnwesenheit(sid, $("#anwesenheitText").val());
+    commitAnwesenheit(sid, $("#anwesenheitText").val(),$("#anwBemerkung").val());
 });
 $("#btnOkAnwesenheit").click(function () {
-    $("#anwesenheitDetails").popup("close");
-    sid = $("#anwName").attr("sid");
-    console.log("Übertrage Anwesenheit f. " + sid);
-    commitAnwesenheit(sid, $("#anwesenheitText").val());
+    if ($("#anwesenheitText").val()=="") {
+         toast("Kein Vermerk angeben!");
+    }
+    else {
+        $("#anwesenheitDetails").popup("close");
+        sid = $("#anwName").attr("sid");
+        console.log("Übertrage Anwesenheit f. " + sid);
+        commitAnwesenheit(sid, $("#anwesenheitText").val(),$("#anwBemerkung").val());
+    }
 });
 $('body').on('keydown', "#anwesenheitText", function (e) {
     var keyCode = e.keyCode || e.which;
@@ -236,7 +173,7 @@ $('body').on('keydown', "#anwesenheitText", function (e) {
         $("#anwesenheitDetails").popup("close");
         sid = $("#anwName").attr("sid");
         console.log("Übertrage Anwesenheit f. " + sid);
-        commitAnwesenheit(sid, $("#anwesenheitText").val());
+        commitAnwesenheit(sid, $("#anwesenheitText").val(),$("#anwBemerkung").val());
     }
 });
 
@@ -368,14 +305,16 @@ function performLogout() {
 }
 
 
-function commitAnwesenheit(sid, txt) {
+function commitAnwesenheit(sid, txt,bem) {
     dat = toSQLString(new Date());
     var eintr = {
         "DATUM": dat + "T00:00:00",
         "ID_LEHRER": localStorage.myself,
         "ID_SCHUELER": sid,
-        "VERMERK": txt
+        "VERMERK": txt,
+        "BEMERKUNG":bem
     };
+   
 
     console.log("Sende zum Server:" + JSON.stringify(eintr));
     $.ajax({
@@ -389,7 +328,7 @@ function commitAnwesenheit(sid, txt) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            setAnwesenheitsEintrag(sid, txt, data.parseError);
+            setAnwesenheitsEintrag(sid, txt,bem, data.parseError);
             if (data.parseError) {
                 toast("Der Eintrag enthält Formatierungsfehler");
             }
@@ -1025,7 +964,7 @@ function buildNamensliste(data) {
     $("#namensListView").empty();
     for (i = 0; i < data.length; i++) {
         //console.log("Füge Listview " + data[i].NNAME + " an");
-        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="setAnwesenheit ui-btn" ><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside anwClear"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '" class="anwClear"></small></a><a sid="' + data[i].id + '" href="#schuelerdetails"  class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a schueler" title="Edit"></a></li>')
+        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="setAnwesenheit ui-btn" ><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside anwClear"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '" class="anwClear"></small><span ><img id="flag'+data[i].id+'" class="flag" src="../img/flag.png"></span></a><a sid="' + data[i].id + '" href="#schuelerdetails"  class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a schueler" title="Edit"></a></li>')
     }
 
     $(".setAnwesenheit").click(function () {
@@ -1036,6 +975,7 @@ function buildNamensliste(data) {
         eintrag = getAnwesenheitsEintrag(sid);
         console.log("Vermekr=" + eintrag.VERMERK);
         $("#anwesenheitText").val(eintrag.VERMERK);
+        $("#anwBemerkung").val(eintrag.BEMERKUNG)
     });
 
 
@@ -1108,48 +1048,8 @@ function renderSchuelerDetails(sid) {
             $.mobile.changePage("#anwesenheit", {transition: "fade"});
         });
 
-        bemerkungen = data.bemerkungen;
-        $("#bemerkungCount").text(bemerkungen.length);
-        $("#bemerkungListView").empty();
-        for (i = 0; i < bemerkungen.length; i++) {
-            dat = bemerkungen[i].DATUM;
-            dat = dat.replace("T", " ");
-            dat = dat.substr(0, dat.indexOf("+"));
-            bem = bemerkungen[i].BEMERKUNG;
-            if (bem.length > 20) {
-                bem = bem.substr(0, 17);
-                bem = bem + "..";
-            }
-            $("#bemerkungListView").append('<li class="ui-li-has-alt"><a href="#" index="' + i + '" class="ui-btn toastBemerkung"><p>' + dat + '</p><small>' + bem + '</small><p class="ui-li-aside">' + bemerkungen[i].ID_LEHRER + '</p></a><a index="' + i + '" href="#" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="editBemerkung" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a editBemerkung" title="Edit"></a></li>')
-        }
-        $(".toastBemerkung").click(function () {
-            index = $(this).attr("index");
-            console.log("Toast Bemerkung" + index);
-            toast(data.bemerkungen[index].BEMERKUNG);
-        });
-        $(".editBemerkung").click(function () {
-            index = $(this).attr("index");
-            console.log("Edit Bemerkung" + index);
-            lehrer = data.bemerkungen[index].ID_LEHRER;
-            if (lehrer != localStorage.myself) {
-                toast("Nur eigene Einträge editierbar");
-                console.log("nicht meine Bemerkung!");
-            }
-            else {
-                dat = data.bemerkungen[index].DATUM;
-                console.log("Das Datum der Bemerklung ist " + dat);
-                dat = dat.replace("T", " ");
-                //console.log("Das Datum der Bemerklung ist "+dat);
-                //dat = dat.substr(0, dat.indexOf("+"));
-                console.log("Das Datum der Bemerklung ist " + dat);
-                $("#editBemerkungDatum").text(dat);
-                $("#textBemerkung").val(data.bemerkungen[index].BEMERKUNG);
-                $("#editBemerkung").popup("open");
-            }
-        });
-
+        $("#textBemerkung").val(data.info);
         getSchuelerBild(sid, "#imgSchueler");
-
     });
 }
 /**
@@ -1238,6 +1138,7 @@ function buildAnwesenheit(kl) {
 
 function renderAnwesenheit(data) {
     $(".anwClear").text("");
+    $(".flag").hide();
     for (i = 0; i < data.length; i++) {
         $("#anw" + data[i].id_Schueler).removeClass("anwesend");
         $("#anw" + data[i].id_Schueler).removeClass("fehlend");
@@ -1259,6 +1160,11 @@ function renderAnwesenheit(data) {
         }
         else if (v.charAt(0) == 'e') {
             $("#anw" + data[i].id_Schueler).addClass("entschuldigt");
+        }
+        var b = data[i].eintraege[0].BEMERKUNG;
+        if (b!=undefined && b!="") {
+            console.log("Habe eine Bemerkung gefunden und zeige Fahne an!");
+            $("#flag"+ data[i].id_Schueler).show();
         }
 
     }
@@ -1321,17 +1227,19 @@ function getAnwesenheitsEintrag(id) {
     return "unknown ID " + id;
 }
 
-function setAnwesenheitsEintrag(id, txt, err) {
-
+function setAnwesenheitsEintrag(id, txt,bem, err) {
+    console.log("setAnwesenheit id="+id+" txt="+txt+" bem="+bem);
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].id_Schueler == id) {
             anwesenheit[i].eintraege[0].parseError = err;
             anwesenheit[i].eintraege[0].VERMERK = txt;
             anwesenheit[i].eintraege[0].ID_LEHRER = localStorage.myself;
+            anwesenheit[i].eintraege[0].BEMERKUNG=bem;
             anwesenheit[i].eintraege[0].DATUM = toSQLString(new Date()) + "T00:00:00+01:00";
             return;
         }
     }
+    console.log("Ein neuer Eintrag!");
     var anw = {
         "id_Schueler": id,
         "eintraege": [{
@@ -1339,7 +1247,8 @@ function setAnwesenheitsEintrag(id, txt, err) {
                 "ID_LEHRER": localStorage.myself,
                 "ID_SCHUELER": id,
                 "VERMERK": txt,
-                "parseError": err
+                "parseError": err,
+                "BEMERKUNG":bem
             }]
     };
     i = anwesenheit.length;

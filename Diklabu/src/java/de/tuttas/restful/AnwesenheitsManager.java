@@ -133,10 +133,12 @@ public class AnwesenheitsManager {
         for (AnwesenheitEintrag ae:anwesenheit) {
             ids.add(""+ae.getID_SCHUELER());
         }
-        
+        List<Bemerkung> bemerkungen=null;
         qb.setParameter("idList", ids);
-        List<Bemerkung> bemerkungen = qb.getResultList();
-        System.out.println("Result List Bemerkunken:" + bemerkungen);               
+        if (ids.size()>0) {
+            bemerkungen = qb.getResultList();
+            System.out.println("Result List Bemerkunken:" + bemerkungen);               
+        }
         return getData(anwesenheit,bemerkungen);
     }
 

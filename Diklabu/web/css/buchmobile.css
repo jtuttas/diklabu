@@ -84,3 +84,7 @@
  .ui-icon-loading {
     background: url("../img/loading.gif");     
   }
+  
+  .flag {
+      margin-left: 10px;
+  }

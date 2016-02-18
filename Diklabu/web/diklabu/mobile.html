@@ -145,7 +145,7 @@
                         <li> <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">
                                 <img src="../img/anonym.gif"/>     
                                 <p  class="ui-li-aside">TU</p>         
-                                <h3>VorName NachName</h3><small>V60e</small></a>
+                                <h3>VorName NachName</h3><small>V60e<span><img src="../img/flag.png"> </span></small></a>
                             <a href="#schuelerdetails" >Edit</a>
                         </li><li> <a href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup">
                                 <img src="../img/anonym.gif"/>  
@@ -168,12 +168,20 @@
                 <div data-role="popup" id="anwesenheitDetails" class="ui-content" data-history="false">
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                     <h3 id="anwName">Vorname NachName</h3>
-                    <div data-role="controlgroup">
-                        <a href="#" data-theme="b" id="btnAnwesend" data-role="button">anwesend</a>
-                        <a href="#" data-theme="c" id="btnEntschuldigt" data-role="button">entschuldigt</a>
-                        <a href="#" data-theme="e" id="btnFehlend" data-role="button">fehlend</a>
+                    <div data-role="controlgroup" data-type="horizontal">
+                        <a  data-icon="check" href="#" data-theme="b" id="btnAnwesend" data-role="button">a</a>
+                        <a  data-icon="delete" href="#" data-theme="c" id="btnEntschuldigt" data-role="button">e</a>
+                        <a  data-icon="alert" href="#" data-theme="e" id="btnFehlend" data-role="button">f</a>
                     </div>
-                    <input type="text" id="anwesenheitText" value=""/>                    
+                    <input type="text" id="anwesenheitText" value=""/> 
+                     <div data-role="collapsible-set">
+
+                            <div data-role="collapsible">
+                                <h4>Bemerkung</h4>                                                
+                                <textarea maxlength="99" name="textarea" id="anwBemerkung"></textarea>
+                                
+                            </div>
+                     </div>
                     <a href="#" id="btnOkAnwesenheit" data-role="button" class="btn-default" >OK</a>
 
                 </div>
@@ -364,52 +372,12 @@
                         </ul>
                     </div>
                     <div data-role="collapsible">
-                        <h4><div id="bemerkungCount" class="ui-btn-up-c ui-btn-corner-all custom-count-pos">0</div>Bemerkungen</h4>
-                        <a id="neueBemerkung" href="#" data-rel="popup" data-position-to="window" data-role="button" data-icon="plus" data-transition="popup">hinzufügen</a>                        
-                        <ul id="bemerkungListView" data-filter="true" data-role="listview"  data-split-icon="info"  data-split-theme="a" data-inset="true">
-                            <li>  
-                                <a href="#">                            
-                                    <small>Hier steht eine Bemerkung</small>                       
-                                    <p class="ui-li-aside">TU</p>                            
-                                    <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
-                                </a>
-                            </li>
-                            <li>  
-                                <a href="#">                            
-                                    <small>Hier steht eine Bemerkung</small>                       
-                                    <p class="ui-li-aside">TU</p>                            
-                                    <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
-                                </a>
-                            </li>
-                            <li>  
-                                <a href="#">                            
-                                    <small>Hier steht eine Bemerkung</small>                       
-                                    <p class="ui-li-aside">TU</p>                            
-                                    <a  href="#editBemerkung" data-rel="popup" data-position-to="window" data-transition="popup">Edit</a>                        
-                                </a>
-                            </li>
-                        </ul>
-
-                        <div data-role="popup" id="editBemerkung" class="ui-content" data-history="false">
-                            <a href="#schuelerdetails"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
-                            <h4 id="editBemerkungName">Vorname NachName</h4>
-                            <h5 id="editBemerkungDatum">Datum</h5>
-                            <div class="ui-field-contain">
-                                <label for="editBemerkung">Bemerkung</label>
-                                <textarea name="textarea" id="textBemerkung"></textarea>
-                            </div>                            
-                            <fieldset class="ui-grid-a">
-                                <div id="btnDeleteBemerkung" class="ui-block-a"><button type="button" data-theme="e">Delete</button></div>
-                                <div id="btnAddBemerkung" class="ui-block-b"><button type="button" data-theme="b">OK</button></div>	   
-                            </fieldset>
-                        </div>
+                        <h4>Bemerkung</h4>
+                        <textarea name="textarea" id="textBemerkung"></textarea>
+                        <a id="btnChangeBemerkung" data-role="button" data-theme="b">Ändern</a>                                              
                     </div>
                 </div>
-                <div data-role="collapsible-set">
-
-
-
-                </div>
+               
                 <div data-role="footer" data-theme="a" data-position="fixed" >
                     <a id="btnDetailsZurueck" data-theme="a" data-icon="arrow-l" href="#" >zurück</a>                    
                     <a id="btnDetailsWeiter" class="ui-btn-right" data-theme="a" data-icon="arrow-r" href="#">weiter</a>
