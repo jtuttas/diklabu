@@ -99,7 +99,13 @@ public class AnwesenheitsManager {
             }
         }
         else {
-            System.out.println("Es gibt KEINE Bemerkung");
+            System.out.println("Es gibt KEINE Bemerkung,schauen ob es eine alte Bemerkung gibt");
+            BemerkungId bemId = new BemerkungId(ae.getDATUM(),ae.getID_SCHUELER());
+            Bemerkung fb=em.find(Bemerkung.class, bemId);
+            if (fb!=null) {
+                System.out.println("ja es gab eine alte Bemerkung, diese löschen!");
+                em.remove(fb);
+            }
         }
         ae.setParseError(!VerspaetungsUtil.isValid(ae));
         return ae;

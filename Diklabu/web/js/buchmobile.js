@@ -307,14 +307,25 @@ function performLogout() {
 
 function commitAnwesenheit(sid, txt,bem) {
     dat = toSQLString(new Date());
-    var eintr = {
-        "DATUM": dat + "T00:00:00",
-        "ID_LEHRER": localStorage.myself,
-        "ID_SCHUELER": sid,
-        "VERMERK": txt,
-        "BEMERKUNG":bem
-    };
-   
+    if (bem=="") {
+        var eintr = {
+            "DATUM": dat + "T00:00:00",
+            "ID_LEHRER": localStorage.myself,
+            "ID_SCHUELER": sid,
+            "VERMERK": txt,
+        };
+    }
+    else {
+        var eintr = {
+            "DATUM": dat + "T00:00:00",
+            "ID_LEHRER": localStorage.myself,
+            "ID_SCHUELER": sid,
+            "VERMERK": txt,
+            "BEMERKUNG":bem
+        };
+        
+    }
+
 
     console.log("Sende zum Server:" + JSON.stringify(eintr));
     $.ajax({
