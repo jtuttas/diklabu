@@ -19,15 +19,13 @@ public class BemerkungId implements Serializable {
     private int ID_SCHUELER;    
      @Id
     private Timestamp DATUM;
-    @Id
-    private String ID_LEHRER;    
+    
 
     public BemerkungId() {
     }
 
-    public BemerkungId(int ID_SCHUELER, String ID_LEHRER, Timestamp Datum) {
+    public BemerkungId(Timestamp Datum,int ID_SCHUELER) {
         this.ID_SCHUELER = ID_SCHUELER;
-        this.ID_LEHRER = ID_LEHRER;
         this.DATUM=Datum;
     }
 
@@ -35,9 +33,6 @@ public class BemerkungId implements Serializable {
         return DATUM;
     }
 
-    public String getID_LEHRER() {
-        return ID_LEHRER;
-    }
 
     public int getID_SCHUELER() {
         return ID_SCHUELER;
@@ -47,8 +42,7 @@ public class BemerkungId implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((ID_LEHRER == null) ? 0 : ID_LEHRER.hashCode());
+		result = prime * result;
 		result = prime * result + ID_SCHUELER+DatumUtil.hash(DATUM) ;                
 		return result;
 	}
@@ -62,11 +56,6 @@ public class BemerkungId implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		BemerkungId other = (BemerkungId) obj;
-		if (ID_LEHRER == null) {
-			if (other.ID_LEHRER != null)
-				return false;
-		} else if (!ID_LEHRER.equals(other.ID_LEHRER))
-			return false;
 		if (ID_SCHUELER != other.ID_SCHUELER)
 			return false;
                 if (!DATUM.equals(other.DATUM)) {

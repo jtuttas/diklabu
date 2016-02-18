@@ -6,6 +6,8 @@
 package de.tuttas.restful;
 
 import de.tuttas.entities.Anwesenheit;
+import de.tuttas.entities.Bemerkung;
+import de.tuttas.entities.BemerkungId;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
@@ -19,6 +21,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 
 import java.util.GregorianCalendar;
@@ -73,7 +76,30 @@ public class AnwesenheitsManager {
             System.out.println("Es gibt schon einen Eintrag, also updaten");
             em.merge(a);
         } else {
+            System.out.println("Ein neuer Eintrag");
             em.persist(a);
+        }
+        if (ae.getBEMERKUNG()!=null) {
+            System.out.println("Es gibt eine Bemerkung");
+            BemerkungId bemId = new BemerkungId(ae.getDATUM(),ae.getID_SCHUELER());
+            
+            Bemerkung fb=em.find(Bemerkung.class, bemId);
+            if (fb==null) {
+                System.out.println("eine neue Bemerkung");
+                Bemerkung b = new Bemerkung(ae.getDATUM(), ae.getID_SCHUELER());
+                b.setID_LEHRER(ae.getID_LEHRER());
+                b.setBEMERKUNG(ae.getBEMERKUNG());
+                em.persist(b);
+            }
+            else {
+                System.out.println("eine alte Bemerkung also update");
+                fb.setID_LEHRER(ae.getID_LEHRER());
+                fb.setBEMERKUNG(ae.getBEMERKUNG());
+                em.merge(fb);
+            }
+        }
+        else {
+            System.out.println("Es gibt KEINE Bemerkung");
         }
         ae.setParseError(!VerspaetungsUtil.isValid(ae));
         return ae;
@@ -97,7 +123,21 @@ public class AnwesenheitsManager {
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", d1);
         query.setParameter("paramToDate", d2);
-        return getData(query);
+         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
+        
+        Query qb = em.createNamedQuery("findBemerkungbyDate");
+        qb.setParameter("paramFromDate", d1);
+        qb.setParameter("paramToDate", d2);
+        
+        List<String> ids = new ArrayList<>();
+        for (AnwesenheitEintrag ae:anwesenheit) {
+            ids.add(""+ae.getID_SCHUELER());
+        }
+        
+        qb.setParameter("idList", ids);
+        List<Bemerkung> bemerkungen = qb.getResultList();
+        System.out.println("Result List Bemerkunken:" + bemerkungen);               
+        return getData(anwesenheit,bemerkungen);
     }
 
     @GET
@@ -114,7 +154,8 @@ public class AnwesenheitsManager {
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", d);
-        return getData(query);
+        List<AnwesenheitEintrag> anwesenheit = query.getResultList();
+        return getData(anwesenheit,null);
     }
 
     @GET
@@ -126,11 +167,12 @@ public class AnwesenheitsManager {
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", to);
-        return getData(query);
+        List<AnwesenheitEintrag> anwesenheit = query.getResultList();
+        return getData(anwesenheit,null);
     }
 
-    private List<AnwesenheitObjekt> getData(TypedQuery query) {
-        List<AnwesenheitEintrag> anwesenheit = query.getResultList();
+    private List<AnwesenheitObjekt> getData(List<AnwesenheitEintrag> anwesenheit,List<Bemerkung> bemerkungen) {
+         
         //System.out.println("Results:="+anwesenheit);
         List<AnwesenheitObjekt> anw = new ArrayList();
         int id = 0;
@@ -147,6 +189,22 @@ public class AnwesenheitsManager {
         
         for (AnwesenheitObjekt ano:anw) {
             ano=VerspaetungsUtil.parse(ano);
+        }
+        
+        if (bemerkungen != null) {
+            for (AnwesenheitObjekt anwo:anw) {
+                List<AnwesenheitEintrag> eintr = anwo.getEintraege();
+                for (AnwesenheitEintrag anwe:eintr) {
+                    int ids = anwe.getID_SCHUELER();
+                    Timestamp ts = anwe.getDATUM();
+                    for (Bemerkung bem:bemerkungen) {
+                        if (bem.getID_SCHUELER()==ids && bem.getDATUM().equals(ts)) {
+                            System.out.println("Habe eine Bemerkung zum Anwesenheitseintrag gefunden");
+                            anwe.setBEMERKUNG(bem.getBEMERKUNG());
+                        }
+                    }
+                }
+            }
         }
         return anw;
     }

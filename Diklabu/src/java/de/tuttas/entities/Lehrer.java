@@ -38,9 +38,9 @@ public class Lehrer implements Serializable {
     @Transient
     private String idplain;
     @Transient
-    private String vPlan="#"; 
+    private String vPlan;
     @Transient
-    private String stdPlan="#";
+    private String stdPlan;
 
     public String getStdPlan() {
         return stdPlan;

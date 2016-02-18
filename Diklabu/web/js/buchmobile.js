@@ -723,8 +723,20 @@ function getLehrerData(le) {
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
                 $("#lehrerShort").text(le);
-                $("#btnStdPlanLehrer").attr("href", data.stdPlan);
-                $("#btnVertrPlanLehrer").attr("href", data.vPlan);
+                if (data.stdPlan!=undefined) {
+                    $("#btnStdPlanLehrer").attr("href", data.stdPlan);
+                    $("#btnStdPlanLehrer").show();
+                }
+                else {
+                    $("#btnStdPlanLehrer").hide();                    
+                }
+                if (data.vPlan!=undefined) {
+                    $("#btnVertrPlanLehrer").attr("href", data.vPlan);
+                    $("#btnVertrPlanLehrer").show();
+                }
+                else {
+                    $("#btnVertrPlanLehrer").hide();
+                }
             },
             error: function () {
                 toast("kann Daten für " + le + " nicht vom Server laden");
@@ -825,8 +837,20 @@ function buildKlassenListeView(data) {
                 else {
                 }
                 $("#klDetailsBemerklungen").val(data.NOTIZ);
-                $("#klDetailsStundenplan").attr("href", data.stundenplan);
-                $("#klDetailsVertretungsplan").attr("href", data.vertretungsplan);
+                if (data.stundenplan!=undefined) {
+                    $("#klDetailsStundenplan").attr("href", data.stundenplan);
+                    $("#klDetailsStundenplan").show();
+                }
+                else {
+                    $("#klDetailsStundenplan").hide();
+                }
+                if (data.vertretungsplan!=undefined) {
+                    $("#klDetailsVertretungsplan").attr("href", data.vertretungsplan);
+                    $("#klDetailsVertretungsplan").show();
+                }
+                else {
+                    $("#klDetailsVertretungsplan").hide();
+                }
                 $("#klassenDetails").popup("open");
 
             },
@@ -1001,7 +1025,7 @@ function buildNamensliste(data) {
     $("#namensListView").empty();
     for (i = 0; i < data.length; i++) {
         //console.log("Füge Listview " + data[i].NNAME + " an");
-        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="setAnwesenheit ui-btn" ><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '"></small></a><a sid="' + data[i].id + '" href="#schuelerdetails"  class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a schueler" title="Edit"></a></li>')
+        $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="setAnwesenheit ui-btn" ><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside anwClear"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '" class="anwClear"></small></a><a sid="' + data[i].id + '" href="#schuelerdetails"  class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a schueler" title="Edit"></a></li>')
     }
 
     $(".setAnwesenheit").click(function () {
@@ -1042,10 +1066,10 @@ function renderSchuelerDetails(sid) {
         }
         if (data.ausbilder != undefined) {
             $("#ausbilderName").text(data.ausbilder.NNAME);
-            $("#ausbilderTel").text("Tel.:" + data.ausbilder.TELEFON);
+            $("#ausbilderTel").text( data.ausbilder.TELEFON);
             $("#ausbilderTel").attr("href", "tel:" + data.ausbilder.TELEFON);
             $("#ausbilderFax").text("Fax:" + data.ausbilder.FAX);
-            $("#ausbilderEmail").text("EMail:" + data.ausbilder.EMAIL);
+            $("#ausbilderEmail").text( data.ausbilder.EMAIL);
             $("#ausbilderEmail").attr("href", "mailto:" + data.ausbilder.EMAIL);
         }
         else {
@@ -1213,6 +1237,7 @@ function buildAnwesenheit(kl) {
 }
 
 function renderAnwesenheit(data) {
+    $(".anwClear").text("");
     for (i = 0; i < data.length; i++) {
         $("#anw" + data[i].id_Schueler).removeClass("anwesend");
         $("#anw" + data[i].id_Schueler).removeClass("fehlend");

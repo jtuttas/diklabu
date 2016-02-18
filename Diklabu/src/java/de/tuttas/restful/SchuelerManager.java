@@ -66,6 +66,16 @@ public class SchuelerManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    @POST
+    @Path("/{idschueler}")
+    public SchuelerObject getPupil(@PathParam("idschueler") int idschueler,SchuelerObject so) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Schueler s = em.find(Schueler.class, so.getId());
+        if (s==null) return null;
+        s.setINFO(so.getInfo());
+        em.merge(s);
+        return so;
+    }
     @GET
     @Path("/{idschueler}")
     public SchuelerObject getPupil(@PathParam("idschueler") int idschueler) {
@@ -79,6 +89,7 @@ public class SchuelerManager {
             so.setName(s.getNNAME());
             so.setVorname(s.getVNAME());
             so.setEmail(s.getEMAIL());
+            so.setInfo(s.getINFO());
             Query query = em.createNamedQuery("findKlassenbySchuelerID");
             query.setParameter("paramIDSchueler", so.getId());
             List<Klasse> klassen = query.getResultList();
@@ -92,11 +103,6 @@ public class SchuelerManager {
                 Betrieb b = em.find(Betrieb.class, a.getID_BETRIEB());
                 so.setBetrieb(b);
             }
-            Query squery = em.createNamedQuery("findBemerkungbySchuelerId");
-            squery.setParameter("paramSchuelerId", so.getId());
-            List<Bemerkung> bemerkungen = squery.getResultList();
-            System.out.println("Result List:" + klassen);
-            so.setBemerkungen(bemerkungen);
             
             return so;
         }

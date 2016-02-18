@@ -6,12 +6,8 @@
 package de.tuttas.entities;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
-import java.util.GregorianCalendar;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.persistence.NamedQueries;
@@ -24,7 +20,8 @@ import javax.persistence.Transient;
  */
 @Entity
 @NamedQueries({  
-     @NamedQuery(name = "findBemerkungbySchuelerId", query= "select b from Bemerkung b where b.ID_SCHUELER= :paramSchuelerId order by b.DATUM DESC")
+     @NamedQuery(name = "findBemerkungbySchuelerId", query= "select b from Bemerkung b where b.ID_SCHUELER= :paramSchuelerId order by b.DATUM DESC"),
+     @NamedQuery(name = "findBemerkungbyDate", query= "select b from Bemerkung b where b.DATUM BETWEEN :paramFromDate AND :paramToDate AND b.ID_SCHUELER IN :idList")
 })
 @IdClass(BemerkungId.class)
 public class Bemerkung implements Serializable {
@@ -32,8 +29,7 @@ public class Bemerkung implements Serializable {
     @Id
     private int ID_SCHUELER;
     @Id
-    private Timestamp DATUM;
-    @Id
+    private Timestamp DATUM;    
     private String ID_LEHRER;    
     private String BEMERKUNG;
     @Transient
@@ -44,19 +40,14 @@ public class Bemerkung implements Serializable {
     public Bemerkung() {
     }
 
-    public Bemerkung(int ID_SCHUELER, String ID_LEHRER) {
-        this.ID_SCHUELER = ID_SCHUELER;
-        this.ID_LEHRER = ID_LEHRER;
+    public Bemerkung(Timestamp datum, int id_schueler) {
+        this.DATUM=datum;
+        this.ID_SCHUELER=id_schueler;
     }
+
+   
 
     
-    public Bemerkung(int ID_SCHUELER, String ID_LEHRER, String BEMERKUNG) {
-        this.ID_SCHUELER = ID_SCHUELER;
-        this.DATUM = new Timestamp(GregorianCalendar.getInstance().getTimeInMillis());
-        this.ID_LEHRER = ID_LEHRER;
-        this.BEMERKUNG = BEMERKUNG;
-    }
-
     public void setMsg(String msg) {
         this.msg = msg;
     }
@@ -112,7 +103,7 @@ public class Bemerkung implements Serializable {
     
     @Override
     public String toString() {
-        return "de.tuttas.entities.Bemerkung[ ID_SCHUELER=" + ID_SCHUELER +" ID_LEHRER="+ID_LEHRER+ " Datum="+DATUM+"]";
+        return "de.tuttas.entities.Bemerkung[ ID_SCHUELER=" + ID_SCHUELER +" ID_LEHRER="+ID_LEHRER+ " Datum="+DATUM+" Bemerkung="+BEMERKUNG+"]";
     }
     
 }

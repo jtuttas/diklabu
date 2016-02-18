@@ -46,8 +46,20 @@ public class Schueler implements Serializable {
 
     private String ACC;
     
+    // Kommentare zu Schülern
+    private String INFO;
+    
     private int ID_AUSBILDER;
 
+    public void setINFO(String INFO) {
+        this.INFO = INFO;
+    }
+
+    public String getINFO() {
+        return INFO;
+    }
+
+        
     public void setEMAIL(String EMAIL) {
         this.EMAIL = EMAIL;
     }

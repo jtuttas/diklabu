@@ -27,6 +27,7 @@ public class AnwesenheitObjekt {
     private List<AnwesenheitEintrag> parseErrors = new ArrayList<>();
     private List<AnwesenheitEintrag> fehltageEntschuldigt = new ArrayList<>();
     private List<AnwesenheitEintrag> fehltageUnentschuldigt = new ArrayList<>();
+    private List<AnwesenheitEintrag> eintraege = new ArrayList();
 
     public void setFehltageEntschuldigt(List<AnwesenheitEintrag> fehltageEntschuldig) {
         this.fehltageEntschuldigt = fehltageEntschuldig;
@@ -96,7 +97,6 @@ public class AnwesenheitObjekt {
     
     
     
-    private List<AnwesenheitEintrag> eintraege = new ArrayList();
 
     public AnwesenheitObjekt() {
     }

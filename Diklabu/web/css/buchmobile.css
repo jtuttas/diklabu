@@ -75,6 +75,12 @@
     color: #222222;
 }
 
-.loadingContainer {
-    text-align: center;    
-}
+
+
+
+.ui-loader .ui-icon-loading {
+   background-color: #222222;
+ }
+ .ui-icon-loading {
+    background: url("../img/loading.gif");     
+  }

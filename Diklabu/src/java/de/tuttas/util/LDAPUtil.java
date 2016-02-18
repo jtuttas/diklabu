@@ -10,9 +10,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -105,7 +107,7 @@ public class LDAPUtil {
             ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         } catch (NamingException ex) {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        }              
 
     }
 

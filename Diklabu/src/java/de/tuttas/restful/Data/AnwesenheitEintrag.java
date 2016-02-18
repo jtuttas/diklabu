@@ -18,13 +18,19 @@ public class AnwesenheitEintrag {
     private String ID_LEHRER;
     private int ID_SCHUELER;
     private String VERMERK;
+    private String BEMERKUNG;
     
     
     private boolean parseError = false;
 
+    public void setBEMERKUNG(String BEMERKUNG) {
+        this.BEMERKUNG = BEMERKUNG;
+    }
 
-    
-    
+    public String getBEMERKUNG() {
+        return BEMERKUNG;
+    }
+        
     public void setParseError(boolean b) {
         this.parseError=b;
     }

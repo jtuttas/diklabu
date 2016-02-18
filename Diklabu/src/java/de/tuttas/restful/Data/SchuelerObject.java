@@ -20,7 +20,6 @@ public class SchuelerObject {
     
     private Auth auth;
     private List<Klasse>klassen;
-    private List<Bemerkung>bemerkungen;
     private String name;
     private String vorname;
     private int id;
@@ -28,7 +27,17 @@ public class SchuelerObject {
     private Ausbilder ausbilder;
     private Betrieb betrieb;
     private String email;
+    private String info;
 
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    
     public void setEmail(String email) {
         this.email = email;
     }
@@ -37,15 +46,6 @@ public class SchuelerObject {
         return email;
     }
 
-    public List<Bemerkung> getBemerkungen() {
-        return bemerkungen;
-    }
-
-    public void setBemerkungen(List<Bemerkung> bemerkungen) {
-        this.bemerkungen = bemerkungen;
-    }
-    
-    
 
     public void setBetrieb(Betrieb betrieb) {
         this.betrieb = betrieb;
