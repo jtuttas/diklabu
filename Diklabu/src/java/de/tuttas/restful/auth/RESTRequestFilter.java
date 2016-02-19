@@ -7,6 +7,7 @@ package de.tuttas.restful.auth;
 
 import de.tuttas.config.Config;
 import de.tuttas.restful.auth.Authenticator;
+import de.tuttas.util.Log;
 import java.io.IOException;
 import java.util.logging.Logger;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -38,9 +39,9 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         // Then check is the service key exists and is valid.
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = requestCtx.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
-        System.out.println("path=("+path+")");
+        Log.d("path=("+path+")");
         if (path.startsWith("/noauth") || path.startsWith("/kurswahl") || Config.debug) {
-            System.out.println("path start with noauth");
+            Log.d("path start with noauth");
         } else {
             /*
             if (!demoAuthenticator.isServiceKeyValid(serviceKey)) {
@@ -55,7 +56,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
             // For any pther methods besides login, the authToken must be verified
             if (!path.startsWith("/auth/login/") ) {
                 String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-                System.out.println("auth Token="+authToken);
+                Log.d("auth Token="+authToken);
                 // if it isn't valid, just kick them out.
                 if (!demoAuthenticator.isAuthTokenValid(serviceKey, authToken)) {
                     requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());

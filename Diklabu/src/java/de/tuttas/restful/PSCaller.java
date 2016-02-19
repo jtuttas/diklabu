@@ -5,23 +5,17 @@
  */
 package de.tuttas.restful;
 
-import de.tuttas.entities.LoginSchueler;
-import de.tuttas.restful.Data.SchuelerObject;
-import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.Auth;
 import de.tuttas.restful.Data.PSCallerObject;
+import de.tuttas.util.Log;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -47,7 +41,7 @@ public class PSCaller {
     @POST    
     @Consumes(MediaType.APPLICATION_JSON)
     public PSCallerObject call(PSCallerObject pso) {
-        System.out.println("receive POST manager/pscaller:" + pso.toString());
+        Log.d("receive POST manager/pscaller:" + pso.toString());
         if (pso.getAuth() != null) {
             Auth auth = pso.getAuth();
             if (auth.validAdminUser()) {
@@ -66,13 +60,13 @@ public class PSCaller {
                 reader.close();
                 proc.getOutputStream().close();
                 out = "{\"result\":" + out + "}";
-                System.out.println("out=" + out);                
+                Log.d("out=" + out);                
                 
                 pso.setResult(out);
                 pso.setSuccess(true);
                 
             } catch (IOException ex) {
-                System.out.println("IOException:" + ex.getMessage());
+                Log.d("IOException:" + ex.getMessage());
                 Logger.getLogger(PSCaller.class.getName()).log(Level.SEVERE, null, ex);
                 pso.setMsg(ex.getMessage());
                 pso.setSuccess(false);

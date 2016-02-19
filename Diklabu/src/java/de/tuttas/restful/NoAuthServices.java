@@ -5,14 +5,10 @@
  */
 package de.tuttas.restful;
 
-import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Lernfeld;
-import de.tuttas.entities.Schueler;
-import de.tuttas.restful.Data.AnwesenheitEintrag;
-import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.Data.KlasseShort;
-import java.util.ArrayList;
+import de.tuttas.util.Log;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -20,10 +16,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.ws.rs.GET;
-import static javax.ws.rs.HttpMethod.PUT;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 
 
 /**
@@ -44,7 +37,7 @@ public class NoAuthServices {
     @GET
     @Path("lehrer")
     public List<Lehrer> getAnwesenheit() {
-        System.out.println("Webservice Lehrer Get:");
+        Log.d("Webservice Lehrer Get:");
         Query query = em.createNamedQuery("findAllTeachers");
         List<Lehrer> lehrer = query.getResultList();
         return lehrer;
@@ -53,17 +46,17 @@ public class NoAuthServices {
     @GET
     @Path("klassen")
     public List<KlasseShort> getClasses() {
-        System.out.println("Webservice klasse GET");
+        Log.d("Webservice klasse GET");
         TypedQuery<KlasseShort> query = em.createNamedQuery("findAllKlassen", KlasseShort.class);
         List<KlasseShort> klassen = query.getResultList();
-        System.out.println("Result List:" + klassen);
+        Log.d("Result List:" + klassen);
         return klassen;
     }
 
     @GET
     @Path("lernfelder")
     public List<Lernfeld> getLernfeld() {
-        System.out.println("Webservice Lernfeld GET:");
+        Log.d("Webservice Lernfeld GET:");
         Query query = em.createNamedQuery("findAllLernfelder");
         List<Lernfeld> lernfeld = query.getResultList();
         return lernfeld;

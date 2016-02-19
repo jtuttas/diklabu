@@ -52,7 +52,7 @@ public class StundenplanUtil {
             return instance;
         }
         if (timestamp < new Date().getTime()-1000*60*60) {
-            System.out.println("Instanz von StundenplanUtil ist zu alt, also eine neuer erzeugen!");
+            Log.d("Instanz von StundenplanUtil ist zu alt, also eine neuer erzeugen!");
             timestamp = new Date().getTime();
             instance = new StundenplanUtil();
             return instance;
@@ -120,10 +120,10 @@ public class StundenplanUtil {
             po.setSuccess(true);
             po.setMsg(planType + " geladen");
             int id = (int) theMap.get(identifier);
-            System.out.println("Generate URL for id="+id);
+            Log.d("Generate URL for id="+id);
             po.setUrl(generatePlanUrl( id, basicUrl,seperator));
         } else {
-            System.out.println(" Kann "+identifier+" nicht finden");
+            Log.d(" Kann "+identifier+" nicht finden");
             po.setSuccess(false);
             po.setMsg("Kann " + planType + " von " + identifier + " nicht finden!");
         }
@@ -150,11 +150,11 @@ public class StundenplanUtil {
         while ((inputLine = in.readLine()) != null) {
 
             if (inputLine.startsWith(sPattern)) {
-                System.out.println("found:" + inputLine);
+                Log.d("found:" + inputLine);
                 HashMap map = new HashMap();
                 String r = inputLine.substring(inputLine.indexOf("[") + 1, inputLine.indexOf("]"));
                 r = r.replace("\"", "");
-                //System.out.println("r=" + r);
+                //Log.d("r=" + r);
                 String[] sa = r.split(",");
                 for (int i = 0; i < sa.length; i++) {
                     map.put(sa[i], i);
@@ -209,7 +209,7 @@ public class StundenplanUtil {
         }
         in.close();
         out = out.replace("<BR>", "<BR></BR>\n");
-        System.out.println("HTML=" + out);
+        Log.d("HTML=" + out);
         return out;
 
     }

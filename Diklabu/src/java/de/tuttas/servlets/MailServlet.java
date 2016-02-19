@@ -11,11 +11,10 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
-import de.tuttas.config.Config;
 import de.tuttas.restful.Data.ResultObject;
+import de.tuttas.util.Log;
 import de.tuttas.util.StringUtil;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,31 +22,15 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.Properties;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.mail.AuthenticationFailedException;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.PasswordAuthentication;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -120,7 +103,7 @@ public class MailServlet extends HttpServlet {
             throws ServletException, IOException {
          String auth = request.getParameter("auth_token");
         String service = request.getParameter("service_key");
-        System.out.println("auth_token=" + auth);
+        Log.d("auth_token=" + auth);
         
         if (de.tuttas.config.Config.debug || service != null && auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(service, auth)) {
         response.setContentType("application/json;charset=UTF-8");
@@ -149,7 +132,7 @@ public class MailServlet extends HttpServlet {
         }
 
         if (subject==null || subject.length() == 0) {
-            System.out.println("subject = null");
+            Log.d("subject = null");
             result.setSuccess(false);
             result.setMsg("Fehler beim EMail Versand: kein Betreff angegeben!");
         } else if (content==null || content.length() == 0) {
@@ -205,7 +188,7 @@ public class MailServlet extends HttpServlet {
         OutputStream out = null;
         try {
             out = response.getOutputStream();
-            System.out.println("Mail versandt erfolgreich erzeuge pdf Dokumentation! out="+out);
+            Log.d("Mail versandt erfolgreich erzeuge pdf Dokumentation! out="+out);
             response.setContentType("application/pdf");
             response.addHeader("Content-Disposition", "attachment; filename=Fehlzeitenbericht_" + recipient + ".pdf");
             String kopf = "";
@@ -240,7 +223,7 @@ public class MailServlet extends HttpServlet {
             String body="";
             body += "<table align='center' width='100%'>";
             body += "<tr><td><h3 align=\"center\">Empfänger:"+recipient+"</h3></td></tr>";
-            System.out.println("Content="+StringUtil.addBR(content));
+            Log.d("Content="+StringUtil.addBR(content));
             body += "<tr><td style=\"font-size: 12;\">"+StringUtil.addBR(content)+"</td></tr>";
             body += "</table>";
             htmlString.append(body);

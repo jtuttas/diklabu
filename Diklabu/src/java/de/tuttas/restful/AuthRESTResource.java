@@ -12,6 +12,7 @@ import de.tuttas.restful.auth.Authenticator;
 
 import de.tuttas.restful.auth.HTTPHeaderNames;
 import de.tuttas.util.LDAPUser;
+import de.tuttas.util.Log;
 import java.security.GeneralSecurityException;
 import javax.ejb.Stateless;
 import javax.json.Json;
@@ -39,7 +40,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
 
         String username=a.getBenutzer();
         String password=a.getKennwort();
-        System.out.println("login post empfangen f. "+a.toString()+" debug="+Config.debug);
+        Log.d("login post empfangen f. "+a.toString()+" debug="+Config.debug);
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = httpHeaders.getHeaderString( HTTPHeaderNames.SERVICE_KEY );
 

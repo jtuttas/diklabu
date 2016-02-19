@@ -10,6 +10,7 @@ import de.tuttas.restful.Data.Ticketing;
 
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.Credential;
+import de.tuttas.util.Log;
 import java.sql.Date;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -61,14 +62,14 @@ public class CourseBooking {
     @Consumes(MediaType.APPLICATION_JSON)
     public Credential login(Credential c) {
         em.getEntityManagerFactory().getCache().evictAll();
-        System.out.println ("Webservice courseselect/login"+c.toString());
+        Log.d ("Webservice courseselect/login"+c.toString());
         Query  query = em.createNamedQuery("findSchuelerbyCredentials");
         query.setParameter("paramName", c.getName());
         query.setParameter("paramVorname", c.getVorName());
         query.setParameter("paramGebDatum", c.getGebDatum());
         
         List<Schueler> pupils = query.getResultList();
-        System.out.println("Result List:"+pupils);
+        Log.d("Result List:"+pupils);
         if (pupils.size()>0) {
             c.setLogin(true);
             c.setMsg("Anmeldung erfolgreich!");
@@ -77,9 +78,9 @@ public class CourseBooking {
             query = em.createNamedQuery("findKlasseByUserId");
             query.setParameter("paramId", c.getId());
             List<Klasse> courses = query.getResultList();
-            System.out.println("Liste der Wünsche:"+courses);
+            Log.d("Liste der Wünsche:"+courses);
             c.setCourses(courses);
-            System.out.println("Liste des gewählten Kurses:"+courses);
+            Log.d("Liste des gewählten Kurses:"+courses);
             
             // Abfrage des zugeteilten Kurses
             if (courses.size()!=0) {
@@ -89,7 +90,7 @@ public class CourseBooking {
                 query.setParameter("paramWunsch3ID", courses.get(2).getId());
                 query.setParameter("paramIDSchueler", c.getId());
                 List<Klasse> selectCourses = query.getResultList();
-                System.out.println("Liste der zugeteilten Kurses:"+selectCourses);
+                Log.d("Liste der zugeteilten Kurses:"+selectCourses);
                 if (selectCourses.size()!=0) c.setSelectedCourse(selectCourses.get(0));
             }
             
@@ -112,11 +113,11 @@ public class CourseBooking {
     @Consumes(MediaType.APPLICATION_JSON)
     public List<Klasse> getCourses() {
         em.getEntityManagerFactory().getCache().evictAll();
-        System.out.println ("Webservice courseselect/booking GET:");
+        Log.d ("Webservice courseselect/booking GET:");
         
         Query  query = em.createNamedQuery("getSelectedKlassen");
         List<Klasse> courses = query.getResultList();
-        System.out.println("Result List:"+courses);
+        Log.d("Result List:"+courses);
         return courses;                
     }   
     
@@ -130,20 +131,20 @@ public class CourseBooking {
     @Consumes(MediaType.APPLICATION_JSON)
     public Ticketing book(Ticketing t) {
         em.getEntityManagerFactory().getCache().evictAll();
-        System.out.println ("Webservice courseselect/booking POST:"+t.toString());
+        Log.d ("Webservice courseselect/booking POST:"+t.toString());
         Query  query = em.createNamedQuery("findSchuelerbyCredentials");
         query.setParameter("paramName", t.getCredential().getName());
         query.setParameter("paramVorname", t.getCredential().getVorName());
         query.setParameter("paramGebDatum", t.getCredential().getGebDatum());
         List<Schueler> pupils = query.getResultList();
-        System.out.println("Result List Pupil:"+pupils);
+        Log.d("Result List Pupil:"+pupils);
         
         // Schauen ob Kursbuchung aktiv
         
         Query qk = em.createNamedQuery("findTitel");        
         qk.setParameter("paramTitel", "kursbuchung");
         List<Konfig> konfig = qk.getResultList();
-        System.out.println ("Konfig="+konfig);
+        Log.d ("Konfig="+konfig);
         if (konfig.get(0).getSTATUS()==0) {
             t.setSuccess(false);
             t.setMsg("Wahl ist noch nicht freigeschaltet!");            
@@ -160,7 +161,7 @@ public class CourseBooking {
                     Query  q = em.createNamedQuery("findKlasseByUserId");
                     q.setParameter("paramId", t.getCredential().getId());
                     List<Klasse> courses = q.getResultList();
-                    System.out.println("Result List Courses:"+courses);
+                    Log.d("Result List Courses:"+courses);
                     if (courses.size()==0) {                
                         // Die drei Wünsche
                         Kurswunsch rel1 = new Kurswunsch(t.getCredential().getId(),t.getCourseList().get(0).getId().intValue(), "1","0");
@@ -180,7 +181,7 @@ public class CourseBooking {
                         query.setParameter("paramWunsch3ID", courses.get(2).getId());
                         query.setParameter("paramIDSchueler", t.getCredential().getId());
                         List<Klasse> selectCourses = query.getResultList();
-                        System.out.println("Liste der zugeteilten Kurses:"+selectCourses);
+                        Log.d("Liste der zugeteilten Kurses:"+selectCourses);
                         if (selectCourses.size()!=0) t.getCredential().setSelectedCourse(selectCourses.get(0));                                                                        
                         t.setSuccess(false);
                         t.getCredential().setCourses(courses);

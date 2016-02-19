@@ -5,6 +5,7 @@
  */
 package de.tuttas.websockets;
 
+import de.tuttas.util.Log;
 import de.tuttas.util.StringUtil;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class ChatServer {
 
     @OnOpen
     public void onOpen(Session session) {
-        System.out.println(session.getId() + " has opened a connection");
+        Log.d(session.getId() + " has opened a connection");
         sessions.add(session);
 
         mySession = session;
@@ -44,12 +45,12 @@ public class ChatServer {
         } catch (IOException ex) {
             Logger.getLogger(ChatServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Total Number of Clients =" + sessions.size());
+        Log.d("Total Number of Clients =" + sessions.size());
     }
 
     @OnMessage
     public String onMessage(String jsonMessage) {
-        System.out.println("ChatServer receive:" + jsonMessage);
+        Log.d("ChatServer receive:" + jsonMessage);
         JSONParser parser = new JSONParser();
         JSONObject jo;
         try {
@@ -58,7 +59,7 @@ public class ChatServer {
             String msg = (String) jo.get("msg");
             if (from.compareTo("System") == 0) {
                 users.put(mySession.getId(), msg);
-                System.out.println("Session " + mySession.getId() + " user " + msg + " zugeordnet");
+                Log.d("Session " + mySession.getId() + " user " + msg + " zugeordnet");
                 jo.put("from", msg);
                 jo.put("msg", "beigetreten!");
                 jo.put("notoast", true);
@@ -72,7 +73,7 @@ public class ChatServer {
 
     @OnClose
     public void onClose(Session session) {
-        System.out.println("Session " + session.getId() + " has ended user is " + users.get(session.getId()));
+        Log.d("Session " + session.getId() + " has ended user is " + users.get(session.getId()));
         JSONObject jo = new JSONObject();
         jo.put("from", users.get(session.getId()));
         jo.put("msg", "hat das System verlassen!");
@@ -83,7 +84,7 @@ public class ChatServer {
     }
 
     public static void send(JSONObject msg, Session myself) {
-        System.out.println("Sende " + msg.toJSONString());
+        Log.d("Sende " + msg.toJSONString());
         msg.put("msg", StringUtil.escapeHtml((String) msg.get("msg")));
         for (Session s : sessions) {
             if (s != myself) {

@@ -6,6 +6,7 @@
 package de.tuttas.restful;
 
 import de.tuttas.entities.Lehrer;
+import de.tuttas.util.Log;
 import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
 import java.util.List;
@@ -32,7 +33,7 @@ public class LehrerManager {
      
     @GET   
     public List<Lehrer> getAllLehrer() {
-        System.out.println("Webservice Lehrer Get:");
+        Log.d("Webservice Lehrer Get:");
         Query query = em.createNamedQuery("findAllTeachers");
         List<Lehrer> lehrer = query.getResultList();
         return lehrer;
@@ -41,7 +42,7 @@ public class LehrerManager {
     @GET   
     @Path("/{idLehrer}")
     public Lehrer getLehrer(@PathParam("idLehrer") String idLehrer) {
-        System.out.println("Webservice Lehrer Get:"+idLehrer);        
+        Log.d("Webservice Lehrer Get:"+idLehrer);        
         Lehrer lehrer = em.find(Lehrer.class, idLehrer);
         lehrer.setStdPlan(StundenplanUtil.getInstance().getPlanObject(lehrer.getNNAME(), PlanType.STDPlanLehrer).getUrl());
         lehrer.setvPlan(StundenplanUtil.getInstance().getPlanObject(lehrer.getNNAME(), PlanType.VERTRPlanLehrer).getUrl());

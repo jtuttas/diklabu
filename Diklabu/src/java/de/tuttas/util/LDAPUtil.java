@@ -77,7 +77,7 @@ public class LDAPUtil {
                 bindUser = (String) jo.get("binduser");
                 bindPassword = (String) jo.get("bindpassword");
                 userContext = (String) jo.get("context");
-                System.out.println("Context is " + userContext);
+                Log.d("Context is " + userContext);
 
             } catch (IOException ex) {
                 Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
@@ -103,7 +103,7 @@ public class LDAPUtil {
         try {
             context = new InitialDirContext(props);
             ctrls = new SearchControls();
-            ctrls.setReturningAttributes(new String[]{"sn", "initials", "givenName", "sn", "memberOf", "userPrincipalName"});
+            ctrls.setReturningAttributes(new String[]{"description","mail","sn","initials","givenName", "sn", "memberOf", "userPrincipalName"});
             ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         } catch (NamingException ex) {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
@@ -116,7 +116,7 @@ public class LDAPUtil {
         LDAPUser u;
         try {
             u = lpd.authenticateJndi("Bahrke", "Tuttas1!");
-            System.out.println("Habe gefunden " + u);
+            Log.d("Habe gefunden " + u);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -125,23 +125,20 @@ public class LDAPUtil {
 
     public LDAPUser authenticateJndi(String username, String password) throws Exception {
 
-        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(userContext, "(givenName=" + username + ")", ctrls);
-        System.out.println("answers=" + answers);
-        System.out.println("answers=" + answers.hasMore());
+        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(userContext, "(cn=" + username + ")", ctrls);
+        Log.d("answers=" + answers);
+        Log.d("answers=" + answers.hasMore());
         if (!answers.hasMore()) {
             return null;
         }
         javax.naming.directory.SearchResult result = answers.nextElement();
 
-        LDAPUser u = new LDAPUser(result.getAttributes().get("givenName").getAll().next().toString(),
-                result.getAttributes().get("sn").getAll().next().toString(),
-                result.getAttributes().get("userPrincipalName").getAll().next().toString(),
-                result.getAttributes().get("initials").getAll().next().toString());
+        
 
         try {
             for (NamingEnumeration ae = result.getAttributes().getAll(); ae.hasMore();) {
                 Attribute attr = (Attribute) ae.next();
-                System.out.println("attribute: " + attr.getID());
+                Log.d("attribute: " + attr.getID());
 
                 /* print each value */
                 for (NamingEnumeration e = attr.getAll(); e.hasMore(); System.out
@@ -151,6 +148,11 @@ public class LDAPUtil {
         } catch (NamingException e) {
             e.printStackTrace();
         }
+        
+        LDAPUser u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
+                result.getAttributes().get("givenName").getAll().next().toString(),
+                result.getAttributes().get("mail").getAll().next().toString(),
+                result.getAttributes().get("initials").getAll().next().toString());
 
         String user = result.getNameInNamespace();
 

@@ -5,6 +5,7 @@
  */
 package de.tuttas.entities;
 
+import de.tuttas.util.Log;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -48,7 +49,7 @@ public class Kurswunsch implements Serializable {
      * @param GEBUCHT  GEBUCHT
      */
     public Kurswunsch(Integer ID_SCHUELER, Integer ID_KURS, String PRIORITAET, String GEBUCHT) {
-        System.out.println("Erzeuge Kurswunsch vom Schueler ID="+ID_SCHUELER+" für Kurs="+ID_KURS+" mit Priorität "+PRIORITAET);
+        Log.d("Erzeuge Kurswunsch vom Schueler ID="+ID_SCHUELER+" für Kurs="+ID_KURS+" mit Priorität "+PRIORITAET);
         this.ID_SCHUELER = ID_SCHUELER;
         this.ID_KURS = ID_KURS;
         this.PRIORITAET = PRIORITAET;

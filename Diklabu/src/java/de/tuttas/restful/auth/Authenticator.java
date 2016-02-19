@@ -9,6 +9,7 @@ import de.tuttas.config.Config;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.util.LDAPUser;
 import de.tuttas.util.LDAPUtil;
+import de.tuttas.util.Log;
 import de.tuttas.util.StringUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +44,7 @@ public final class Authenticator {
         List<Lehrer> lehrer = query.getResultList();
 
         for (Lehrer l : lehrer) {
-            System.out.println("Anlegen Benutzer (" + l.getId() + ")");
+            Log.d("Anlegen Benutzer (" + l.getId() + ")");
             usersStorage.put(l.getIdplain(), "mmbbs");
             serviceKeysStorage.put(l.getIdplain() + "f80ebc87-ad5c-4b29-9366-5359768df5a1", l.getIdplain());
         }
@@ -65,12 +66,12 @@ public final class Authenticator {
                 ldap = LDAPUtil.getInstance();
                 LDAPUser u = ldap.authenticateJndi(username, password);
                 if (u != null) {
-                    System.out.println("found User " + u.toString());
+                    Log.d("found User " + u.toString());
                     serviceKey = StringUtil.removeGermanCharacters(u.getShortName()) + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
                     if (serviceKeysStorage.containsKey(serviceKey)) {
                         String authToken = UUID.randomUUID().toString();
                         authorizationTokensStorage.put(authToken, u.getShortName());
-                        System.out.println("Login Successfull!");
+                        Log.d("Login Successfull!");
                         u.setAuthToken(authToken);
                         return u;
                     }
@@ -82,7 +83,7 @@ public final class Authenticator {
             }
             throw new LoginException("Don't Come Here Again!");
         } else {
-            System.out.println("Login im Debug Mode serviceKey="+serviceKey);
+            Log.d("Login im Debug Mode serviceKey="+serviceKey);
             if (serviceKeysStorage.containsKey(serviceKey)) {
                 String usernameMatch = serviceKeysStorage.get(serviceKey);
 

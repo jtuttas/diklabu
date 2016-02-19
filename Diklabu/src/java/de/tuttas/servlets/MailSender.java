@@ -5,6 +5,7 @@
  */
 package de.tuttas.servlets;
 
+import de.tuttas.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +14,6 @@ import java.util.Properties;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import javax.mail.Authenticator;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -61,7 +61,7 @@ public class MailSender implements Runnable {
             port = (String) jo.get("port");
             user = (String) jo.get("user");
             pass = (String) jo.get("pass");
-            System.out.println("host=" + host);
+            Log.d("host=" + host);
 
             // sets SMTP server properties
             properties.put("mail.smtp.host", host);
@@ -121,11 +121,11 @@ public class MailSender implements Runnable {
             if (mails.size()!=0) {
                 try {
                     transmitMail(mails.get(0));
-                    System.out.println("Mail erfolgreich versandt an:"+mails.get(0).getRecipient());
+                    Log.d("Mail erfolgreich versandt an:"+mails.get(0).getRecipient());
                     mails.remove(0);
                 } catch (MessagingException ex) {
                     ex.printStackTrace();
-                    System.out.println("Fehler beim Versenden der Mail");
+                    Log.d("Fehler beim Versenden der Mail");
                     Logger.getLogger(MailSender.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }

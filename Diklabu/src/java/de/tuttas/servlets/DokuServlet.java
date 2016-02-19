@@ -7,11 +7,7 @@ package de.tuttas.servlets;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import de.tuttas.config.Config;
@@ -22,19 +18,17 @@ import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.DatumUtil;
+import de.tuttas.util.Log;
 import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
 import de.tuttas.util.VerspaetungsUtil;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
 import java.util.Date;
-import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,14 +39,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -83,9 +73,9 @@ public class DokuServlet extends HttpServlet {
 
         String auth = request.getParameter("auth_token");
         String service = request.getParameter("service_key");
-        System.out.println("auth_token=" + auth);
+        Log.d("auth_token=" + auth);
         if (request.getParameter("cmd") == null || request.getParameter("idklasse") == null || request.getParameter("from") == null) {
-            System.out.println("Info zeigen");
+            Log.d("Info zeigen");
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
                 /* TODO output your page here. You may use following sample code. */
@@ -104,7 +94,7 @@ public class DokuServlet extends HttpServlet {
             if (de.tuttas.config.Config.debug || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(service, auth)) {
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
-                System.out.println("cmd=" + cmd + " Klasse=" + kl.getKNAME());
+                Log.d("cmd=" + cmd + " Klasse=" + kl.getKNAME());
                 response.setContentType("application/pdf");
                 //Get the output stream for writing PDF object        
                 OutputStream out = response.getOutputStream();
@@ -150,7 +140,7 @@ public class DokuServlet extends HttpServlet {
                     } else {
                         parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
                     }
-                    System.out.println("setze To auf " + new java.sql.Date(parsedTo.getTime()));
+                    Log.d("setze To auf " + new java.sql.Date(parsedTo.getTime()));
 
                     Document document;
                     if (cmd.compareTo("Verlauf") == 0) {
@@ -249,10 +239,10 @@ public class DokuServlet extends HttpServlet {
         query.setParameter("paramKName", kl.getKNAME());
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
-        System.out.println("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
+        Log.d("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
         List<AnwesenheitObjekt> anwesenheit = getData(query);
 
-        System.out.println("Result List:" + anwesenheit);
+        Log.d("Result List:" + anwesenheit);
         document.open();
         String tagZeile = "";
         tagZeile += "<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">\n";
@@ -260,7 +250,7 @@ public class DokuServlet extends HttpServlet {
         for (AnwesenheitObjekt ao : anwesenheit) {
             VerspaetungsUtil.parse(ao);
             Schueler s = em.find(Schueler.class, ao.getId_Schueler());
-            System.out.println("Fehltage für Schuler " + s);
+            Log.d("Fehltage für Schuler " + s);
             tagZeile += ao.toHTML(s.getVNAME() + " " + s.getNNAME());
         }
         tagZeile += "</table>";
@@ -291,13 +281,13 @@ public class DokuServlet extends HttpServlet {
         query.setParameter("paramKName", kl.getKNAME());
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
-        System.out.println("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
+        Log.d("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
         List<AnwesenheitObjekt> anwesenheit = getData(query);
 
-        System.out.println("Result List:" + anwesenheit);
+        Log.d("Result List:" + anwesenheit);
         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
         c.setTime(parsedFrom);
-        System.out.println("KW beginnt bei " + c.get(GregorianCalendar.WEEK_OF_YEAR));
+        Log.d("KW beginnt bei " + c.get(GregorianCalendar.WEEK_OF_YEAR));
         int spalte = 0;
         String tagZeile = "";
         document.open();
@@ -318,7 +308,7 @@ public class DokuServlet extends HttpServlet {
                 } else {
                     tagZeile += ("<td align=\"center\" style=\"padding: 5px; font-size: 12;border: 1px solid black;\">" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + "<br></br>" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR) + "</td>\n");
                 }
-                System.out.println("Spalte " + spalte + " Datum=" + current);
+                Log.d("Spalte " + spalte + " Datum=" + current);
                 current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
                 spalte++;
             }
@@ -328,7 +318,7 @@ public class DokuServlet extends HttpServlet {
                 tagZeile += "<tr>\n";
                 tagZeile += ("<td width='20%' style=\"padding: 5px;font-size: 12;border: 1px solid black;\"><b>" + s.getVNAME() + " " + s.getNNAME() + "</b></td>\n");
                 // Zeile f.  Tage
-                System.out.println("Zeile f. Schüler " + s.getNNAME());
+                Log.d("Zeile f. Schüler " + s.getNNAME());
                 spalte = 0;
                 current = new Date(parsedFrom.getTime());
                 while (spalte < 7 && !current.after(parsedTo)) {
@@ -338,7 +328,7 @@ public class DokuServlet extends HttpServlet {
                     } else {
                         tagZeile += ("<td style=\"font-size: 11;border: 1px solid black;\">" + findVermerk(s.getId(), current, anwesenheit) + "</td>\n");
                     }
-                    System.out.println("Zeile f. Schüler " + s.getNNAME() + " Datum " + current);
+                    Log.d("Zeile f. Schüler " + s.getNNAME() + " Datum " + current);
                     current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
                     c.setTime(parsedFrom);
                     spalte++;
@@ -358,19 +348,19 @@ public class DokuServlet extends HttpServlet {
                 document.add(image);
                 XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
                 document.newPage();
-                System.out.println("neue Seite html=" + htmlString);
+                Log.d("neue Seite html=" + htmlString);
                 htmlString = new StringBuilder();
                 tagZeile = "";
                 htmlString.append(kopf);
             }
-            System.out.println("parsedFrom ist nun " + parsedFrom);
+            Log.d("parsedFrom ist nun " + parsedFrom);
         }
         if (spalte < 7) {
 
             tagZeile += "</table>\n";
             htmlString.append(tagZeile);
-            System.out.println("fertig");
-            System.out.println("html String =" + htmlString.toString());
+            Log.d("fertig");
+            Log.d("html String =" + htmlString.toString());
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
@@ -398,7 +388,7 @@ public class DokuServlet extends HttpServlet {
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
         List<Verlauf> verlauf = query.getResultList();
-        System.out.println("Result List:" + verlauf);
+        Log.d("Result List:" + verlauf);
         htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
         String tagZeile = Verlauf.getTRHead();
         htmlString.append(tagZeile);
@@ -419,7 +409,7 @@ public class DokuServlet extends HttpServlet {
                 if (!firstPage && kw != v.getKw()) {
                     kw = v.getKw();
                     htmlString.append("</table>");
-                    System.out.println("html String=" + htmlString.toString());
+                    Log.d("html String=" + htmlString.toString());
                     //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
                     InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
                     // Bild einfügen
@@ -434,7 +424,7 @@ public class DokuServlet extends HttpServlet {
                     htmlString.append(kopf);
                     htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
                     htmlString.append(tagZeile);
-                    System.out.println("weiter mit neuer Seite");
+                    Log.d("weiter mit neuer Seite");
                 }
                 htmlString.append("<tr>");
                 htmlString.append("<td colspan=\"6\" align=\"center\" style=\"background-color: #cccccc; padding:4px;border: 1px solid black;\">KW " + v.getKw() + " / " + v.getWochentag() + " " + str.substring(0, str.indexOf(" ")) + "</td>");
@@ -445,7 +435,7 @@ public class DokuServlet extends HttpServlet {
             }
         }
         htmlString.append("</table>");
-        System.out.println("html String Rest=" + htmlString.toString());
+        Log.d("html String Rest=" + htmlString.toString());
         //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
@@ -501,7 +491,7 @@ public class DokuServlet extends HttpServlet {
     private String findVermerk(Integer id, Date current, List<AnwesenheitObjekt> anwesenheit) {
         for (AnwesenheitObjekt ao : anwesenheit) {
             if (ao.getId_Schueler() == id) {
-                System.out.println("Schuler mit id= " + id + " gefunden!");
+                Log.d("Schuler mit id= " + id + " gefunden!");
                 for (AnwesenheitEintrag a : ao.getEintraege()) {
                     if (a.getDATUM().compareTo(current) == 0) {
                         return a.getVERMERK();
@@ -515,7 +505,7 @@ public class DokuServlet extends HttpServlet {
 
     private List<AnwesenheitObjekt> getData(TypedQuery query) {
         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
-        //System.out.println("Results:="+anwesenheit);
+        //Log.d("Results:="+anwesenheit);
         List<AnwesenheitObjekt> anw = new ArrayList();
         int id = 0;
         AnwesenheitObjekt ao = new AnwesenheitObjekt();

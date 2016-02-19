@@ -107,11 +107,11 @@ public class ImageUtil {
             try {
                 for (ExifIFD0Directory d : col) {
                     orientation = d.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-                    System.out.println("Orientation =" + orientation);
+                    Log.d("Orientation =" + orientation);
                     return orientation;
                 }
             } catch (MetadataException ex) {
-                System.out.println("keine Orientation gefunden!");
+                Log.d("keine Orientation gefunden!");
             }
         } catch (ImageProcessingException e) {
             e.printStackTrace();
