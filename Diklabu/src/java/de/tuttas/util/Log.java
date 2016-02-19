@@ -15,7 +15,7 @@ public class Log {
     
     public static void d(String msg) {
         if (Config.debug) {
-            Log.d(msg);
+            System.out.println(msg);
         }
     }
 }
