@@ -19,10 +19,20 @@ public class AnwesenheitEintrag {
     private int ID_SCHUELER;
     private String VERMERK;
     private String BEMERKUNG;
+    private int ID_KLASSE;
     
     
     private boolean parseError = false;
 
+    public void setID_KLASSE(int ID_KLASSE) {
+        this.ID_KLASSE = ID_KLASSE;
+    }
+
+    public int getID_KLASSE() {
+        return ID_KLASSE;
+    }
+
+        
     public void setBEMERKUNG(String BEMERKUNG) {
         this.BEMERKUNG = BEMERKUNG;
     }
@@ -85,7 +95,7 @@ public class AnwesenheitEintrag {
 
     @Override
     public String toString() {
-        return "Anwesenheit ID_SCHUELER="+ID_SCHUELER+" ID_LEHRER="+ID_LEHRER+" VERMERK="+VERMERK+" Datum="+DATUM+"\n";
+        return "Anwesenheit ID_SCHUELER="+ID_SCHUELER+" ID_LEHRER="+ID_LEHRER+" VERMERK="+VERMERK+" Datum="+DATUM+" ID_KLASSE="+ID_KLASSE+"\n";
     }
     
     

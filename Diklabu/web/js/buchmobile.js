@@ -313,6 +313,7 @@ function commitAnwesenheit(sid, txt, bem) {
             "ID_LEHRER": localStorage.myself,
             "ID_SCHUELER": sid,
             "VERMERK": txt,
+            "ID_KLASSE": sessionStorage.idKlasse
         };
     }
     else {
@@ -321,7 +322,8 @@ function commitAnwesenheit(sid, txt, bem) {
             "ID_LEHRER": localStorage.myself,
             "ID_SCHUELER": sid,
             "VERMERK": txt,
-            "BEMERKUNG": bem
+            "BEMERKUNG": bem,
+            "ID_KLASSE": sessionStorage.idKlasse
         };
 
     }
