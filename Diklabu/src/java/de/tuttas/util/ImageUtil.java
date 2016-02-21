@@ -104,6 +104,7 @@ public class ImageUtil {
         try {
             Metadata metadata = ImageMetadataReader.readMetadata(is);
             Collection<ExifIFD0Directory> col = metadata.getDirectoriesOfType(com.drew.metadata.exif.ExifIFD0Directory.class);
+            if (col==null) return orientation;
             try {
                 for (ExifIFD0Directory d : col) {
                     orientation = d.getInt(ExifIFD0Directory.TAG_ORIENTATION);

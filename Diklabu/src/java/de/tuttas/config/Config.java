@@ -14,7 +14,9 @@ public class Config {
     
     public static final String IMAGE_FILE_PATH = "c:\\Temp\\";
     //public static final String IMAGE_FILE_PATH = "/home/pi/diklabuimages/";
+    //public static final String IMAGE_FILE_PATH = "c:\\ProgramData\\digitales Klassenbuch\\SchuelerBilder\\";
     
-    public static final String LDAP_CONF_PATH="c:\\\\Temp\\ldapconfig.json";
+    public static final String LDAP_CONF_PATH="c:\\Temp\\ldapconfig.json";
+    //public static final String LDAP_CONF_PATH="c:\\ProgramData\\digitales Klassenbuch\\ldapconfig.json";
     
 }
