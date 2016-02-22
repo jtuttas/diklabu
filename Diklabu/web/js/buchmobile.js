@@ -578,6 +578,7 @@ $(document).on("pagebeforecreate", "#verlaufDetail", function () {
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
+    lastAnnwesenheitUpdate=undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
@@ -1163,7 +1164,8 @@ function renderAnwesenheit(data) {
         $("#anw" + data[i].id_Schueler).removeClass("entschuldigt");
         $("#anw" + data[i].id_Schueler).removeClass("parseError");
         var v = data[i].eintraege[0].VERMERK;
-        console.log("VERMERK = " + v + " id=" + data[i].id_Schueler);
+        v=v.trim();
+        console.log("VERMERK = (" + v + ") id=" + data[i].id_Schueler);
         $("#anw" + data[i].id_Schueler).text(v);
         $("#anwLehrer" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER);
 
