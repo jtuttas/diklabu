@@ -92,7 +92,7 @@ function submitBemerkung(bem) {
     var eintr = {
         "id": sessionStorage.idSchueler,
         "info": bem
-    }
+    };
 
     console.log("Sende zum Server:" + JSON.stringify(eintr));
 
@@ -563,6 +563,16 @@ $(document).on("pagebeforeshow", "#about", function () {
     }
     else {
 
+    }
+});
+$(document).on("pagebeforeshow", "#klassenliste", function () {
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        console.log("Zeige Klassenliste aktualisieren Vertretungsplan");
+        getLehrerData(localStorage.myself);
     }
 });
 $(document).on("pagebeforecreate", "#verlaufDetail", function () {
@@ -1230,7 +1240,7 @@ function getNameSchuler(id) {
     var schueler = JSON.parse(sessionStorage.schueler);
     for (var i = 0; i < schueler.length; i++) {
         if (schueler[i].id == id) {
-            console.log("Found Name for ID " + id + " " + schueler[i].VNAME + " " + schueler[i].NNAME)
+            console.log("Found Name for ID " + id + " " + schueler[i].VNAME + " " + schueler[i].NNAME);
             return schueler[i].VNAME + " " + schueler[i].NNAME;
         }
     }
