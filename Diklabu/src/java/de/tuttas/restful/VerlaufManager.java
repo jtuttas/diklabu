@@ -134,7 +134,7 @@ public class VerlaufManager {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(cal.getTimeInMillis());
+        Date d = new Date(from.getTime()+1000*60*60*24-1);
         Log.d("Webservice Verlauf GET klasse=" + kl + " from=" + from + " to=" + d);
         Query query = em.createNamedQuery("findVerlaufbyKlasse");
         query.setParameter("paramKName", kl);

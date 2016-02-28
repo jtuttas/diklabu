@@ -128,11 +128,11 @@
             <div data-role="header" data-position="fixed">
                 <h1 id="anwesenheitKlassenName">Fisi13A</h1>
                 <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
-                <a data-role="button" id="btnRefresh" data-icon="refresh">Refresh</a>
+                <a data-role="button" id="btnRefresh" data-theme="b" data-icon="refresh">Heute</a>
             </div>
             <div data-role="content" data-theme="b" >
 
-                <div align="center" class="loadingContainer">
+                <div align="center" class="loadingContainer" data-theme="a">
                     <img src="../img/loading.gif" />
                     <h3 class="loadingMsg">Lade Daten</h3>
                 </div>
@@ -165,11 +165,12 @@
                 <div data-role="popup" id="anwesenheitDetails" class="ui-content" data-history="false">
                     <a href="#anwesenheit"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                     <h3 id="anwName">Vorname NachName</h3>
-                    <div data-role="controlgroup" data-type="horizontal"  >                         
+                    <div  data-role="controlgroup" data-type="horizontal"  >                         
                         <a  data-icon="check" href="#" data-theme="b" id="btnAnwesend" data-role="button">a</a>
                         <a  data-icon="delete" href="#" data-theme="c" id="btnEntschuldigt" data-role="button">e</a>
-                        <a  data-icon="alert" href="#" data-theme="e" id="btnFehlend" data-role="button">f</a>
+                        <a data-icon="alert" href="#" data-theme="e" id="btnFehlend" data-role="button">f</a>
                     </div>
+                   
                     <input type="text" id="anwesenheitText" value=""/> 
                      <div data-role="collapsible-set">
 
@@ -184,11 +185,14 @@
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2 id="currentDate" style="font-size: 60%;" >17.1.2016 9:35</h2>                  
+                <h1 id="currentDate" >17.1.2016 9:35</h1>                  
+                <a id="btnAnwesenheitDatumZurueck" href="#" class="ui-btn-left" data-role="button" data-icon="arrow-l">&nbsp</a>
+                <a id="btnAnwesenheitDatumVor" href="#" class="ui-btn-right" data-iconpos="right" data-role="button" data-icon="arrow-r">&nbsp</a>
+                <br/>
                 <div data-role="navbar">
                     <ul>
-                        <li><a  data-iconpos="top" data-icon="user" href="#anwesenheit" class="ui-btn-active ui-state-persist">Anwesenheit</a></li>
-                        <li><a  data-iconpos="top" data-icon="bars" href="#verlauf">Verlauf</a></li>
+                        <li><a  data-icon="user" href="#anwesenheit" class="ui-btn-active ui-state-persist">Anwesenheit</a></li>
+                        <li><a  data-icon="bars" href="#verlauf">Verlauf</a></li>
                     </ul>
                 </div>
 
@@ -198,7 +202,7 @@
             <div data-role="header" data-position="fixed">
                 <h1 id="verlaufNameKlasse">Fisi13A</h1>
                 <a data-role="button" id="btnBack" href="#klassenliste" data-icon="back">zurück</a>
-                <a id="newVerlauf" href="#" data-icon="plus" data-rel="popup" data-position-to="window" data-transition="popup">&nbsp;</a>                                
+                <a data-theme="b" id="newVerlauf" href="#" data-icon="plus" data-rel="popup" data-position-to="window" data-transition="popup">&nbsp;</a>                                
 
             </div>
             <div data-role="content" data-theme="b">
@@ -297,7 +301,10 @@
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h2 id="currentDateVerlauf" style="font-size: 60%;" >17.1.2016 9:35</h2>                
+                <h1 id="currentDateVerlauf" >17.1.2016 9:35</h1>                  
+                <a id="btnVerlaufDatumZurueck" href="#" class="ui-btn-left" data-role="button" data-icon="arrow-l">&nbsp</a>
+                <a id="btnVerlaufDatumVor" href="#" class="ui-btn-right" data-iconpos="right" data-role="button" data-icon="arrow-r">&nbsp</a>
+                <br/>
                 <div data-role="navbar">
                     <ul>
                         <li><a  data-iconpos="top" data-icon="user"  href="#anwesenheit">Anwesenheit</a></li>

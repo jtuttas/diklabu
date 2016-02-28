@@ -147,13 +147,13 @@ $('#anwesenheitTabs').on('shown.bs.tab', function (e) {
             for (i = 1; i <= schueler.length; i++) {
                 var status = anwesenheitHeute(schueler[i - 1].id);
                 if (status.charAt(0) == "a" || status.charAt(0) == "v") {
-                    tr += '<td align="center" class="anwesend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="80%" id="bild' + schueler[i - 1].id + '"></td>';
+                    tr += '<td align="center" class="anwesend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="200px" id="bild' + schueler[i - 1].id + '"></td>';
                 }
                 else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
-                    tr += '<td align="center" class="fehlend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="80%" id="bild' + schueler[i - 1].id + '"></td>';
+                    tr += '<td align="center" class="fehlend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="200px" id="bild' + schueler[i - 1].id + '"></td>';
                 }
                 else {
-                    tr += '<td align="center" class="unbekannt"><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="80%" id="bild' + schueler[i - 1].id + '"></td>';
+                    tr += '<td align="center" class="unbekannt"><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="200px" id="bild' + schueler[i - 1].id + '"></td>';
                 }
                 if (i % 5 == 0) {
                     tr += "</tr></tr>";
@@ -565,7 +565,7 @@ function refreshBemerkungen(kl) {
     console.log("Refresh Bemerkungen f. Klasse " + kl);
 
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/bemerkungen/" + kl,
+        url: SERVER + "/Diklabu/api/v1/klasse/" + kl,
         type: "GET",
         cache: false,
         headers: {
@@ -575,10 +575,7 @@ function refreshBemerkungen(kl) {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             for (i = 0; i < data.length; i++) {
-
-                $("#dat" + data[i].ID_SCHUELER).text(getReadableDate(data[i].DATUM));
-                $("#lk" + data[i].ID_SCHUELER).text(data[i].ID_LEHRER);
-                $("#bem" + data[i].ID_SCHUELER).val(data[i].BEMERKUNG);
+                $("#bem" + data[i].ID_SCHUELER).val(data[i].INFO);
             }
         },
         error: function (xhr, textStatus, errorThrown) {
@@ -595,14 +592,12 @@ function refreshBemerkungen(kl) {
         if (keyCode == 13) {
             var sid = $(this).attr("sid");
             var eintr = {
-                "DATUM": toSQLString(new Date()) + "T00:00:00",
-                "ID_LEHRER": sessionStorage.myself,
-                "ID_SCHUELER": parseInt(sid),
-                "BEMERKUNG": $(this).val()
+                "id": parseInt(sid),
+                "info": $(this).val()
             };
             console.log("Sende Bemerkung " + JSON.stringify(eintr));
             $.ajax({
-                url: SERVER + "/Diklabu/api/v1/bemerkungen/",
+                url: SERVER + "/Diklabu/api/v1/schueler/"+sid,
                 type: "POST",
                 cache: false,
                 data: JSON.stringify(eintr),
@@ -612,15 +607,8 @@ function refreshBemerkungen(kl) {
                 },
                 contentType: "application/json; charset=UTF-8",
                 success: function (data) {
-                    if (data.success) {
-                        toastr["success"](data.msg, "Bemerkung");
-                        $("#dat" + data.ID_SCHUELER).text(getReadableDate(data.DATUM));
-                        $("#lk" + data.ID_SCHUELER).text(data.ID_LEHRER);
-                        $("#bem" + data.ID_SCHUELER).val(data.BEMERKUNG);
-                    }
-                    else {
-                        toastr["warning"](data.msg, "Bemerkung");
-                    }
+                    console.log("Empfange "+JSON.stringify(data));
+                    $("#bem" + data.id).val(data.info);
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     toastr["error"]("kann Bemerkungen nicht Eintragen! Status Code=" + xhr.status, "Fehler!");
@@ -651,7 +639,12 @@ function refreshKlassenliste(kl) {
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
                 $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
-                $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td id="dat' + data[i].id + '"></td><td id="lk' + data[i].id + '"></td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
+                if (data[i].INFO!=undefined) {
+                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="'+data[i].INFO+'"></td></tr>');
+                }
+                else {
+                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
+                }
             }
             $("#tabelleKlasse").append("</tbody>");
             $("#tabelleBemerkungen").append("</tbody>");
@@ -824,7 +817,9 @@ function refreshAnwesenheit(kl, callback) {
             }, function () {
                 
             });
-            callback();
+            if (callback!=undefined) {
+                callback();
+            }
 
         },
         error: function (xhr, textStatus, errorThrown) {

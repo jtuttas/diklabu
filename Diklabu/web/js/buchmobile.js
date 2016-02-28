@@ -4,6 +4,13 @@ var lastAnnwesenheitUpdate;
 var anwKlasse;
 var verlaufData;
 var verlaufDetailsIndex;
+var currentDate;
+var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
+
+
+if (currentDate==undefined) {
+    currentDate=new Date();
+}
 
 $(document).on({
     ajaxStart: function () {
@@ -86,6 +93,8 @@ $("#btnVerlaufZurueck").click(function () {
 $("#btnChangeBemerkung").click(function () {
     submitBemerkung($("#textBemerkung").val());
 });
+
+
 
 
 function submitBemerkung(bem) {
@@ -306,7 +315,7 @@ function performLogout() {
 
 
 function commitAnwesenheit(sid, txt, bem) {
-    dat = toSQLString(new Date());
+    dat = toSQLString(currentDate);
     if (bem == "") {
         var eintr = {
             "DATUM": dat + "T00:00:00",
@@ -412,13 +421,12 @@ $("#btnAddVerlauf").click(function () {
     if ($("#inhalt").val() == "") {
         toast("Geben Sie eine Inhalt an!");
     }
-    else {
-        d = new Date();
+    else {       
 
         var verlauf = {
             "AUFGABE": $("#lernsituation").val(),
             "BEMERKUNG": $("#bemerkungen").val(),
-            "DATUM": toSQLString(d) + "T00:00:00",
+            "DATUM": toSQLString(currentDate) + "T00:00:00",
             "ID_KLASSE": sessionStorage.idKlasse,
             "ID_LEHRER": localStorage.myself,
             "ID_LERNFELD": $("#lf").val(),
@@ -588,10 +596,38 @@ $(document).on("pagebeforecreate", "#verlaufDetail", function () {
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
+    currentDate=new Date();
     lastAnnwesenheitUpdate=undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
+
+
+$("#btnVerlaufDatumZurueck").click(function () {   
+   currentDate=new Date(currentDate.getTime()-1000*60*60*24);
+   console.log("Verlauf Datum zurück:"+currentDate) ;
+    loadVerlauf();
+});
+
+$("#btnVerlaufDatumVor").click(function () {   
+   currentDate=new Date(currentDate.getTime()+1000*60*60*24);
+   console.log("Verlauf Datum zurück:"+currentDate) ;
+    loadVerlauf();
+});
+
+$("#btnAnwesenheitDatumZurueck").click(function () {   
+   currentDate=new Date(currentDate.getTime()-1000*60*60*24);
+   console.log("Anwesenheit Datum zurück:"+currentDate) ;
+    lastAnnwesenheitUpdate=undefined;
+    refreshKlassenliste(sessionStorage.nameKlasse);
+});
+
+$("#btnAnwesenheitDatumVor").click(function () {   
+   currentDate=new Date(currentDate.getTime()+1000*60*60*24);
+   console.log("Anwesenheit Datum zurück:"+currentDate) ;
+    lastAnnwesenheitUpdate=undefined;
+    refreshKlassenliste(sessionStorage.nameKlasse);
+});
 
 $("#btnDetailsZurueck").click(function () {
     $("#imgSchueler").attr("src", '../img/loading.gif');
@@ -908,12 +944,12 @@ function refreshKlassenliste(kl) {
 
 function loadVerlauf() {
     $("#verlaufList").empty();
-    d = new Date();
+    d = currentDate;
     $("#currentDateVerlauf").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
     $("#verlaufNameKlasse").text(sessionStorage.nameKlasse);
     console.log("Lade Verlauf für Klasse " + sessionStorage.nameKlasse);
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/verlauf/" + sessionStorage.nameKlasse,
+        url: SERVER + "/Diklabu/api/v1/verlauf/" + sessionStorage.nameKlasse+"/"+toSQLString(currentDate),
         type: "GET",
         cache: false,
         headers: {
@@ -938,7 +974,7 @@ function loadVerlauf() {
 
 function renderVerlauf(data) {
     console.log("renderVerlauf eintäge=" + data.length);
-    $("#datumAddVerlauf").text(getReadableDate(new Date()));
+    $("#datumAddVerlauf").text(getReadableDate(currentDate));
 
     for (i = 0; i < data.length; i++) {
         verlauf = data[i];
@@ -1122,16 +1158,16 @@ function getSchuelerBild(id, elem) {
 }
 
 function buildAnwesenheit(kl) {
-    d = new Date();
+    d = currentDate;
     if (anwKlasse != kl || anwesenheit == undefined || lastAnnwesenheitUpdate == undefined || d.getTime() > lastAnnwesenheitUpdate + 1000 * 60 * 60) {
-        console.log(" Aktualisierung der Anwesenheit !");
-        console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server!");
+        console.log(" Aktualisierung der Anwesenheit ! currentDate="+currentDate);
+        console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d="+d.getFullYear());
 
         lastAnnwesenheitUpdate = d.getTime();
         anwKlasse = kl;
         $("#currentDate").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
         $.ajax({
-            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl,
+            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl+"/"+toSQLString(d),
             type: "GET",
             cache: false,
             headers: {
@@ -1265,7 +1301,7 @@ function setAnwesenheitsEintrag(id, txt, bem, err) {
             anwesenheit[i].eintraege[0].VERMERK = txt;
             anwesenheit[i].eintraege[0].ID_LEHRER = localStorage.myself;
             anwesenheit[i].eintraege[0].BEMERKUNG = bem;
-            anwesenheit[i].eintraege[0].DATUM = toSQLString(new Date()) + "T00:00:00+01:00";
+            anwesenheit[i].eintraege[0].DATUM = toSQLString(currentDate) + "T00:00:00+01:00";
             return;
         }
     }
@@ -1273,7 +1309,7 @@ function setAnwesenheitsEintrag(id, txt, bem, err) {
     var anw = {
         "id_Schueler": id,
         "eintraege": [{
-                "DATUM": toSQLString(new Date()) + "T00:00:00",
+                "DATUM": toSQLString(currentDate) + "T00:00:00",
                 "ID_LEHRER": localStorage.myself,
                 "ID_SCHUELER": id,
                 "VERMERK": txt,
@@ -1310,7 +1346,7 @@ function loadSchulerDaten(id, callback) {
 
 function getReadableDate(d) {
     var date = new Date(d);
-    return "" + date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+    return days[date.getDay()]+" " + date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 }
 
 function toSQLString(d) {

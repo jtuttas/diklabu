@@ -137,6 +137,8 @@ th{ height: 75px; }
 .unbekannt {
     border-radius: 20px;    
     padding: 10px;
+    background: #808080;
+    
     
 }
 .setAnwesenheit {

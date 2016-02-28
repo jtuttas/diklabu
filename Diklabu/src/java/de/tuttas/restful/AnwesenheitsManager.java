@@ -149,14 +149,31 @@ public class AnwesenheitsManager {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        Date d = new Date(cal.getTimeInMillis());
+        
+        Date d = new Date(from.getTime()+1000*60*60*24-1);
         Log.d("Webservice Anwesenheit GET klasse=" + kl + " from=" + from + " to=" + d);
         TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", d);
-        List<AnwesenheitEintrag> anwesenheit = query.getResultList();
-        return getData(anwesenheit,null);
+          List<AnwesenheitEintrag> anwesenheit = query.getResultList();
+        
+           Query qb = em.createNamedQuery("findBemerkungbyDate");
+        qb.setParameter("paramFromDate", from);
+        qb.setParameter("paramToDate", d);
+          
+        List<String> ids = new ArrayList<>();
+        for (AnwesenheitEintrag ae:anwesenheit) {
+            ids.add(""+ae.getID_SCHUELER());
+        }
+        List<Bemerkung> bemerkungen=null;
+        qb.setParameter("idList", ids);
+        if (ids.size()>0) {
+            bemerkungen = qb.getResultList();
+            Log.d("Result List Bemerkunken:" + bemerkungen);               
+        }
+        return getData(anwesenheit,bemerkungen);
+       
     }
 
     @GET
