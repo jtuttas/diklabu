@@ -30,9 +30,19 @@
 
         <link rel="stylesheet" href="../css/jquery.mobile-1.4.5.min.css" />
         <link rel="stylesheet" href="../css/theme-classic.css" />
+
+        <link rel="stylesheet" href="../css/jquery.mobile.datepicker.css" />
+        <link rel="stylesheet" href="../css/jquery.mobile.datepicker.theme.css" />
+
+
         <script src="../js/jquery-1.11.1.min.js"></script>
         <script src="../js/jquery.mobile-1.4.5.min.js"></script>
         <link rel="stylesheet" href="../css/buchmobile.css"/>
+
+
+        <script src="../js/datepicker.js"></script>
+        <script src="../js/jquery.mobile-git.js"></script> 
+        <script src="../js/jquery.mobile.datepicker.js"></script>
 
 
     </head>
@@ -120,7 +130,7 @@
                 <h1 id="lehrerShort">TU</h1>
                 <a target="plan" data-role="button" class="ui-btn-right" id="btnVertrPlanLehrer" href="#about"
                    data-icon="calendar">Vertretungsplan</a>
-                
+
             </div>
         </div>
 
@@ -170,24 +180,28 @@
                         <a  data-icon="delete" href="#" data-theme="c" id="btnEntschuldigt" data-role="button">e</a>
                         <a data-icon="alert" href="#" data-theme="e" id="btnFehlend" data-role="button">f</a>
                     </div>
-                   
-                    <input type="text" id="anwesenheitText" value=""/> 
-                     <div data-role="collapsible-set">
 
-                            <div data-role="collapsible">
-                                <h4>Bemerkung</h4>                                                
-                                <textarea maxlength="99" name="textarea" id="anwBemerkung"></textarea>
-                                
-                            </div>
-                     </div>
+                    <input type="text" id="anwesenheitText" value=""/> 
+                    <div data-role="collapsible-set">
+
+                        <div data-role="collapsible">
+                            <h4>Bemerkung</h4>                                                
+                            <textarea maxlength="99" name="textarea" id="anwBemerkung"></textarea>
+
+                        </div>
+                    </div>
                     <a href="#" id="btnOkAnwesenheit" data-role="button" class="btn-default" >OK</a>
 
                 </div>
             </div>
-            <div data-role="footer" data-position="fixed">
-                <h1 id="currentDate" >17.1.2016 9:35</h1>                  
-                <a id="btnAnwesenheitDatumZurueck" href="#" class="ui-btn-left" data-role="button" data-icon="arrow-l">&nbsp</a>
-                <a id="btnAnwesenheitDatumVor" href="#" class="ui-btn-right" data-iconpos="right" data-role="button" data-icon="arrow-r">&nbsp</a>
+            <div data-role="footer" data-position="fixed">    
+
+                <div  class="ui-grid-b">
+                    <div style="width:20%;" class="ui-block-a"><a id="btnAnwesenheitDatumZurueck" href="#" class="ui-btn-left" data-role="button" data-icon="arrow-l">&nbsp</a></div>
+                    <div style="width:60%;" class="ui-block-b"><input id="currentDate" data-role="date"type="text"  value="1.1.2015" readOnly /> </div>       
+                    <div style="width:20%;" class="ui-block-c"><a id="btnAnwesenheitDatumVor" href="#" class="ui-btn-right" data-iconpos="right" data-role="button" data-icon="arrow-r">&nbsp</a></div>       
+                </div>               
+
                 <br/>
                 <div data-role="navbar">
                     <ul>
@@ -301,9 +315,14 @@
                 </div>
             </div>
             <div data-role="footer" data-position="fixed">
-                <h1 id="currentDateVerlauf" >17.1.2016 9:35</h1>                  
-                <a id="btnVerlaufDatumZurueck" href="#" class="ui-btn-left" data-role="button" data-icon="arrow-l">&nbsp</a>
-                <a id="btnVerlaufDatumVor" href="#" class="ui-btn-right" data-iconpos="right" data-role="button" data-icon="arrow-r">&nbsp</a>
+
+                <div  class="ui-grid-b">
+                    <div style="width:20%;" class="ui-block-a"><a id="btnVerlaufDatumZurueck" href="#" class="ui-btn-left" data-role="button" data-icon="arrow-l">&nbsp</a></div>
+                    <div style="width:60%;" class="ui-block-b"><input id="currentDateVerlauf" data-role="date"type="text"   readOnly /> </div>       
+                    <div style="width:20%;" class="ui-block-c"><a id="btnVerlaufDatumVor" href="#" class="ui-btn-right" data-iconpos="right" data-role="button" data-icon="arrow-r">&nbsp</a></div>       
+                </div>               
+
+
                 <br/>
                 <div data-role="navbar">
                     <ul>
@@ -385,7 +404,7 @@
                         <a id="btnChangeBemerkung" data-role="button" data-theme="b">Ändern</a>                                              
                     </div>
                 </div>
-               
+
                 <div data-role="footer" data-theme="a" data-position="fixed" >
                     <a id="btnDetailsZurueck" data-theme="a" data-icon="arrow-l" href="#" >zurück</a>                    
                     <a id="btnDetailsWeiter" class="ui-btn-right" data-theme="a" data-icon="arrow-r" href="#">weiter</a>
@@ -398,11 +417,11 @@
                 <a data-role="button" id="btnAbout" href="#klassenliste" data-icon="home">zurück</a>
             </div>
             <div data-role="content" data-theme="b">
-                 <fieldset class="ui-field-contain">
+                <fieldset class="ui-field-contain">
                     <div data-role="collapsible-set">
                         <div style="text-align: center;">
                             <img src="../img/joerg.png" alt="joerg"/>
-                            </div>
+                        </div>
                         <h2>Diklabu mobile</h2>
                         <h3 id="version">&nbsp;</h3>
                         <p><strong>(c) 2016 by</p></strong> 

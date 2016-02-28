@@ -8,9 +8,13 @@ var currentDate;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
 
 
-if (currentDate==undefined) {
-    currentDate=new Date();
+if (currentDate == undefined) {
+    currentDate = new Date();
 }
+
+$.datepicker.setDefaults({
+    dateFormat: 'dd.mm.yy'
+});
 
 $(document).on({
     ajaxStart: function () {
@@ -21,8 +25,6 @@ $(document).on({
         $.mobile.loading('hide');
         console.log('getJSON ends...');
     }
-
-
 });
 
 $(document).ready(function () {
@@ -40,9 +42,8 @@ $(document).ready(function () {
     if (navigator.userAgent.match(/Android/i)) {
         window.scrollTo(0, 1);
     }
-
-
 });
+
 
 
 
@@ -64,7 +65,6 @@ var toast = function (msg) {
 
 
 $("#version").text(VERSION);
-
 
 
 
@@ -421,7 +421,7 @@ $("#btnAddVerlauf").click(function () {
     if ($("#inhalt").val() == "") {
         toast("Geben Sie eine Inhalt an!");
     }
-    else {       
+    else {
 
         var verlauf = {
             "AUFGABE": $("#lernsituation").val(),
@@ -596,36 +596,36 @@ $(document).on("pagebeforecreate", "#verlaufDetail", function () {
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
-    currentDate=new Date();
-    lastAnnwesenheitUpdate=undefined;
+    currentDate = new Date();
+    lastAnnwesenheitUpdate = undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
 
 
-$("#btnVerlaufDatumZurueck").click(function () {   
-   currentDate=new Date(currentDate.getTime()-1000*60*60*24);
-   console.log("Verlauf Datum zurück:"+currentDate) ;
+$("#btnVerlaufDatumZurueck").click(function () {
+    currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
+    console.log("Verlauf Datum zurück:" + currentDate);
     loadVerlauf();
 });
 
-$("#btnVerlaufDatumVor").click(function () {   
-   currentDate=new Date(currentDate.getTime()+1000*60*60*24);
-   console.log("Verlauf Datum zurück:"+currentDate) ;
+$("#btnVerlaufDatumVor").click(function () {
+    currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
+    console.log("Verlauf Datum zurück:" + currentDate);
     loadVerlauf();
 });
 
-$("#btnAnwesenheitDatumZurueck").click(function () {   
-   currentDate=new Date(currentDate.getTime()-1000*60*60*24);
-   console.log("Anwesenheit Datum zurück:"+currentDate) ;
-    lastAnnwesenheitUpdate=undefined;
+$("#btnAnwesenheitDatumZurueck").click(function () {
+    currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
+    console.log("Anwesenheit Datum zurück:" + currentDate);
+    lastAnnwesenheitUpdate = undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
-$("#btnAnwesenheitDatumVor").click(function () {   
-   currentDate=new Date(currentDate.getTime()+1000*60*60*24);
-   console.log("Anwesenheit Datum zurück:"+currentDate) ;
-    lastAnnwesenheitUpdate=undefined;
+$("#btnAnwesenheitDatumVor").click(function () {
+    currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
+    console.log("Anwesenheit Datum zurück:" + currentDate);
+    lastAnnwesenheitUpdate = undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
@@ -945,11 +945,11 @@ function refreshKlassenliste(kl) {
 function loadVerlauf() {
     $("#verlaufList").empty();
     d = currentDate;
-    $("#currentDateVerlauf").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
+    $("#currentDateVerlauf").val(getReadableDate(d));
     $("#verlaufNameKlasse").text(sessionStorage.nameKlasse);
     console.log("Lade Verlauf für Klasse " + sessionStorage.nameKlasse);
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/verlauf/" + sessionStorage.nameKlasse+"/"+toSQLString(currentDate),
+        url: SERVER + "/Diklabu/api/v1/verlauf/" + sessionStorage.nameKlasse + "/" + toSQLString(currentDate),
         type: "GET",
         cache: false,
         headers: {
@@ -1160,14 +1160,14 @@ function getSchuelerBild(id, elem) {
 function buildAnwesenheit(kl) {
     d = currentDate;
     if (anwKlasse != kl || anwesenheit == undefined || lastAnnwesenheitUpdate == undefined || d.getTime() > lastAnnwesenheitUpdate + 1000 * 60 * 60) {
-        console.log(" Aktualisierung der Anwesenheit ! currentDate="+currentDate);
-        console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d="+d.getFullYear());
+        console.log(" Aktualisierung der Anwesenheit ! currentDate=" + currentDate);
+        console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d=" + d.getFullYear());
 
         lastAnnwesenheitUpdate = d.getTime();
         anwKlasse = kl;
-        $("#currentDate").text(getReadableDate(d) + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());
+        $("#currentDate").val(getReadableDate(d));
         $.ajax({
-            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl+"/"+toSQLString(d),
+            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + toSQLString(d),
             type: "GET",
             cache: false,
             headers: {
@@ -1210,7 +1210,7 @@ function renderAnwesenheit(data) {
         $("#anw" + data[i].id_Schueler).removeClass("entschuldigt");
         $("#anw" + data[i].id_Schueler).removeClass("parseError");
         var v = data[i].eintraege[0].VERMERK;
-        v=v.trim();
+        v = v.trim();
         console.log("VERMERK = (" + v + ") id=" + data[i].id_Schueler);
         $("#anw" + data[i].id_Schueler).text(v);
         $("#anwLehrer" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER);
@@ -1346,7 +1346,7 @@ function loadSchulerDaten(id, callback) {
 
 function getReadableDate(d) {
     var date = new Date(d);
-    return days[date.getDay()]+" " + date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
+    return date.getDate() + "." + (date.getMonth() + 1) + "." + date.getFullYear();
 }
 
 function toSQLString(d) {
@@ -1370,3 +1370,24 @@ function toSQLString(d) {
     return s;
 }
 
+
+
+$('#currentDate').change(function () {
+    console.log("Change:" + getValidDate($("#currentDate").val()));
+    currentDate = new Date(getValidDate($("#currentDate").val()));
+    console.log("Anwesenheit set Datum:" + currentDate);
+    lastAnnwesenheitUpdate = undefined;
+    refreshKlassenliste(sessionStorage.nameKlasse);
+});
+
+$('#currentDateVerlauf').change(function () {
+    console.log("Change:" + getValidDate($("#currentDateVerlauf").val()));
+    currentDate = new Date(getValidDate($("#currentDateVerlauf").val()));
+    console.log("Verlauf set Datum:" + currentDate);
+    loadVerlauf();
+});
+
+function getValidDate(s) {
+    var r = s.split(".");
+    return r[2] + "-" + r[1] + "-" + r[0];
+}
