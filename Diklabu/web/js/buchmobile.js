@@ -145,21 +145,21 @@ function toUrlString(d) {
 
 $("#btnAnwesend").click(function () {
     $("#anwesenheitText").val("a");
-    $("#anwesenheitDetails").popup("close");
+    //$("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
     console.log("Übertrage Anwesenheit f. " + sid);
     commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
 });
 $("#btnFehlend").click(function () {
     $("#anwesenheitText").val("f");
-    $("#anwesenheitDetails").popup("close");
+    //$("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
     console.log("Übertrage Anwesenheit f. " + sid);
     commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
 });
 $("#btnEntschuldigt").click(function () {
     $("#anwesenheitText").val("e");
-    $("#anwesenheitDetails").popup("close");
+    //$("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
     console.log("Übertrage Anwesenheit f. " + sid);
     commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
@@ -169,7 +169,7 @@ $("#btnOkAnwesenheit").click(function () {
         toast("Kein Vermerk angeben!");
     }
     else {
-        $("#anwesenheitDetails").popup("close");
+        //$("#anwesenheitDetails").popup("close");
         sid = $("#anwName").attr("sid");
         console.log("Übertrage Anwesenheit f. " + sid);
         commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
@@ -179,7 +179,7 @@ $('body').on('keydown', "#anwesenheitText", function (e) {
     var keyCode = e.keyCode || e.which;
     //console.log("key Pressed" + keyCode);
     if (keyCode == 13) {
-        $("#anwesenheitDetails").popup("close");
+        //$("#anwesenheitDetails").popup("close");
         sid = $("#anwName").attr("sid");
         console.log("Übertrage Anwesenheit f. " + sid);
         commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
@@ -350,10 +350,14 @@ function commitAnwesenheit(sid, txt, bem) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
+            $("#anwesenheitDetails").popup("close");
+            $("#anwesenheitDetails").hide();
+            console.log("Anwesenheit wurde übertragen");
             setAnwesenheitsEintrag(sid, txt, bem, data.parseError);
             if (data.parseError) {
                 toast("Der Eintrag enthält Formatierungsfehler");
             }
+            
             buildAnwesenheit(sessionStorage.nameKlasse);
 
         },
@@ -530,7 +534,8 @@ $(document).on("pagebeforecreate", "#anwesenheit", function () {
 });
 $(document).on("pagebeforeshow", "#anwesenheit", function () {
     console.log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
-    //buildAnwesenheit(sessionStorage.nameKlasse);
+    $("#currentDate").val(getReadableDate(currentDate));
+    buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
 $(document).on("pagebeforecreate", "#login", function () {
@@ -561,6 +566,7 @@ $(document).on("pagebeforeshow", "#verlauf", function () {
     }
     else {
         console.log("Seite verkauf wurde aktualisiert");
+        $("#currentDateVerlauf").val(getReadableDate(currentDate));
         loadVerlauf();
     }
 });
@@ -618,15 +624,18 @@ $("#btnVerlaufDatumVor").click(function () {
 $("#btnAnwesenheitDatumZurueck").click(function () {
     currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
-    lastAnnwesenheitUpdate = undefined;
-    refreshKlassenliste(sessionStorage.nameKlasse);
+     
+    lastAnnwesenheitUpdate=undefined;
+    buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
 $("#btnAnwesenheitDatumVor").click(function () {
     currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
     lastAnnwesenheitUpdate = undefined;
-    refreshKlassenliste(sessionStorage.nameKlasse);
+    //refreshKlassenliste(sessionStorage.nameKlasse);
+    lastAnnwesenheitUpdate=undefined;
+    buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
 $("#btnDetailsZurueck").click(function () {
@@ -1028,6 +1037,7 @@ function buildNamensliste(data) {
     }
 
     $(".setAnwesenheit").click(function () {
+        
         sid = $(this).attr("sid");
         console.log("klick Anwesenheitsetails id=" + sid);
         $("#anwName").text(getNameSchuler(sid));
@@ -1035,7 +1045,10 @@ function buildNamensliste(data) {
         eintrag = getAnwesenheitsEintrag(sid);
         console.log("Vermekr=" + eintrag.VERMERK);
         $("#anwesenheitText").val(eintrag.VERMERK);
-        $("#anwBemerkung").val(eintrag.BEMERKUNG)
+        $("#anwBemerkung").val(eintrag.BEMERKUNG);
+        $("#anwesenheitDetails").show();
+        $("#anwesenheitDetails").popup( "open" ); 
+        
     });
 
 
@@ -1377,7 +1390,8 @@ $('#currentDate').change(function () {
     currentDate = new Date(getValidDate($("#currentDate").val()));
     console.log("Anwesenheit set Datum:" + currentDate);
     lastAnnwesenheitUpdate = undefined;
-    refreshKlassenliste(sessionStorage.nameKlasse);
+
+    buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
 $('#currentDateVerlauf').change(function () {
