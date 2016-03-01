@@ -178,7 +178,8 @@ public class StundenplanUtil {
             sid = c+"00" + id;
         }
         Calendar cal = Calendar.getInstance();
-
+        // unsere Kalenderwoche beginnt am Fr. um 17:00
+        cal.setTime(new Date (cal.getTime().getTime()+1000*60*60*(48+7)));        
         int kw = cal.get(Calendar.WEEK_OF_YEAR);
         String skw = "" + kw;
         if (kw < 10) {
