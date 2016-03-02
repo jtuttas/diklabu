@@ -4,6 +4,7 @@ package de.tuttas.restful;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Konfig;
 import de.tuttas.entities.Kurswunsch;
+import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.Ticketing;
 
 
@@ -81,6 +82,9 @@ public class CourseBooking {
             Log.d("Liste der Wünsche:"+courses);
             c.setCourses(courses);
             Log.d("Liste des gewählten Kurses:"+courses);
+            
+            LoginSchueler ls= em.find(LoginSchueler.class, pupils.get(0).getId().intValue());
+            c.setEduplazaMail(ls.getLOGIN()+"@mmbbs.eduplaza.de");
             
             // Abfrage des zugeteilten Kurses
             if (courses.size()!=0) {

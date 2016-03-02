@@ -10,6 +10,7 @@ import java.util.List;
  * @author Jörg
  */
 public class Credential {
+    private String eduplazaMail;
     /**
      * Name des Benutzers
      */
@@ -54,6 +55,16 @@ public class Credential {
         this.selectedCourse = selectedCourse;
     }
 
+    public void setEduplazaMail(String eduplazaMail) {
+        this.eduplazaMail = eduplazaMail;
+    }
+
+    public String getEduplazaMail() {
+        return eduplazaMail;
+    }
+
+    
+    
     /**
      * Abfrage des gewählten Kurses
      * @return der gewählte Kurs
