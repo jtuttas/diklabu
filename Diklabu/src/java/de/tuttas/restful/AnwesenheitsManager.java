@@ -59,7 +59,7 @@ public class AnwesenheitsManager {
     @POST
     public AnwesenheitEintrag setAnwesenheit(AnwesenheitEintrag ae) {
         Log.d("POST Anwesenheitseintrag = " + ae.toString());
-        Anwesenheit a = new Anwesenheit(ae.getID_SCHUELER(), ae.getDATUM(), ae.getID_LEHRER(), ae.getVERMERK(),ae.getID_KLASSE());
+        Anwesenheit a = new Anwesenheit(ae.getID_SCHUELER(), ae.getDATUM(), ae.getID_LEHRER(), ae.getVERMERK());
         Query q = em.createNamedQuery("findAnwesenheitbyDatumAndSchuelerID");
         q.setParameter("paramDatum", ae.getDATUM());
         q.setParameter("paramSchuelerID", ae.getID_SCHUELER());

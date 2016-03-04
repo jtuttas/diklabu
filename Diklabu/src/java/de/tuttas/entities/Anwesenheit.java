@@ -36,28 +36,29 @@ public class Anwesenheit implements Serializable {
     @Column(length=3)
     private String ID_LEHRER;
     private String VERMERK;
-    private int ID_KLASSE;
+    //private int ID_KLASSE;
 
     public Anwesenheit() {
     }
 
         
-    public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM, String ID_LEHRER, String VERMERK, int ID_KLASSE) {
+    public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM, String ID_LEHRER, String VERMERK) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.DATUM = DATUM;
         this.ID_LEHRER = ID_LEHRER;
-        this.VERMERK = VERMERK;
-        this.ID_KLASSE=ID_KLASSE;
+        this.VERMERK = VERMERK;        
     }
 
+    /*
     public void setID_KLASSE(int ID_KLASSE) {
         this.ID_KLASSE = ID_KLASSE;
     }
-
+    */
+    /*
     public int getID_KLASSE() {
         return ID_KLASSE;
     } 
-    
+    */
     public void setDATUM(Timestamp DATUM) {
         this.DATUM = DATUM;
     }
@@ -92,7 +93,7 @@ public class Anwesenheit implements Serializable {
 
     @Override
     public String toString() {
-        return "Anwesenheit ID_KLASSE="+ID_KLASSE+" ID_SCHUELER="+ID_SCHUELER+" Vermerk="+VERMERK;
+        return "Anwesenheit  ID_SCHUELER="+ID_SCHUELER+" Vermerk="+VERMERK;
     }
     
     

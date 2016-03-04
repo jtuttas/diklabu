@@ -14,8 +14,8 @@ import de.tuttas.config.Config;
 public class Log {
     
     public static void d(String msg) {
-        if (Config.debug) {
+        //if (Config.debug) {
             System.out.println(msg);
-        }
+        //}
     }
 }

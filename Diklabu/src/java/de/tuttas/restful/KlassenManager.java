@@ -112,7 +112,7 @@ public class KlassenManager {
                 BufferedImage img = null;
                 try {
                     img = ImageIO.read(file);
-
+                    if (img!=null) {
                     Log.d("Original Width = " + img.getWidth() + " Height = " + img.getHeight());
                     double ow = img.getWidth();
                     double oh = img.getHeight();
@@ -125,7 +125,7 @@ public class KlassenManager {
                     img = ImageUtil.cropImage(img, type, height);
                     Log.d("Cropped Width = " + img.getWidth() + " Height = " + img.getHeight());
                     bo.setBase64(ImageUtil.encodeToString(img, "jpeg"));
-
+                    }
                 } catch (IOException e) {
                 }
             }
