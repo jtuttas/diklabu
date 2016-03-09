@@ -535,6 +535,7 @@ $(document).on("pagebeforecreate", "#anwesenheit", function () {
 $(document).on("pagebeforeshow", "#anwesenheit", function () {
     console.log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
     $("#currentDate").val(getReadableDate(currentDate));
+    lastAnnwesenheitUpdate = undefined;   
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
@@ -633,8 +634,7 @@ $("#btnAnwesenheitDatumVor").click(function () {
     currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
     lastAnnwesenheitUpdate = undefined;
-    //refreshKlassenliste(sessionStorage.nameKlasse);
-    lastAnnwesenheitUpdate=undefined;
+   
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
