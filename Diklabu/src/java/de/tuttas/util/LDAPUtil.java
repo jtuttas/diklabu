@@ -94,20 +94,7 @@ public class LDAPUtil {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        // Anbindung ans LDAP
-        Properties props = new Properties();
-        props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        props.put(Context.PROVIDER_URL, host);
-        props.put(Context.SECURITY_PRINCIPAL, bindUser);//adminuser - User with special priviledge, dn user
-        props.put(Context.SECURITY_CREDENTIALS, bindPassword);//dn user password
-        try {
-            context = new InitialDirContext(props);
-            ctrls = new SearchControls();
-            ctrls.setReturningAttributes(new String[]{"description","mail","sn","initials","givenName", "sn", "memberOf", "userPrincipalName"});
-            ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        } catch (NamingException ex) {
-            Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
-        }              
+               
 
     }
 
@@ -124,7 +111,20 @@ public class LDAPUtil {
     }
 
     public LDAPUser authenticateJndi(String username, String password) throws Exception {
-
+// Anbindung ans LDAP
+        Properties props = new Properties();
+        props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
+        props.put(Context.PROVIDER_URL, host);
+        props.put(Context.SECURITY_PRINCIPAL, bindUser);//adminuser - User with special priviledge, dn user
+        props.put(Context.SECURITY_CREDENTIALS, bindPassword);//dn user password
+        try {
+            context = new InitialDirContext(props);
+            ctrls = new SearchControls();
+            ctrls.setReturningAttributes(new String[]{"description","mail","sn","initials","givenName", "sn", "memberOf", "userPrincipalName"});
+            ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+        } catch (NamingException ex) {
+            Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }       
         NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(userContext, "(cn=" + username + ")", ctrls);
         Log.d("answers=" + answers);
         Log.d("answers=" + answers.hasMore());
@@ -157,7 +157,7 @@ public class LDAPUtil {
         String user = result.getNameInNamespace();
 
         try {
-            Properties props = new Properties();
+            props = new Properties();
             props = new Properties();
             props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             props.put(Context.PROVIDER_URL, host);
