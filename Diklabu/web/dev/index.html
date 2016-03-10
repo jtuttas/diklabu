@@ -323,19 +323,35 @@
                         <h1>Noten</h1>
                     </div>
                     <div id="tabBemerkungen" class="tab-pane fade">
-                        <div id="bemerkungContainer" style="display: none;">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th width="20%"><h3>Name</h3></th>
-                                
-                                <th>Bemerkung</th>
-                                </tr>
-                                </thead>
-                                <tbody id="tabelleBemerkungen">
+                        <ul class="nav nav-tabs" id="anwesenheitTabs">
+                            <li class="active"><a data-toggle="tab" href="#tabSchuelerbemerkungen">Schülerbemerkungen</a></li>
+                            <li><a data-toggle="tab" href="#tabKlassenbemerkungen">Klassenbemerkung</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tabSchuelerbemerkungen" class="tab-pane fade in active" >
+                                <div id="bemerkungContainer" style="display: none;">
+                                    <table class="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th width="20%"><h3>Name</h3></th>
 
-                                </tbody>
-                            </table>
+                                        <th>Bemerkung</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tabelleBemerkungen">
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div id="tabKlassenbemerkungen" class="tab-pane " > 
+                                </br>
+                                <div class="form-group">
+                                    <label for="klassenbem">Klassenbemerkungen:</label>
+                                    <textarea class="form-control" rows="5" id="klassenbem"></textarea>
+                                </div>
+                                <button type="button" class="btn btn-primary">Aktualisieren</button>
+                            </div>
                         </div>
                     </div>
                     <div id="tabStundenplan" class="tab-pane fade">

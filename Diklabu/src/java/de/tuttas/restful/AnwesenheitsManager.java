@@ -185,8 +185,24 @@ public class AnwesenheitsManager {
         query.setParameter("paramKName", kl);
         query.setParameter("paramFromDate", from);
         query.setParameter("paramToDate", to);
-        List<AnwesenheitEintrag> anwesenheit = query.getResultList();
-        return getData(anwesenheit,null);
+        
+         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
+        
+        Query qb = em.createNamedQuery("findBemerkungbyDate");
+        qb.setParameter("paramFromDate", from);
+        qb.setParameter("paramToDate", to);
+        
+        List<String> ids = new ArrayList<>();
+        for (AnwesenheitEintrag ae:anwesenheit) {
+            ids.add(""+ae.getID_SCHUELER());
+        }
+        List<Bemerkung> bemerkungen=null;
+        qb.setParameter("idList", ids);
+        if (ids.size()>0) {
+            bemerkungen = qb.getResultList();
+            Log.d("Result List Bemerkunken:" + bemerkungen);               
+        }
+        return getData(anwesenheit,bemerkungen);
     }
 
     private List<AnwesenheitObjekt> getData(List<AnwesenheitEintrag> anwesenheit,List<Bemerkung> bemerkungen) {

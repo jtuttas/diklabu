@@ -137,43 +137,140 @@ $('#bildUploadForm').on('submit', (function (e) {
 }));
 
 $('#anwesenheitTabs').on('shown.bs.tab', function (e) {
-    console.log($(e.target).text());
+    console.log("anwesenheitsTab shown " + $(e.target).text());
 
     if ($(e.target).text() == "Bilder") {
         refreshAnwesenheit(nameKlasse, function () {
-            $("#klassenBilder").empty();
-            console.log("lade Bilder:");
-            var tr = "<tr>";
-            for (i = 1; i <= schueler.length; i++) {
-                var status = anwesenheitHeute(schueler[i - 1].id);
-                if (status.charAt(0) == "a" || status.charAt(0) == "v") {
-                    tr += '<td align="center" class="anwesend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="200px" id="bild' + schueler[i - 1].id + '"></td>';
-                }
-                else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
-                    tr += '<td align="center" class="fehlend" ><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="200px" id="bild' + schueler[i - 1].id + '"></td>';
-                }
-                else {
-                    tr += '<td align="center" class="unbekannt"><div><strong>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</strong><div>' + status + '</div></div><img width="200px" id="bild' + schueler[i - 1].id + '"></td>';
-                }
-                if (i % 5 == 0) {
-                    tr += "</tr></tr>";
-                }
-            }
-            tr += "</tr>";
-            $("#klassenBilder").append(tr);
-
-            for (i = 0; i < schueler.length; i++) {
-                console.log("Lade Bild f. Schüler " + schueler[i].id)
-                getSchuelerBild(schueler[i].id, "#bild" + schueler[i].id);
-            }
-            $("#tabAnwesenheitBilder").fadeIn();
+            renderBilder();
         });
     }
 });
 
+
+
+function renderBilder() {
+    // refreshAnwesenheit(nameKlasse, function () {
+    $("#klassenBilder").empty();
+    console.log("lade Bilder:");
+    var tr = "<tr>";
+    for (i = 1; i <= schueler.length; i++) {
+        var status = anwesenheitHeute(schueler[i - 1].id);
+        var bemerkung = bemerkungHeute(schueler[i - 1].id);
+        if (status.charAt(0) == "a" || status.charAt(0) == "v") {
+            tr += '<td align="center" class="anwesend" id="atd' + schueler[i - 1].id + '" ><div><h4>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</h4><div>';
+            tr += '<div class="row"><div class="col-sm-4"><label for="ex1' + schueler[i - 1].id + '">Vermerk</label><input class="form-control anwesenheitTextFeld" id="ex1' + schueler[i - 1].id + '" type="text" value="' + status + '"></div><div class="col-sm-8">  <label for="ex2' + schueler[i - 1].id + '">Bemerkung</label>  <input class="form-control bemerkungTextFeld" id="ex2' + schueler[i - 1].id + '" type="text" value="' + bemerkung + '"></div></div>';
+            tr += '<div class="row"><br/><img width="150" id="bild' + schueler[i - 1].id + '" src="../img/anonym.gif"></div></td>';
+        }
+        else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
+            tr += '<td align="center" class="fehlend" id="atd' + schueler[i - 1].id + '"><div><h4>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</h4><div>';
+            tr += '<div class="row"><div class="col-sm-4"><label for="ex1' + schueler[i - 1].id + '">Vermerk</label><input class="form-control anwesenheitTextFeld" id="ex1' + schueler[i - 1].id + '" type="text" value="' + status + '"></div><div class="col-sm-8">  <label for="ex2' + schueler[i - 1].id + '">Bemerkung</label>  <input class="form-control bemerkungTextFeld" id="ex2' + schueler[i - 1].id + '" type="text" value="' + bemerkung + '"></div></div>';
+            tr += '<div class="row"><br/><img  width="150" id="bild' + schueler[i - 1].id + '" src="../img/anonym.gif"></div></td>';
+        }
+        else {
+            tr += '<td align="center" class="unbekannt" id="atd' + schueler[i - 1].id + '"><div><h4>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</h4><div>';
+            tr += '<div class="row"><div class="col-sm-4"><label for="ex1' + schueler[i - 1].id + '">Vermerk</label><input class="form-control anwesenheitTextFeld" id="ex1' + schueler[i - 1].id + '" type="text" value="' + status + '"></div><div class="col-sm-8">  <label for="ex2' + schueler[i - 1].id + '">Bemerkung</label>  <input class="form-control bemerkungTextFeld" id="ex2' + schueler[i - 1].id + '" type="text" value="' + bemerkung + '"></div></div>';
+            tr += '<div class="row"><br/><img  width="150" id="bild' + schueler[i - 1].id + '" src="../img/anonym.gif"></div></td>';
+        }
+        if (i % 5 == 0) {
+            tr += "</tr></tr>";
+        }
+    }
+    tr += "</tr>";
+    $("#klassenBilder").append(tr);
+    getBildKlasse(nameKlasse);
+    $("#tabAnwesenheitBilder").fadeIn();
+    $('body').off('keydown', ".bemerkungTextFeld");
+    $('body').on('keydown', ".bemerkungTextFeld", function (e) {
+        var keyCode = e.keyCode || e.which;
+        //console.log("key Code="+keyCode);
+        if (keyCode == 13 || keyCode == 9) {
+            $(this).blur()
+            sid = $(this).attr("id");
+            sid = sid.substring(3);
+            txt = $("#ex1" + sid).val();
+            console.log("key Pressed bemerkungTextFeld keyCode=" + keyCode + " Schüler ID=" + sid + " txt=" + txt + " bem=" + $(this).val());
+            var eintr = {
+                "DATUM": $("#endDate").val() + "T00:00:00",
+                "ID_LEHRER": sessionStorage.myself,
+                "ID_SCHUELER": parseInt(sid),
+                "VERMERK": txt,
+                "BEMERKUNG": $(this).val()
+            };
+            submitAnwesenheit(eintr, function (data) {
+                if (data.parseError) {
+                    toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
+                }
+                else {
+                }
+                refreshAnwesenheit(nameKlasse, function () {
+                    updateRenderBilder();
+                });
+            });
+        }
+    });
+
+    $('body').off('keydown', ".anwesenheitTextFeld");
+    $('body').on('keydown', ".anwesenheitTextFeld", function (e) {
+        var keyCode = e.keyCode || e.which;
+        if (keyCode == 13 || keyCode == 9) {
+            $(this).blur()
+            sid = $(this).attr("id");
+            sid = sid.substring(3);
+            txt = $("#ex2" + sid).val();
+            console.log("key Pressed AnwesenheitTextFeld keyCode=" + keyCode + " Schüler ID=" + sid);
+            var eintr = {
+                "DATUM": $("#endDate").val() + "T00:00:00",
+                "ID_LEHRER": sessionStorage.myself,
+                "ID_SCHUELER": parseInt(sid),
+                "VERMERK": $(this).val(),
+                "BEMERKUNG": txt
+            };
+            submitAnwesenheit(eintr, function (data) {
+                if (data.parseError) {
+                    toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
+                }
+                else {
+                }
+                refreshAnwesenheit(nameKlasse, function () {
+                    updateRenderBilder();
+                });
+            });
+        }
+    });
+
+    $('body').on('keydown', ".bemerkungTextFeld", function (e) {
+        var keyCode = e.keyCode || e.which;
+        console.log("key Pressed bemerkungTextFeld" + keyCode);
+    });
+
+}
+
+function updateRenderBilder() {
+    console.log("Update Render Bilder !");
+    for (i = 1; i <= schueler.length; i++) {
+        var status = anwesenheitHeute(schueler[i - 1].id);
+        var bemerkung = bemerkungHeute(schueler[i - 1].id);
+        $("#atd" + schueler[i - 1].id).removeClass("anwesend");
+        $("#atd" + schueler[i - 1].id).removeClass("fehlend");
+        $("#atd" + schueler[i - 1].id).removeClass("unbekannt");
+        if (status.charAt(0) == "a" || status.charAt(0) == "v") {
+            $("#atd" + schueler[i - 1].id).addClass("anwesend");
+        }
+        else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
+            $("#atd" + schueler[i - 1].id).addClass("fehlend");
+        }
+        else {
+            $("#atd" + schueler[i - 1].id).addClass("unbekannt");
+        }
+        $("#ex1" + schueler[i - 1].id).val(status);
+        $("#ex2" + schueler[i - 1].id).val(bemerkung);
+
+    }
+}
+
 function anwesenheitHeute(id) {
 
-    var ds = toSQLString(new Date());
+    var ds = $("#endDate").val();
 
     for (k = 0; k < anwesenheit.length; k++) {
         if (anwesenheit[k].id_Schueler == id) {
@@ -185,15 +282,36 @@ function anwesenheitHeute(id) {
                     return eintraege[j].VERMERK;
                 }
             }
-            return "?";
+            return "";
         }
     }
-    return "?";
+    return "";
+}
+function bemerkungHeute(id) {
+    var ds = $("#endDate").val();
+    for (k = 0; k < anwesenheit.length; k++) {
+        if (anwesenheit[k].id_Schueler == id) {
+            eintraege = anwesenheit[k].eintraege;
+            for (j = 0; j < eintraege.length; j++) {
+                var datum = eintraege[j].DATUM;
+                datum = datum.substring(0, datum.indexOf('T'));
+                if (datum == ds) {
+                    //console.log("bemerkung Heute Schüler gefunden mit ID="+id+" einträge="+JSON.stringify(eintraege))
+                    if (eintraege[j].BEMERKUNG == undefined) {
+                        return "";
+                    }
+                    return eintraege[j].BEMERKUNG;
+                }
+            }
+            return "";
+        }
+    }
+    return "";
 }
 
 $('#navTabs').on('shown.bs.tab', function (e) {
 //show selected tab / active
-    console.log($(e.target).text());
+    console.log("New Nav Target =" + $(e.target).text());
     $("#dokumentationType").val($(e.target).text());
     currentView = $(e.target).text();
     // Bei Verspätungen neu vom Server laden
@@ -597,7 +715,7 @@ function refreshBemerkungen(kl) {
             };
             console.log("Sende Bemerkung " + JSON.stringify(eintr));
             $.ajax({
-                url: SERVER + "/Diklabu/api/v1/schueler/"+sid,
+                url: SERVER + "/Diklabu/api/v1/schueler/" + sid,
                 type: "POST",
                 cache: false,
                 data: JSON.stringify(eintr),
@@ -607,7 +725,7 @@ function refreshBemerkungen(kl) {
                 },
                 contentType: "application/json; charset=UTF-8",
                 success: function (data) {
-                    console.log("Empfange "+JSON.stringify(data));
+                    console.log("Empfange " + JSON.stringify(data));
                     $("#bem" + data.id).val(data.info);
                 },
                 error: function (xhr, textStatus, errorThrown) {
@@ -639,8 +757,8 @@ function refreshKlassenliste(kl) {
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
                 $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
-                if (data[i].INFO!=undefined) {
-                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="'+data[i].INFO+'"></td></tr>');
+                if (data[i].INFO != undefined) {
+                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
                 }
                 else {
                     $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
@@ -648,7 +766,9 @@ function refreshKlassenliste(kl) {
             }
             $("#tabelleKlasse").append("</tbody>");
             $("#tabelleBemerkungen").append("</tbody>");
-            refreshAnwesenheit(nameKlasse);
+            refreshAnwesenheit(nameKlasse, function (data) {
+                renderBilder();
+            });
             getSchuelerInfo();
 
 
@@ -723,9 +843,9 @@ function getSchuelerBild(id, elem) {
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
         cache: false,
         headers: {
-                            "service_key": sessionStorage.service_key,
-                            "auth_token": sessionStorage.auth_token
-                        },
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
         type: 'HEAD',
         error:
                 function () {
@@ -751,6 +871,33 @@ function getSchuelerBild(id, elem) {
                         }
                     });
 
+                }
+    });
+}
+
+function getBildKlasse(kl) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/" + kl + "/bilder64/150",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        type: 'GET',
+        error: function () {
+            toastr["error"]("kann Bilder der Klasse " + kl + " nicht vom Server laden", "Fehler!");
+        },
+        success:
+                function (data) {
+                    console.log("Bilder der Klasse " + kl + " geladen");
+
+                    for (i = 0; i < data.length; i++) {
+                        b64 = data[i].base64;
+                        if (b64 != undefined) {
+                            b64 = b64.replace(/(?:\r\n|\r|\n)/g, '');
+                            $("#bild" + data[i].id).attr('src', "data:image/png;base64," + b64);
+                        }
+                    }
                 }
     });
 }
@@ -803,8 +950,18 @@ function refreshAnwesenheit(kl, callback) {
                     var id = eintraege[j].ID_SCHUELER + "_" + dat;
                     //console.log("suche html id " + id);
                     //$("#" + id).text(eintraege[j].VERMERK);
-                    $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + '">' + eintraege[j].VERMERK + '</a>');
+                    if (eintraege[j].BEMERKUNG != undefined) {
+                        $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + ' - ' + eintraege[j].BEMERKUNG + '">' + eintraege[j].VERMERK + '&nbsp;<img src="../img/flag.png"></a>');
+                    }
+                    else {
+                        $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + '">' + eintraege[j].VERMERK + '</a>');
+                    }
+
                     $("#" + id).attr("id_lehrer", eintraege[j].ID_LEHRER);
+                    if (eintraege[j].BEMERKUNG!=undefined) {
+                        $("#" + id).attr("bem",eintraege[j].BEMERKUNG);
+                    }
+                    
                     $("#" + id).addClass("anwesenheitsPopup");
                     if (eintraege[j].parseError) {
                         $("#" + id).addClass("parseError");
@@ -815,9 +972,10 @@ function refreshAnwesenheit(kl, callback) {
             $(".anwesenheitsPopup").hover(function () {
                 //alert("popup anzeigen");
             }, function () {
-                
+
             });
-            if (callback!=undefined) {
+
+            if (callback != undefined) {
                 callback();
             }
 
@@ -928,6 +1086,7 @@ function generateAnwesenheitsTable() {
         oldText = $(this).text();
         if (!inputVisible) {
             inputTd = $(this);
+            console.log("Bemerkung = "+inputTd.attr("bem"));
             inputVisible = true;
             $('body').off('keydown', "#anwesenheitsInput");
             var t = $(this).text();
@@ -972,12 +1131,22 @@ function handelKeyEvents(e) {
         console.log("eingegeben wurde " + txt);
         $(this).remove();
         if (keyCode != 27) {
-            //inputTd.text(txt);            
-            inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + txt + '</a>');
+            //inputTd.text(txt);  
+            if (inputTd.attr("bem")!=undefined) {
+                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - '+inputTd.attr("bem")+'">' + txt + '&nbsp;<img src="../img/flag.png"></a>');
+            }
+            else {
+                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + txt + '</a>');
+            }
             anwesenheitsEintrag(inputTd, txt);
         }
         else {
-            inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + oldText + '</a>');
+            if (inputTd.attr("bem")!=undefined) {
+                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - '+inputTd.attr("bem")+'">' + oldText + '&nbsp;<img src="../img/flag.png"></a>');
+            }
+            else {
+                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + oldText + '</a>');
+            }
         }
         inputVisible = false;
         var index = inputTd.index();
@@ -1017,13 +1186,39 @@ function anwesenheitsEintrag(td, txt) {
     var id = td.attr("id");
     var dat = id.substring(id.indexOf("_") + 1);
     var sid = id.substring(0, id.indexOf("_"));
-    var eintr = {
-        "DATUM": dat + "T00:00:00",
-        "ID_LEHRER": sessionStorage.myself,
-        "ID_SCHUELER": parseInt(sid),
-        "VERMERK": txt
-    };
+    if (td.attr("bem") != undefined) {
+        var eintr = {
+            "DATUM": dat + "T00:00:00",
+            "ID_LEHRER": sessionStorage.myself,
+            "ID_SCHUELER": parseInt(sid),
+            "VERMERK": txt,
+            "BEMERKUNG": td.attr("bem")
+        };
+    }
+    else {
+        var eintr = {
+            "DATUM": dat + "T00:00:00",
+            "ID_LEHRER": sessionStorage.myself,
+            "ID_SCHUELER": parseInt(sid),
+            "VERMERK": txt
+        };
 
+    }
+
+
+    submitAnwesenheit(eintr, function (data) {
+        if (data.parseError) {
+            toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
+            td.addClass("parseError");
+        }
+        else {
+            td.removeClass("parseError");
+        }
+
+    });
+}
+
+function submitAnwesenheit(eintr, success) {
     console.log("Sende zum Server:" + JSON.stringify(eintr));
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/anwesenheit/",
@@ -1036,18 +1231,15 @@ function anwesenheitsEintrag(td, txt) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            if (data.parseError) {
-                toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
-                td.addClass("parseError");
-            }
-            else {
-                td.removeClass("parseError");
+            if (success != undefined) {
+                success(data);
             }
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Anwesenheitseintrag nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
         }
     });
+
 }
 
 function toSQLString(d) {
@@ -1119,11 +1311,13 @@ function loggedIn() {
     });
     $('#endDate').datepicker().on('changeDate', function (ev) {
         refreshVerlauf($("#klassen").val());
-        refreshAnwesenheit($("#klassen").val());
+        refreshAnwesenheit($("#klassen").val(), function (data) {
+            updateRenderBilder();
+        });
         $("#to").val($("#endDate").val());
     });
     $("#klassen").change(function () {
-        console.log("Klasse ID=" + $('option:selected', this).attr('dbid') + " KNAME=" + $("#klassen").val());
+        console.log("Klassen change ID=" + $('option:selected', this).attr('dbid') + " KNAME=" + $("#klassen").val());
         idKlasse = $('option:selected', this).attr('dbid');
         nameKlasse = $("#klassen").val();
         refreshVerlauf($("#klassen").val());
@@ -1132,6 +1326,7 @@ function loggedIn() {
         loadStundenPlan();
         loadVertertungsPlan();
         refreshBemerkungen(nameKlasse);
+
     });
     $("#klassen").val(nameKlasse);
     $("#auth_token").val(sessionStorage.auth_token);
