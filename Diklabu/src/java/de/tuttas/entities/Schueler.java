@@ -50,6 +50,8 @@ public class Schueler implements Serializable {
     private String INFO;
     
     private int ID_AUSBILDER;
+    
+    private String ABGANG;
 
     public void setINFO(String INFO) {
         this.INFO = INFO;
@@ -57,6 +59,14 @@ public class Schueler implements Serializable {
 
     public String getINFO() {
         return INFO;
+    }
+
+    public void setABGANG(String ABGANG) {
+        this.ABGANG = ABGANG;
+    }
+
+    public String getABGANG() {
+        return ABGANG;
     }
 
         

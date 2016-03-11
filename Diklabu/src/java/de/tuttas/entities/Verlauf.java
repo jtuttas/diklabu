@@ -33,8 +33,9 @@ import org.apache.jasper.Constants;
 public class Verlauf implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
+    
+    @Id 
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private Integer ID;
     private int ID_KLASSE;
     private Timestamp DATUM;
