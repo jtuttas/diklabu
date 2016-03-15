@@ -107,7 +107,7 @@
                     <li><a data-toggle="tab" href="#tabAnwesenheit">Anwesenheit</a></li>
                     <li><a data-toggle="tab" href="#tabFehlzeiten">Fehlzeiten</a></li>
                     <li><a data-toggle="tab" href="#tabNoten">Noten</a></li>
-                    <li><a data-toggle="tab" href="#tabBemerkungen">Bemerkungen</a></li>
+                    <li><a data-toggle="tab" href="#tabBemerkungen">Klasse</a></li>
                     <li><a data-toggle="tab" href="#tabStundenplan">Stundenplan</a></li>
                     <li><a data-toggle="tab" href="#tabVertretungsplan">Vertretungsplan</a></li>
                     <li><a data-toggle="tab" href="#tabChat">Chat</a></li>
@@ -228,8 +228,32 @@
                             <li class="active"><a data-toggle="tab" href="#tabAnwesenheitDetails">Details</a></li>
                             <li><a data-toggle="tab" href="#tabAnwesenheitBilder">Bilder</a></li>
                         </ul>
-                        <div class="tab-content">
+                        <div class="tab-content">                           
                             <div id="tabAnwesenheitDetails" class="tab-pane fade in active" >
+                                 <div class="row">
+                                <div class="col-md-2">
+                                    <label for="wochentage">Wochentage</label>
+                                    <select class="form-control" id="wochentage">
+                                        <option>alle</option>
+                                        <option>Montag</option>
+                                        <option>Dienstag</option>
+                                        <option>Mittwoch</option>
+                                        <option>Donnerstag</option>
+                                        <option>Freitag</option>
+                                        <option>Samstag</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="block">Block</label>
+                                    <select class="form-control" id="block">
+                                        <option>alle</option>
+                                        <option>rot</option>
+                                        <option>gelb</option>
+                                        <option>blau</option>
+
+                                    </select>
+                                </div>
+                            </div>
                                 <div class="row">
                                     <div class="col-md-3">
                                         <table class="table table-bordered" id="tabelleKlasse">
@@ -252,7 +276,7 @@
 
                     </div>
                     <div id="tabFehlzeiten" class="tab-pane fade">
-                        <ul class="nav nav-tabs" id="navTabs">
+                        <ul class="nav nav-tabs" id="fehlzeitenTab">
                             <li class="active"><a data-toggle="tab" href="#tabUebersicht">Übersicht</a></li>                            
                             <li><a data-toggle="tab" href="#tabMail">Mail</a></li>
                         </ul>
@@ -323,9 +347,10 @@
                         <h1>Noten</h1>
                     </div>
                     <div id="tabBemerkungen" class="tab-pane fade">
-                        <ul class="nav nav-tabs" id="anwesenheitTabs">
+                        <ul class="nav nav-tabs" id="klassenTabs">
                             <li class="active"><a data-toggle="tab" href="#tabSchuelerbemerkungen">Schülerbemerkungen</a></li>
                             <li><a data-toggle="tab" href="#tabKlassenbemerkungen">Klassenbemerkung</a></li>
+                            <li><a data-toggle="tab" href="#tabBetriebe">Betriebe</a></li>
                         </ul>
                         <div class="tab-content">
                             <div id="tabSchuelerbemerkungen" class="tab-pane fade in active" >
@@ -350,7 +375,10 @@
                                     <label for="klassenbem">Klassenbemerkungen:</label>
                                     <textarea class="form-control" rows="5" id="klassenbem"></textarea>
                                 </div>
-                                <button type="button" class="btn btn-primary">Aktualisieren</button>
+                                <button id="updateKlassenBem" type="button" class="btn btn-primary">Aktualisieren</button>
+                            </div>
+                            <div id="tabBetriebe" class="tab-pane " > 
+                                </br>
                             </div>
                         </div>
                     </div>

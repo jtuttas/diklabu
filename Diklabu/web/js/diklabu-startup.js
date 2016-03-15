@@ -140,13 +140,34 @@ $('#anwesenheitTabs').on('shown.bs.tab', function (e) {
     console.log("anwesenheitsTab shown " + $(e.target).text());
 
     if ($(e.target).text() == "Bilder") {
+        $("#tabAnwesenheitBilder").show();
         refreshAnwesenheit(nameKlasse, function () {
             renderBilder();
         });
     }
+    else if ($(e.target).text() == "Details") {
+        $("#tabAnwesenheitBilder").hide();
+    }
+});
+$('#fehlzeitenTab').on('shown.bs.tab', function (e) {
+    console.log("fehlzeitenTab shown " + $(e.target).text());
+
+    if ($(e.target).text() == "Mail") {
+        $("#tabMail").show();
+    }
 });
 
+$('#klassenTabs').on('shown.bs.tab', function (e) {
+    console.log("KlassenTab shown " + $(e.target).text());
 
+    if ($(e.target).text() == "Klassenbemerkung") {
+        getKlassenBemerkungen(idKlasse);
+    }
+});
+
+$("#updateKlassenBem").click(function () {
+    setKlassenBemerkungen(idKlasse); 
+});
 
 function renderBilder() {
     // refreshAnwesenheit(nameKlasse, function () {
@@ -178,7 +199,7 @@ function renderBilder() {
     tr += "</tr>";
     $("#klassenBilder").append(tr);
     getBildKlasse(nameKlasse);
-    $("#tabAnwesenheitBilder").fadeIn();
+    //$("#tabAnwesenheitBilder").fadeIn();
     $('body').off('keydown', ".bemerkungTextFeld");
     $('body').on('keydown', ".bemerkungTextFeld", function (e) {
         var keyCode = e.keyCode || e.which;
@@ -218,6 +239,7 @@ function renderBilder() {
             sid = sid.substring(3);
             txt = $("#ex2" + sid).val();
             console.log("key Pressed AnwesenheitTextFeld keyCode=" + keyCode + " Schüler ID=" + sid);
+            if (txt!="") {
             var eintr = {
                 "DATUM": $("#endDate").val() + "T00:00:00",
                 "ID_LEHRER": sessionStorage.myself,
@@ -225,6 +247,16 @@ function renderBilder() {
                 "VERMERK": $(this).val(),
                 "BEMERKUNG": txt
             };
+        }
+        else {
+            var eintr = {
+                "DATUM": $("#endDate").val() + "T00:00:00",
+                "ID_LEHRER": sessionStorage.myself,
+                "ID_SCHUELER": parseInt(sid),
+                "VERMERK": $(this).val()
+            };
+            
+        }
             submitAnwesenheit(eintr, function (data) {
                 if (data.parseError) {
                     toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
@@ -678,7 +710,51 @@ function refreshVerlauf(kl) {
         }
     });
 }
+function getKlassenBemerkungen(klid) {
+    console.log("get Klassenbemerkungen f. Klasse " + klid);
 
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            $("#klassenbem").val(data.NOTIZ);            
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
+function setKlassenBemerkungen(klid) {
+    console.log("set Klassenbemerkungen f. Klasse " + klid);
+    
+    var eintr = {       
+        "NOTIZ": $("#klassenbem").val()
+    }
+
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
+        type: "POST",
+        data: JSON.stringify(eintr),
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            toastr["info"]("Bemerkung aktualisiert!", "Info!");
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
 function refreshBemerkungen(kl) {
     console.log("Refresh Bemerkungen f. Klasse " + kl);
 
@@ -1326,6 +1402,7 @@ function loggedIn() {
         loadStundenPlan();
         loadVertertungsPlan();
         refreshBemerkungen(nameKlasse);
+        getKlassenBemerkungen(idKlasse);
 
     });
     $("#klassen").val(nameKlasse);
@@ -1339,8 +1416,9 @@ function loggedIn() {
     $("#tabelleFehlzeiten").show();
     $("#chatContainer").show();
     $("#tabChat").show();
-    $("#tabMail").show();
+    //$("#tabMail").show();
     $("#bemerkungContainer").show();
+    $("#tabAnwesenheitBilder").hide();
 
     chatConnect();
 }
