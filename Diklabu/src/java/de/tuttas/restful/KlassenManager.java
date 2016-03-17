@@ -10,8 +10,11 @@ import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
+import de.tuttas.restful.Data.AnwesenheitEintrag;
+import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.PlanObject;
+import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.util.ImageUtil;
 import de.tuttas.util.Log;
 import de.tuttas.util.PlanType;
@@ -26,6 +29,7 @@ import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -55,6 +59,18 @@ public class KlassenManager {
         List<Schueler> schueler = query.getResultList();
         Log.d("Result List:" + schueler);
         return schueler;
+    }
+    
+    @GET
+    @Path("/betriebe/{klasse}")
+    public List<AusbilderObject> getCompanyPupil(@PathParam("klasse") String kl) {
+        Log.d("Webservice Betriebe Klasse GET: klasse=" + kl);
+
+        TypedQuery<AusbilderObject> query = em.createNamedQuery("findBetriebeEinerBenanntenKlasse", AusbilderObject.class);
+        query.setParameter("paramNameKlasse", kl);
+        List<AusbilderObject> ausbilder = query.getResultList();
+        Log.d("Result List:" + ausbilder);
+        return ausbilder;
     }
 
     @GET

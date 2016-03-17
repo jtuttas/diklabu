@@ -19,6 +19,7 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
    @NamedQuery(name = "findSchuelerbyCredentials", query= "select s from Schueler s where s.NNAME like :paramName and s.VNAME like :paramVorname and S.GEBDAT = :paramGebDatum"),
    @NamedQuery(name = "findSchuelerbyNameKlasse", query= "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k on k.ID=sk.ID_KLASSE where s.NNAME like :paramName and s.VNAME like :paramVorname and k.KNAME like :paramKlasse"),
+   @NamedQuery(name = "findBetriebeEinerBenanntenKlasse", query= "select NEW de.tuttas.restful.Data.AusbilderObject(s.ID,a.ANREDE,a.NNAME,a.EMAIL,a.TELEFON,a.FAX,b.NAME,b.PLZ,b.ORT,b.STRASSE,b.NR) from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE JOIN Ausbilder a on a.ID=s.ID_AUSBILDER JOIN Betrieb b on b.ID=a.ID_BETRIEB where k.KNAME like :paramNameKlasse AND s.ABGANG not like 'J' order BY s.NNAME")
 })
 public class Schueler implements Serializable {
     private static final long serialVersionUID = 1L;

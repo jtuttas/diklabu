@@ -29,6 +29,11 @@ public class SchuelerObject {
     private String email;
     private String info;
 
+    public SchuelerObject() {
+    }
+
+    
+    
     public void setInfo(String info) {
         this.info = info;
     }

@@ -41,7 +41,10 @@ public class Klasse implements Serializable {
     private String TITEL;
     private String KNAME;
     private String NOTIZ;
-
+    
+   
+    
+    
     public String getNOTIZ() {
         return NOTIZ;
     }
