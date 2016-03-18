@@ -17,6 +17,9 @@ color: #ffffff;
 .infoIcon {
     cursor: pointer;
 }
+.mailIcon {
+    cursor: pointer;
+}
 
 th{ height: 75px; }
 

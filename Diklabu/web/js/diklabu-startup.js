@@ -163,6 +163,9 @@ $('#klassenTabs').on('shown.bs.tab', function (e) {
     if ($(e.target).text() == "Klassenbemerkung") {
         getKlassenBemerkungen(idKlasse);
     }
+    else if ($(e.target).text() == "Betriebe") {
+        getBetriebe(nameKlasse);
+    }
 });
 
 $("#updateKlassenBem").click(function () {
@@ -812,6 +815,43 @@ function refreshBemerkungen(kl) {
     });
 }
 
+function getBetriebe(kl) {
+    console.log("Refresh Betriebe f. Klasse " + kl);
+    nameKlasse = kl;
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/betriebe/" + kl,
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            $("#tabelleBetriebe").empty();
+            
+            for (i = 0; i < data.length; i++) {
+                var s=findSchueler(data[i].id_schueler);
+                $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" id="B' + data[i].id_schueler + '" class="infoIcon"> ' + s.VNAME+" "+s.NNAME + '</td><td>'+data[i].name+'</td><td>'+data[i].nName+'</td><td><a href="mailto:"'+data[i].email+'>'+data[i].email+'</a></td><td>'+data[i].telefon+'</td><td>'+data[i].fax+'</td></tr>');
+            }
+            getSchuelerInfo();
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann SBetriebe der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+    
+}
+
+
+function findSchueler(id) {    
+    for (i=0;i<schueler.length;i++) {
+        if (schueler[i].id==id) {
+            return schueler[i];
+        }
+    }
+    return undefined;
+}
 function refreshKlassenliste(kl) {
     console.log("Refresh Klassenliste f. Klasse " + kl);
     nameKlasse = kl;
@@ -828,11 +868,11 @@ function refreshKlassenliste(kl) {
             schueler = data;
             $("#tabelleKlasse").empty();
             $("#tabelleBemerkungen").empty();
-            ;
+            
             $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
-                $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td></tr>');
+                $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td></tr>');
                 if (data[i].INFO != undefined) {
                     $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
                 }
@@ -888,6 +928,14 @@ function getSchuelerInfo() {
             getSchuelerBild(idSchueler, "#infoBild");
 
         });
+    });
+    $(".mailIcon").unbind();
+    $(".mailIcon").click( function () {
+        console.log("mail to Schüler with id="+$(this).attr("ids"));
+        var s = findSchueler($(this).attr("ids"));
+        $("#mailName").text(s.VNAME+" "+s.NNAME);
+        $("#mailSAdr").text(s.EMAIL);
+         $('#mailSchueler').modal('show');
     });
 }
 
@@ -1366,6 +1414,8 @@ function loggedOut() {
     $("#stundenplan").hide();
     $("#vertertungsplan").hide();
     $("#bemerkungContainer").hide();
+    $("#betriebeContainer").hide();
+    
     chatDisconnect();
 }
 function loggedIn() {
@@ -1403,6 +1453,7 @@ function loggedIn() {
         loadVertertungsPlan();
         refreshBemerkungen(nameKlasse);
         getKlassenBemerkungen(idKlasse);
+        getBetriebe(nameKlasse);
 
     });
     $("#klassen").val(nameKlasse);
@@ -1418,6 +1469,7 @@ function loggedIn() {
     $("#tabChat").show();
     //$("#tabMail").show();
     $("#bemerkungContainer").show();
+    $("#betriebeContainer").show();    
     $("#tabAnwesenheitBilder").hide();
 
     chatConnect();
