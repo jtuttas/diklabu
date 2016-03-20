@@ -317,7 +317,7 @@
                                             </div>                            
                                             <div class="form-group">
                                                 <label for="toMail">Adresse:</label>
-                                                <input type="text" class="form-control" name="toMail" id="toMail" value="jtuttas@gmx.net">
+                                                <input type="text" class="form-control" name="toMail" id="toMail" >
                                             </div>                            
                                             <div class="form-group">
                                                 <label for="subjectMail">Betreff:</label>
@@ -507,17 +507,22 @@
                         <strong  id="mailSAdr">EMail</strong>
                         
                     </div>
+                    <form id="emailFormSchueler" >
                     <div class="modal-body">
-                        <div class="row">
+                        <div class="row">                            
+                            <input type="hidden" class="form-control" name="toMail" id="toSchuelerMail" />
+                            <input type="hidden" class="form-control" name="fromMail" id="fromLehrerMail" />
+                            <input type="hidden" class="form-control" name="report" value="false" />
                             <div class="form-group col-md-offset-1 col-md-10">
-                                <label for="emailSchuelerBetreff">Betreff:</label>
-                                <input type="text" class="form-control" id="emailSchuelerBetreff"></input>                                    
+                                <label  for="emailSchuelerBetreff">Betreff:</label>
+                                <input name="subjectMail" type="text" class="form-control" id="emailSchuelerBetreff"/>
                                 <label for="emailSchuelerInhalt">Nachricht:</label>
-                                <textarea class="form-control" rows="5" id="emailSchuelerInhalt"></textarea>
+                                <textarea class="form-control" name="emailBody" rows="5" id="emailSchuelerInhalt"></textarea>
                             </div>
-                            <button id="abdendenEMailSchueler" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
+                            <button id="absendenEMailSchueler" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
                         </div>   
                     </div>
+                    </form>
                 </div>
             </div>
         </div>

@@ -88,7 +88,7 @@ public class MailSender implements Runnable {
         // creates a new e-mail message
         Message msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(mo.getFrom()));
-        InternetAddress[] toAddresses = {new InternetAddress(mo.getRecipient())};
+        InternetAddress[] toAddresses =  mo.getRecipient();
         msg.setRecipients(Message.RecipientType.TO, toAddresses);
         msg.setSubject(mo.getSubject());
         msg.setSentDate(new Date());
@@ -121,7 +121,7 @@ public class MailSender implements Runnable {
             if (mails.size()!=0) {
                 try {
                     transmitMail(mails.get(0));
-                    Log.d("Mail erfolgreich versandt an:"+mails.get(0).getRecipient());
+                    Log.d("Mail erfolgreich versandt an:"+mails.get(0).toString());
                     mails.remove(0);
                 } catch (MessagingException ex) {
                     ex.printStackTrace();

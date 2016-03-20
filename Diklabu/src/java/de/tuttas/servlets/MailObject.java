@@ -5,19 +5,22 @@
  */
 package de.tuttas.servlets;
 
+import java.util.ArrayList;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
 /**
  *
  * @author Jörg
  */
 public class MailObject {
     private String from;
-    private String recipient;
+    private ArrayList<InternetAddress> recipient = new ArrayList();
     private String subject;
     private String content;
 
-    public MailObject(String from, String recipient, String subject, String content) {
+    public MailObject(String from,  String subject, String content) {
         this.from = from;
-        this.recipient = recipient;
         this.subject = subject;
         this.content = content;
     }
@@ -30,12 +33,13 @@ public class MailObject {
         this.from = from;
     }
 
-    public String getRecipient() {
-        return recipient;
+    public InternetAddress[] getRecipient() {
+        InternetAddress[] a = new InternetAddress[1];
+        return recipient.toArray(a);
     }
 
-    public void setRecipient(String recipient) {
-        this.recipient = recipient;
+    public void addRecipient(String recipient) throws AddressException {        
+        this.recipient.add(new InternetAddress(recipient));               
     }
 
     public String getSubject() {
@@ -53,6 +57,13 @@ public class MailObject {
     public void setContent(String content) {
         this.content = content;
     }
+
+    @Override
+    public String toString() {
+        return "Mail Objekt from="+from+" to="+recipient.toString();
+    }
+    
+    
     
     
 }

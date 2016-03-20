@@ -26,6 +26,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.mail.internet.AddressException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -39,7 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "MailServlet", urlPatterns = {"/MailServlet"})
 public class MailServlet extends HttpServlet {
 
-    
     private static final String EMAIL_PATTERN
             = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
             + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
@@ -51,8 +51,6 @@ public class MailServlet extends HttpServlet {
         pattern = Pattern.compile(EMAIL_PATTERN);
         mailSender = new MailSender();
     }
-
-    
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -78,7 +76,7 @@ public class MailServlet extends HttpServlet {
             out.println("<h1>Servlet MailServlet</h1>");
             out.println("<form action=\"/Diklabu/MailServlet\" method=\"POST\"><br>");
             out.println("<input type=\"hidden\" value=\"TU\" name=\"lehrerId\" id=\"lehrerId\">");
-            out.println("<input type=\"hidden\" value=\"FISI13A\" name=\"klassenName\" id=\"klassenName\">");            
+            out.println("<input type=\"hidden\" value=\"FISI13A\" name=\"klassenName\" id=\"klassenName\">");
             out.println("<input type=\"text\" placeholder=\"jtuttas@gmx.net\" value=\"juttas@gmx.net\" name=\"fromMail\" id=\"fromMail\"><br>");
             out.println("<input type=\"text\" placeholder=\"tuttas@mmbbs.de\" value=\"tuttas@mmbbs.de\" name=\"toMail\" id=\"toMail\"><br>");
             out.println("<input type=\"text\" placeholder=\"Subject\" value=\"Dies ist ein Test\" name=\"subjectMail\" id=\"subjectMail\"><br>");
@@ -101,79 +99,94 @@ public class MailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         String auth = request.getParameter("auth_token");
+        String auth = request.getParameter("auth_token");
         String service = request.getParameter("service_key");
-        Log.d("auth_token=" + auth);
-        
-        if (de.tuttas.config.Config.debug || service != null && auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(service, auth)) {
-        response.setContentType("application/json;charset=UTF-8");
-        ResultObject result = new ResultObject();
-        // reads form fields
-        String recipient = request.getParameter("toMail");
-        String from = request.getParameter("fromMail");
-        String subject = request.getParameter("subjectMail");
-        String content = request.getParameter("emailBody");
-        String klassenName = request.getParameter("klassenName");
-        String lehrerID = request.getParameter("lehrerId");
-        
-        //if (Config.debug) {
-            recipient="tuttas@mmbbs.de";
-        //}
-        
-        boolean fromMailOk=false;
-        if (from!=null && from.length()!=0){
-            matcher = pattern.matcher(from);
-            fromMailOk = matcher.matches();
-        }
-        boolean toMailOk=false;
-        if (recipient!=null && recipient.length()!=0) {
-            matcher = pattern.matcher(recipient);
-            toMailOk = matcher.matches();
-        }
+        Log.d("MailServlet doPost: auth_token=" + auth);
 
-        if (subject==null || subject.length() == 0) {
-            Log.d("subject = null");
-            result.setSuccess(false);
-            result.setMsg("Fehler beim EMail Versand: kein Betreff angegeben!");
-        } else if (content==null || content.length() == 0) {
-            result.setSuccess(false);
-            result.setMsg("Fehler beim EMail Versand: kein Inhalt angegeben!");
-        } else if (!fromMailOk) {
-            result.setSuccess(false);
-            result.setMsg("Fehler beim EMail Versand: Falsche Absender EMail Adresse!");
-        } else if (!toMailOk) {
-            result.setSuccess(false);
-            result.setMsg("Fehler beim EMail Versand: Falsche Adresse EMail Adresse!");
+        if (de.tuttas.config.Config.debug || service != null && auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(service, auth)) {
+            response.setContentType("application/json;charset=UTF-8");
+            ResultObject result = new ResultObject();
+            // reads form fields
+            String recipient = request.getParameter("toMail");
+            String from = request.getParameter("fromMail");
+            String subject = request.getParameter("subjectMail");
+            String content = request.getParameter("emailBody");
+            String klassenName = request.getParameter("klassenName");
+            String lehrerID = request.getParameter("lehrerId");
+            String report = request.getParameter("report");
+            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" subject="+subject+" emailBody="+content);            
+
+            //if (Config.debug) {
+            // TODO Adresse entfernen
+            recipient = "tuttas@mmbbs.de";
+        //}
+
+            boolean fromMailOk = false;
+            if (from != null && from.length() != 0) {
+                matcher = pattern.matcher(from);
+                fromMailOk = matcher.matches();
+            }
+            boolean toMailOk = false;
+            if (recipient != null && recipient.length() != 0) {
+                matcher = pattern.matcher(recipient);
+                toMailOk = matcher.matches();
+            }
+
+            if (subject == null || subject.length() == 0) {
+                Log.d("subject = null");
+                result.setSuccess(false);
+                result.setMsg("Fehler beim EMail Versand: kein Betreff angegeben!");
+            } else if (content == null || content.length() == 0) {
+                result.setSuccess(false);
+                result.setMsg("Fehler beim EMail Versand: kein Inhalt angegeben!");
+            } else if (!fromMailOk) {
+                result.setSuccess(false);
+                result.setMsg("Fehler beim EMail Versand: Falsche Absender EMail Adresse!");
+            } else if (!toMailOk) {
+                result.setSuccess(false);
+                result.setMsg("Fehler beim EMail Versand: Falsche Adresse EMail Adresse!");
+            } else {
+                try {
+                    MailObject mo = new MailObject(from, subject, content);
+                    mo.addRecipient(recipient);
+                    mailSender.sendMail(mo);
+                    result.setSuccess(true);
+                    result.setMsg("EMail erfolgreich versandt");
+                    if (report!=null && report.compareTo("false")!=0) {
+                        createPdf(response, recipient, content, klassenName, lehrerID);
+                    }
+                    else {
+                        response.setStatus(HttpServletResponse.SC_OK);
+                        
+                    }
+                } catch (AddressException ex) {
+                    try (PrintWriter out = response.getWriter()) {
+                        out.println("Adress Exception:"+ex.getMessage());
+                    }
+                }
+            }
+            if (!result.isSuccess()) {
+                try (PrintWriter out = response.getWriter()) {
+                    out.println(result.toString());
+                }
+            }
         } else {
-            MailObject mo = new MailObject(from, recipient, subject, content);
-            mailSender.sendMail(mo);
-            result.setSuccess(true);
-            result.setMsg("EMail erfolgreich versandt");
-            createPdf(response, recipient,content,klassenName,lehrerID);
-        }
-        if (!result.isSuccess()) {
+            response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
-                out.println(result.toString());
+                out.println("<!DOCTYPE html>");
+                out.println("<html>");
+                out.println("<head>");
+                out.println("<title>Mail Servlet</title>");
+                out.println("</head>");
+                out.println("<body>");
+                out.println("<h1>You are not authorized</h1>");
+                out.println("</body>");
+                out.println("</html>");
             }
         }
-        }
-        else {
-          response.setContentType("text/html;charset=UTF-8");
-                try (PrintWriter out = response.getWriter()) {
-                    out.println("<!DOCTYPE html>");
-                    out.println("<html>");
-                    out.println("<head>");
-                    out.println("<title>Mail Servlet</title>");
-                    out.println("</head>");
-                    out.println("<body>");
-                    out.println("<h1>You are not authorized</h1>");
-                    out.println("</body>");
-                    out.println("</html>");
-                }  
-        }
-        
+
     }
-    
+
     /**
      * Returns a short description of the servlet.
      *
@@ -184,11 +197,11 @@ public class MailServlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private void createPdf(HttpServletResponse response, String recipient, String content,String klasse,String lehrerId) {
+    private void createPdf(HttpServletResponse response, String recipient, String content, String klasse, String lehrerId) {
         OutputStream out = null;
         try {
             out = response.getOutputStream();
-            Log.d("Mail versandt erfolgreich erzeuge pdf Dokumentation! out="+out);
+            Log.d("Mail versandt erfolgreich erzeuge pdf Dokumentation! out=" + out);
             response.setContentType("application/pdf");
             response.addHeader("Content-Disposition", "attachment; filename=Fehlzeitenbericht_" + recipient + ".pdf");
             String kopf = "";
@@ -213,21 +226,21 @@ public class MailServlet extends HttpServlet {
             kopf += ("</tr>");
             kopf += ("</table>");
             kopf += ("<p>&nbsp;</p>");
-            
+
             Document document = new Document();
             /* Basic PDF Creation inside servlet */
             PdfWriter writer = PdfWriter.getInstance(document, out);
             StringBuilder htmlString = new StringBuilder();
             htmlString.append(kopf);
-            
-            String body="";
+
+            String body = "";
             body += "<table align='center' width='100%'>";
-            body += "<tr><td><h3 align=\"center\">Empfänger:"+recipient+"</h3></td></tr>";
-            Log.d("Content="+StringUtil.addBR(content));
-            body += "<tr><td style=\"font-size: 12;\">"+StringUtil.addBR(content)+"</td></tr>";
+            body += "<tr><td><h3 align=\"center\">Empfänger:" + recipient + "</h3></td></tr>";
+            Log.d("Content=" + StringUtil.addBR(content));
+            body += "<tr><td style=\"font-size: 12;\">" + StringUtil.addBR(content) + "</td></tr>";
             body += "</table>";
             htmlString.append(body);
-            
+
             document.open();
             // Dokument erzeugen
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
@@ -238,7 +251,9 @@ public class MailServlet extends HttpServlet {
                 image = Image.getInstance(url);
                 image.setAbsolutePosition(45f, 720f);
                 image.scalePercent(50f);
-                if (image!=null)  document.add(image);
+                if (image != null) {
+                    document.add(image);
+                }
             } catch (BadElementException ex) {
                 Logger.getLogger(MailServlet.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {

@@ -399,9 +399,34 @@ $('#navTabs').on('shown.bs.tab', function (e) {
 
 });
 
+$("#absendenEMailSchueler").click(function (event) {
+    console.log("subject mail Schuler length =" + $("#emailSchuelerInhalt").val().length+" from "+$("#fromLehrerMail").val()+" to:"+$("#toSchuelerMail").val());
+    if (!isValidEmailAddress($("#fromLehrerMail").val())) {
+        toastr["warning"]("Keine gültige Absender EMail Adresse!"+$("#fromLehrerMail").val(), "Mail Service");
+        //event.preventDefault();
+    }
+    else if (!isValidEmailAddress($("#toSchuelerMail").val())) {
+        toastr["warning"]("Keine gültige Adress EMail Adresse!"+$("#toSchuelerMail").val(), "Mail Service");
+        //event.preventDefault();
+    }
+    else if ($("#emailSchuelerBetreff").val().length == 0) {
+        toastr["warning"]("Kein Betreff angegeben!", "Mail Service");
+        //event.preventDefault();
+    }
+    else if ($("#emailSchuelerInhalt").val().length == 0) {
+        toastr["warning"]("Kein EMail Inhalt angegeben!", "Mail Service");
+        //event.preventDefault();
+    }
+    else {
+        toastr["success"]("EMail wird versendet an " + $("#toSchuelerMail").val(), "Mail Service");
+        $('#mailSchueler').modal('hide');
+        //$("#emailFormSchueler").ajaxSubmit({url: '/Diklabu/MailServlet', type: 'post'})
+        $.post('../MailServlet', $('#emailFormSchueler').serialize());
+    }
+});
+
 $("#emailForm").submit(function (event) {
     console.log("subject mail length =" + $("#subjectMail").val().length);
-
 
     if (!isValidEmailAddress($("#fromMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!", "Mail Service");
@@ -534,6 +559,7 @@ function performLogin() {
                 toastr["success"]("Login erfolgreich", "Info!");
                 sessionStorage.myselfplain = $('#lehrer').find(":selected").attr("idplain");
                 sessionStorage.myself = $('#lehrer').val();
+                sessionStorage.myemail = jsonObj.email;
                 getLehrerData(sessionStorage.myself);
                 loggedIn();
                 nameKlasse = $("#klassen").val();
@@ -935,7 +961,12 @@ function getSchuelerInfo() {
         var s = findSchueler($(this).attr("ids"));
         $("#mailName").text(s.VNAME+" "+s.NNAME);
         $("#mailSAdr").text(s.EMAIL);
-         $('#mailSchueler').modal('show');
+        $("#fromLehrerMail").val(sessionStorage.myemail)
+        $("#toSchuelerMail").val(s.EMAIL);
+        $("#emailSchuelerBetreff").val('');
+        $("#emailSchuelerInhalt").val('');
+
+        $('#mailSchueler').modal('show');
     });
 }
 

@@ -97,6 +97,7 @@ public final class Authenticator {
                         LDAPUser u = new LDAPUser();
                         u.setShortName(username);
                         u.setAuthToken(authToken);
+                        u.setEMail("tuttas@mmbbs.de");
                         return u;
                     }
                 }

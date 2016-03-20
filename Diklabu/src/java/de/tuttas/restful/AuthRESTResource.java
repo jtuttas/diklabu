@@ -50,6 +50,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
             jsonObjBuilder.add( "auth_token", u.getAuthToken() );
             jsonObjBuilder.add( "ID_LEHRER", u.getShortName() );
             jsonObjBuilder.add( "idPlain", u.getIdPlain());
+            jsonObjBuilder.add( "email", u.getEMail());
             
             JsonObject jsonObj = jsonObjBuilder.build();
             return getNoCacheResponseBuilder( Response.Status.OK ).entity( jsonObj.toString() ).build();
