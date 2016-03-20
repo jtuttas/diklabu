@@ -400,7 +400,7 @@ $('#navTabs').on('shown.bs.tab', function (e) {
 });
 
 $("#absendenEMailSchueler").click(function (event) {
-    console.log("subject mail Schuler length =" + $("#emailSchuelerInhalt").val().length+" from "+$("#fromLehrerMail").val()+" to:"+$("#toSchuelerMail").val());
+    console.log("subject mail  length =" + $("#emailSchuelerInhalt").val().length+" from "+$("#fromLehrerMail").val()+" to:"+$("#toSchuelerMail").val());
     if (!isValidEmailAddress($("#fromLehrerMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!"+$("#fromLehrerMail").val(), "Mail Service");
         //event.preventDefault();
@@ -858,9 +858,10 @@ function getBetriebe(kl) {
             
             for (i = 0; i < data.length; i++) {
                 var s=findSchueler(data[i].id_schueler);
-                $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" id="B' + data[i].id_schueler + '" class="infoIcon"> ' + s.VNAME+" "+s.NNAME + '</td><td>'+data[i].name+'</td><td>'+data[i].nName+'</td><td><a href="mailto:"'+data[i].email+'>'+data[i].email+'</a></td><td>'+data[i].telefon+'</td><td>'+data[i].fax+'</td></tr>');
+                $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" id="B' + data[i].id_schueler + '" class="infoIcon"> ' + s.VNAME+" "+s.NNAME + '</td><td>'+data[i].name+'</td><td>'+data[i].nName+'</td><td><a href="mailto:"'+data[i].email+'>'+data[i].email+'</a>&nbsp;<img aemail="'+data[i].email+'" aname="'+data[i].nName+'" src="../img/mail.png" class="mailBetrieb"></td><td>'+data[i].telefon+'</td><td>'+data[i].fax+'</td></tr>');
             }
             getSchuelerInfo();
+            
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann SBetriebe der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
@@ -966,6 +967,17 @@ function getSchuelerInfo() {
         $("#emailSchuelerBetreff").val('');
         $("#emailSchuelerInhalt").val('');
 
+        $('#mailSchueler').modal('show');
+    });
+    $(".mailBetrieb").unbind();
+    $(".mailBetrieb").click( function () {
+        console.log("mail to Betrieb to="+$(this).attr("aemail"));
+        $("#mailName").text($(this).attr("aname"));
+        $("#mailSAdr").text($(this).attr("aemail"));
+        $("#fromLehrerMail").val(sessionStorage.myemail)
+        $("#toSchuelerMail").val($(this).attr("aemail"));
+        $("#emailSchuelerBetreff").val('');
+        $("#emailSchuelerInhalt").val('');
         $('#mailSchueler').modal('show');
     });
 }

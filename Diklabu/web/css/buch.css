@@ -20,6 +20,9 @@ color: #ffffff;
 .mailIcon {
     cursor: pointer;
 }
+.mailBetrieb {
+    cursor: pointer;
+}
 
 th{ height: 75px; }
 
