@@ -173,24 +173,29 @@ $('#klassenTabs').on('shown.bs.tab', function (e) {
         $("#fromLehrerBetriebMail").val(sessionStorage.myemail);
         $("#emailBetriebBetreff").val("");
         $("#emailBetriebInhalt").val("");
-        var adr = "";
-        if (betriebe == undefined) {
-            getBetriebe(nameKlasse, function (data) {
-                for (i = 0; i < betriebe.length; i++) {
-                    adr = adr + betriebe[i].email + ";";
-                }
-                $("#emailsBetrieb").val(adr);
-            });
-        }
-        else {
-            console.log("Betriebe=" + betriebe)
+        updateBetriebeMails();
+    }
+});
+
+function updateBetriebeMails() {
+    var adr = "";
+    if (betriebe == undefined) {
+        getBetriebe(nameKlasse, function (data) {
             for (i = 0; i < betriebe.length; i++) {
                 adr = adr + betriebe[i].email + ";";
             }
             $("#emailsBetrieb").val(adr);
-        }
+        });
     }
-});
+    else {
+        console.log("Betriebe=" + betriebe)
+        for (i = 0; i < betriebe.length; i++) {
+            adr = adr + betriebe[i].email + ";";
+        }
+        $("#emailsBetrieb").val(adr);
+    }
+
+}
 
 $("#updateKlassenBem").click(function () {
     setKlassenBemerkungen(idKlasse);
@@ -426,16 +431,16 @@ $('#navTabs').on('shown.bs.tab', function (e) {
 $("#absendenEMailBetrieb").click(function () {
     console.log("subject mail  length =" + $("#emailBetriebInhalt").val().length + " from " + $("#fromLehrerBetriebMail").val() + " to:" + $("#toBetriebMail").val());
     mails = $("#emailsBetrieb").val().split(";");
-    error=false;
-    for (i = 0; i < mails.length-1; i++) {
-        console.log("Teste email:"+mails[i]);
+    error = false;
+    for (i = 0; i < mails.length - 1; i++) {
+        console.log("Teste email:" + mails[i]);
         if (!isValidEmailAddress(mails[i])) {
             toastr["warning"]("Keine gültige EMail Adresse!" + mails[i], "Mail Service");
-            error=true;
+            error = true;
         }
     }
-    if (error==true) {
-        
+    if (error == true) {
+
     }
     else if (!isValidEmailAddress($("#fromLehrerBetriebMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerBetriebMail").val(), "Mail Service");
@@ -456,7 +461,7 @@ $("#absendenEMailBetrieb").click(function () {
     }
     else {
         toastr["success"]("EMail wird versendet via BCC an Betriebe", "Mail Service");
-        $.post('../MailServlet', $('#emailFormBetriebe').serialize());       
+        $.post('../MailServlet', $('#emailFormBetriebe').serialize());
         $("#emailBetriebBetreff").val("");
         $("#emailBetriebInhalt").val("");
     }
@@ -927,6 +932,7 @@ function getBetriebe(kl, callback) {
             if (callback != undefined) {
                 callback(data);
             }
+            updateBetriebeMails();
             getSchuelerInfo();
 
         },
@@ -1564,6 +1570,7 @@ function loggedIn() {
         refreshBemerkungen(nameKlasse);
         getKlassenBemerkungen(idKlasse);
         getBetriebe(nameKlasse);
+        
 
     });
     $("#klassen").val(nameKlasse);

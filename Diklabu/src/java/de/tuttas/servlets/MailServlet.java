@@ -115,7 +115,7 @@ public class MailServlet extends HttpServlet {
             String lehrerID = request.getParameter("lehrerId");
             String report = request.getParameter("report");
             String bcc = request.getParameter("bcc");
-            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" subject="+subject+" emailBody="+content);            
+            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" subject="+subject+" emailBody="+content+" report="+report);            
 
             //if (Config.debug) {
             // TODO Adresse entfernen
@@ -155,7 +155,7 @@ public class MailServlet extends HttpServlet {
                     mailSender.sendMail(mo);
                     result.setSuccess(true);
                     result.setMsg("EMail erfolgreich versandt");
-                    if (report!=null && report.compareTo("false")!=0) {
+                    if (report==null || (report!=null && report.compareTo("false")!=0)) {
                         createPdf(response, recipient, content, klassenName, lehrerID);
                     }
                     else {
