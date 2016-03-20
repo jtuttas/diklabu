@@ -400,13 +400,22 @@
                             </div>
                             <div id="tabEMailBetriebe" class="tab-pane " > 
                                 </br>
-                                <div class="form-group col-md-offset-1 col-md-10">
-                                    <label for="emailBetriebBetreff">Betreff:</label>
-                                    <input type="text" class="form-control" id="emailBetriebBetreff"></input>                                    
-                                    <label for="emailBetrieb">Nachricht:</label>
-                                    <textarea class="form-control" rows="5" id="emailBetrieb"></textarea>
-                                </div>
-                                <button id="abdendenEMailBetrieb" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
+                                <form id="emailFormBetriebe" >
+                                    <input type="hidden" class="form-control" name="toMail" id="toBetriebMail" />
+                                    <input type="hidden" class="form-control" name="fromMail" id="fromLehrerBetriebMail" />
+                                    
+                                    <input type="hidden" class="form-control" name="report" value="false" />
+                                    <div class="form-group col-md-offset-1 col-md-10">
+                                        <label for="emailsBetrieb">Betriebe:</label>
+                                        <input type="text"  class="form-control" name="bcc" id="emailsBetrieb"/>
+                                        </br>
+                                        <label for="emailBetriebBetreff">Betreff:</label>
+                                        <input name="subjectMail" type="text" class="form-control" id="emailBetriebBetreff"/>                                    
+                                        <label for="emailBetriebInhalt">Nachricht:</label>
+                                        <textarea name="emailBody" class="form-control" rows="5" id="emailBetriebInhalt"></textarea>
+                                    </div>
+                                    <button id="absendenEMailBetrieb" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -505,23 +514,23 @@
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                         <h2 class="modal-title" id="mailName">Modal Header</h2>
                         <strong  id="mailSAdr">EMail</strong>
-                        
+
                     </div>
                     <form id="emailFormSchueler" >
-                    <div class="modal-body">
-                        <div class="row">                            
-                            <input type="hidden" class="form-control" name="toMail" id="toSchuelerMail" />
-                            <input type="hidden" class="form-control" name="fromMail" id="fromLehrerMail" />
-                            <input type="hidden" class="form-control" name="report" value="false" />
-                            <div class="form-group col-md-offset-1 col-md-10">
-                                <label  for="emailSchuelerBetreff">Betreff:</label>
-                                <input name="subjectMail" type="text" class="form-control" id="emailSchuelerBetreff"/>
-                                <label for="emailSchuelerInhalt">Nachricht:</label>
-                                <textarea class="form-control" name="emailBody" rows="5" id="emailSchuelerInhalt"></textarea>
-                            </div>
-                            <button id="absendenEMailSchueler" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
-                        </div>   
-                    </div>
+                        <div class="modal-body">
+                            <div class="row">                            
+                                <input type="hidden" class="form-control" name="toMail" id="toSchuelerMail" />
+                                <input type="hidden" class="form-control" name="fromMail" id="fromLehrerMail" />
+                                <input type="hidden" class="form-control" name="report" value="false" />
+                                <div class="form-group col-md-offset-1 col-md-10">
+                                    <label  for="emailSchuelerBetreff">Betreff:</label>
+                                    <input name="subjectMail" type="text" class="form-control" id="emailSchuelerBetreff"/>
+                                    <label for="emailSchuelerInhalt">Nachricht:</label>
+                                    <textarea class="form-control" name="emailBody" rows="5" id="emailSchuelerInhalt"></textarea>
+                                </div>
+                                <button id="absendenEMailSchueler" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
+                            </div>   
+                        </div>
                     </form>
                 </div>
             </div>

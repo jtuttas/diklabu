@@ -114,11 +114,13 @@ public class MailServlet extends HttpServlet {
             String klassenName = request.getParameter("klassenName");
             String lehrerID = request.getParameter("lehrerId");
             String report = request.getParameter("report");
+            String bcc = request.getParameter("bcc");
             Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" subject="+subject+" emailBody="+content);            
 
             //if (Config.debug) {
             // TODO Adresse entfernen
             recipient = "tuttas@mmbbs.de";
+            bcc="jtuttas@gmx.net";
         //}
 
             boolean fromMailOk = false;
@@ -149,6 +151,7 @@ public class MailServlet extends HttpServlet {
                 try {
                     MailObject mo = new MailObject(from, subject, content);
                     mo.addRecipient(recipient);
+                    if (bcc!=null) mo.addBcc(bcc.split(";"));
                     mailSender.sendMail(mo);
                     result.setSuccess(true);
                     result.setMsg("EMail erfolgreich versandt");

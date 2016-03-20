@@ -11,6 +11,8 @@ var idSchueler;
 var indexFehlzeiten;
 // Name des aktuell ausgewählten Reiters
 var currentView;
+// Betriebliste
+var betriebe;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -166,10 +168,32 @@ $('#klassenTabs').on('shown.bs.tab', function (e) {
     else if ($(e.target).text() == "Betriebe") {
         getBetriebe(nameKlasse);
     }
+    else if ($(e.target).text() == "Betriebe anschreiben") {
+        $("#toBetriebMail").val(sessionStorage.myemail);
+        $("#fromLehrerBetriebMail").val(sessionStorage.myemail);
+        $("#emailBetriebBetreff").val("");
+        $("#emailBetriebInhalt").val("");
+        var adr = "";
+        if (betriebe == undefined) {
+            getBetriebe(nameKlasse, function (data) {
+                for (i = 0; i < betriebe.length; i++) {
+                    adr = adr + betriebe[i].email + ";";
+                }
+                $("#emailsBetrieb").val(adr);
+            });
+        }
+        else {
+            console.log("Betriebe=" + betriebe)
+            for (i = 0; i < betriebe.length; i++) {
+                adr = adr + betriebe[i].email + ";";
+            }
+            $("#emailsBetrieb").val(adr);
+        }
+    }
 });
 
 $("#updateKlassenBem").click(function () {
-    setKlassenBemerkungen(idKlasse); 
+    setKlassenBemerkungen(idKlasse);
 });
 
 function renderBilder() {
@@ -242,24 +266,24 @@ function renderBilder() {
             sid = sid.substring(3);
             txt = $("#ex2" + sid).val();
             console.log("key Pressed AnwesenheitTextFeld keyCode=" + keyCode + " Schüler ID=" + sid);
-            if (txt!="") {
-            var eintr = {
-                "DATUM": $("#endDate").val() + "T00:00:00",
-                "ID_LEHRER": sessionStorage.myself,
-                "ID_SCHUELER": parseInt(sid),
-                "VERMERK": $(this).val(),
-                "BEMERKUNG": txt
-            };
-        }
-        else {
-            var eintr = {
-                "DATUM": $("#endDate").val() + "T00:00:00",
-                "ID_LEHRER": sessionStorage.myself,
-                "ID_SCHUELER": parseInt(sid),
-                "VERMERK": $(this).val()
-            };
-            
-        }
+            if (txt != "") {
+                var eintr = {
+                    "DATUM": $("#endDate").val() + "T00:00:00",
+                    "ID_LEHRER": sessionStorage.myself,
+                    "ID_SCHUELER": parseInt(sid),
+                    "VERMERK": $(this).val(),
+                    "BEMERKUNG": txt
+                };
+            }
+            else {
+                var eintr = {
+                    "DATUM": $("#endDate").val() + "T00:00:00",
+                    "ID_LEHRER": sessionStorage.myself,
+                    "ID_SCHUELER": parseInt(sid),
+                    "VERMERK": $(this).val()
+                };
+
+            }
             submitAnwesenheit(eintr, function (data) {
                 if (data.parseError) {
                     toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
@@ -399,14 +423,54 @@ $('#navTabs').on('shown.bs.tab', function (e) {
 
 });
 
+$("#absendenEMailBetrieb").click(function () {
+    console.log("subject mail  length =" + $("#emailBetriebInhalt").val().length + " from " + $("#fromLehrerBetriebMail").val() + " to:" + $("#toBetriebMail").val());
+    mails = $("#emailsBetrieb").val().split(";");
+    error=false;
+    for (i = 0; i < mails.length-1; i++) {
+        console.log("Teste email:"+mails[i]);
+        if (!isValidEmailAddress(mails[i])) {
+            toastr["warning"]("Keine gültige EMail Adresse!" + mails[i], "Mail Service");
+            error=true;
+        }
+    }
+    if (error==true) {
+        
+    }
+    else if (!isValidEmailAddress($("#fromLehrerBetriebMail").val())) {
+        toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerBetriebMail").val(), "Mail Service");
+        //event.preventDefault();
+    }
+    else if (!isValidEmailAddress($("#toBetriebMail").val())) {
+        toastr["warning"]("Keine gültige Adress EMail Adresse!" + $("#toBetriebMail").val(), "Mail Service");
+        //event.preventDefault();
+    }
+
+    else if ($("#emailBetriebBetreff").val().length == 0) {
+        toastr["warning"]("Kein Betreff angegeben!", "Mail Service");
+        //event.preventDefault();
+    }
+    else if ($("#emailBetriebInhalt").val().length == 0) {
+        toastr["warning"]("Kein EMail Inhalt angegeben!", "Mail Service");
+        //event.preventDefault();
+    }
+    else {
+        toastr["success"]("EMail wird versendet via BCC an Betriebe", "Mail Service");
+        $.post('../MailServlet', $('#emailFormBetriebe').serialize());       
+        $("#emailBetriebBetreff").val("");
+        $("#emailBetriebInhalt").val("");
+    }
+
+});
+
 $("#absendenEMailSchueler").click(function (event) {
-    console.log("subject mail  length =" + $("#emailSchuelerInhalt").val().length+" from "+$("#fromLehrerMail").val()+" to:"+$("#toSchuelerMail").val());
+    console.log("subject mail  length =" + $("#emailSchuelerInhalt").val().length + " from " + $("#fromLehrerMail").val() + " to:" + $("#toSchuelerMail").val());
     if (!isValidEmailAddress($("#fromLehrerMail").val())) {
-        toastr["warning"]("Keine gültige Absender EMail Adresse!"+$("#fromLehrerMail").val(), "Mail Service");
+        toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerMail").val(), "Mail Service");
         //event.preventDefault();
     }
     else if (!isValidEmailAddress($("#toSchuelerMail").val())) {
-        toastr["warning"]("Keine gültige Adress EMail Adresse!"+$("#toSchuelerMail").val(), "Mail Service");
+        toastr["warning"]("Keine gültige Adress EMail Adresse!" + $("#toSchuelerMail").val(), "Mail Service");
         //event.preventDefault();
     }
     else if ($("#emailSchuelerBetreff").val().length == 0) {
@@ -752,7 +816,7 @@ function getKlassenBemerkungen(klid) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            $("#klassenbem").val(data.NOTIZ);            
+            $("#klassenbem").val(data.NOTIZ);
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
@@ -761,8 +825,8 @@ function getKlassenBemerkungen(klid) {
 }
 function setKlassenBemerkungen(klid) {
     console.log("set Klassenbemerkungen f. Klasse " + klid);
-    
-    var eintr = {       
+
+    var eintr = {
         "NOTIZ": $("#klassenbem").val()
     }
 
@@ -841,7 +905,7 @@ function refreshBemerkungen(kl) {
     });
 }
 
-function getBetriebe(kl) {
+function getBetriebe(kl, callback) {
     console.log("Refresh Betriebe f. Klasse " + kl);
     nameKlasse = kl;
     $.ajax({
@@ -855,25 +919,28 @@ function getBetriebe(kl) {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             $("#tabelleBetriebe").empty();
-            
+            betriebe = data;
             for (i = 0; i < data.length; i++) {
-                var s=findSchueler(data[i].id_schueler);
-                $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" id="B' + data[i].id_schueler + '" class="infoIcon"> ' + s.VNAME+" "+s.NNAME + '</td><td>'+data[i].name+'</td><td>'+data[i].nName+'</td><td><a href="mailto:"'+data[i].email+'>'+data[i].email+'</a>&nbsp;<img aemail="'+data[i].email+'" aname="'+data[i].nName+'" src="../img/mail.png" class="mailBetrieb"></td><td>'+data[i].telefon+'</td><td>'+data[i].fax+'</td></tr>');
+                var s = findSchueler(data[i].id_schueler);
+                $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" id="B' + data[i].id_schueler + '" class="infoIcon"> ' + s.VNAME + " " + s.NNAME + '</td><td>' + data[i].name + '</td><td>' + data[i].nName + '</td><td><a href="mailto:"' + data[i].email + '>' + data[i].email + '</a>&nbsp;<img aemail="' + data[i].email + '" aname="' + data[i].nName + '" src="../img/mail.png" class="mailBetrieb"></td><td>' + data[i].telefon + '</td><td>' + data[i].fax + '</td></tr>');
+            }
+            if (callback != undefined) {
+                callback(data);
             }
             getSchuelerInfo();
-            
+
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann SBetriebe der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
         }
     });
-    
+
 }
 
 
-function findSchueler(id) {    
-    for (i=0;i<schueler.length;i++) {
-        if (schueler[i].id==id) {
+function findSchueler(id) {
+    for (i = 0; i < schueler.length; i++) {
+        if (schueler[i].id == id) {
             return schueler[i];
         }
     }
@@ -895,7 +962,7 @@ function refreshKlassenliste(kl) {
             schueler = data;
             $("#tabelleKlasse").empty();
             $("#tabelleBemerkungen").empty();
-            
+
             $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
@@ -957,10 +1024,10 @@ function getSchuelerInfo() {
         });
     });
     $(".mailIcon").unbind();
-    $(".mailIcon").click( function () {
-        console.log("mail to Schüler with id="+$(this).attr("ids"));
+    $(".mailIcon").click(function () {
+        console.log("mail to Schüler with id=" + $(this).attr("ids"));
         var s = findSchueler($(this).attr("ids"));
-        $("#mailName").text(s.VNAME+" "+s.NNAME);
+        $("#mailName").text(s.VNAME + " " + s.NNAME);
         $("#mailSAdr").text(s.EMAIL);
         $("#fromLehrerMail").val(sessionStorage.myemail)
         $("#toSchuelerMail").val(s.EMAIL);
@@ -970,8 +1037,8 @@ function getSchuelerInfo() {
         $('#mailSchueler').modal('show');
     });
     $(".mailBetrieb").unbind();
-    $(".mailBetrieb").click( function () {
-        console.log("mail to Betrieb to="+$(this).attr("aemail"));
+    $(".mailBetrieb").click(function () {
+        console.log("mail to Betrieb to=" + $(this).attr("aemail"));
         $("#mailName").text($(this).attr("aname"));
         $("#mailSAdr").text($(this).attr("aemail"));
         $("#fromLehrerMail").val(sessionStorage.myemail)
@@ -1125,10 +1192,10 @@ function refreshAnwesenheit(kl, callback) {
                     }
 
                     $("#" + id).attr("id_lehrer", eintraege[j].ID_LEHRER);
-                    if (eintraege[j].BEMERKUNG!=undefined) {
-                        $("#" + id).attr("bem",eintraege[j].BEMERKUNG);
+                    if (eintraege[j].BEMERKUNG != undefined) {
+                        $("#" + id).attr("bem", eintraege[j].BEMERKUNG);
                     }
-                    
+
                     $("#" + id).addClass("anwesenheitsPopup");
                     if (eintraege[j].parseError) {
                         $("#" + id).addClass("parseError");
@@ -1253,7 +1320,7 @@ function generateAnwesenheitsTable() {
         oldText = $(this).text();
         if (!inputVisible) {
             inputTd = $(this);
-            console.log("Bemerkung = "+inputTd.attr("bem"));
+            console.log("Bemerkung = " + inputTd.attr("bem"));
             inputVisible = true;
             $('body').off('keydown', "#anwesenheitsInput");
             var t = $(this).text();
@@ -1299,8 +1366,8 @@ function handelKeyEvents(e) {
         $(this).remove();
         if (keyCode != 27) {
             //inputTd.text(txt);  
-            if (inputTd.attr("bem")!=undefined) {
-                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - '+inputTd.attr("bem")+'">' + txt + '&nbsp;<img src="../img/flag.png"></a>');
+            if (inputTd.attr("bem") != undefined) {
+                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - ' + inputTd.attr("bem") + '">' + txt + '&nbsp;<img src="../img/flag.png"></a>');
             }
             else {
                 inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + txt + '</a>');
@@ -1308,8 +1375,8 @@ function handelKeyEvents(e) {
             anwesenheitsEintrag(inputTd, txt);
         }
         else {
-            if (inputTd.attr("bem")!=undefined) {
-                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - '+inputTd.attr("bem")+'">' + oldText + '&nbsp;<img src="../img/flag.png"></a>');
+            if (inputTd.attr("bem") != undefined) {
+                inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - ' + inputTd.attr("bem") + '">' + oldText + '&nbsp;<img src="../img/flag.png"></a>');
             }
             else {
                 inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + oldText + '</a>');
@@ -1458,7 +1525,7 @@ function loggedOut() {
     $("#vertertungsplan").hide();
     $("#bemerkungContainer").hide();
     $("#betriebeContainer").hide();
-    
+
     chatDisconnect();
 }
 function loggedIn() {
@@ -1512,7 +1579,7 @@ function loggedIn() {
     $("#tabChat").show();
     //$("#tabMail").show();
     $("#bemerkungContainer").show();
-    $("#betriebeContainer").show();    
+    $("#betriebeContainer").show();
     $("#tabAnwesenheitBilder").hide();
 
     chatConnect();

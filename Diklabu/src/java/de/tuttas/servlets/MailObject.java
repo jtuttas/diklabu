@@ -16,6 +16,7 @@ import javax.mail.internet.InternetAddress;
 public class MailObject {
     private String from;
     private ArrayList<InternetAddress> recipient = new ArrayList();
+    private ArrayList<InternetAddress> bcc = new ArrayList();
     private String subject;
     private String content;
 
@@ -37,6 +38,13 @@ public class MailObject {
         InternetAddress[] a = new InternetAddress[1];
         return recipient.toArray(a);
     }
+    
+    public InternetAddress[] getBcc() {
+        InternetAddress[] a = new InternetAddress[1];
+        return bcc.toArray(a);
+    }
+    
+    
 
     public void addRecipient(String recipient) throws AddressException {        
         this.recipient.add(new InternetAddress(recipient));               
@@ -60,10 +68,16 @@ public class MailObject {
 
     @Override
     public String toString() {
-        return "Mail Objekt from="+from+" to="+recipient.toString();
+        String s="Mail Objekt from="+from+" to="+recipient.toString()+" bcc=";
+        for (int i=0;i<bcc.size();i++) {
+            s+=bcc.get(i).toString()+";";
+        }
+        return s;
     }
-    
-    
-    
-    
+
+    public void addBcc(String[] bccMails) throws AddressException {
+        for (int i=0;i<bccMails.length;i++) {
+            bcc.add(new InternetAddress(bccMails[i]));
+        }
+    }           
 }
