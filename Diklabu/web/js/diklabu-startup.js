@@ -1531,7 +1531,9 @@ function loggedOut() {
     $("#vertertungsplan").hide();
     $("#bemerkungContainer").hide();
     $("#betriebeContainer").hide();
-
+    $("#klassenTabs").hide();
+    $("#fehlzeitenTab").hide();
+    $("#anwesenheitTabs").hide();
     chatDisconnect();
 }
 function loggedIn() {
@@ -1588,7 +1590,9 @@ function loggedIn() {
     $("#bemerkungContainer").show();
     $("#betriebeContainer").show();
     $("#tabAnwesenheitBilder").hide();
-
+    $("#klassenTabs").show();
+$("#fehlzeitenTab").show();
+$("#anwesenheitTabs").show();
     chatConnect();
 }
 
