@@ -42,6 +42,7 @@ $(document).ready(function () {
     if (navigator.userAgent.match(/Android/i)) {
         window.scrollTo(0, 1);
     }
+    clickaddVerlauf();
 });
 
 
@@ -357,7 +358,7 @@ function commitAnwesenheit(sid, txt, bem) {
             if (data.parseError) {
                 toast("Der Eintrag enthält Formatierungsfehler");
             }
-            
+
             buildAnwesenheit(sessionStorage.nameKlasse);
 
         },
@@ -420,27 +421,29 @@ $("#newVerlauf").click(function () {
 
 });
 
-$("#btnAddVerlauf").click(function () {
-    console.log(" Add Verlauf!");
-    if ($("#inhalt").val() == "") {
-        toast("Geben Sie eine Inhalt an!");
-    }
-    else {
-
-        var verlauf = {
-            "AUFGABE": $("#lernsituation").val(),
-            "BEMERKUNG": $("#bemerkungen").val(),
-            "DATUM": toSQLString(currentDate) + "T00:00:00",
-            "ID_KLASSE": sessionStorage.idKlasse,
-            "ID_LEHRER": localStorage.myself,
-            "ID_LERNFELD": $("#lf").val(),
-            "INHALT": $("#inhalt").val(),
-            "STUNDE": $("#std").val()
-        };
-        submitVerlauf(verlauf);
-    }
-
-});
+function clickaddVerlauf() {
+    $("#btnAddVerlauf").click(function () {
+        console.log(" Add Verlauf!");
+        if ($("#inhalt").val() == "") {
+            toast("Geben Sie eine Inhalt an!");
+        }
+        else {
+            $("#btnAddVerlauf").unbind();
+            $("#addVerlauf").popup("close");
+            var verlauf = {
+                "AUFGABE": $("#lernsituation").val(),
+                "BEMERKUNG": $("#bemerkungen").val(),
+                "DATUM": toSQLString(currentDate) + "T00:00:00",
+                "ID_KLASSE": sessionStorage.idKlasse,
+                "ID_LEHRER": localStorage.myself,
+                "ID_LERNFELD": $("#lf").val(),
+                "INHALT": $("#inhalt").val(),
+                "STUNDE": $("#std").val()
+            };
+            submitVerlauf(verlauf);
+        }
+    });
+}
 $("#btnDeleteVerlauf").click(function () {
     console.log("Delete Verlauf! id=" + verlaufId);
     if (verlaufId == -1) {
@@ -508,10 +511,12 @@ function submitVerlauf(verl) {
             idx++;
             $("#std").prop('selectedIndex', idx);
             $("#std").change();
+            clickaddVerlauf();
 
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Verlauf nicht zum Server senden!");
+            clickaddVerlauf();
             if (xhr.status == 401) {
                 performLogout();
             }
@@ -534,9 +539,14 @@ $(document).on("pagebeforecreate", "#anwesenheit", function () {
 });
 $(document).on("pagebeforeshow", "#anwesenheit", function () {
     console.log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
-    $("#currentDate").val(getReadableDate(currentDate));
-    lastAnnwesenheitUpdate = undefined;   
-    buildAnwesenheit(sessionStorage.nameKlasse);
+    if (sessionStorage.nameKlasse == undefined || sessionStorage.idKlasse == undefined) {
+        $.mobile.changePage("#klassenliste", {transition: "fade"});
+    }
+    else {
+        $("#currentDate").val(getReadableDate(currentDate));
+        lastAnnwesenheitUpdate = undefined;
+        buildAnwesenheit(sessionStorage.nameKlasse);
+    }
 });
 
 $(document).on("pagebeforecreate", "#login", function () {
@@ -625,8 +635,8 @@ $("#btnVerlaufDatumVor").click(function () {
 $("#btnAnwesenheitDatumZurueck").click(function () {
     currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
-     
-    lastAnnwesenheitUpdate=undefined;
+
+    lastAnnwesenheitUpdate = undefined;
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
@@ -634,7 +644,7 @@ $("#btnAnwesenheitDatumVor").click(function () {
     currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
     lastAnnwesenheitUpdate = undefined;
-   
+
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
@@ -1037,7 +1047,7 @@ function buildNamensliste(data) {
     }
 
     $(".setAnwesenheit").click(function () {
-        
+
         sid = $(this).attr("sid");
         console.log("klick Anwesenheitsetails id=" + sid);
         $("#anwName").text(getNameSchuler(sid));
@@ -1047,8 +1057,8 @@ function buildNamensliste(data) {
         $("#anwesenheitText").val(eintrag.VERMERK);
         $("#anwBemerkung").val(eintrag.BEMERKUNG);
         $("#anwesenheitDetails").show();
-        $("#anwesenheitDetails").popup( "open" ); 
-        
+        $("#anwesenheitDetails").popup("open");
+
     });
 
 
