@@ -92,7 +92,7 @@ $("#btnVerlaufZurueck").click(function () {
     }
 });
 $("#btnChangeBemerkung").click(function () {
-    submitBemerkung($("#textBemerkung").val());
+    submitBemerkung($("#textBemerkung").val());verlaufDetail
 });
 
 
@@ -600,13 +600,18 @@ $(document).on("pagebeforeshow", "#klassenliste", function () {
         getLehrerData(localStorage.myself);
     }
 });
-$(document).on("pagebeforecreate", "#verlaufDetail", function () {
+$(document).on("pagebeforeshow", "#verlaufDetail", function () {
     if (localStorage.auth_token == undefined) {
         console.log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        $.mobile.changePage("#verlauf", {transition: "fade"});
+        if (verlaufDetailsIndex==undefined || verlaufData==undefined) {
+            $.mobile.changePage("#verlauf");    
+        }
+        else {
+            renderVerlaufDetails(verlaufDetailsIndex);
+        }
     }
 });
 
