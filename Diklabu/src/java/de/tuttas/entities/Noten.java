@@ -22,7 +22,8 @@ import javax.persistence.Transient;
 @Entity
 @NamedQueries({
    @NamedQuery(name = "findNoteneinesSchuelers", query= "select n from Noten n where n.ID_SCHUELER=:paramNameSchuelerID ORDER BY n.ID_LERNFELD"),
-   @NamedQuery(name = "findNoteneinerKlasse", query= "select n from Noten n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on s.ID=sk.ID_SCHUELER INNER JOIN Klasse k on sk.ID_KLASSE=k.ID where k.KNAME=:paramNameKlasse ORDER BY n.ID_SCHUELER,n.ID_LERNFELD")
+   @NamedQuery(name = "findNoteneinerKlasse", query= "select n from Noten n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on s.ID=sk.ID_SCHUELER INNER JOIN Klasse k on sk.ID_KLASSE=k.ID where k.KNAME=:paramNameKlasse ORDER BY n.ID_SCHUELER,n.ID_LERNFELD"),
+   @NamedQuery(name = "findNote", query= "select n from Noten n where n.ID_SCHUELER=:paramSchuelerID and n.ID_LERNFELD=:paramLernfeldID")
     
 })
 public class Noten implements Serializable {
@@ -35,9 +36,31 @@ public class Noten implements Serializable {
     private String WERT;
     private Timestamp DATUM;
    
+    @Transient
+    private boolean success;
+    @Transient
+    private String msg;
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }            
+    
     public Integer getID_SCHUELER() {
         return ID_SCHUELER;
     }
+    
 
     public void setID_SCHUELER(Integer ID_SCHUELER) {
         this.ID_SCHUELER = ID_SCHUELER;
@@ -99,7 +122,7 @@ public class Noten implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Noten[ ID_SCHUELER=" + ID_SCHUELER + " ID_LK="+ID_LK+" ID_LERNFELD="+ID_LERNFELD+"  Wert="+WERT+" ]";
+        return "de.tuttas.entities.Noten[ ID_SCHUELER=" + ID_SCHUELER + " ID_LK=("+ID_LK+") ID_LERNFELD=("+ID_LERNFELD+")  Wert="+WERT+" ]";
     }
     
 }
