@@ -115,7 +115,7 @@
                 <br>
                 <div class="tab-content">
                     <div id="tabVerlauf" class="tab-pane fade in active" >
-                         <div class="row" >
+                        <div class="row" >
                             <div class="col-md-12">
                                 <div  id="inputVerlaufContainer" style="display: none;">
                                     <div class="col-md-2">
@@ -344,7 +344,47 @@
                     </div>
 
                     <div id="tabNoten" class="tab-pane fade">
-                        <h1>Noten</h1>
+                        <ul class="nav nav-tabs" id="notenTabs" >
+                            <li class="active"><a data-toggle="tab" href="#tabNotenliste">Notenliste</a></li>
+                            <li><a data-toggle="tab" href="#tabNoteneintrag">Noteneintrag</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tabNotenliste" class="tab-pane fade in active" >
+                                <table id="tableNotenliste" class="table table-striped table-hover">
+                                    <thead>
+                                        <tr id="trNoten">
+
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbodyNotenliste">
+
+                                    </tbody>
+                                </table>                                
+                            </div>
+                            <div id="tabNoteneintrag" class="tab-pane " > 
+                                <br/>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="notenlernfelder">Lernfeld</label>
+                                        <select class="form-control" id="notenlernfelder">
+                                        </select>    
+                                    </div>
+
+                                </div>
+                                <table id="tableNoteneintrag" class="table table-striped table-hover">
+                                    <thead>                                        
+                                        <tr>
+                                            <th width="20%"><h3>Name</h3></th>
+                                    <th >Noten</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tbodyNoteneintrag">
+
+                                    </tbody>
+                                </table>   
+                            </div>
+
+                        </div>
                     </div>
                     <div id="tabBemerkungen" class="tab-pane fade">
                         <ul class="nav nav-tabs" id="klassenTabs" style="display: none;">
@@ -403,7 +443,7 @@
                                 <form id="emailFormBetriebe" >
                                     <input type="hidden" class="form-control" name="toMail" id="toBetriebMail" />
                                     <input type="hidden" class="form-control" name="fromMail" id="fromLehrerBetriebMail" />
-                                    
+
                                     <input type="hidden" class="form-control" name="report" value="false" />
                                     <div class="form-group col-md-offset-1 col-md-10">
                                         <label for="emailsBetrieb">Betriebe:</label>

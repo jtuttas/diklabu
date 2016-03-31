@@ -13,6 +13,8 @@ var indexFehlzeiten;
 var currentView;
 // Betriebliste
 var betriebe;
+// Notenliste
+var notenliste;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -372,6 +374,10 @@ function bemerkungHeute(id) {
     }
     return "";
 }
+$('#notenTabs').on('shown.bs.tab', function (e) {
+    console.log("New NavNoten Target =" + $(e.target).text());
+    getNoten(nameKlasse);
+});
 
 $('#navTabs').on('shown.bs.tab', function (e) {
 //show selected tab / active
@@ -424,9 +430,78 @@ $('#navTabs').on('shown.bs.tab', function (e) {
         $("#dokumentationContainer").show();
         $("#printContainer").hide();
     }
+    if ($(e.target).text() == "Noten") {
+        getNoten(nameKlasse);
+    }
 
 
 });
+
+function getNoten(kl) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/noten/" + kl,
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            console.log("Noten=" + JSON.stringify(data));
+            notenliste = data;
+            var lernfelder = {};
+            for (j = 0; j < data.length; j++) {
+                noten = data[j].noten;
+                //console.log("Teste Lernfelder in "+JSON.stringify(noten));
+                for (k = 0; k < noten.length; k++) {
+
+                    if (!findKeyinMap(noten[k].ID_LERNFELD, lernfelder)) {
+                        lernfelder[noten[k].ID_LERNFELD] = noten[k].ID_LERNFELD;
+                        console.log("Neues Lernfeld:") + noten[k].ID_LERNFELD;
+                    }
+                }
+            }
+            // Tabelle aufbauen
+            $("#trNoten").empty();
+            $("#trNoten").append('<th width="20%"><h3>Name</h3></th>');
+            for (lf in lernfelder) {
+                $("#trNoten").append('<th>' + lf + '</th>')
+            }
+            $("#tbodyNotenliste").empty();
+            var out = "";
+            for (k = 0; k < schueler.length; k++) {
+                out = '<tr id="n' + schueler[k].id + '"><td><img src="../img/Info.png" ids="' + schueler[k].id + '" class="infoIcon">&nbsp;' + schueler[k].VNAME + " " + schueler[k].NNAME + '</td>';
+                for (lf in lernfelder) {
+                    out += '<td id="' + schueler[k].id + lf + '"></td>';
+                }
+                out += '</tr>';
+                $("#tbodyNotenliste").append(out);
+            }
+            // Noten eintragen
+            for (j = 0; j < data.length; j++) {
+                noten = data[j].noten;
+                for (k = 0; k < noten.length; k++) {
+                    $("#" + data[j].schuelerID + noten[k].ID_LERNFELD).append('<a href="#" data-toggle="tooltip" title="' + noten[k].ID_LK + '">' + noten[k].WERT + '</a>');
+                }
+            }
+
+            getSchuelerInfo();
+
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Noten der Klasse " + kl + " nicht vom Server laden!", "Fehler!");
+        }
+    });
+}
+
+function findKeyinMap(k, m) {
+    for (n1 in m) {
+        if (k == n1)
+            return true;
+    }
+    return false;
+}
 
 $("#absendenEMailBetrieb").click(function () {
     console.log("subject mail  length =" + $("#emailBetriebInhalt").val().length + " from " + $("#fromLehrerBetriebMail").val() + " to:" + $("#toBetriebMail").val());
@@ -716,6 +791,7 @@ $.ajax({
         for (i = 0; i < data.length; i++) {
             if (data[i].BEZEICHNUNG != undefined)
                 $("#lernfelder").append("<option dbid='" + data[i].id + "'>" + data[i].BEZEICHNUNG + "</option>");
+            $("#notenlernfelder").append("<option lfid='" + data[i].id + "'>" + data[i].BEZEICHNUNG + "</option>");
         }
     },
     error: function () {
@@ -925,9 +1001,11 @@ function getBetriebe(kl, callback) {
         success: function (data) {
             $("#tabelleBetriebe").empty();
             betriebe = data;
-            for (i = 0; i < data.length; i++) {
-                var s = findSchueler(data[i].id_schueler);
-                $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" id="B' + data[i].id_schueler + '" class="infoIcon"> ' + s.VNAME + " " + s.NNAME + '</td><td>' + data[i].name + '</td><td>' + data[i].nName + '</td><td><a href="mailto:"' + data[i].email + '>' + data[i].email + '</a>&nbsp;<img aemail="' + data[i].email + '" aname="' + data[i].nName + '" src="../img/mail.png" class="mailBetrieb"></td><td>' + data[i].telefon + '</td><td>' + data[i].fax + '</td></tr>');
+            console.log("empfangen:" + JSON.stringify(data));
+            for (k = 0; k < data.length; k++) {
+
+                var s = findSchueler(data[k].id_schueler);
+                $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" ids="' + data[k].id_schueler + '" class="infoIcon"> ' + s.VNAME + " " + s.NNAME + '</td><td>' + data[k].name + '</td><td>' + data[k].nName + '</td><td><a href="mailto:"' + data[k].email + '>' + data[k].email + '</a>&nbsp;<img aemail="' + data[k].email + '" aname="' + data[k].nName + '" src="../img/mail.png" class="mailBetrieb"></td><td>' + data[k].telefon + '</td><td>' + data[k].fax + '</td></tr>');
             }
             if (callback != undefined) {
                 callback(data);
@@ -968,16 +1046,17 @@ function refreshKlassenliste(kl) {
             schueler = data;
             $("#tabelleKlasse").empty();
             $("#tabelleBemerkungen").empty();
-
+            $("#tbodyNoteneintrag").empty();
             $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
-                $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td></tr>');
+                $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td></tr>');
+                $("#tbodyNoteneintrag").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input type="text" id="No' + data[i].id + '" sid="' + data[i].id + '" class="form-control notenTextfeld" disabled="disabled"/></td></tr>')
                 if (data[i].INFO != undefined) {
-                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
+                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
                 }
                 else {
-                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" id="S' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
+                    $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
                 }
             }
             $("#tabelleKlasse").append("</tbody>");
@@ -999,8 +1078,7 @@ function refreshKlassenliste(kl) {
 function getSchuelerInfo() {
     $(".infoIcon").unbind();
     $(".infoIcon").click(function () {
-        var id = $(this).attr("id");
-        idSchueler = id.substring(1);
+        var idSchueler = $(this).attr("ids");
         console.log("lade Schuler ID=" + idSchueler);
         loadSchulerDaten(idSchueler, function (data) {
             $("#infoName").text(data.vorname + " " + data.name);
@@ -1233,7 +1311,7 @@ function generateVerspaetungen() {
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0 || anwesenheit[i].parseErrors.length != 0) {
             var tr = "<tr>";
-            tr += "<td><img src=\"../img/Info.png\" id=\"S" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
+            tr += "<td><img src=\"../img/Info.png\" ids=\"" + anwesenheit[i].id_Schueler + "\" class=\"infoIcon\"> " + getNameSchuler(anwesenheit[i].id_Schueler) + "</td>";
             tr += "<td><strong>" + anwesenheit[i].summeFehltage + "</strong>&nbsp;";
             tr += "<span class=\"fehltagEntschuldigt\">" + anwesenheit[i].summeFehltageEntschuldigt + "</span></td>";
             tr += "<td>";
@@ -1572,7 +1650,8 @@ function loggedIn() {
         refreshBemerkungen(nameKlasse);
         getKlassenBemerkungen(idKlasse);
         getBetriebe(nameKlasse);
-        
+        getNoten(nameKlasse);
+
 
     });
     $("#klassen").val(nameKlasse);
@@ -1591,8 +1670,8 @@ function loggedIn() {
     $("#betriebeContainer").show();
     $("#tabAnwesenheitBilder").hide();
     $("#klassenTabs").show();
-$("#fehlzeitenTab").show();
-$("#anwesenheitTabs").show();
+    $("#fehlzeitenTab").show();
+    $("#anwesenheitTabs").show();
     chatConnect();
 }
 
@@ -1620,3 +1699,81 @@ function loadVertertungsPlan() {
     });
 
 }
+$("#notenlernfelder").change(function () {
+    lfid = $('option:selected', this).attr("lfid");
+    console.log("Noten Lernfelder changed to " + $("#notenlernfelder").val() + " id=" + lfid);
+
+    for (k = 0; k < schueler.length; k++) {
+        sch = schueler[k];
+
+        note = findNote(sch.id, lfid);
+        if (note != undefined) {
+            $("#No" + sch.id).val(note.WERT);
+            if (note.ID_LK == sessionStorage.myself) {
+                $("#No" + sch.id).removeAttr("disabled");
+            }
+            else {
+                $("#No" + sch.id).attr("disabled", "disabled");
+            }
+
+        }
+        else {
+            $("#No" + sch.id).removeAttr("disabled");
+            $("#No" + sch.id).val("");
+        }
+    }
+});
+
+function findNote(ids, idlf) {
+    for (n=0;n<notenliste.length;n++) {
+        eintr = notenliste[n];
+        if (eintr.schuelerID == ids) {
+            no = eintr.noten;
+            for (m=0;m<no.length;m++) {
+                note=no[m];
+                if (note.ID_LERNFELD == idlf) {
+                    return note;
+                }
+            }
+        }
+    }
+    return undefined;
+}
+
+$('body').on('keydown', ".notenTextfeld", function (e) {
+    var keyCode = e.keyCode || e.which;
+    console.log("keycode=" + keyCode);
+    if (keyCode == 13) {
+        submitNote($("#notenlernfelder").val(), $(this).attr("sid"), $(this).val());
+        $(this).blur();
+    }
+});
+
+function submitNote(lf, ids, wert) {
+    console.log("SubmitNote lf=" + lf + " ID_Schueler=" + ids + " Wert=" + wert);
+    var eintr = {
+        "ID_LERNFELD": lf,
+        "ID_LK": sessionStorage.myself,
+        "ID_SCHUELER": ids,
+        "WERT": wert
+    }
+
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/noten",
+        type: "POST",
+        data: JSON.stringify(eintr),
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Note nicht eintragen! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
+    

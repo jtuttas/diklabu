@@ -132,6 +132,13 @@ public class AusbilderObject {
     public void setNr(String nr) {
         this.nr = nr;
     }
+
+    @Override
+    public String toString() {
+        return "AusbilderObjekt f. Schüler "+this.getId_schueler()+" Betrieb="+this.getName();
+    }
+    
+    
     
     
     

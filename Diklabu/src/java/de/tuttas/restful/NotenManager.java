@@ -103,8 +103,7 @@ public class NotenManager {
         List<Noten> noten = q.getResultList();
         Log.d("Result List:" + noten);
         if (noten.size() != 0) {
-            for (Noten no : noten) {
-                
+            for (Noten no : noten) {                
                 if (no.getID_LERNFELD().compareTo(n.getID_LERNFELD())==0 &&
                     no.getID_SCHUELER().intValue()==n.getID_SCHUELER().intValue() &&
                     no.getID_LK().compareTo(n.getID_LK())==0    ) {
