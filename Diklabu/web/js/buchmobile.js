@@ -35,13 +35,13 @@ $(document).on({
 
 $(document).ready(function () {
 
-    if (localStorage.myself != "undefined") {
+    if (localStorage.myself != undefined) {
         $("#benutzer").val(localStorage.myself);
     }
-    if (sessionStorage.kennwort != "undefined") {
+    if (sessionStorage.kennwort != undefined) {
         $("#kennwort").val(sessionStorage.kennwort);
     }
-    if (localStorage.auth_token != "undefined") {
+    if (localStorage.auth_token != undefined) {
         console.log("Bin eingeloggt habe auth Toke, aktualisiere Lehrer Data");
         getLehrerData(localStorage.myself);
     }
@@ -62,7 +62,8 @@ $("#filterFavorite").click(function () {
        favorite=true;
        $("#favoriteIcon").attr("src","../img/favorite.png");
    }
-    buildKlassenListeView(JSON.parse(sessionStorage.klassen));
+   console.log("sessionstorage.klasse="+sessionStorage.klassen);
+   buildKlassenListeView(JSON.parse(sessionStorage.klassen));
 });
 
 $("#addRemoveFavorite").click(function () {
@@ -345,8 +346,8 @@ function performLogout() {
         type: "POST",
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
-            sessionStorage.clear();
-            localStorage.clear();
+            //sessionStorage.clear();
+            delete localStorage.auth_token;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
@@ -354,8 +355,8 @@ function performLogout() {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("Logout fehlgeschlagen! Status Code=" + xhr.status);
-            sessionStorage.clear();
-            localStorage.clear();
+            //sessionStorage.clear();
+            delete localStorage.auth_token;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
@@ -505,8 +506,8 @@ $("#btnDeleteVerlauf").click(function () {
     $("#addVerlauf").popup("close");
 });
 $("#btnLogout").click(function () {
-    console.log("Lösche sessionStorage!");
-    sessionStorage.clear();
+    //console.log("Lösche sessionStorage!");
+    //sessionStorage.clear();
 });
 
 function deleteVerlauf(id) {
