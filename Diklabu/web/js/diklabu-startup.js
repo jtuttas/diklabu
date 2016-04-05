@@ -15,6 +15,9 @@ var currentView;
 var betriebe;
 // Notenliste
 var notenliste;
+var lfid;
+
+
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -29,6 +32,8 @@ $(".infoIcon").unbind();
 $("#template").load(SERVER + "/Diklabu/template.txt", function () {
     console.log("Load Template")
 });
+
+
 console.log("found token:" + sessionStorage.auth_token);
 if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
     console.log("Build gui for logged in user");
@@ -374,9 +379,58 @@ function bemerkungHeute(id) {
     }
     return "";
 }
+
+function buildNotenliste(data) {
+    var lernfelder = {};
+    console.log("buildNotenliste() schueler.length="+schueler.length);
+    for (j = 0; j < data.length; j++) {
+        noten = data[j].noten;
+        //console.log("Teste Lernfelder in "+JSON.stringify(noten));
+        for (k = 0; k < noten.length; k++) {
+
+            if (!findKeyinMap(noten[k].ID_LERNFELD, lernfelder)) {
+                lernfelder[noten[k].ID_LERNFELD] = noten[k].ID_LERNFELD;
+                console.log("Neues Lernfeld:" + noten[k].ID_LERNFELD);
+            }
+        }
+    }
+    // Tabelle aufbauen
+    $("#trNoten").empty();
+    $("#trNoten").append('<th width="20%"><h3>Name</h3></th>');
+    for (lf in lernfelder) {
+        $("#trNoten").append('<th>' + lf + '</th>')
+    }
+    $("#tbodyNotenliste").empty();
+    var out = "";
+    for (k = 0; k < schueler.length; k++) {
+        out = '<tr id="n' + schueler[k].id + '"><td><img src="../img/Info.png" ids="' + schueler[k].id + '" class="infoIcon">&nbsp;' + schueler[k].VNAME + " " + schueler[k].NNAME + '</td>';
+        for (lf in lernfelder) {
+            out += '<td id="' + schueler[k].id + lf + '"></td>';
+        }
+        out += '</tr>';
+        $("#tbodyNotenliste").append(out);
+    }
+    // Noten eintragen
+    for (j = 0; j < data.length; j++) {
+        noten = data[j].noten;
+        for (k = 0; k < noten.length; k++) {
+            $("#" + data[j].schuelerID + noten[k].ID_LERNFELD).append('<a href="#" data-toggle="tooltip" title="' + noten[k].ID_LK + '">' + noten[k].WERT + '</a>');
+        }
+    }
+
+    getSchuelerInfo();
+}
 $('#notenTabs').on('shown.bs.tab', function (e) {
     console.log("New NavNoten Target =" + $(e.target).text());
-    getNoten(nameKlasse);
+    target = $(e.target).text();
+    getNoten(nameKlasse, function (data) {
+        if (target == "Noteneintrag") {
+            buildNoteneintrag(data);
+        }
+        else if (target == "Notenliste") {
+            buildNotenliste(data);
+        }
+    });
 });
 
 $('#navTabs').on('shown.bs.tab', function (e) {
@@ -431,13 +485,25 @@ $('#navTabs').on('shown.bs.tab', function (e) {
         $("#printContainer").hide();
     }
     if ($(e.target).text() == "Noten") {
-        getNoten(nameKlasse);
+        console.log("Noten View =" + $("ul#notenTabs li.active").text());
+        target = $("ul#notenTabs li.active").text();
+        if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
+            getNoten(nameKlasse, function (data) {
+        if (target == "Noteneintrag") {
+            buildNoteneintrag(data);
+        }
+        else if (target == "Notenliste") {
+            buildNotenliste(data);
+        }
+    });
+          
+        }
     }
 
 
 });
 
-function getNoten(kl) {
+function getNoten(kl, callback) {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/noten/" + kl,
         type: "GET",
@@ -450,43 +516,10 @@ function getNoten(kl) {
         success: function (data) {
             console.log("Noten=" + JSON.stringify(data));
             notenliste = data;
-            var lernfelder = {};
-            for (j = 0; j < data.length; j++) {
-                noten = data[j].noten;
-                //console.log("Teste Lernfelder in "+JSON.stringify(noten));
-                for (k = 0; k < noten.length; k++) {
 
-                    if (!findKeyinMap(noten[k].ID_LERNFELD, lernfelder)) {
-                        lernfelder[noten[k].ID_LERNFELD] = noten[k].ID_LERNFELD;
-                        console.log("Neues Lernfeld:") + noten[k].ID_LERNFELD;
-                    }
-                }
+            if (callback != undefined) {
+                callback(data);
             }
-            // Tabelle aufbauen
-            $("#trNoten").empty();
-            $("#trNoten").append('<th width="20%"><h3>Name</h3></th>');
-            for (lf in lernfelder) {
-                $("#trNoten").append('<th>' + lf + '</th>')
-            }
-            $("#tbodyNotenliste").empty();
-            var out = "";
-            for (k = 0; k < schueler.length; k++) {
-                out = '<tr id="n' + schueler[k].id + '"><td><img src="../img/Info.png" ids="' + schueler[k].id + '" class="infoIcon">&nbsp;' + schueler[k].VNAME + " " + schueler[k].NNAME + '</td>';
-                for (lf in lernfelder) {
-                    out += '<td id="' + schueler[k].id + lf + '"></td>';
-                }
-                out += '</tr>';
-                $("#tbodyNotenliste").append(out);
-            }
-            // Noten eintragen
-            for (j = 0; j < data.length; j++) {
-                noten = data[j].noten;
-                for (k = 0; k < noten.length; k++) {
-                    $("#" + data[j].schuelerID + noten[k].ID_LERNFELD).append('<a href="#" data-toggle="tooltip" title="' + noten[k].ID_LK + '">' + noten[k].WERT + '</a>');
-                }
-            }
-
-            getSchuelerInfo();
 
         },
         error: function (xhr, textStatus, errorThrown) {
@@ -676,14 +709,49 @@ $("#login").click(function () {
     performLogin();
 });
 
+function removeGerman(name) {
+    out = "";
+    for (i = 0; i < name.length; i++) {
+        c = name.charAt(i);
+        switch (c) {
+            case 'ö':
+                out += "oe";
+                break;
+            case 'ä':
+                out += "ae";
+                break;
+            case 'ü':
+                out += "ue";
+                break;
+            case 'ß':
+                out += "ss";
+                break;
+            case 'Ä':
+                out += "AE";
+                break;
+            case 'Ö':
+                out += "OE";
+                break;
+            case 'Ü':
+                out += "UE";
+                break;
+            default:
+                out += c;
+                break;
+        }
+    }
+    return out;
+}
+
 function performLogin() {
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {
+        idplain = removeGerman($("#benutzername").val());
         var myData = {
-            "benutzer": $('#lehrer').find(":selected").attr("idplain"),
+            "benutzer": idplain,
             "kennwort": $("#kennwort").val()
         };
-        console.log("idplain = " + $('#lehrer').find(":selected").attr("idplain"));
-        sessionStorage.service_key = $('#lehrer').find(":selected").attr("idplain") + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
+        console.log("idplain = " + idplain + " send data=" + JSON.stringify(myData));
+        sessionStorage.service_key = idplain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
         console.log("Service key =" + sessionStorage.service_key);
 
         $.ajax({
@@ -701,15 +769,20 @@ function performLogin() {
                 console.log("Thoken = " + jsonObj.auth_token);
 
                 toastr["success"]("Login erfolgreich", "Info!");
-                sessionStorage.myselfplain = $('#lehrer').find(":selected").attr("idplain");
-                sessionStorage.myself = $('#lehrer').val();
+                sessionStorage.myselfplain = idplain;
+                sessionStorage.myself = $('#benutzername').val();
                 sessionStorage.myemail = jsonObj.email;
                 getLehrerData(sessionStorage.myself);
                 loggedIn();
                 nameKlasse = $("#klassen").val();
                 refreshVerlauf(nameKlasse);
                 refreshKlassenliste(nameKlasse);
+
                 refreshBemerkungen(nameKlasse);
+                getNoten(nameKlasse);
+                loadStundenPlan();
+                loadVertertungsPlan();
+
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Login fehlgeschlagen", "Fehler!");
@@ -796,20 +869,6 @@ $.ajax({
     },
     error: function () {
         toastr["error"]("kann Lernfelder nicht vom Server laden", "Fehler!");
-    }
-});
-$.ajax({
-    url: SERVER + "/Diklabu/api/v1/noauth/lehrer",
-    type: "GET",
-    contentType: "application/json; charset=UTF-8",
-    success: function (data) {
-        $("#lehrer").empty();
-        for (i = 0; i < data.length; i++) {
-            $("#lehrer").append("<option idplain=" + data[i].idplain + ">" + data[i].id + "</option>");
-        }
-    },
-    error: function () {
-        toastr["error"]("kann Lehrerliste nicht vom Server laden", "Fehler!");
     }
 });
 
@@ -1030,6 +1089,15 @@ function findSchueler(id) {
     }
     return undefined;
 }
+
+function buildNoteneintrag(data) {
+    console.log("Build Noteneintrag schueler.length="+schueler.length);
+    $("#tbodyNoteneintrag").empty();
+    for (i = 0; i < schueler.length; i++) {
+        $("#tbodyNoteneintrag").append('<tr><td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon"> ' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td><td><input type="text" id="No' + schueler[i].id + '" sid="' + schueler[i].id + '" class="form-control notenTextfeld" disabled="disabled"/></td></tr>')
+    }
+    getSchuelerInfo();
+}
 function refreshKlassenliste(kl) {
     console.log("Refresh Klassenliste f. Klasse " + kl);
     nameKlasse = kl;
@@ -1046,12 +1114,10 @@ function refreshKlassenliste(kl) {
             schueler = data;
             $("#tabelleKlasse").empty();
             $("#tabelleBemerkungen").empty();
-            $("#tbodyNoteneintrag").empty();
             $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
             $("#tabelleKlasse").append("<tbody>");
             for (i = 0; i < data.length; i++) {
                 $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td></tr>');
-                $("#tbodyNoteneintrag").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input type="text" id="No' + data[i].id + '" sid="' + data[i].id + '" class="form-control notenTextfeld" disabled="disabled"/></td></tr>')
                 if (data[i].INFO != undefined) {
                     $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
                 }
@@ -1612,6 +1678,8 @@ function loggedOut() {
     $("#klassenTabs").hide();
     $("#fehlzeitenTab").hide();
     $("#anwesenheitTabs").hide();
+    $("#tabAnwesenheitBilder").hide();
+    $("#notenTabs").hide();
     chatDisconnect();
 }
 function loggedIn() {
@@ -1668,10 +1736,12 @@ function loggedIn() {
     //$("#tabMail").show();
     $("#bemerkungContainer").show();
     $("#betriebeContainer").show();
-    $("#tabAnwesenheitBilder").hide();
+
     $("#klassenTabs").show();
     $("#fehlzeitenTab").show();
     $("#anwesenheitTabs").show();
+
+    $("#notenTabs").show();
     chatConnect();
 }
 
@@ -1702,35 +1772,37 @@ function loadVertertungsPlan() {
 $("#notenlernfelder").change(function () {
     lfid = $('option:selected', this).attr("lfid");
     console.log("Noten Lernfelder changed to " + $("#notenlernfelder").val() + " id=" + lfid);
+    getNoten(nameKlasse, function (data) {
+        for (k = 0; k < schueler.length; k++) {
+            sch = schueler[k];
 
-    for (k = 0; k < schueler.length; k++) {
-        sch = schueler[k];
+            note = findNote(sch.id, lfid);
+            if (note != undefined) {
+                $("#No" + sch.id).val(note.WERT);
+                if (note.ID_LK == sessionStorage.myself) {
+                    $("#No" + sch.id).removeAttr("disabled");
+                }
+                else {
+                    $("#No" + sch.id).attr("disabled", "disabled");
+                }
 
-        note = findNote(sch.id, lfid);
-        if (note != undefined) {
-            $("#No" + sch.id).val(note.WERT);
-            if (note.ID_LK == sessionStorage.myself) {
-                $("#No" + sch.id).removeAttr("disabled");
             }
             else {
-                $("#No" + sch.id).attr("disabled", "disabled");
+                $("#No" + sch.id).removeAttr("disabled");
+                $("#No" + sch.id).val("");
             }
+        }
 
-        }
-        else {
-            $("#No" + sch.id).removeAttr("disabled");
-            $("#No" + sch.id).val("");
-        }
-    }
+    });
 });
 
 function findNote(ids, idlf) {
-    for (n=0;n<notenliste.length;n++) {
+    for (n = 0; n < notenliste.length; n++) {
         eintr = notenliste[n];
         if (eintr.schuelerID == ids) {
             no = eintr.noten;
-            for (m=0;m<no.length;m++) {
-                note=no[m];
+            for (m = 0; m < no.length; m++) {
+                note = no[m];
                 if (note.ID_LERNFELD == idlf) {
                     return note;
                 }
@@ -1743,9 +1815,15 @@ function findNote(ids, idlf) {
 $('body').on('keydown', ".notenTextfeld", function (e) {
     var keyCode = e.keyCode || e.which;
     console.log("keycode=" + keyCode);
-    if (keyCode == 13) {
-        submitNote($("#notenlernfelder").val(), $(this).attr("sid"), $(this).val());
+    if (keyCode == 13 || keyCode == 9) {
         $(this).blur();
+    }
+});
+
+$('body').on('focusout', ".notenTextfeld", function (e) {
+    console.log("focus out");
+    if ($(this).val() != "") {
+        submitNote(lfid, $(this).attr("sid"), $(this).val());
     }
 });
 

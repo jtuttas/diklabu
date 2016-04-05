@@ -6,7 +6,13 @@ var verlaufData;
 var verlaufDetailsIndex;
 var currentDate;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
+var favorite=false;
+var favorites={};
 
+if (localStorage.favorites != undefined) {
+    favorites=JSON.parse(localStorage.favorites);
+    console.log("restore favorites:"+JSON.stringify(favorites));
+}
 
 if (currentDate == undefined) {
     currentDate = new Date();
@@ -46,7 +52,51 @@ $(document).ready(function () {
 });
 
 
+$("#filterFavorite").click(function () {
+   console.log("Filter favorit");
+   if (favorite) {
+       favorite=false;
+       $("#favoriteIcon").attr("src","../img/favorite0.png");
+   }
+   else {
+       favorite=true;
+       $("#favoriteIcon").attr("src","../img/favorite.png");
+   }
+    buildKlassenListeView(JSON.parse(sessionStorage.klassen));
+});
 
+$("#addRemoveFavorite").click(function () {
+    if (!isInCollection($("#addRemoveFavorite").attr("kname"),favorites)) {
+        console.log("Add to favorite:"+$("#addRemoveFavorite").attr("kname"));
+        $(this).attr("src","../img/favorite.png");
+        favorites[$("#addRemoveFavorite").attr("kname")]=true;
+        storeFavories();
+    }
+    else {
+        console.log("Remove from favorite:"+$("#addRemoveFavorite").attr("kname"));
+        $(this).attr("src","../img/favorite0.png");
+        delete favorites[$("#addRemoveFavorite").attr("kname")];
+        storeFavories();
+    }
+    if (favorite) {
+        buildKlassenListeView(JSON.parse(sessionStorage.klassen));
+    }
+});
+
+function storeFavories() {
+    localStorage.favorites=JSON.stringify(favorites);
+}
+
+function isInCollection(key,col) {
+    for (k in col) {
+        if (key==k) {
+            console.log("found "+key);
+            return true;
+        }
+    }
+    
+    return false;
+}
 
 var toast = function (msg) {
     $("<div class='ui-loader ui-overlay-shadow ui-body-e ui-corner-all'><h3>" + msg + "</h3></div>")
@@ -789,12 +839,18 @@ else {
 }
 
 function buildKlassenListeView(data) {
+    console.log("buildKlassenlisteview size="+data.length);
     $("#klassenListView").empty();
-
-
     for (i = 0; i < data.length; i++) {
         //$("#klassenListView").append('<li><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a></li>');
-        $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="' + data[i].id + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
+        if (favorite) {
+            if (isInCollection(data[i].KNAME,favorites)) {
+                $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="' + data[i].id + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
+            }            
+        }
+        else {
+            $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="' + data[i].id + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
+        }
         //console.log("append " + data[i].KNAME);
     }
     /*
@@ -828,6 +884,13 @@ function buildKlassenListeView(data) {
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
                 $("#klDetailsName").text(data.KNAME);
+                $("#addRemoveFavorite").attr("kname",data.KNAME);
+                if (isInCollection(data.KNAME,favorites)) {
+                    $("#addRemoveFavorite").attr("src","../img/favorite.png");
+                }
+                else {
+                    $("#addRemoveFavorite").attr("src","../img/favorite0.png");
+                }
                 console.log("Empfange:" + JSON.stringify(data));
                 if (data.TITEL != undefined) {
                     $("#klDetailsTitel").text(data.TITEL)

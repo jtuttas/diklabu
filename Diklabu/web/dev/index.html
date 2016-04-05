@@ -39,11 +39,10 @@
                     </div>
                     <h1>Diklabu@MMBbS</h1>
                     <div class="row">
-                        <div class="col-md-1">
+                        <div class="col-md-2">
                             <div  id="kuerzelContainer">
-                                <label for="lehrer">Kürzel</label>
-                                <select class="form-control" id="lehrer">
-                                </select>
+                                <label for="benutzername" >Benutzername</label>
+                                <input type="text" class="form-control" id="benutzername" value="TU"/>
                             </div>
                         </div>
                         <div class="col-md-2" >
@@ -51,7 +50,7 @@
                                 <label for="kennwort" >
                                     Kennwort
                                 </label>
-                                <input type="password" class="form-control mypassword" id="kennwort">
+                                <input type="password" class="form-control mypassword" id="kennwort" value="mmbbs"/>
                             </div>
                         </div>
                         <div class="col-md-1">
@@ -62,8 +61,6 @@
 
                         </div>
 
-                        <div class="col-md-1">
-                        </div>
                         <div class="col-md-3">
                             <label for="klassen">Klassen</label>
                             <select class="form-control" id="klassen">
@@ -72,25 +69,25 @@
                         <div class="col-md-3">
                             <label for="datepicker">Zeitraum</label>
                             <div class="date-input input-daterange input-group" id="datepicker">
-                                <input type="text" class="input-sm form-control" name="start" id="startDate" >
+                                <input type="text" class="input-sm form-control" name="start" id="startDate" />
                                 <span class="input-group-addon">bis</span>
-                                <input type="text" class="input-sm form-control" name="end" id="endDate">
+                                <input type="text" class="input-sm form-control" name="end" id="endDate"/>
                             </div>
                         </div>
                         <div class="col-md-1">
                             <br>
                             <div id="dokumentationContainer" style="display: none;">
                                 <form action="/Diklabu/DokuServlet" target="_blank" method="POST" role="form" class="form-horizontal">
-                                    <input id="dokumentationType" type="hidden" name="cmd" value="Verlauf">
-                                    <input type="hidden" name="auth_token" id="auth_token">
-                                    <input type="hidden" name="service_key" id="service_key">
-                                    <input type="hidden" name="idklasse" id="idklasse">
-                                    <input type="hidden" name="from" id="from">
-                                    <input type="hidden" name="to" id="to">
+                                    <input id="dokumentationType" type="hidden" name="cmd" value="Verlauf"/>
+                                    <input type="hidden" name="auth_token" id="auth_token"/>
+                                    <input type="hidden" name="service_key" id="service_key"/>
+                                    <input type="hidden" name="idklasse" id="idklasse"/>
+                                    <input type="hidden" name="from" id="from"/>
+                                    <input type="hidden" name="to" id="to"/>
 
                                     <div class="row">
                                         <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
-                                        <input type="radio" name="type" value="pdf" checked> pdf <input type="radio" name="type" value="csv"> csv
+                                        <input type="radio" name="type" value="pdf" checked/> pdf <input type="radio" name="type" value="csv"/> csv
                                     </div>
                                 </form>
                             </div>
@@ -103,7 +100,7 @@
                 </div>
 
                 <ul class="nav nav-tabs" id="navTabs">
-                    <li class="active"><a data-toggle="tab" href="#tabVerlauf">Verlauf</a></li>
+                    <li id="firstNavTab" class="active"><a data-toggle="tab" href="#tabVerlauf">Verlauf</a></li>
                     <li><a data-toggle="tab" href="#tabAnwesenheit">Anwesenheit</a></li>
                     <li><a data-toggle="tab" href="#tabFehlzeiten">Fehlzeiten</a></li>
                     <li><a data-toggle="tab" href="#tabNoten">Noten</a></li>
@@ -122,7 +119,7 @@
                                         <div class="form-group">
                                             <label for="eintragDatum">Datum</label>
                                             <div class="input-group date">
-                                                <input type="text" class="form-control" id="eintragDatum">
+                                                <input type="text" class="form-control" id="eintragDatum"/>
                                                 <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
                                             </div>
                                         </div>
@@ -160,7 +157,7 @@
                                                 Lernsituation
                                             </label>
 
-                                            <input type="text" class="form-control" id="lernsituationVerlauf">
+                                            <input type="text" class="form-control" id="lernsituationVerlauf"/>
 
                                         </div>
                                         <div class="form-group">
@@ -168,14 +165,14 @@
                                             <label for="inhaltVerlauf">
                                                 Inhalt
                                             </label>
-                                            <input type="text" class="form-control" id="inhaltVerlauf">
+                                            <input type="text" class="form-control" id="inhaltVerlauf"/>
                                         </div>
                                         <div class="form-group">
 
                                             <label for="bemerkungVerlauf">
                                                 Bemerkungen
                                             </label>
-                                            <input type="text" class="form-control" id="bemerkungVerlauf">
+                                            <input type="text" class="form-control" id="bemerkungVerlauf"/>
                                         </div>
 
                                     </div>
@@ -309,23 +306,23 @@
                                         <div class="col-md-4">
                                             <div class="form-group">
                                                 <label for="fromMail">Absender:</label>
-                                                <input type="text" class="form-control" name="fromMail" id="fromMail">
-                                                <input type="hidden" name="klassenName" id="klassenName">
-                                                <input type="hidden" name="lehrerId" id="lehrerId">
-                                                <input type="hidden" name="auth_token" id="mailauth_token">
-                                                <input type="hidden" name="service_key" id="mailservice_key">
+                                                <input type="text" class="form-control" name="fromMail" id="fromMail"/>
+                                                <input type="hidden" name="klassenName" id="klassenName"/>
+                                                <input type="hidden" name="lehrerId" id="lehrerId"/>
+                                                <input type="hidden" name="auth_token" id="mailauth_token"/>
+                                                <input type="hidden" name="service_key" id="mailservice_key"/>
                                             </div>                            
                                             <div class="form-group">
                                                 <label for="toMail">Adresse:</label>
-                                                <input type="text" class="form-control" name="toMail" id="toMail" >
+                                                <input type="text" class="form-control" name="toMail" id="toMail" />
                                             </div>                            
                                             <div class="form-group">
                                                 <label for="subjectMail">Betreff:</label>
-                                                <input type="text" class="form-control" id="subjectMail" name="subjectMail" value="MMBbS Fehlzeitenmeldung">
+                                                <input type="text" class="form-control" id="subjectMail" name="subjectMail" value="MMBbS Fehlzeitenmeldung"/>
                                             </div>                            
                                             <div class="form-group">
                                                 <a id="emailZurueck" href="#" class="btn btn-default" role="button">zurück</a>                                                
-                                                <input type="submit" class="btn btn-danger" id="emailAbsenden" value="Absenden">                                                                                                
+                                                <input type="submit" class="btn btn-danger" id="emailAbsenden" value="Absenden"/>                                                                                                
                                                 <a id="emailWeiter" href="#" class="btn btn-default" role="button">weiter</a>                                                
                                             </div>                            
 
@@ -343,8 +340,8 @@
 
                     </div>
 
-                    <div id="tabNoten" class="tab-pane fade">
-                        <ul class="nav nav-tabs" id="notenTabs" >
+                    <div id="tabNoten" class="tab-pane fade" >
+                        <ul class="nav nav-tabs" id="notenTabs" style="display:  none;" >
                             <li class="active"><a data-toggle="tab" href="#tabNotenliste">Notenliste</a></li>
                             <li><a data-toggle="tab" href="#tabNoteneintrag">Noteneintrag</a></li>
                         </ul>
@@ -361,7 +358,7 @@
                                     </tbody>
                                 </table>                                
                             </div>
-                            <div id="tabNoteneintrag" class="tab-pane " > 
+                            <div id="tabNoteneintrag" class="tab-pane "  > 
                                 <br/>
                                 <div class="row">
                                     <div class="col-md-4">
@@ -374,8 +371,10 @@
                                 <table id="tableNoteneintrag" class="table table-striped table-hover">
                                     <thead>                                        
                                         <tr>
-                                            <th width="20%"><h3>Name</h3></th>
-                                    <th >Noten</th>
+                                            <td width="20%">
+                                    <h3>Name</h3>
+                                    </td>
+                                    <td>Noten</td>
                                     </tr>
                                     </thead>
                                     <tbody id="tbodyNoteneintrag">
@@ -470,7 +469,7 @@
                         <div id="chatContainer" style="display: none;">
                             <div class="col-md-1"></div>
                             <div class="col-md-9">
-                                <input type="text" id="newChatLine" class="form-control">
+                                <input type="text" id="newChatLine" class="form-control"/>
                             </div>
                             <div class="col-md-1">
                                 <button class="btn btn-primary" id="sendChatLine">send</button>
@@ -511,7 +510,7 @@
                                 <form enctype="multipart/form-data" id="bildUploadForm" action="/Diklabu/api/v1/schueler/bild/14279">
                                     <div class="row">
                                         <span class="btn btn-default col-md-12 btn-file" >
-                                            Auswählen<input id="fileBild" type="file" name="file">
+                                            Auswählen<input id="fileBild" type="file" name="file"/>
 
                                         </span>
                                         <strong class="col-md-12" id="bildWahl">&nbsp;</strong>
