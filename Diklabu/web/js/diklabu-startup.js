@@ -195,7 +195,7 @@ function updateBetriebeMails() {
         });
     }
     else {
-        console.log("Betriebe=" + betriebe)
+        //console.log("Betriebe=" + betriebe)
         for (i = 0; i < betriebe.length; i++) {
             adr = adr + betriebe[i].email + ";";
         }
@@ -382,7 +382,7 @@ function bemerkungHeute(id) {
 
 function buildNotenliste(data) {
     var lernfelder = {};
-    console.log("buildNotenliste() schueler.length="+schueler.length);
+    console.log("buildNotenliste() schueler.length=" + schueler.length);
     for (j = 0; j < data.length; j++) {
         noten = data[j].noten;
         //console.log("Teste Lernfelder in "+JSON.stringify(noten));
@@ -455,7 +455,7 @@ $('#navTabs').on('shown.bs.tab', function (e) {
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
                 anwesenheit = data;
-                console.log("anwesenheit=" + JSON.stringify(data));
+                console.log("anwesenheit empfangen!");
                 generateVerspaetungen();
             }
         });
@@ -489,14 +489,14 @@ $('#navTabs').on('shown.bs.tab', function (e) {
         target = $("ul#notenTabs li.active").text();
         if (sessionStorage.auth_token != undefined && sessionStorage.auth_token != "undefined") {
             getNoten(nameKlasse, function (data) {
-        if (target == "Noteneintrag") {
-            buildNoteneintrag(data);
-        }
-        else if (target == "Notenliste") {
-            buildNotenliste(data);
-        }
-    });
-          
+                if (target == "Noteneintrag") {
+                    buildNoteneintrag(data);
+                }
+                else if (target == "Notenliste") {
+                    buildNotenliste(data);
+                }
+            });
+
         }
     }
 
@@ -514,7 +514,7 @@ function getNoten(kl, callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Noten=" + JSON.stringify(data));
+            console.log("Noten empfangen!");
             notenliste = data;
 
             if (callback != undefined) {
@@ -1060,7 +1060,7 @@ function getBetriebe(kl, callback) {
         success: function (data) {
             $("#tabelleBetriebe").empty();
             betriebe = data;
-            console.log("empfangen:" + JSON.stringify(data));
+            console.log("empfangen: Betriebe!");
             for (k = 0; k < data.length; k++) {
 
                 var s = findSchueler(data[k].id_schueler);
@@ -1091,14 +1091,14 @@ function findSchueler(id) {
 }
 
 function buildNoteneintrag(data) {
-    console.log("Build Noteneintrag schueler.length="+schueler.length);
+    console.log("Build Noteneintrag schueler.length=" + schueler.length);
     $("#tbodyNoteneintrag").empty();
     for (i = 0; i < schueler.length; i++) {
         $("#tbodyNoteneintrag").append('<tr><td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon"> ' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td><td><input type="text" id="No' + schueler[i].id + '" sid="' + schueler[i].id + '" class="form-control notenTextfeld" disabled="disabled"/></td></tr>')
     }
     getSchuelerInfo();
 }
-function refreshKlassenliste(kl) {
+function refreshKlassenliste(kl, callback) {
     console.log("Refresh Klassenliste f. Klasse " + kl);
     nameKlasse = kl;
     $.ajax({
@@ -1131,7 +1131,9 @@ function refreshKlassenliste(kl) {
                 renderBilder();
             });
             getSchuelerInfo();
-
+            if (callback != undefined) {
+                callback(data);
+            }
 
 
         },
@@ -1301,7 +1303,7 @@ function refreshAnwesenheit(kl, callback) {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             anwesenheit = data;
-            console.log("anwesenheit=" + JSON.stringify(data));
+            console.log("anwesenheit empfangen!");
             generateVerspaetungen();
             $("#tabelleAnwesenheit").empty();
             var dateStart = new Date($("#startDate").val());
@@ -1697,7 +1699,6 @@ function loggedIn() {
         refreshVerlauf($("#klassen").val());
         refreshAnwesenheit($("#klassen").val());
         $("#from").val($("#startDate").val());
-
     });
     $('#endDate').datepicker().on('changeDate', function (ev) {
         refreshVerlauf($("#klassen").val());
@@ -1711,16 +1712,24 @@ function loggedIn() {
         idKlasse = $('option:selected', this).attr('dbid');
         nameKlasse = $("#klassen").val();
         refreshVerlauf($("#klassen").val());
-        refreshKlassenliste($("#klassen").val());
         $("#idklasse").val(idKlasse);
+        refreshKlassenliste($("#klassen").val(),function (data) {
+            refreshBemerkungen(nameKlasse);
+            getBetriebe(nameKlasse);
+            getNoten(nameKlasse, function (data) {
+                target = $("ul#notenTabs li.active").text();
+                console.log("Target = " + target);
+                if (target == "Noteneintrag") {
+                    buildNoteneintrag(data);
+                }
+                else if (target == "Notenliste") {
+                    buildNotenliste(data);
+                }
+            });            
+        });
         loadStundenPlan();
         loadVertertungsPlan();
-        refreshBemerkungen(nameKlasse);
         getKlassenBemerkungen(idKlasse);
-        getBetriebe(nameKlasse);
-        getNoten(nameKlasse);
-
-
     });
     $("#klassen").val(nameKlasse);
     $("#auth_token").val(sessionStorage.auth_token);
@@ -1736,11 +1745,9 @@ function loggedIn() {
     //$("#tabMail").show();
     $("#bemerkungContainer").show();
     $("#betriebeContainer").show();
-
     $("#klassenTabs").show();
     $("#fehlzeitenTab").show();
     $("#anwesenheitTabs").show();
-
     $("#notenTabs").show();
     chatConnect();
 }
@@ -1767,7 +1774,6 @@ function loadVertertungsPlan() {
             $("#vertertungsplan").append('<div class="noplan"><center><h1>Kann Vertertungsplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
         }
     });
-
 }
 $("#notenlernfelder").change(function () {
     lfid = $('option:selected', this).attr("lfid");
@@ -1775,7 +1781,6 @@ $("#notenlernfelder").change(function () {
     getNoten(nameKlasse, function (data) {
         for (k = 0; k < schueler.length; k++) {
             sch = schueler[k];
-
             note = findNote(sch.id, lfid);
             if (note != undefined) {
                 $("#No" + sch.id).val(note.WERT);
@@ -1795,7 +1800,6 @@ $("#notenlernfelder").change(function () {
 
     });
 });
-
 function findNote(ids, idlf) {
     for (n = 0; n < notenliste.length; n++) {
         eintr = notenliste[n];
@@ -1819,14 +1823,12 @@ $('body').on('keydown', ".notenTextfeld", function (e) {
         $(this).blur();
     }
 });
-
 $('body').on('focusout', ".notenTextfeld", function (e) {
     console.log("focus out");
     if ($(this).val() != "") {
         submitNote(lfid, $(this).attr("sid"), $(this).val());
     }
 });
-
 function submitNote(lf, ids, wert) {
     console.log("SubmitNote lf=" + lf + " ID_Schueler=" + ids + " Wert=" + wert);
     var eintr = {

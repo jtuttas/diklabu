@@ -52,7 +52,7 @@ $(document).ready(function () {
 });
 
 
-$("#filterFavorite").click(function () {
+$("#favoriteIcon").click(function () {
    console.log("Filter favorit");
    if (favorite) {
        favorite=false;
@@ -62,7 +62,7 @@ $("#filterFavorite").click(function () {
        favorite=true;
        $("#favoriteIcon").attr("src","../img/favorite.png");
    }
-   console.log("sessionstorage.klasse="+sessionStorage.klassen);
+   //console.log("sessionstorage.klasse="+sessionStorage.klassen);
    buildKlassenListeView(JSON.parse(sessionStorage.klassen));
 });
 
@@ -142,6 +142,31 @@ $("#btnVerlaufZurueck").click(function () {
         renderVerlaufDetails(--verlaufDetailsIndex);
     }
 });
+$("#verlaufDetail").on("swiperight",function(){
+  console.log("Swipe left detected!");
+  if (verlaufDetailsIndex <= 0) {
+        console.log("kein weiterer Verlaufseintrag");
+        verlaufDetailsIndex = verlaufData.length - 1;
+        renderVerlaufDetails(verlaufDetailsIndex);
+    }
+    else {
+        renderVerlaufDetails(--verlaufDetailsIndex);
+    }
+   
+});  
+$("#verlaufDetail").on("swipeleft",function(){
+  console.log("Swipe left detected!");
+   if (verlaufDetailsIndex < verlaufData.length - 1) {
+        renderVerlaufDetails(++verlaufDetailsIndex);
+    }
+    else {
+        console.log("kein weiterer Verlaufseintrag");
+        verlaufDetailsIndex = 0;
+        renderVerlaufDetails(verlaufDetailsIndex);
+    }
+   
+});  
+
 $("#btnChangeBemerkung").click(function () {
     submitBemerkung($("#textBemerkung").val());verlaufDetail
 });
@@ -280,7 +305,7 @@ function getIdPlain(id) {
 }
 
 function performLogin() {
-    if (localStorage.auth_token == undefined || localStorage.auth_token == "undefined") {
+    if (localStorage.auth_token == undefined ) {
         benutzer = $("#benutzer").val();
         benutzer = benutzer.toUpperCase();
         idplain = getIdPlain(benutzer);
@@ -584,7 +609,7 @@ $(document).on("pagebeforecreate", "#anwesenheit", function () {
     }
     else {
         console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
-        lastAnnwesenheitUpdate = undefined;
+        lastAnnwesenheitUpdate=undefined;
         refreshKlassenliste(sessionStorage.nameKlasse);
     }
 });
@@ -595,7 +620,7 @@ $(document).on("pagebeforeshow", "#anwesenheit", function () {
     }
     else {
         $("#currentDate").val(getReadableDate(currentDate));
-        lastAnnwesenheitUpdate = undefined;
+        lastAnnwesenheitUpdate=undefined;
         buildAnwesenheit(sessionStorage.nameKlasse);
     }
 });
@@ -670,7 +695,7 @@ $(document).on("pagebeforeshow", "#verlaufDetail", function () {
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
     currentDate = new Date();
-    lastAnnwesenheitUpdate = undefined;
+    lastAnnwesenheitUpdate=undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
@@ -692,14 +717,14 @@ $("#btnAnwesenheitDatumZurueck").click(function () {
     currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
 
-    lastAnnwesenheitUpdate = undefined;
+    lastAnnwesenheitUpdate=undefined;
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
 $("#btnAnwesenheitDatumVor").click(function () {
     currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
-    lastAnnwesenheitUpdate = undefined;
+    lastAnnwesenheitUpdate=undefined;
 
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
@@ -714,6 +739,20 @@ $("#btnDetailsWeiter").click(function () {
     sessionStorage.idSchueler = nextSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
+$("#schuelerdetails").on("swipeleft",function(){
+  console.log("Swipe left detected!");
+    $("#imgSchueler").attr("src", '../img/loading.gif');
+    sessionStorage.idSchueler = nextSchueler();
+    renderSchuelerDetails(sessionStorage.idSchueler);
+});                       
+$("#schuelerdetails").on("swiperight",function(){
+  console.log("Swipe right detected!");
+    $("#imgSchueler").attr("src", '../img/loading.gif');
+    sessionStorage.idSchueler = prevSchueler();
+    renderSchuelerDetails(sessionStorage.idSchueler);
+});                       
+
+
 
 
 function prevSchueler() {
@@ -1468,7 +1507,7 @@ $('#currentDate').change(function () {
     console.log("Change:" + getValidDate($("#currentDate").val()));
     currentDate = new Date(getValidDate($("#currentDate").val()));
     console.log("Anwesenheit set Datum:" + currentDate);
-    lastAnnwesenheitUpdate = undefined;
+    lastAnnwesenheitUpdate=undefined;
 
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
