@@ -168,7 +168,7 @@ $("#verlaufDetail").on("swipeleft",function(){
 });  
 
 $("#btnChangeBemerkung").click(function () {
-    submitBemerkung($("#textBemerkung").val());verlaufDetail
+    submitBemerkung($("#textBemerkung").val());
 });
 
 
