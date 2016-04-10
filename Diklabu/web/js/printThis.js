@@ -92,11 +92,12 @@
                 $body = $doc.find("body");
 
             // add base tag to ensure elements use the parent domain
-            $head.append('<base href="' + document.location.protocol + '//' + document.location.host + '">');
+            $head.append('<base href="Diklabu' + document.location.protocol + '//' + document.location.host + '">');
 
             // import page stylesheets
             if (opt.importCSS) $("link[rel=stylesheet]").each(function() {
                 var href = $(this).attr("href");
+                console.log("href="+href);
                 if (href) {
                     var media = $(this).attr("media") || "all";
                     $head.append("<link type='text/css' rel='stylesheet' href='" + href + "' media='" + media + "'>")
@@ -145,9 +146,10 @@
                             $checker = $this.is(':checkbox') || $this.is(':radio'),
                             $iframeInput = $doc.find('input[name="' + $name + '"]'),
                             $value = $this.val();
-
+                            //console.log("Add input Value:"+$value);
                         //order matters here
                         if (!$checker) {
+                            //console.log("kein chekcer");
                             $iframeInput.val($value);
                         } else if ($this.is(':checked')) {
                             if ($this.is(':checkbox')) {

@@ -327,10 +327,10 @@
                                             </div>                            
 
                                         </div>
-                                        <div class="col-md-8">
-                                            <div class="form-group">
+                                        <div class="col-md-8" >
+                                            <div class="form-group" id="mailContainer">
                                                 <label for="emailBody">Nachricht</label>
-                                                <textarea class="form-control" rows="25" id="emailBody" name="emailBody">Hier steht der Inhalt</textarea>
+                                                <textarea class="form-control"  rows="25" id="emailBody" name="emailBody">Hier steht der Inhalt</textarea>
                                             </div>
                                         </div>
                                     </form>
@@ -363,7 +363,7 @@
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="notenlernfelder">Lernfeld</label>
-                                        <select class="form-control" id="notenlernfelder">
+                                        <select class="form-control" name="notenlernfelder" id="notenlernfelder">
                                         </select>    
                                     </div>
 
@@ -453,8 +453,10 @@
                                             </br>
                                             <label for="emailBetriebBetreff">Betreff:</label>
                                             <input name="subjectMail" type="text" class="form-control" id="emailBetriebBetreff"/>                                    
+                                            <div id="emailBetriebeSubjectContainer">
                                             <label for="emailBetriebInhalt">Nachricht:</label>
                                             <textarea name="emailBody" class="form-control" rows="5" id="emailBetriebInhalt"></textarea>
+                                            </div>
                                         </div>
                                         <button id="absendenEMailBetrieb" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
                                     </form>
@@ -620,6 +622,6 @@
         <script src="../js/diklabu-chat.js"></script>
         <script src="../js/diklabu-startup.js"></script>
         <script src="../js/diklabu-verlauf.js"></script>
-        <script src="../js/printthis/printThis.js"></script>
+        <script src="../js/printThis.js"></script>
     </body>
 </html>

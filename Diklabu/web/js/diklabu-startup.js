@@ -71,6 +71,62 @@ $("#print").click(function () {
             removeInline: false
         });
     }
+    else if (currentView == "Bilder") {
+        $("#tabAnwesenheitBilder").printThis({
+            debug: false,
+            printContainer: true,
+            loadCSS: [SERVER+"/Diklabu/css/bootstrap.min.css",SERVER+"/Diklabu/css/buch.css"],
+            pageTitle: "Bilder Klasse " + nameKlasse,
+            removeInline: false
+        });
+        
+    }
+    else if (currentView == "Noteneintrag") {
+        $("#tabNoteneintrag").printThis({
+            debug: false,
+            printContainer: true,
+            importCSS: true,
+            loadCSS: SERVER+"/Diklabu/css/bootstrap.min.css",
+            pageTitle: "Noteneintrag Klasse " + nameKlasse,            
+            formValues: true
+        });
+        
+    }
+    else if (currentView == "Mail") {
+        $("#mailContainer").printThis({
+            debug: false,
+            printContainer: true,
+            importCSS: true,
+            loadCSS: SERVER+"/Diklabu/css/bootstrap.min.css",
+            pageTitle: "Mail ",            
+            formValues: true
+        });
+        
+    }
+    else if (currentView == "Schülerbemerkungen") {
+        $("#bemerkungContainer").printThis({
+            debug: false,
+            printContainer: true,
+            importCSS: true,
+            loadCSS: SERVER+"/Diklabu/css/bootstrap.min.css",
+            pageTitle: "Schülerbemerkungen Klasse "+nameKlasse,            
+            formValues: true
+        });
+        
+    }
+    else if (currentView == "Betriebe anschreiben") {
+        $("#emailBetriebeSubjectContainer").printThis({
+            debug: false,
+            printContainer: true,
+            importCSS: true,
+            loadCSS: SERVER+"/Diklabu/css/bootstrap.min.css",
+            pageTitle: "nachricht an Betribe der Klasse "+nameKlasse,            
+            formValues: true
+        });
+        
+    }
+    
+    
 });
 
 $("#emailZurueck").click(function () {
@@ -129,6 +185,7 @@ $('#bildUploadForm').on('submit', (function (e) {
     e.preventDefault();
     var formData = new FormData(this);
     $("#uploadBildButton").hide();
+    console.log("--> Hochladen des Bildes für Schüler id="+idSchueler);
     $.ajax({
         type: 'POST',
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + idSchueler,
@@ -179,43 +236,8 @@ $('#notenTabs').on('shown.bs.tab', function (e) {
 });
 
 $('#navTabs').on('shown.bs.tab', function (e) {
-//show selected tab / active
     console.log("New Nav Target =" + $(e.target).text());
-    $("#dokumentationType").val($(e.target).text());
-    // Bei Verspätungen neu vom Server laden
-    if ($(e.target).text() == "Fehlzeiten") {
-        $("#dokumentationContainer").show();
-        $("#printContainer").hide();
-    }
-    if ($(e.target).text() == "Chat") {
-        $("#dokumentationContainer").hide();
-        $("#printContainer").hide();
-    }
-    if ($(e.target).text() == "Stundenplan") {
-        $("#dokumentationContainer").hide();
-        $("#printContainer").show();
-    }
-    if ($(e.target).text() == "Bemerkungen") {
-        $("#dokumentationContainer").hide();
-        $("#printContainer").hide();
-    }
-    if ($(e.target).text() == "Vertretungsplan") {
-        $("#dokumentationContainer").hide();
-        $("#printContainer").show();
-    }
-    if ($(e.target).text() == "Verlauf") {
-        $("#dokumentationContainer").show();
-        $("#printContainer").hide();
-    }
-    if ($(e.target).text() == "Anwesenheit") {
-        $("#dokumentationContainer").show();
-        $("#printContainer").hide();
-    }
-    if ($(e.target).text() == "Noten") {
-
-    }
     updateCurrentView();
-
 });
 
 
@@ -1492,7 +1514,7 @@ function removeGerman(name) {
 function getSchuelerInfo() {
     $(".infoIcon").unbind();
     $(".infoIcon").click(function () {
-        var idSchueler = $(this).attr("ids");
+        idSchueler = $(this).attr("ids");
         console.log("lade Schuler ID=" + idSchueler);
         loadSchulerDaten(idSchueler, function (data) {
             $("#infoName").text(data.vorname + " " + data.name);
@@ -1557,7 +1579,7 @@ function buildNoteneintrag(data) {
     lfid = $('option:selected', "#notenlernfelder").attr("lfid");
     console.log("lfid=" + lfid);
     for (i = 0; i < schueler.length; i++) {
-        $("#tbodyNoteneintrag").append('<tr><td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon"> ' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td><td><input type="text" id="No' + schueler[i].id + '" sid="' + schueler[i].id + '" class="form-control notenTextfeld" disabled="disabled"/></td></tr>')
+        $("#tbodyNoteneintrag").append('<tr><td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon"> ' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td><td><input type="text" name="No' + schueler[i].id + '" id="No' + schueler[i].id + '" sid="' + schueler[i].id + '" class="form-control notenTextfeld" disabled="disabled"/></td></tr>')
     }
 
     for (k = 0; k < schueler.length; k++) {
@@ -1773,10 +1795,10 @@ function refreshKlassenliste(kl, callback) {
                 for (i = 0; i < data.length; i++) {
                     $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td></tr>');
                     if (data[i].INFO != undefined) {
-                        $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
+                        $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" name="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
                     }
                     else {
-                        $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
+                        $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" name="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
                     }
                 }
                 $("#tabelleKlasse").append("</tbody>");
@@ -1815,12 +1837,18 @@ function updateCurrentView() {
     switch (view) {
         case "Verlauf":
             refreshVerlauf(nameKlasse);
+            $("#dokumentationType").val("Verlauf");
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
             break;
             // Anwesenheit
         case "Details":
             refreshKlassenliste(nameKlasse, function (data) {
                 refreshAnwesenheit(nameKlasse);
             });
+            $("#dokumentationType").val("Anwesenheit");
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
             break;
         case "Bilder":
             refreshKlassenliste(nameKlasse, function (data) {
@@ -1828,6 +1856,8 @@ function updateCurrentView() {
                     renderBilder();
                 });
             });
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             break;
             // Fehlzeiten
         case "Übersicht":
@@ -1839,6 +1869,9 @@ function updateCurrentView() {
             });
             $("#tabMail").hide();
             $("#tabUebersicht").show();
+            $("#dokumentationType").val("Fehlzeiten");
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
             break;
         case "Mail":
             refreshKlassenliste(nameKlasse, function (data) {
@@ -1848,6 +1881,8 @@ function updateCurrentView() {
             });
             $("#tabMail").show();
             $("#tabUebersicht").hide();
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             break;
             // Noten
         case "Notenliste":
@@ -1858,6 +1893,9 @@ function updateCurrentView() {
             });
             $("#tabNoteneintrag").hide();
             $("#tabNotenliste").show();
+            $("#dokumentationType").val("Notenliste");
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
             break;
         case "Noteneintrag":
             refreshKlassenliste(nameKlasse, function (data) {
@@ -1867,20 +1905,29 @@ function updateCurrentView() {
             });
             $("#tabNoteneintrag").show();
             $("#tabNotenliste").hide();
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             break;
             // Klasse
         case "Schülerbemerkungen":
             refreshKlassenliste(nameKlasse, function (data) {
                 refreshBemerkungen(nameKlasse);
             });
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             break;
         case "Klassenbemerkung":
             getKlassenBemerkungen(idKlasse);
+            $("#dokumentationContainer").hide();
+            $("#printContainer").hide();
             break;
         case "Betriebe":
             refreshKlassenliste(nameKlasse, function (data) {
                 getBetriebe(nameKlasse);
             });
+            $("#dokumentationType").val("Betriebe");
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
             break;
         case "Betriebe anschreiben":
             refreshKlassenliste(nameKlasse, function (data) {
@@ -1888,14 +1935,22 @@ function updateCurrentView() {
                     updateBetriebeMails();
                 });
             });
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             break;
         case "Stundenplan":
             loadStundenPlan();
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             break;
         case "Vertretungsplan":
             loadVertertungsPlan();
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             break;
         case "Chat":
+            $("#dokumentationContainer").hide();
+            $("#printContainer").hide();
             break;
     }
 
