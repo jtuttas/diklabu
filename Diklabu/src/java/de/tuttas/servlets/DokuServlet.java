@@ -10,6 +10,7 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.sun.org.apache.xerces.internal.xs.StringList;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Noten;
@@ -97,88 +98,130 @@ public class DokuServlet extends HttpServlet {
             if (de.tuttas.config.Config.debug || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(service, auth)) {
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
-                Log.d("cmd=" + cmd + " Klasse=" + kl.getKNAME());
-                response.setContentType("application/pdf");
-                //Get the output stream for writing PDF object        
-                OutputStream out = response.getOutputStream();
+                String type = request.getParameter("type");
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                Date parsedFrom = null;
                 try {
-                    String kopf = "";
-                    kopf += ("<table border='1' align='center' width='100%'>");
-                    kopf += ("<tr>");
-                    kopf += ("<td rowspan=\"3\" width='150px'></td>");
-                    kopf += ("<td align='center'><h2>Multi Media Berufsbildende Schulen Hannover</h2></td>");
-                    if (cmd.compareTo("Verlauf") == 0) {
-                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Unterrichtsverlauf</b></td>");
-                    } else if (cmd.compareTo("Anwesenheit") == 0) {
-                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Anwesenheit</b></td>");
-                    } else if (cmd.compareTo("Fehlzeiten") == 0) {
-                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Fehlzeiten</b></td>");
-                    } else if (cmd.compareTo("Stundenplan") == 0) {
-                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Stundenplan</b></td>");
-                    } else if (cmd.compareTo("Vertretungsplan") == 0) {
-                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Vertretungsplan</b></td>");
-                    } else if (cmd.compareTo("Notenliste") == 0) {
-                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Notenliste</b></td>");
-                    } else if (cmd.compareTo("Betriebe") == 0) {
-                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Betriebsliste</b></td>");
-                    }
-                    kopf += ("</tr>");
-                    kopf += ("<tr>");
-                    kopf += ("<td  align='center' rowspan=\"2\"><h3>Klasse/ Kurs: " + kl.getKNAME() + "</h3></td>");
-                    kopf += ("<td  style=\"font-size: 11;\">Verantwortlicher: " + kl.getID_LEHRER() + "</td>");
-                    kopf += ("<td  style=\"font-size: 11;\">geprüft</td>");
-                    kopf += ("</tr>");
-                    kopf += ("<tr>");
-                    DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
-                    Calendar c = df.getCalendar();
-                    c.setTimeInMillis(System.currentTimeMillis());
-                    String dat = c.get(Calendar.DAY_OF_MONTH) + "." + (c.get(Calendar.MONTH) + 1) + "." + c.get(Calendar.YEAR);
-                    kopf += ("<td  style=\"font-size: 11;\">Ausdruck am: " + dat + "</td>");
-                    kopf += ("<td  style=\"font-size: 11;\">Datum</td>");
-                    kopf += ("</tr>");
-                    kopf += ("</table>");
-                    kopf += ("<p>&nbsp;</p>");
-
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    Date parsedFrom = (Date) dateFormat.parse(request.getParameter("from"));
-                    Date parsedTo;
-                    if (request.getParameter("to") == null) {
-                        parsedTo = new java.sql.Date(System.currentTimeMillis());
-                    } else {
-                        parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
-                    }
-                    Log.d("setze To auf " + new java.sql.Date(parsedTo.getTime()));
-
-                    Document document;
-                    if (cmd.compareTo("Verlauf") == 0) {
-                        response.addHeader("Content-Disposition", "attachment; filename=Verlauf_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createVerlauf(kl, kopf, parsedFrom, parsedTo, out);
-                    } else if (cmd.compareTo("Anwesenheit") == 0) {
-                        response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out);
-                    } else if (cmd.compareTo("Fehlzeiten") == 0) {
-                        response.addHeader("Content-Disposition", "attachment; filename=Fehlzeiten_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createFehlzeiten(kl, kopf, parsedFrom, parsedTo, out);
-                    } else if (cmd.compareTo("Stundenplan") == 0) {
-                        response.addHeader("Content-Disposition", "attachment; filename=Stundenplan_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createStundenplan(kl, kopf, parsedFrom, parsedTo, out);
-                    } else if (cmd.compareTo("Vertretungsplan") == 0) {
-                        response.addHeader("Content-Disposition", "attachment; filename=Vertretungsplan_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createVertretungsplan(kl, kopf, parsedFrom, parsedTo, out);
-                    } else if (cmd.compareTo("Notenliste") == 0) {
-                        response.addHeader("Content-Disposition", "attachment; filename=Notenliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createNotenliste(kl, kopf, out);
-                    } else if (cmd.compareTo("Betriebe") == 0) {
-                        response.addHeader("Content-Disposition", "attachment; filename=Betriebsliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                        document = createBetriebsListe(kl, kopf, out);
-                    }
-
-                } catch (DocumentException exc) {
-                    throw new IOException(exc.getMessage());
+                    parsedFrom = (Date) dateFormat.parse(request.getParameter("from"));
                 } catch (ParseException ex) {
                     Logger.getLogger(DokuServlet.class.getName()).log(Level.SEVERE, null, ex);
-                } finally {
-                    out.close();
+                }
+                Date parsedTo = null;
+                if (request.getParameter("to") == null) {
+                    parsedTo = new java.sql.Date(System.currentTimeMillis());
+                } else {
+                    try {
+                        parsedTo = (Date) dateFormat.parse(request.getParameter("to"));
+                    } catch (ParseException ex) {
+                        Logger.getLogger(DokuServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                Log.d("setze To auf " + new java.sql.Date(parsedTo.getTime()));
+                Log.d("type=" + type + " cmd=" + cmd + " Klasse=" + kl.getKNAME());
+                if (type.compareTo("csv") == 0) {
+                    PrintWriter out = response.getWriter();
+                    MyTableDataModel myModel = null;
+                    if (cmd.compareTo("Betriebe") == 0) {
+                        response.setContentType("text/csv");
+                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + ".csv");
+                        myModel = getModelBetriebsliste(kl);
+                        out.println(myModel.toCsv());
+                    } else if (cmd.compareTo("Notenliste") == 0) {
+                        response.setContentType("text/csv");
+                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + ".csv");
+                        myModel = getModelNotenliste(kl);
+                        out.println(myModel.toCsv());
+                    } else if (cmd.compareTo("Fehlzeiten") == 0) {
+                        response.setContentType("text/csv");
+                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        myModel = getModelFehlzeiten(kl, parsedFrom, parsedTo);
+                        out.println(myModel.toCsv());
+                    } else if (cmd.compareTo("Anwesenheit") == 0) {
+                        response.setContentType("text/csv");
+                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        myModel = getModelAnwesenheit(kl, parsedFrom, parsedTo);
+                        out.println(myModel.toCsv());
+                    } else if (cmd.compareTo("Verlauf") == 0) {
+                        response.setContentType("text/csv");
+                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        myModel = getModelVerlauf(kl, parsedFrom, parsedTo);
+                        out.println(myModel.toCsv());
+                    } else {
+                        response.setContentType("application/json; charset=UTF-8");
+                        String r = "{\"error\":true,\"msg\":\"Kann für " + cmd + " kein Datenmodell erzeugen!\"}";
+                        out.print(r);
+                    }
+                } else {
+                    response.setContentType("application/pdf");
+                    //Get the output stream for writing PDF object        
+                    OutputStream out = response.getOutputStream();
+                    try {
+                        String kopf = "";
+                        kopf += ("<table border='1' align='center' width='100%'>");
+                        kopf += ("<tr>");
+                        kopf += ("<td rowspan=\"3\" width='150px'></td>");
+                        kopf += ("<td align='center'><h2>Multi Media Berufsbildende Schulen Hannover</h2></td>");
+                        if (cmd.compareTo("Verlauf") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Unterrichtsverlauf</b></td>");
+                        } else if (cmd.compareTo("Anwesenheit") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Anwesenheit</b></td>");
+                        } else if (cmd.compareTo("Fehlzeiten") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Fehlzeiten</b></td>");
+                        } else if (cmd.compareTo("Stundenplan") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Stundenplan</b></td>");
+                        } else if (cmd.compareTo("Vertretungsplan") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Vertretungsplan</b></td>");
+                        } else if (cmd.compareTo("Notenliste") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Notenliste</b></td>");
+                        } else if (cmd.compareTo("Betriebe") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Betriebsliste</b></td>");
+                        }
+                        kopf += ("</tr>");
+                        kopf += ("<tr>");
+                        kopf += ("<td  align='center' rowspan=\"2\"><h3>Klasse/ Kurs: " + kl.getKNAME() + "</h3></td>");
+                        kopf += ("<td  style=\"font-size: 11;\">Verantwortlicher: " + kl.getID_LEHRER() + "</td>");
+                        kopf += ("<td  style=\"font-size: 11;\">geprüft</td>");
+                        kopf += ("</tr>");
+                        kopf += ("<tr>");
+                        DateFormat df = new SimpleDateFormat("dd.MM.yyyy");
+                        Calendar c = df.getCalendar();
+                        c.setTimeInMillis(System.currentTimeMillis());
+                        String dat = c.get(Calendar.DAY_OF_MONTH) + "." + (c.get(Calendar.MONTH) + 1) + "." + c.get(Calendar.YEAR);
+                        kopf += ("<td  style=\"font-size: 11;\">Ausdruck am: " + dat + "</td>");
+                        kopf += ("<td  style=\"font-size: 11;\">Datum</td>");
+                        kopf += ("</tr>");
+                        kopf += ("</table>");
+                        kopf += ("<p>&nbsp;</p>");
+
+                        Document document;
+                        if (cmd.compareTo("Verlauf") == 0) {
+                            response.addHeader("Content-Disposition", "attachment; filename=Verlauf_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            document = createVerlauf(kl, kopf, parsedFrom, parsedTo, out);
+                        } else if (cmd.compareTo("Anwesenheit") == 0) {
+                            response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out);
+                        } else if (cmd.compareTo("Fehlzeiten") == 0) {
+                            response.addHeader("Content-Disposition", "attachment; filename=Fehlzeiten_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            MyTableDataModel myModel = getModelFehlzeiten(kl, parsedFrom, parsedTo);
+                            document = createFehlzeiten(kl, kopf, parsedFrom, parsedTo, out);
+                        } else if (cmd.compareTo("Notenliste") == 0) {
+                            response.addHeader("Content-Disposition", "attachment; filename=Notenliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            MyTableDataModel myModel = getModelNotenliste(kl);
+                            document = createNotenliste(myModel, kopf, out);
+                        } else if (cmd.compareTo("Betriebe") == 0) {
+                            response.addHeader("Content-Disposition", "attachment; filename=Betriebsliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            MyTableDataModel myModel = getModelBetriebsliste(kl);
+                            document = createBetriebsListe(myModel, kopf, out);
+                        }
+
+                    } catch (DocumentException exc) {
+                        throw new IOException(exc.getMessage());
+                    } catch (ParseException ex) {
+                        Logger.getLogger(DokuServlet.class.getName()).log(Level.SEVERE, null, ex);
+                    } finally {
+                        out.close();
+                    }
+
                 }
 
             } else {
@@ -198,77 +241,7 @@ public class DokuServlet extends HttpServlet {
         }
     }
 
-    private Document createBetriebsListe(Klasse kl, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
-        Log.d("Doku Servler create Betriebsliste f. " + kl);
-        Document document = new Document();
-        /* Basic PDF Creation inside servlet */
-        PdfWriter writer = PdfWriter.getInstance(document, out);
-        StringBuilder htmlString = new StringBuilder();
-        htmlString.append(kopf);
-
-        Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
-        q.setParameter("paramNameKlasse", kl.getKNAME());
-        List<Schueler> schueler = q.getResultList();
-
-        TypedQuery<AusbilderObject> query = em.createNamedQuery("findBetriebeEinerBenanntenKlasse", AusbilderObject.class);
-        query.setParameter("paramNameKlasse", kl.getKNAME());
-        List<AusbilderObject> ausbilder = query.getResultList();
-        Log.d("Result List:" + ausbilder);
-
-        htmlString.append("<br></br><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
-        htmlString.append("<tr><td width='25%' style=\"padding:5px;font-size: 14;border: 1px solid black;\"><b>Name</b></td>");
-        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Frima</td>");
-        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Ausbilder</td>");
-        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">EMail</td>");
-        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Tel</td>");
-        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Fax</td>");
-        htmlString.append("</tr>");
-
-        for (Schueler s : schueler) {
-            htmlString.append("<tr>");
-            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + s.getVNAME() + " " + s.getNNAME() + "</td>");
-
-            AusbilderObject ao = getAusbilder(s.getId(), ausbilder);
-            if (ao != null) {
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getName() + "</td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getnName() + "</td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getEmail() + "</td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getTelefon() + "</td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getFax() + "</td>");
-            } else {
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
-                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
-            }
-            htmlString.append("</tr>");
-        }
-
-        htmlString.append("</table>");
-        document.open();
-        // Dokument erzeugen
-        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-        // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
-        Image image = Image.getInstance(url);
-        image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
-        document.add(image);
-        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-
-        document.close();
-        return document;
-    }
-
-    private Document createNotenliste(Klasse kl, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
-        Log.d("Doku Servler create Notenliste f. " + kl);
-        Document document = new Document();
-        /* Basic PDF Creation inside servlet */
-        PdfWriter writer = PdfWriter.getInstance(document, out);
-        StringBuilder htmlString = new StringBuilder();
-        htmlString.append(kopf);
-
+    private MyTableDataModel getModelNotenliste(Klasse kl) {
         Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
         q.setParameter("paramNameKlasse", kl.getKNAME());
         List<Schueler> schueler = q.getResultList();
@@ -297,22 +270,114 @@ public class DokuServlet extends HttpServlet {
             no.getNoten().add(n);
         }
         Log.d("Habe " + schueler.size() + " Schüler und " + lernfelder.size() + " Lernfelder");
+        lernfelder.add(0, "Name");
+        String[] headlines = new String[lernfelder.size()];
+        for (int n = 0; n < headlines.length; n++) {
+            headlines[n] = lernfelder.get(n);
+        }
+        MyTableDataModel mo = new MyTableDataModel(schueler.size(), headlines);
+        Schueler s;
+        String lf;
+        for (int y = 0; y < schueler.size(); y++) {
+            s = schueler.get(y);
+            mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
+            for (int x = 1; x < lernfelder.size(); x++) {
+                lf = lernfelder.get(x);
+                mo.setData(x, y, getNoteSchueler(s.getId(), lf, lno));
+            }
+        }
+        return mo;
+    }
+
+    private MyTableDataModel getModelBetriebsliste(Klasse kl) {
+        Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
+        q.setParameter("paramNameKlasse", kl.getKNAME());
+        List<Schueler> schueler = q.getResultList();
+
+        TypedQuery<AusbilderObject> query = em.createNamedQuery("findBetriebeEinerBenanntenKlasse", AusbilderObject.class);
+        query.setParameter("paramNameKlasse", kl.getKNAME());
+        List<AusbilderObject> ausbilder = query.getResultList();
+
+        System.out.println("schuler = " + schueler.size());
+        MyTableDataModel mo = new MyTableDataModel(schueler.size(), new String[]{"Name", "Betrieb", "Ausbilder", "Email", "Tel", "Fax"});
+        System.out.println("mo=" + mo.toCsv());
+        for (int y = 0; y < schueler.size(); y++) {
+            Schueler s = schueler.get(y);
+            mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
+            AusbilderObject ao = getAusbilder(s.getId(), ausbilder);
+            if (ao != null) {
+                mo.setData(1, y, ao.getName());
+                mo.setData(2, y, ao.getnName());
+                mo.setData(3, y, ao.getEmail());
+                mo.setData(4, y, ao.getTelefon());
+                mo.setData(5, y, ao.getFax());
+            }
+        }
+        return mo;
+    }
+
+    private Document createBetriebsListe(MyTableDataModel mo, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
 
         htmlString.append("<br></br><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
         htmlString.append("<tr><td width='25%' style=\"padding:5px;font-size: 14;border: 1px solid black;\"><b>Name</b></td>");
-        for (String s : lernfelder) {
-            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + s + "</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(1, 0) + "</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(2, 0) + "</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(3, 0) + "</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(4, 0) + "</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(5, 0) + "</td>");
+        htmlString.append("</tr>");
+
+        for (int y = 1; y < mo.getRows(); y++) {
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(0, y) + "</td>");
+            for (int x = 1; x < mo.getCols(); x++) {
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + mo.getData(x, y) + "</td>");
+            }
+            htmlString.append("</tr>");
+        }
+
+        htmlString.append("</table>");
+        document.open();
+        // Dokument erzeugen
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        document.close();
+        return document;
+    }
+
+    private Document createNotenliste(MyTableDataModel mo, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
+
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
+
+        htmlString.append("<br></br><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
+        htmlString.append("<tr><td width='25%' style=\"padding:5px;font-size: 14;border: 1px solid black;\"><b>Name</b></td>");
+
+        for (int x = 1; x < mo.getCols(); x++) {
+            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(x, 0) + "</td>");
         }
         htmlString.append("</tr>");
 
-        String notenWert = "";
-        for (Schueler s : schueler) {
+        for (int y = 1; y < mo.getRows(); y++) {
             htmlString.append("<tr>");
-            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + s.getVNAME() + " " + s.getNNAME() + "</td>");
+            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(0, y) + "</td>");
 
-            for (String lf : lernfelder) {
-                notenWert = getNoteSchueler(s.getId().intValue(), lf, lno);
-                htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + notenWert + "</td>");
+            for (int x = 1; x < mo.getCols(); x++) {
+                htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + mo.getData(x, y) + "</td>");
             }
 
             htmlString.append("</tr>");
@@ -378,6 +443,41 @@ public class DokuServlet extends HttpServlet {
         return document;
     }
 
+    private MyTableDataModel getModelFehlzeiten(Klasse kl, Date parsedFrom, Date parsedTo) {
+        Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
+        q.setParameter("paramNameKlasse", kl.getKNAME());
+        List<Schueler> schueler = q.getResultList();
+
+        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
+        query.setParameter("paramKName", kl.getKNAME());
+        query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
+        query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
+        Log.d("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
+        List<AnwesenheitObjekt> anwesenheit = getData(query);
+        int rows = 0;
+        for (AnwesenheitObjekt ao : anwesenheit) {
+            VerspaetungsUtil.parse(ao);
+            if (ao.getAnzahlVerspaetungen() != 0 || ao.getSummeFehltage() != 0) {
+                rows++;
+            }
+        }
+        MyTableDataModel mo = new MyTableDataModel(rows, new String[]{"Name", "Fehltage gesamt", "Fehltage entschuldigt", "Verspätungen", "Verspätungen [min]", "Verspätungen [min] entschuldigt"});
+
+        int y = 0;
+        for (AnwesenheitObjekt ao : anwesenheit) {
+            if (ao.getAnzahlVerspaetungen() != 0 || ao.getSummeFehltage() != 0) {
+                mo.setData(0, y, getSchulerName(ao.getId_Schueler(), schueler));
+                mo.setData(1, y, "" + ao.getSummeFehltage());
+                mo.setData(2, y, "" + ao.getSummeFehltageEntschuldigt());
+                mo.setData(3, y, "" + ao.getAnzahlVerspaetungen());
+                mo.setData(4, y, "" + ao.getSummeMinutenVerspaetungen());
+                mo.setData(5, y, "" + ao.getSummeMinutenVerspaetungenEntschuldigt());
+                y++;
+            }
+        }
+        return mo;
+    }
+
     private Document createFehlzeiten(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
         Document document = new Document();
         /* Basic PDF Creation inside servlet */
@@ -396,11 +496,14 @@ public class DokuServlet extends HttpServlet {
         String tagZeile = "";
         tagZeile += "<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">\n";
         tagZeile += AnwesenheitObjekt.getTRHead();
+
         for (AnwesenheitObjekt ao : anwesenheit) {
             VerspaetungsUtil.parse(ao);
-            Schueler s = em.find(Schueler.class, ao.getId_Schueler());
-            Log.d("Fehltage für Schuler " + s);
-            tagZeile += ao.toHTML(s.getVNAME() + " " + s.getNNAME());
+            if (ao.getAnzahlVerspaetungen() != 0 || ao.getSummeFehltage() != 0) {
+                Schueler s = em.find(Schueler.class, ao.getId_Schueler());
+                Log.d("Fehltage für Schuler " + s);
+                tagZeile += ao.toHTML(s.getVNAME() + " " + s.getNNAME());
+            }
         }
         tagZeile += "</table>";
         htmlString.append(tagZeile);
@@ -417,6 +520,49 @@ public class DokuServlet extends HttpServlet {
 
         document.close();
         return document;
+    }
+
+    private MyTableDataModel getModelAnwesenheit(Klasse kl, Date parsedFrom, Date parsedTo) {
+        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
+        query.setParameter("paramKName", kl.getKNAME());
+        query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
+        query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
+        Log.d("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
+        List<AnwesenheitObjekt> anwesenheit = getData(query);
+
+        Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
+        q.setParameter("paramNameKlasse", kl.getKNAME());
+        List<Schueler> schueler = q.getResultList();
+
+        List<String> sb = new ArrayList<>();
+        GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
+        Date current = new Date(parsedFrom.getTime());
+        c.setTime(current);
+        while (!current.after(parsedTo)) {
+            sb.add("" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
+            current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
+            c.setTime(current);
+        }
+        System.out.println("Es werden " + sb.size() + " Tage dargestellt");
+        sb.add(0, "Name");
+        String[] cols = new String[sb.size()];
+        for (int i = 0; i < cols.length; i++) {
+            cols[i] = sb.get(i);
+        }
+        MyTableDataModel mo = new MyTableDataModel(schueler.size(), cols);
+        Schueler s;
+        for (int y=0;y<schueler.size();y++) {
+            s=schueler.get(y);
+            mo.setData(0,y, s.getVNAME()+" "+s.getNNAME());
+            current = new Date(parsedFrom.getTime());
+            int x=1;
+            while (!current.after(parsedTo)) {
+                mo.setData(x, y, findVermerk(s.getId(), current, anwesenheit));
+                x++;
+                current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
+            }
+        }
+        return mo;
     }
 
     private Document createAnwesenheit(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
@@ -525,6 +671,32 @@ public class DokuServlet extends HttpServlet {
         return document;
     }
 
+     private MyTableDataModel getModelVerlauf(Klasse kl, Date parsedFrom, Date parsedTo) {
+        Query query = em.createNamedQuery("findVerlaufbyKlasse");
+        query.setParameter("paramKName", kl.getKNAME());
+        query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
+        query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
+        List<Verlauf> verlauf = query.getResultList();
+        
+         MyTableDataModel mo = new MyTableDataModel(verlauf.size(), new String[]{"Datum","Stunde","LF","LK","Inhalt","Bemerkung","Lernsituation"});
+         Verlauf v;
+         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
+                
+         for (int y=0;y<verlauf.size();y++) {
+             v=verlauf.get(y);
+             
+             c.setTime(v.getDATUM());
+             mo.setData(0, y, DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
+             mo.setData(1, y, v.getSTUNDE());
+             mo.setData(2, y, v.getID_LERNFELD());
+             mo.setData(3, y, v.getID_LEHRER());
+             mo.setData(4, y, v.getINHALT());
+             mo.setData(5, y, v.getBEMERKUNG());
+             mo.setData(6, y, v.getAUFGABE());             
+         }
+         return mo;
+    }
+     
     private Document createVerlauf(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
         Document document = new Document();
         /* Basic PDF Creation inside servlet */
@@ -691,4 +863,16 @@ public class DokuServlet extends HttpServlet {
         }
         return null;
     }
+
+    private String getSchulerName(int id_Schueler, List<Schueler> schueler) {
+        for (Schueler s : schueler) {
+            if (s.getId() == id_Schueler) {
+                return s.getVNAME() + " " + s.getNNAME();
+            }
+        }
+        return null;
+    }
+
+   
+
 }

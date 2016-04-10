@@ -199,7 +199,7 @@ public class Verlauf implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Verlauf[ ID=" + ID + " Datum=" + DATUM + " Klasse=" + ID_KLASSE + " Stunde=" + STUNDE + " Lehrer=" + this.ID_LEHRER + "]\n";
+        return "de.tuttas.entities.Verlauf[ ID=" + ID + " Datum=" + DATUM + " Klasse=" + ID_KLASSE + " Stunde=" + STUNDE + " Lehrer=" + this.getID_LEHRER()+ " Inhalt="+this.getINHALT()+" ]\n";
     }
 
     public String toHTML() {
