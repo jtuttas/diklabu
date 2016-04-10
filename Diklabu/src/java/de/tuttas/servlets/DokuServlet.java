@@ -12,10 +12,13 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.Noten;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
+import de.tuttas.restful.Data.AusbilderObject;
+import de.tuttas.restful.Data.NotenObjekt;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.DatumUtil;
 import de.tuttas.util.Log;
@@ -114,6 +117,10 @@ public class DokuServlet extends HttpServlet {
                         kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Stundenplan</b></td>");
                     } else if (cmd.compareTo("Vertretungsplan") == 0) {
                         kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Vertretungsplan</b></td>");
+                    } else if (cmd.compareTo("Notenliste") == 0) {
+                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Notenliste</b></td>");
+                    } else if (cmd.compareTo("Betriebe") == 0) {
+                        kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Betriebsliste</b></td>");
                     }
                     kopf += ("</tr>");
                     kopf += ("<tr>");
@@ -158,6 +165,12 @@ public class DokuServlet extends HttpServlet {
                     } else if (cmd.compareTo("Vertretungsplan") == 0) {
                         response.addHeader("Content-Disposition", "attachment; filename=Vertretungsplan_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
                         document = createVertretungsplan(kl, kopf, parsedFrom, parsedTo, out);
+                    } else if (cmd.compareTo("Notenliste") == 0) {
+                        response.addHeader("Content-Disposition", "attachment; filename=Notenliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                        document = createNotenliste(kl, kopf, out);
+                    } else if (cmd.compareTo("Betriebe") == 0) {
+                        response.addHeader("Content-Disposition", "attachment; filename=Betriebsliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                        document = createBetriebsListe(kl, kopf, out);
                     }
 
                 } catch (DocumentException exc) {
@@ -185,13 +198,149 @@ public class DokuServlet extends HttpServlet {
         }
     }
 
+    private Document createBetriebsListe(Klasse kl, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
+        Log.d("Doku Servler create Betriebsliste f. " + kl);
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
+
+        Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
+        q.setParameter("paramNameKlasse", kl.getKNAME());
+        List<Schueler> schueler = q.getResultList();
+
+        TypedQuery<AusbilderObject> query = em.createNamedQuery("findBetriebeEinerBenanntenKlasse", AusbilderObject.class);
+        query.setParameter("paramNameKlasse", kl.getKNAME());
+        List<AusbilderObject> ausbilder = query.getResultList();
+        Log.d("Result List:" + ausbilder);
+
+        htmlString.append("<br></br><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
+        htmlString.append("<tr><td width='25%' style=\"padding:5px;font-size: 14;border: 1px solid black;\"><b>Name</b></td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Frima</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Ausbilder</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">EMail</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Tel</td>");
+        htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">Fax</td>");
+        htmlString.append("</tr>");
+
+        for (Schueler s : schueler) {
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + s.getVNAME() + " " + s.getNNAME() + "</td>");
+
+            AusbilderObject ao = getAusbilder(s.getId(), ausbilder);
+            if (ao != null) {
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getName() + "</td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getnName() + "</td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getEmail() + "</td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getTelefon() + "</td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\">" + ao.getFax() + "</td>");
+            } else {
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
+                htmlString.append("<td style=\"font-size: 10;padding:5px;border: 1px solid black;\"></td>");
+            }
+            htmlString.append("</tr>");
+        }
+
+        htmlString.append("</table>");
+        document.open();
+        // Dokument erzeugen
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+
+        document.close();
+        return document;
+    }
+
+    private Document createNotenliste(Klasse kl, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
+        Log.d("Doku Servler create Notenliste f. " + kl);
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
+
+        Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
+        q.setParameter("paramNameKlasse", kl.getKNAME());
+        List<Schueler> schueler = q.getResultList();
+
+        Query query = em.createNamedQuery("findNoteneinerKlasse");
+        query.setParameter("paramNameKlasse", kl.getKNAME());
+        List<Noten> noten = query.getResultList();
+        Log.d("Result List:" + noten);
+
+        List<NotenObjekt> lno = new ArrayList<>();
+        List<String> lernfelder = new ArrayList<>();
+        int sid = 0;
+        NotenObjekt no = null;
+        for (Noten n : noten) {
+            if (!lernfelder.contains(n.getID_LERNFELD())) {
+                Log.d("Neues Lernfeld mit id=" + n.getID_LERNFELD());
+                lernfelder.add(n.getID_LERNFELD());
+            }
+            if (sid != n.getID_SCHUELER()) {
+                no = new NotenObjekt();
+                no.setSchuelerID(n.getID_SCHUELER());
+                no.setSuccess(true);
+                lno.add(no);
+                sid = n.getID_SCHUELER();
+            }
+            no.getNoten().add(n);
+        }
+        Log.d("Habe " + schueler.size() + " Schüler und " + lernfelder.size() + " Lernfelder");
+
+        htmlString.append("<br></br><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
+        htmlString.append("<tr><td width='25%' style=\"padding:5px;font-size: 14;border: 1px solid black;\"><b>Name</b></td>");
+        for (String s : lernfelder) {
+            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + s + "</td>");
+        }
+        htmlString.append("</tr>");
+
+        String notenWert = "";
+        for (Schueler s : schueler) {
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + s.getVNAME() + " " + s.getNNAME() + "</td>");
+
+            for (String lf : lernfelder) {
+                notenWert = getNoteSchueler(s.getId().intValue(), lf, lno);
+                htmlString.append("<td style=\"padding:5px;border: 1px solid black;\">" + notenWert + "</td>");
+            }
+
+            htmlString.append("</tr>");
+        }
+
+        htmlString.append("</table>");
+        document.open();
+        // Dokument erzeugen
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+
+        document.close();
+        return document;
+    }
+
     private Document createStundenplan(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
         Document document = new Document();
         /* Basic PDF Creation inside servlet */
         PdfWriter writer = PdfWriter.getInstance(document, out);
         StringBuilder htmlString = new StringBuilder();
         htmlString.append(kopf);
-        htmlString.append(StundenplanUtil.getInstance().getPlan(kl.getKNAME(),PlanType.STDPlanSchueler));
+        htmlString.append(StundenplanUtil.getInstance().getPlan(kl.getKNAME(), PlanType.STDPlanSchueler));
         document.open();
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
@@ -213,7 +362,7 @@ public class DokuServlet extends HttpServlet {
         PdfWriter writer = PdfWriter.getInstance(document, out);
         StringBuilder htmlString = new StringBuilder();
         htmlString.append(kopf);
-        htmlString.append(StundenplanUtil.getInstance().getPlan(kl.getKNAME(),PlanType.VERTRPlanSchueler));
+        htmlString.append(StundenplanUtil.getInstance().getPlan(kl.getKNAME(), PlanType.VERTRPlanSchueler));
         document.open();
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
@@ -518,5 +667,28 @@ public class DokuServlet extends HttpServlet {
             ao.getEintraege().add(anwesenheit.get(i));
         }
         return anw;
+    }
+
+    private String getNoteSchueler(int sid, String lfid, List<NotenObjekt> lno) {
+        for (NotenObjekt no : lno) {
+            if (no.getSchuelerID() == sid) {
+                for (Noten n : no.getNoten()) {
+                    if (n.getID_LERNFELD().compareTo(lfid) == 0) {
+                        return n.getWERT();
+                    }
+                }
+                return "";
+            }
+        }
+        return "";
+    }
+
+    private AusbilderObject getAusbilder(Integer id, List<AusbilderObject> ausbilder) {
+        for (AusbilderObject ao : ausbilder) {
+            if (ao.getId_schueler() == id.intValue()) {
+                return ao;
+            }
+        }
+        return null;
     }
 }
