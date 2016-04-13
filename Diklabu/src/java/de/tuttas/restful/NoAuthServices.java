@@ -15,6 +15,7 @@ import de.tuttas.restful.Data.Termin;
 import de.tuttas.util.Log;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -70,6 +71,15 @@ public class NoAuthServices {
     }
     
     @GET
+    @Path("termine")
+    public List<Termine> getTermine () {
+        Log.d("Webservice Termine GET:");
+        Query query = em.createNamedQuery("findAllTermine");
+        List<Termine> termine = query.getResultList();
+        return termine;        
+    }
+    
+    @GET
     @Path("termine/{from}/{to}/{filter1}/{filter2}")
     public List<Termin> getTermine(@PathParam("from") Date from, @PathParam("to") Date to,@PathParam("filter1") int f1_id,@PathParam("filter2") int f2_id) {
         Log.d("Webservice Termine GET: from:"+from+" to:"+to+" filter1="+f1_id+" filter2="+f2_id);
@@ -89,23 +99,29 @@ public class NoAuthServices {
             }
         }
         TypedQuery<Termin> query = null;
+        List<Termin> termine=null;
         if (t1!=null && t2!=null) {
             query = em.createNamedQuery("findAllTermineTwoFilters",Termin.class);
             query.setParameter("filter1", t1.getId());
             query.setParameter("filter2", t2.getId());
+            query.setParameter("fromDate", from);            
+            query.setParameter("toDate", to);            
+            termine = query.getResultList();
         }
         else if (t1!=null) {
             query = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
             query.setParameter("filter1", t1.getId());
+            query.setParameter("fromDate", from);            
+            query.setParameter("toDate", to);            
+            termine = query.getResultList();
         }
         else {
-            query = em.createNamedQuery("findAllTermine",Termin.class);
+            termine = new ArrayList<>();
+            while (from.before(to)) {
+                termine.add(new Termin(new Timestamp(from.getTime())));
+                from.setTime(from.getTime()+24*60*60*1000);
+            }
         }
-        query.setParameter("fromDate", from);            
-        query.setParameter("toDate", to);            
-        
-        List<Termin> termine = query.getResultList();
-        System.out.println("result set="+termine+" type="+termine.getClass());
         return termine;
     }
 }

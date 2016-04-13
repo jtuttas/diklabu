@@ -28,7 +28,6 @@ and exists
  */
 
 @NamedQueries({
-    @NamedQuery(name = "findAllTermine", query = "select distinct NEW de.tuttas.restful.Data.Termin(t.DATUM) from Termindaten t where t.DATUM between :fromDate and :toDate ORDER BY t.DATUM"),
     @NamedQuery(name = "findAllTermineOneFilter", query = "select distinct NEW de.tuttas.restful.Data.Termin(t.DATUM) from Termindaten t where t.ID_TERMIN= :filter1 and t.DATUM between :fromDate and :toDate ORDER BY t.DATUM"),
     @NamedQuery(name = "findAllTermineTwoFilters", query = "select distinct NEW de.tuttas.restful.Data.Termin(t.DATUM) from Termindaten t where t.DATUM between :fromDate and :toDate and exists (select t.DATUM from Termindaten t2 where t2.ID_TERMIN=:filter1 and t.DATUM=t2.DATUM) and exists (select t.DATUM from Termindaten t3 where t3.ID_TERMIN=:filter2 and t.DATUM=t3.DATUM)")
 })

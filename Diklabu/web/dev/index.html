@@ -188,36 +188,58 @@
                                     </div>
                                 </div>
                             </div>
-                            <hr>
-                            <table class="table table-striped table-hover" style="display:none;" id="tabelle">
-                                <thead>
-                                    <tr>
-                                        <th width="10%">
-                                            Datum
-                                        </th>
-                                        <th width="5%">
-                                            LK
-                                        </th>
-                                        <th width="5%">
-                                            LF
-                                        </th>
-                                        <th width="5%">
-                                            Stunde
-                                        </th>
-                                        <th width="25%">
-                                            Inhalt
-                                        </th>
-                                        <th>
-                                            Bemerkungen
-                                        </th>
-                                        <th>
-                                            Lernsituation
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabelleVerlauf">
-                                </tbody>
-                            </table>
+
+
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <h3>&nbsp;Filter:</h3>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="checkbox">
+                                    <label><input type="checkbox" value=""><strong>eigene Einträge</strong></label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="form-group">
+                                            <label for="lernfelderFilder">Lernfeld</label>
+                                            <select class="form-control" id="lernfelderFilder">
+                                            </select>
+                                        </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover" style="display:none;" id="tabelle">
+                                    <thead>
+                                        <tr>
+                                            <th width="10%">
+                                                Datum
+                                            </th>
+                                            <th width="5%">
+                                                LK
+                                            </th>
+                                            <th width="5%">
+                                                LF
+                                            </th>
+                                            <th width="5%">
+                                                Stunde
+                                            </th>
+                                            <th width="25%">
+                                                Inhalt
+                                            </th>
+                                            <th>
+                                                Bemerkungen
+                                            </th>
+                                            <th>
+                                                Lernsituation
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabelleVerlauf">
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                     <div id="tabAnwesenheit" class="tab-pane fade">
@@ -229,7 +251,7 @@
                             <div id="tabAnwesenheitDetails" class="tab-pane fade in active" >
                                 <div class="row">
                                     <div class="col-md-2">
-                                        <label for="wochentage">Wochentage</label>
+                                        <label for="wochentage">Filter 1</label>
                                         <select class="form-control" id="wochentage">
                                             <option>alle</option>
                                             <option>Montag</option>
@@ -241,7 +263,7 @@
                                         </select>
                                     </div>
                                     <div class="col-md-2">
-                                        <label for="block">Block</label>
+                                        <label for="block">Filter 2</label>
                                         <select class="form-control" id="block">
                                             <option>alle</option>
                                             <option>rot</option>
@@ -411,12 +433,12 @@
                             </div>
                             <div id="tabKlassenbemerkungen" class="tab-pane" > 
                                 <div id="klassenBemerkungContainer">
-                                </br>
-                                <div class="form-group col-md-offset-1 col-md-10">
-                                    <label for="klassenbem">Klassenbemerkungen:</label>
-                                    <textarea class="form-control" rows="5" id="klassenbem"></textarea>
-                                </div>
-                                <button id="updateKlassenBem" type="button" class="btn btn-primary col-md-offset-1">Aktualisieren</button>
+                                    </br>
+                                    <div class="form-group col-md-offset-1 col-md-10">
+                                        <label for="klassenbem">Klassenbemerkungen:</label>
+                                        <textarea class="form-control" rows="5" id="klassenbem"></textarea>
+                                    </div>
+                                    <button id="updateKlassenBem" type="button" class="btn btn-primary col-md-offset-1">Aktualisieren</button>
                                 </div>
                             </div>
                             <div id="tabBetriebe" class="tab-pane" > 
@@ -454,8 +476,8 @@
                                             <label for="emailBetriebBetreff">Betreff:</label>
                                             <input name="subjectMail" type="text" class="form-control" id="emailBetriebBetreff"/>                                    
                                             <div id="emailBetriebeSubjectContainer">
-                                            <label for="emailBetriebInhalt">Nachricht:</label>
-                                            <textarea name="emailBody" class="form-control" rows="5" id="emailBetriebInhalt"></textarea>
+                                                <label for="emailBetriebInhalt">Nachricht:</label>
+                                                <textarea name="emailBody" class="form-control" rows="5" id="emailBetriebInhalt"></textarea>
                                             </div>
                                         </div>
                                         <button id="absendenEMailBetrieb" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
