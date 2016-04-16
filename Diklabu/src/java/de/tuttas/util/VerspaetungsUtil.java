@@ -43,11 +43,14 @@ public class VerspaetungsUtil {
                 } else if (vermerk.charAt(0) == 'v') {
                     ao.incVerspaetungen();
                     int min = filterMinuten(vermerk, "v");
+                    Log.d("V-Minuten sind " + min);
                     boolean e = false;
                     ao.addMinutenVerspaetung(min);
+                    String regex = "^v?\\d+";
                     if (istEntschuldigt(vermerk, "v")) {
                         ao.addMinutenVerspaetungEntschuldigt(filterMinuten(vermerk, "v"));
                         e = true;
+                        regex = "^v?\\d+e";
                     }
                     // Test auf v40xG90
                     int i = 0;
@@ -55,7 +58,13 @@ public class VerspaetungsUtil {
                         i++;
                     }
                     try {
-                        vermerk = vermerk.substring(1 + Integer.toString(min).length() + i);
+                        Pattern pattern = Pattern.compile(regex);
+                        Matcher matcher = pattern.matcher(vermerk);
+                        String prefix = "";
+                        if (matcher.find()) {
+                            prefix = matcher.group(0);
+                        }
+                        vermerk = vermerk.substring(prefix.length());
                         Log.d("Vermerk ist nun (" + vermerk + ")");
                         min = filterMinuten(vermerk, "g");
                         ao.addMinutenVerspaetung(min);
@@ -65,6 +74,7 @@ public class VerspaetungsUtil {
                     } catch (StringIndexOutOfBoundsException ee) {
 
                     }
+
                 } else {
                     ao.getParseErrors().add(ae);
 
@@ -88,7 +98,7 @@ public class VerspaetungsUtil {
         Pattern p = Pattern.compile("(^v\\d+(e(g\\d+(e|)|)|g\\d+(e|)|)|^a(g\\d+(e|)|)|^e|^f)");
         Matcher m = p.matcher(vermerk);
         while (m.find()) {
-            Log.d("is Valid ist ("+m.group()+")");
+            Log.d("is Valid ist (" + m.group() + ")");
             return true;
         }
         return false;
@@ -104,9 +114,11 @@ public class VerspaetungsUtil {
      */
     public static int filterMinuten(String v, String firstChar) {
         v = v.toLowerCase();
+        Log.d("FilterMinuten: v=" + v);
         Pattern p = Pattern.compile("^" + firstChar + "?\\d+");
         Matcher m = p.matcher(v);
         while (m.find()) {
+            Log.d("m.goup: m.goup=" + m.group());
             String f = m.group().substring(firstChar.length());
             return Integer.parseInt(f);
         }

@@ -104,6 +104,11 @@ public class AnwesenheitsManager {
         return ae;
     }
 
+    /**
+     * Heutige Anwesenheit einer Klasse
+     * @param kl Name der Klasse
+     * @return Liste von AnwesenheitsObjekten
+     */
     @GET
     @Path("/{klasse}")
     public List<AnwesenheitObjekt> getAnwesenheit(@PathParam("klasse") String kl) {
@@ -141,6 +146,12 @@ public class AnwesenheitsManager {
         return getData(anwesenheit,bemerkungen);
     }
 
+    /**
+     * Anwesenheit einer Klasse an einem bestimmten Tag
+     * @param kl Name der Klasse
+     * @param from Das Datum
+     * @return Liste von Anwesenheitsobjekten
+     */
     @GET
     @Path("/{klasse}/{from}")
     public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from) {
@@ -176,10 +187,17 @@ public class AnwesenheitsManager {
        
     }
 
+    /**
+     * Liste der Anwesenheit einer Klasse über einen Bereich
+     * @param kl Name der Klasse
+     * @param from Startdatum (inclusiv)
+     * @param to EndDatum (inclusiv)
+     * @return Liste der Anwesenheitsobjekte
+     */
     @GET
     @Path("/{klasse}/{from}/{to}")
     public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from, @PathParam("to") Date to) {
-
+        to = new Date(to.getTime()+24*60*60*1000);
         Log.d("Webservice Anwesenheit GET from=" + from + " to=" + to);
         TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
         query.setParameter("paramKName", kl);
@@ -205,6 +223,8 @@ public class AnwesenheitsManager {
         return getData(anwesenheit,bemerkungen);
     }
 
+
+       
     private List<AnwesenheitObjekt> getData(List<AnwesenheitEintrag> anwesenheit,List<Bemerkung> bemerkungen) {
          
         //Log.d("Results:="+anwesenheit);

@@ -24,7 +24,7 @@ import javax.persistence.NamedQuery;
 public class Schueler implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     /**
      * Primärschlüssel
      */
@@ -50,7 +50,7 @@ public class Schueler implements Serializable {
     // Kommentare zu Schülern
     private String INFO;
     
-    private int ID_AUSBILDER;
+    private Integer ID_AUSBILDER;
     
     private String ABGANG;
 
@@ -81,11 +81,11 @@ public class Schueler implements Serializable {
 
     
     
-    public void setID_AUSBILDER(int ID_AUSBILDER) {
+    public void setID_AUSBILDER(Integer ID_AUSBILDER) {
         this.ID_AUSBILDER = ID_AUSBILDER;
     }
 
-    public int getID_AUSBILDER() {
+    public Integer getID_AUSBILDER() {
         return ID_AUSBILDER;
     }
     
@@ -156,7 +156,7 @@ public class Schueler implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Schueler[ id=" + ID + "GEBDAT="+GEBDAT+" ]";
+        return "de.tuttas.entities.Schueler[ id=" + ID + "GEBDAT="+GEBDAT+" VNAME="+VNAME+"  NNAME="+NNAME+"]";
     }
     
 }

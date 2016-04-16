@@ -14,6 +14,7 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.Data.BildObject;
+import de.tuttas.restful.Data.Credential;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.util.ImageUtil;
 import de.tuttas.util.Log;
@@ -70,6 +71,48 @@ public class SchuelerManager {
         em.merge(s);
         return so;
     }
+    
+    @POST   
+    public List<Schueler> addSchueler(Schueler s) {
+         em.getEntityManagerFactory().getCache().evictAll();
+        Query  query = em.createNamedQuery("findSchuelerbyCredentials");
+        query.setParameter("paramName", s.getNNAME());
+        query.setParameter("paramVorname", s.getVNAME());
+        query.setParameter("paramGebDatum", s.getGEBDAT());
+        List<Schueler> pupils = query.getResultList(); 
+        if (pupils.size()==0) {
+            Log.d("Schüler anlegen: "+s);
+            s.setID_AUSBILDER(null);
+            em.persist(s);
+            em.getEntityManagerFactory().getCache().evictAll();
+            query = em.createNamedQuery("findSchuelerbyCredentials");
+            query.setParameter("paramName", s.getNNAME());
+            query.setParameter("paramVorname", s.getVNAME());
+            query.setParameter("paramGebDatum", s.getGEBDAT());
+            pupils = query.getResultList(); 
+        }   
+        else {
+            Schueler sl = pupils.get(0);
+            sl.setID_AUSBILDER(s.getID_AUSBILDER());
+            sl.setEMAIL(s.getEMAIL());
+            em.merge(sl);
+            pupils.set(0, sl);
+        }
+        return pupils;
+    }
+    
+    @POST
+    @Path("/info/")
+    public List<Schueler> getPupilbyCredential(Credential c) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Query  query = em.createNamedQuery("findSchuelerbyCredentials");
+        query.setParameter("paramName", c.getName());
+        query.setParameter("paramVorname", c.getVorName());
+        query.setParameter("paramGebDatum", c.getGebDatum());
+        List<Schueler> pupils = query.getResultList();
+        return pupils;
+    }
+        
     @GET
     @Path("/{idschueler}")
     public SchuelerObject getPupil(@PathParam("idschueler") int idschueler) {

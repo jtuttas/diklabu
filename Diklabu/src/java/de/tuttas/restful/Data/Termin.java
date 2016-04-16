@@ -13,21 +13,34 @@ import java.sql.Timestamp;
  */
 public class Termin {
     private Timestamp date;
+    private long milliseconds;
 
     public Termin() {
     }
 
     public Termin(Timestamp date) {
         this.date = date;
+        this.milliseconds=date.getTime();
     }
     
     public void setDate(Timestamp date) {
         this.date = date;
+        this.milliseconds=date.getTime();
     }
 
     public Timestamp getDate() {
         return date;
     }
+
+    public long getMilliseconds() {
+        return milliseconds;
+    }
+
+    public void setMilliseconds(long milliseconds) {
+        this.milliseconds = milliseconds;
+    }
+    
+    
     
     
 }

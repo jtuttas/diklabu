@@ -19,9 +19,8 @@ import javax.persistence.Id;
 public class Schueler_Klasse implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
     private Integer ID_SCHUELER;
+    @Id
     private Integer ID_KLASSE;
 
     public void setID_KLASSE(Integer ID_KLASSE) {
@@ -39,39 +38,11 @@ public class Schueler_Klasse implements Serializable {
     public Integer getID_SCHUELER() {
         return ID_SCHUELER;
     }
-    
-    
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof Schueler_Klasse)) {
-            return false;
-        }
-        Schueler_Klasse other = (Schueler_Klasse) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
+     
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Schueler_Klasse[ id=" + id + " ]";
+        return "[ sid=" + ID_SCHUELER + " klid="+ID_KLASSE+" ]";
     }
     
 }

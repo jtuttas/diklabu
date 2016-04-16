@@ -10,10 +10,12 @@ import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
+import de.tuttas.entities.Schueler_Klasse;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.PlanObject;
+import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.util.ImageUtil;
 import de.tuttas.util.Log;
@@ -59,6 +61,61 @@ public class KlassenManager {
         List<Schueler> schueler = query.getResultList();
         Log.d("Result List:" + schueler);
         return schueler;
+    }
+    
+    @GET
+    @Path("/info/{klasse}")
+    public List<Klasse> getKlasse(@PathParam("klasse") String kl) {
+        Log.d("Webservice klasse GET: klasse=" + kl);
+        Query query = em.createNamedQuery("findKlassebyName");
+        query.setParameter("paramKName", kl);
+        List<Klasse> klassen = query.getResultList();
+        Log.d("Result List:" + klassen);
+        return klassen;
+    }
+    
+    @POST
+    @Path("/add")
+    public ResultObject addSchuelerToKlasse(Schueler_Klasse sk) {        
+        Log.d("Schüler einer Klasse zuweisen:"+sk.toString());
+        Schueler s = em.find(Schueler.class, sk.getID_SCHUELER());
+        Klasse k = em.find(Klasse.class, sk.getID_KLASSE());
+        ResultObject ro = new ResultObject();
+        if (s!=null && k!=null) {
+            em.persist(sk);        
+            ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" zugewiesen zur Klasse "+k.getKNAME());
+            ro.setSuccess(true);
+        }
+        else {
+            ro.setSuccess(false);
+            ro.setMsg("Klasse "+k+" oder Schüler "+s+" nicht gefunden!");
+        }
+        return ro;
+       
+    }
+    
+    @POST
+    public List<Klasse> addKlasse(Klasse k) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Log.d("Webservice klasse POST add: klasse=" + k);
+        Query query = em.createNamedQuery("findKlassebyName");
+        query.setParameter("paramKName", k.getKNAME());
+        List<Klasse> klassen = query.getResultList();
+        if (klassen.size()==0) {
+            em.persist(k);
+            query = em.createNamedQuery("findKlassebyName");
+            query.setParameter("paramKName", k.getKNAME());
+            klassen = query.getResultList();            
+        }
+        else {
+            Klasse kl = klassen.get(0);
+            kl.setID_LEHRER(k.getID_LEHRER());
+            kl.setNOTIZ(k.getNOTIZ());
+            kl.setTITEL(k.getTITEL());
+            em.merge(kl);
+            klassen.set(0, kl);            
+        }
+        return klassen;
     }
     
     @GET
