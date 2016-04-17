@@ -42,9 +42,25 @@ public class Klasse implements Serializable {
     private String TITEL;
     private String KNAME;
     private String NOTIZ;
-    
-   
-    
+    private String TERMINE;
+    private Integer ID_KATEGORIE;
+
+    public void setID_KATEGORIE(Integer ID_KATEGORIE) {
+        this.ID_KATEGORIE = ID_KATEGORIE;
+    }
+
+    public void setTERMINE(String TERMINE) {
+        this.TERMINE = TERMINE;
+    }
+
+    public String getTERMINE() {
+        return TERMINE;
+    }
+
+    public Integer getID_KATEGORIE() {
+        return ID_KATEGORIE;
+    }
+           
     
     public String getNOTIZ() {
         return NOTIZ;

@@ -8,11 +8,13 @@ package de.tuttas.restful;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.MetadataException;
 import de.tuttas.config.Config;
+import de.tuttas.entities.Anwesenheit;
 import de.tuttas.entities.Ausbilder;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
+import de.tuttas.entities.Schueler_Klasse;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.Credential;
 import de.tuttas.restful.Data.ResultObject;
@@ -36,6 +38,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -63,25 +66,29 @@ public class SchuelerManager {
 
     @POST
     @Path("/{idschueler}")
-    public SchuelerObject getPupil(@PathParam("idschueler") int idschueler,SchuelerObject so) {
+    public SchuelerObject getPupil(@PathParam("idschueler") int idschueler, SchuelerObject so) {
         em.getEntityManagerFactory().getCache().evictAll();
         Schueler s = em.find(Schueler.class, so.getId());
-        if (s==null) return null;
+        if (s == null) {
+            return null;
+        }
         s.setINFO(so.getInfo());
         em.merge(s);
         return so;
     }
-    
-    @POST   
+
+    @POST
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<Schueler> addSchueler(Schueler s) {
-         em.getEntityManagerFactory().getCache().evictAll();
-        Query  query = em.createNamedQuery("findSchuelerbyCredentials");
+        Log.d("add Schuler " + s.toString());
+        em.getEntityManagerFactory().getCache().evictAll();
+        Query query = em.createNamedQuery("findSchuelerbyCredentials");
         query.setParameter("paramName", s.getNNAME());
         query.setParameter("paramVorname", s.getVNAME());
         query.setParameter("paramGebDatum", s.getGEBDAT());
-        List<Schueler> pupils = query.getResultList(); 
-        if (pupils.size()==0) {
-            Log.d("Schüler anlegen: "+s);
+        List<Schueler> pupils = query.getResultList();
+        if (pupils.size() == 0) {
+            Log.d("Schüler anlegen: " + s);
             s.setID_AUSBILDER(null);
             em.persist(s);
             em.getEntityManagerFactory().getCache().evictAll();
@@ -89,9 +96,8 @@ public class SchuelerManager {
             query.setParameter("paramName", s.getNNAME());
             query.setParameter("paramVorname", s.getVNAME());
             query.setParameter("paramGebDatum", s.getGEBDAT());
-            pupils = query.getResultList(); 
-        }   
-        else {
+            pupils = query.getResultList();
+        } else {
             Schueler sl = pupils.get(0);
             sl.setID_AUSBILDER(s.getID_AUSBILDER());
             sl.setEMAIL(s.getEMAIL());
@@ -100,19 +106,56 @@ public class SchuelerManager {
         }
         return pupils;
     }
-    
+
     @POST
     @Path("/info/")
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<Schueler> getPupilbyCredential(Credential c) {
         em.getEntityManagerFactory().getCache().evictAll();
-        Query  query = em.createNamedQuery("findSchuelerbyCredentials");
+        Query query = em.createNamedQuery("findSchuelerbyCredentials");
         query.setParameter("paramName", c.getName());
         query.setParameter("paramVorname", c.getVorName());
         query.setParameter("paramGebDatum", c.getGebDatum());
         List<Schueler> pupils = query.getResultList();
         return pupils;
     }
-        
+
+    @DELETE
+    @Path("/{idschueler}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject deleteSchueler(@PathParam("idschueler") int sid) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Log.d("Webservice delete Schueler:" + sid);
+        ResultObject ro = new ResultObject();
+        Schueler s = em.find(Schueler.class, sid);
+        if (s != null) {
+            Query query = em.createNamedQuery("findKlassenids");
+            query.setParameter("paramidSchueler", sid);
+            List<Schueler_Klasse> sk = query.getResultList();
+            if (sk.size()!=0) {
+                ro.setMsg("Schüler kann nicht gelöscht werden, da er sich noch in Klassen "+sk+" befindet");
+                ro.setSuccess(false);                
+            }
+            else {
+                query = em.createNamedQuery("findAnwesenheitByidSchueler");
+                query.setParameter("paramidSchueler", sid);    
+                List<Anwesenheit> anw = query.getResultList();
+                for (Anwesenheit a:anw) {
+                    Log.d("Lösche Anwesenheitseintrag "+a);
+                    em.remove(a);
+                }
+                em.flush();
+                em.remove(s);
+                ro.setMsg("Schüler gelöscht");
+                ro.setSuccess(true);
+            }
+        } else {
+            ro.setMsg("Kann Schüler mit id=" + sid + " nicht finden");
+            ro.setSuccess(false);
+        }
+        return ro;
+    }
+
     @GET
     @Path("/{idschueler}")
     public SchuelerObject getPupil(@PathParam("idschueler") int idschueler) {
@@ -133,14 +176,16 @@ public class SchuelerManager {
             Log.d("Result List:" + klassen);
             so.setKlassen(klassen);
 
-            Ausbilder a = em.find(Ausbilder.class, s.getID_AUSBILDER());
-            so.setAusbilder(a);
+            if (s.getID_AUSBILDER() != null) {
+                Ausbilder a = em.find(Ausbilder.class, s.getID_AUSBILDER());
+                so.setAusbilder(a);
 
-            if (a != null) {
-                Betrieb b = em.find(Betrieb.class, a.getID_BETRIEB());
-                so.setBetrieb(b);
+                if (a != null) {
+                    Betrieb b = em.find(Betrieb.class, a.getID_BETRIEB());
+                    so.setBetrieb(b);
+                }
             }
-            
+
             return so;
         }
         return null;
@@ -150,17 +195,15 @@ public class SchuelerManager {
     @Path("/bild/{idschueler}")
     @Produces("image/jpg")
     public Response getFile(@PathParam("idschueler") int idschueler) {
-        
-            String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
-            Log.d("Lade  file " + filename);
-            File file = new File(filename);
-            if (!file.exists()) {
-                return Response.status(Response.Status.NOT_FOUND).build();
-            }
-            return Response.status(Response.Status.OK).build();       
-    }
 
-   
+        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        Log.d("Lade  file " + filename);
+        File file = new File(filename);
+        if (!file.exists()) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.status(Response.Status.OK).build();
+    }
 
     @GET
     @Path("/bild64/{idschueler}")
@@ -198,20 +241,20 @@ public class SchuelerManager {
         String fileLocation = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("upload  File for " + idschueler);
         try {
-            
+
             byte[] imageBytes = IOUtils.toByteArray(uploadedInputStream);
-            
+
             int i = uploadedInputStream.read(imageBytes);
-            Log.d("habe "+i+" bytes gelesen!");
-            InputStream myInputStream = new ByteArrayInputStream(imageBytes); 
+            Log.d("habe " + i + " bytes gelesen!");
+            InputStream myInputStream = new ByteArrayInputStream(imageBytes);
             Image image = ImageIO.read(myInputStream);
-            Log.d("Image gelesen ="+image);
-            InputStream myExifInputStream = new ByteArrayInputStream(imageBytes); 
+            Log.d("Image gelesen =" + image);
+            InputStream myExifInputStream = new ByteArrayInputStream(imageBytes);
             int orientation = ImageUtil.getImageOrientation(myExifInputStream);
             BufferedImage bImage = ImageUtil.toBufferedImage(image);
-            Log.d("Image hat w="+bImage.getWidth()+" h="+bImage.getHeight());
+            Log.d("Image hat w=" + bImage.getWidth() + " h=" + bImage.getHeight());
             bImage = ImageUtil.transformImage(bImage, ImageUtil.getExifTransformation(orientation, image.getWidth(null), image.getHeight(null)));
-            Log.d("Image hat nach Transformation w="+bImage.getWidth()+" h="+bImage.getHeight());            
+            Log.d("Image hat nach Transformation w=" + bImage.getWidth() + " h=" + bImage.getHeight());
             if (image != null) {
                 int originalWidth = bImage.getWidth();
                 int originalHeight = bImage.getHeight();
@@ -241,8 +284,6 @@ public class SchuelerManager {
         return r;
     }
 
-    
-    
     private BufferedImage createResizedCopy(Image originalImage, int scaledWidth, int scaledHeight, boolean preserveAlpha) {
         int imageType = preserveAlpha ? BufferedImage.TYPE_INT_RGB : BufferedImage.TYPE_INT_ARGB;
         BufferedImage scaledBI = new BufferedImage(scaledWidth, scaledHeight, imageType);

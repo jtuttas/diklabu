@@ -7,6 +7,7 @@ package de.tuttas.restful;
 
 import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.config.Config;
+import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
@@ -32,10 +33,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 
 /**
  *
@@ -53,6 +56,7 @@ public class KlassenManager {
 
     @GET
     @Path("/{klasse}")
+     @Produces({"application/json; charset=iso-8859-1"})
     public List<Schueler> getPupil(@PathParam("klasse") String kl) {
         Log.d("Webservice klasse GET: klasse=" + kl);
 
@@ -76,6 +80,7 @@ public class KlassenManager {
     
     @POST
     @Path("/add")
+     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject addSchuelerToKlasse(Schueler_Klasse sk) {        
         Log.d("Schüler einer Klasse zuweisen:"+sk.toString());
         Schueler s = em.find(Schueler.class, sk.getID_SCHUELER());
@@ -92,6 +97,57 @@ public class KlassenManager {
         }
         return ro;
        
+    }
+    
+    @DELETE
+    @Path("/{idschueler}/{idklasse}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject deleteSchuelerfromKlasse(@PathParam("idschueler") int sid,@PathParam("idklasse") int kid) {
+        Log.d("Webservice delete Schüler "+sid+" von Klasse:" + kid);
+        ResultObject ro = new ResultObject();
+        Query query = em.createNamedQuery("findSchuelerKlasse");
+        query.setParameter("paramidSchueler", sid);
+        query.setParameter("paramidKlasse", kid);
+        List<Schueler_Klasse> sk = query.getResultList();
+        if (sk.size()!=0) {
+            em.remove(sk.get(0));
+            ro.setSuccess(true);
+            ro.setMsg("Schüler mit der id="+sid+" aus der Klasse "+kid+" entfernt!");
+        }
+        else {
+            ro.setMsg("Kann keine zugehörigkeit des Schülers mit der id="+sid+" mit der Klasse "+kid+" finden");
+            ro.setSuccess(false);
+        }
+        return ro;
+    }
+    
+    @DELETE
+    @Path("/{idklasse}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject deleteKlasse(@PathParam("idklasse") int kid) {
+        Log.d("Webservice delete Klasse:" + kid);
+        ResultObject ro = new ResultObject();
+        Klasse k = em.find(Klasse.class, kid);
+        if (k!=null) {
+            
+            Query query = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
+            query.setParameter("paramNameKlasse", k.getKNAME());
+            List<Schueler> schueler = query.getResultList();
+            if (schueler.size()!=0) {
+                ro.setMsg("Kann Klasse nicht löschen, da die Klasse noch Schüler hat");
+                ro.setSuccess(false);
+            }
+            else {
+                em.remove(k);
+                ro.setMsg("Klasse gelöscht");
+                ro.setSuccess(true);
+            }
+        }
+        else {
+            ro.setMsg("Kann Klasse mit id="+kid+" nicht finden");
+            ro.setSuccess(false);
+        }
+        return ro;
     }
     
     @POST
@@ -112,6 +168,8 @@ public class KlassenManager {
             kl.setID_LEHRER(k.getID_LEHRER());
             kl.setNOTIZ(k.getNOTIZ());
             kl.setTITEL(k.getTITEL());
+            kl.setID_KATEGORIE(k.getID_KATEGORIE());
+            kl.setTERMINE(k.getTERMINE());
             em.merge(kl);
             klassen.set(0, kl);            
         }

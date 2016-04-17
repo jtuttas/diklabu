@@ -10,16 +10,23 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 /**
  *
  * @author Jörg
  */
 @Entity
+@NamedQueries({
+   @NamedQuery(name = "findBetriebe", query= "select b from Betrieb b"),
+   @NamedQuery(name = "findBetriebByName", query= "select b from Betrieb b where b.NAME = :paramNameBetrieb")
+        
+})
 public class Betrieb implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ID;
     private String NAME;
     private String PLZ;
@@ -76,15 +83,6 @@ public class Betrieb implements Serializable {
     }
     
     
-
-    public Integer getId() {
-        return ID;
-    }
-
-    public void setId(Integer id) {
-        this.ID = id;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
