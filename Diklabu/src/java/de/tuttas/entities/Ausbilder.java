@@ -18,31 +18,23 @@ import javax.persistence.NamedQuery;
  * @author Jörg
  */
 @Entity
+@NamedQueries({
+   @NamedQuery(name = "findAusbilderByName", query= "select a from Ausbilder a where a.NNAME like :paramAusbildername"),
+   @NamedQuery(name = "findAusbilderByBetriebId", query= "select a from Ausbilder a where a.ID_BETRIEB = :paramBetriebId"),
+})
 public class Ausbilder implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ID;
-    private int ID_BETRIEB;
+    private Integer ID_BETRIEB;
     private String ANREDE;
     private String NNAME;
     private String EMAIL;
     private String TELEFON;
     private String FAX;
 
-    public Ausbilder() {
-    }
-
-  
-    public Ausbilder(Integer ID, int ID_BETRIEB, String ANREDE, String NNAME, String EMAIL, String TELEFON, String FAX) {
-        this.ID = ID;
-        this.ID_BETRIEB = ID_BETRIEB;
-        this.ANREDE = ANREDE;
-        this.NNAME = NNAME;
-        this.EMAIL = EMAIL;
-        this.TELEFON = TELEFON;
-        this.FAX = FAX;
-    }
+    
     
     
     public Integer getID() {
@@ -53,11 +45,11 @@ public class Ausbilder implements Serializable {
         this.ID = ID;
     }
 
-    public int getID_BETRIEB() {
+    public Integer getID_BETRIEB() {
         return ID_BETRIEB;
     }
 
-    public void setID_BETRIEB(int ID_BETRIEB) {
+    public void setID_BETRIEB(Integer ID_BETRIEB) {
         this.ID_BETRIEB = ID_BETRIEB;
     }
 
@@ -103,14 +95,6 @@ public class Ausbilder implements Serializable {
     
     
 
-    public Integer getId() {
-        return ID;
-    }
-
-    public void setId(Integer id) {
-        this.ID = id;
-    }
-
     @Override
     public int hashCode() {
         int hash = 0;
@@ -133,7 +117,7 @@ public class Ausbilder implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Ausbilder[ id=" + ID + " ]";
+        return "Asubilder[ id=" + ID + " NNAME="+NNAME+" ]";
     }
     
 }

@@ -20,7 +20,7 @@ import javax.persistence.NamedQuery;
 @Entity
 @NamedQueries({
    @NamedQuery(name = "findBetriebe", query= "select b from Betrieb b"),
-   @NamedQuery(name = "findBetriebByName", query= "select b from Betrieb b where b.NAME = :paramNameBetrieb")
+   @NamedQuery(name = "findBetriebByName", query= "select b from Betrieb b where b.NAME like :paramNameBetrieb")
         
 })
 public class Betrieb implements Serializable {

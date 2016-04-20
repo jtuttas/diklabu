@@ -16,6 +16,7 @@ import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.PlanObject;
+import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.util.ImageUtil;
@@ -69,6 +70,7 @@ public class KlassenManager {
     
     @GET
     @Path("/info/{klasse}")
+     @Produces({"application/json; charset=iso-8859-1"})
     public List<Klasse> getKlasse(@PathParam("klasse") String kl) {
         Log.d("Webservice klasse GET: klasse=" + kl);
         Query query = em.createNamedQuery("findKlassebyName");
@@ -76,6 +78,14 @@ public class KlassenManager {
         List<Klasse> klassen = query.getResultList();
         Log.d("Result List:" + klassen);
         return klassen;
+    }
+    
+     @GET
+    @Path("/id/{id}")
+     @Produces({"application/json; charset=iso-8859-1"})
+    public Klasse getKlasse(@PathParam("id") int kid) {
+        Klasse k=em.find(Klasse.class, kid);
+        return k;
     }
     
     @POST
@@ -124,22 +134,26 @@ public class KlassenManager {
     @DELETE
     @Path("/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject deleteKlasse(@PathParam("idklasse") int kid) {
+    public PsResultObject deleteKlasse(@PathParam("idklasse") int kid) {
         Log.d("Webservice delete Klasse:" + kid);
-        ResultObject ro = new ResultObject();
+        PsResultObject ro = new PsResultObject();
         Klasse k = em.find(Klasse.class, kid);
-        if (k!=null) {
-            
+        if (k!=null) {            
             Query query = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
             query.setParameter("paramNameKlasse", k.getKNAME());
             List<Schueler> schueler = query.getResultList();
             if (schueler.size()!=0) {
                 ro.setMsg("Kann Klasse nicht löschen, da die Klasse noch Schüler hat");
                 ro.setSuccess(false);
+                 int[] ids = new int[schueler.size()];
+                for (int i=0;i<schueler.size();i++) {
+                    ids[i]=schueler.get(i).getId();                    
+                }
+                ro.setIds(ids);
             }
             else {
                 em.remove(k);
-                ro.setMsg("Klasse gelöscht");
+                ro.setMsg("Klasse "+k.getKNAME()+" gelöscht");
                 ro.setSuccess(true);
             }
         }
@@ -151,29 +165,30 @@ public class KlassenManager {
     }
     
     @POST
-    public List<Klasse> addKlasse(Klasse k) {
+    @Path("id/{idklasse}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public Klasse setKlasse(@PathParam("idklasse") int kid,Klasse k) {
         em.getEntityManagerFactory().getCache().evictAll();
-        Log.d("Webservice klasse POST add: klasse=" + k);
-        Query query = em.createNamedQuery("findKlassebyName");
-        query.setParameter("paramKName", k.getKNAME());
-        List<Klasse> klassen = query.getResultList();
-        if (klassen.size()==0) {
-            em.persist(k);
-            query = em.createNamedQuery("findKlassebyName");
-            query.setParameter("paramKName", k.getKNAME());
-            klassen = query.getResultList();            
+        Klasse kl = em.find(Klasse.class, kid);
+        if (kl!=null) {
+            if (k.getKNAME()!=null) kl.setKNAME(k.getKNAME());
+            if (k.getID_LEHRER()!=null) kl.setID_LEHRER(k.getID_LEHRER());
+            if (k.getNOTIZ()!=null) kl.setNOTIZ(k.getNOTIZ());
+            if (k.getTITEL()!= null) kl.setTITEL(k.getTITEL());
+            if (k.getID_KATEGORIE()!=null) kl.setID_KATEGORIE(k.getID_KATEGORIE());
+            if (k.getTERMINE()!=null) kl.setTERMINE(k.getTERMINE());
+            em.merge(kl);            
         }
-        else {
-            Klasse kl = klassen.get(0);
-            kl.setID_LEHRER(k.getID_LEHRER());
-            kl.setNOTIZ(k.getNOTIZ());
-            kl.setTITEL(k.getTITEL());
-            kl.setID_KATEGORIE(k.getID_KATEGORIE());
-            kl.setTERMINE(k.getTERMINE());
-            em.merge(kl);
-            klassen.set(0, kl);            
-        }
-        return klassen;
+        return kl;
+    }
+    
+     @POST
+    @Produces({"application/json; charset=iso-8859-1"})
+    public Klasse createKlasse(Klasse k) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        em.persist(k);
+        em.flush();
+        return k;
     }
     
     @GET

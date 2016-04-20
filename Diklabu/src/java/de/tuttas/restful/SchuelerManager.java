@@ -17,6 +17,7 @@ import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.Credential;
+import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.util.ImageUtil;
 import de.tuttas.util.Log;
@@ -79,34 +80,34 @@ public class SchuelerManager {
 
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<Schueler> addSchueler(Schueler s) {
+    public Schueler addSchueler(Schueler s) {
         Log.d("add Schuler " + s.toString());
         em.getEntityManagerFactory().getCache().evictAll();
-        Query query = em.createNamedQuery("findSchuelerbyCredentials");
-        query.setParameter("paramName", s.getNNAME());
-        query.setParameter("paramVorname", s.getVNAME());
-        query.setParameter("paramGebDatum", s.getGEBDAT());
-        List<Schueler> pupils = query.getResultList();
-        if (pupils.size() == 0) {
-            Log.d("Schüler anlegen: " + s);
-            s.setID_AUSBILDER(null);
-            em.persist(s);
-            em.getEntityManagerFactory().getCache().evictAll();
-            query = em.createNamedQuery("findSchuelerbyCredentials");
-            query.setParameter("paramName", s.getNNAME());
-            query.setParameter("paramVorname", s.getVNAME());
-            query.setParameter("paramGebDatum", s.getGEBDAT());
-            pupils = query.getResultList();
-        } else {
-            Schueler sl = pupils.get(0);
-            sl.setID_AUSBILDER(s.getID_AUSBILDER());
-            sl.setEMAIL(s.getEMAIL());
-            em.merge(sl);
-            pupils.set(0, sl);
-        }
-        return pupils;
+        em.persist(s);
+        em.flush();
+        return s;
     }
 
+    @POST
+    @Produces({"application/json; charset=iso-8859-1"})
+    @Path("/{idschueler}")
+    public Schueler setSchueler(@PathParam("idschueler") int sid,Schueler s) {
+        Log.d("set Schuler " + s.toString());
+        Schueler sl = em.find(Schueler.class, sid);
+        if (sl!=null) {
+            if (s.getABGANG()!=null) sl.setABGANG(s.getABGANG());
+            if (s.getEMAIL()!=null) sl.setEMAIL(s.getEMAIL());
+            if (s.getGEBDAT()!=null) sl.setGEBDAT(s.getGEBDAT());
+            if (s.getID_AUSBILDER()!=null) sl.setID_AUSBILDER(s.getID_AUSBILDER());
+            if (s.getINFO()!=null) sl.setINFO(s.getINFO());
+            if (s.getNNAME()!=null) sl.setNNAME(s.getNNAME());
+            if (s.getVNAME()!=null) sl.setVNAME(s.getVNAME());
+            em.merge(sl);
+        }
+        return sl;
+    }
+    
+           
     @POST
     @Path("/info/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -123,18 +124,23 @@ public class SchuelerManager {
     @DELETE
     @Path("/{idschueler}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject deleteSchueler(@PathParam("idschueler") int sid) {
+    public PsResultObject deleteSchueler(@PathParam("idschueler") int sid) {
         em.getEntityManagerFactory().getCache().evictAll();
         Log.d("Webservice delete Schueler:" + sid);
-        ResultObject ro = new ResultObject();
+        PsResultObject ro = new PsResultObject();
         Schueler s = em.find(Schueler.class, sid);
         if (s != null) {
             Query query = em.createNamedQuery("findKlassenids");
             query.setParameter("paramidSchueler", sid);
             List<Schueler_Klasse> sk = query.getResultList();
             if (sk.size()!=0) {
-                ro.setMsg("Schüler kann nicht gelöscht werden, da er sich noch in Klassen "+sk+" befindet");
-                ro.setSuccess(false);                
+                ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" kann nicht gelöscht werden, da er sich noch in Klassenn befindet");
+                ro.setSuccess(false);   
+                int[] ids = new int[sk.size()];
+                for (int i=0;i<sk.size();i++) {
+                    ids[i]=sk.get(i).getID_KLASSE();                    
+                }
+                ro.setIds(ids);
             }
             else {
                 query = em.createNamedQuery("findAnwesenheitByidSchueler");
@@ -146,7 +152,7 @@ public class SchuelerManager {
                 }
                 em.flush();
                 em.remove(s);
-                ro.setMsg("Schüler gelöscht");
+                ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" gelöscht");
                 ro.setSuccess(true);
             }
         } else {
@@ -158,6 +164,7 @@ public class SchuelerManager {
 
     @GET
     @Path("/{idschueler}")
+    @Produces({"application/json; charset=iso-8859-1"})
     public SchuelerObject getPupil(@PathParam("idschueler") int idschueler) {
         Log.d("Abfrage Schueler mit der ID " + idschueler);
         Schueler s = em.find(Schueler.class, idschueler);

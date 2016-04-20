@@ -5,9 +5,11 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.entities.Ausbilder;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
+import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.util.Log;
 import java.util.List;
@@ -59,50 +61,80 @@ public class BetriebeManager {
         return betriebe;
     }
     
+    @GET
+    @Path("id/{id}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public Betrieb getCompany(@PathParam("id") int bid) {
+        Betrieb b = em.find(Betrieb.class, bid);
+        return b;
+    }
+
     @DELETE
     @Path("/{idbetrieb}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject deleteCompanies(@PathParam("idbetrieb") int bid) {
-        Log.d("Webservice delete Betrieb:" + bid);
-        ResultObject ro = new ResultObject();
+    public PsResultObject deleteCompanies(@PathParam("idbetrieb") int bid) {
         Betrieb b = em.find(Betrieb.class, bid);
-        if (b!=null) {
-            em.remove(b);
-            ro.setMsg("Betrieb gelöscht");
-            ro.setSuccess(true);
+
+        PsResultObject ro = new PsResultObject();
+        if (b != null) {
+            Query query = em.createNamedQuery("findAusbilderByBetriebId");
+            query.setParameter("paramBetriebId", bid);
+            List<Ausbilder> ausbilder = query.getResultList();
+            if (ausbilder.size() != 0) {
+                ro.setSuccess(false);
+                ro.setMsg("Dem Betrieb " + b.getNAME() + " sind noch Asubilder zugewiesen!");
+                int[] ids = new int[ausbilder.size()];
+                for (int i=0;i<ausbilder.size();i++) {
+                    ids[i]=ausbilder.get(i).getID();                    
+                }
+                ro.setIds(ids);
+            }
+            else {
+                em.remove(b);
+                ro.setSuccess(true);
+                ro.setMsg("Betrieb " + b.getNAME() + " gelöscht!");
+            }
         }
         else {
-            ro.setMsg("Kann Betrieb mit id="+bid+" nicht finden");
             ro.setSuccess(false);
+            ro.setMsg("Kann Betrieb mit ID="+bid+" nicht finden!");
         }
         return ro;
     }
 
+    
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<Betrieb> addCompany(Betrieb b) {
-        Log.d("Webservice add Betrieb:" + b);
+    public Betrieb createCompany(Betrieb b) {
+        em.persist(b);
+        em.flush();
+        return b;        
+    }
+    
+    @POST
+    @Produces({"application/json; charset=iso-8859-1"})
+    @Path("id/{idbetrieb}")
+    public Betrieb setCompany(@PathParam("idbetrieb") int bid, Betrieb b) {
         em.getEntityManagerFactory().getCache().evictAll();
-        Query query = em.createNamedQuery("findBetriebByName");
-        query.setParameter("paramNameBetrieb", b.getNAME());
-        List<Betrieb> betriebe = query.getResultList();
-        Log.d("Results=" + betriebe);
-        if (betriebe.size() == 0) {
-            em.persist(b);
-            query = em.createNamedQuery("findBetriebByName");
-            query.setParameter("paramNameBetrieb", b.getNAME());
-            betriebe = query.getResultList();
-            return betriebe;
-        } else {
-            Betrieb be = betriebe.get(0);
-            be.setNR(b.getNR());
-            be.setORT(b.getORT());
-            be.setPLZ(b.getPLZ());
-            be.setSTRASSE(b.getSTRASSE());
+        Betrieb be = em.find(Betrieb.class, bid);
+        if (be != null) {
+            if (b.getNAME() != null) {
+                be.setNAME(b.getNAME());
+            }
+            if (b.getNR() != null) {
+                be.setNR(b.getNR());
+            }
+            if (b.getORT() != null) {
+                be.setORT(b.getORT());
+            }
+            if (b.getPLZ() != null) {
+                be.setPLZ(b.getPLZ());
+            }
+            if (b.getSTRASSE() != null) {
+                be.setSTRASSE(b.getSTRASSE());
+            }
             em.merge(be);
-            betriebe.set(0, be);
-
         }
-        return betriebe;
+        return be;
     }
 }
