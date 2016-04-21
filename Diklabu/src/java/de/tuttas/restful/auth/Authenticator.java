@@ -51,9 +51,9 @@ public final class Authenticator {
         }
 
         // Admin Benutzer zuweisen erzeugen
-        rolesStorage.put("TU", Roles.toString(Roles.ADMIN));
-        rolesStorage.put("tu", Roles.toString(Roles.ADMIN));
-        rolesStorage.put("Tuttas", Roles.toString(Roles.ADMIN));
+        for (int i=0;i<Config.adminusers.length;i++) {
+            rolesStorage.put(Config.adminusers[i], Roles.toString(Roles.ADMIN));
+        }
         
         // Schüler Testzugang
         usersStorage.put("schueler", "mmbbs");
@@ -83,6 +83,7 @@ public final class Authenticator {
                     authorizationTokensStorage.put(authToken, u.getShortName());
                     Log.d("Login Successfull!");
                     u.setAuthToken(authToken);
+                    u.setRole(rolesStorage.get(username));
                     return u;
                 }
                 throw new LoginException("Don't Come Here Again!");

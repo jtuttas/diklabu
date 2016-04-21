@@ -224,7 +224,7 @@ public class KlassenManager {
     }
 
     @POST
-    @Path("admin/details/{id}")
+    @Path("details/{id}")
     public Klasse setDetails(@PathParam("id") int id, Klasse k) {
         Log.d("Webservice klasse POST details: klasse=" + id);
         Klasse kl = em.find(Klasse.class, id);

@@ -103,7 +103,7 @@ public class MailServlet extends HttpServlet {
         String service = request.getParameter("service_key");
         Log.d("MailServlet doPost: auth_token=" + auth);
 
-        if (de.tuttas.config.Config.debug || service != null && auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(service, auth)) {
+        if (de.tuttas.config.Config.debug || service != null && auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(auth)) {
             response.setContentType("application/json;charset=UTF-8");
             ResultObject result = new ResultObject();
             // reads form fields
