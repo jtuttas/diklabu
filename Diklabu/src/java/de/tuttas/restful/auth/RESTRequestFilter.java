@@ -5,6 +5,7 @@
  */
 package de.tuttas.restful.auth;
 
+import com.itextpdf.text.pdf.XfaXpathConstructor;
 import de.tuttas.config.Config;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.Log;
@@ -15,7 +16,6 @@ import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
-
 
 @Provider
 @PreMatching
@@ -39,29 +39,66 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         // Then check is the service key exists and is valid.
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = requestCtx.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
-        Log.d("path=("+path+")");
-        if (path.startsWith("/noauth") || path.startsWith("/kurswahl") || Config.debug) {
-            Log.d("path start with noauth");
+        Log.d("path=(" + path + ")");
+        if (path.startsWith("/noauth") || path.startsWith("/kurswahl") || !Config.auth) {
+            Log.d("path start with noauth auth State=" + Config.auth);
         } else {
             /*
-            if (!demoAuthenticator.isServiceKeyValid(serviceKey)) {
-                log.info("no Service Key found");
-                // Kick anyone without a valid service key
-                requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+             if (!demoAuthenticator.isServiceKeyValid(serviceKey)) {
+             log.info("no Service Key found");
+             // Kick anyone without a valid service key
+             requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
 
-                return;
-            }
-            log.info("found Valid Key");
-                    */
+             return;
+             }
+             log.info("found Valid Key");
+             */
             // For any pther methods besides login, the authToken must be verified
-            if (!path.startsWith("/auth/login/") ) {
+            if (!path.startsWith("/auth/login")) {
                 String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-                Log.d("auth Token="+authToken);
+                Log.d("auth Token=" + authToken);
                 // if it isn't valid, just kick them out.
-                if (!demoAuthenticator.isAuthTokenValid(serviceKey, authToken)) {
+                if (!demoAuthenticator.isAuthTokenValid(authToken)) {
                     requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                } // Schauen ob der Zugriff auf den Service mit der Rolle erlaubt ist
+                else {
+                    String userRole = demoAuthenticator.getRole(authToken);
+                    Log.d("User hat die Rolle " + userRole);
+                    if (userRole.equals(Roles.toString(Roles.ADMIN))) {
+                        // Admin darf alles
+                    } 
+                    else if (userRole.equals(Roles.toString(Roles.LEHRER))) {
+                        // Lehrer dürfen keine Services Nutzen, die das Wort Admin im Namen haben
+                        if (path.contains("admin")) {
+                            Log.d("Nicht genügend Rechte");
+                            requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                        }
+                    }
+                    else if (userRole.equals(Roles.toString(Roles.SCHUELER))) {
+                        // Schüler dürfen gar nichts
+                        Log.d("Nicht genügend Rechte");
+                        requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                    }
+
                 }
             }
         }
+    }
+
+    private static String[] lehrerServices = new String[]{
+        "/anwesenheit", "/klasse","/lehrer","/noten","/schueler","/verlauf"
+    };
+
+    private Roles getRoleFor(String path) {
+        Log.d("Get Role for:" + path);
+
+        for (int i = 0; i < lehrerServices.length; i++) {
+            if (path.startsWith(lehrerServices[i])) {
+                return Roles.LEHRER;
+            }
+        }
+
+        //TODO auto generated Method
+        return Roles.SCHUELER;
     }
 }

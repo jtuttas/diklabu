@@ -31,11 +31,12 @@ public final class Authenticator {
     // A user storage which stores <username, password>
     private final Map<String, String> usersStorage = new HashMap();
 
-    // A service key storage which stores <service_key, username>
-    private final Map<String, String> serviceKeysStorage = new HashMap();
-
-    // An authentication token storage which stores <service_key, auth_token>.
+    // An authentication token storage which stores <auth_token,  Benutzername>.
     private final Map<String, String> authorizationTokensStorage = new HashMap();
+    
+    // Benutzernamen zu Rollen <Benutzername, Rolle>
+    private final Map<String, String> rolesStorage = new HashMap();
+    
 
     private Authenticator() {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("DiklabuPU");
@@ -46,8 +47,18 @@ public final class Authenticator {
         for (Lehrer l : lehrer) {
             Log.d("Anlegen Benutzer (" + l.getId() + ")");
             usersStorage.put(l.getIdplain(), "mmbbs");
-            serviceKeysStorage.put(l.getIdplain() + "f80ebc87-ad5c-4b29-9366-5359768df5a1", l.getIdplain());
+            rolesStorage.put(l.getIdplain(), Roles.toString(Roles.LEHRER));
         }
+
+        // Admin Benutzer zuweisen erzeugen
+        rolesStorage.put("TU", Roles.toString(Roles.ADMIN));
+        rolesStorage.put("tu", Roles.toString(Roles.ADMIN));
+        rolesStorage.put("Tuttas", Roles.toString(Roles.ADMIN));
+        
+        // Schüler Testzugang
+        usersStorage.put("schueler", "mmbbs");
+        rolesStorage.put("schueler", Roles.toString(Roles.SCHUELER));
+        
     }
 
     public static Authenticator getInstance() {
@@ -68,14 +79,11 @@ public final class Authenticator {
                 if (u != null) {
                     Log.d("found User " + u.toString());
                     serviceKey = StringUtil.removeGermanCharacters(u.getShortName()) + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
-                    if (serviceKeysStorage.containsKey(serviceKey)) {
-                        String authToken = UUID.randomUUID().toString();
-                        authorizationTokensStorage.put(authToken, u.getShortName());
-                        Log.d("Login Successfull!");
-                        u.setAuthToken(authToken);
-                        return u;
-                    }
-                    throw new LoginException("Don't Come Here Again!");
+                    String authToken = UUID.randomUUID().toString();
+                    authorizationTokensStorage.put(authToken, u.getShortName());
+                    Log.d("Login Successfull!");
+                    u.setAuthToken(authToken);
+                    return u;
                 }
                 throw new LoginException("Don't Come Here Again!");
             } catch (Exception ex) {
@@ -84,10 +92,8 @@ public final class Authenticator {
             throw new LoginException("Don't Come Here Again!");
         } else {
             Log.d("Login im Debug Mode serviceKey="+serviceKey);
-            if (serviceKeysStorage.containsKey(serviceKey)) {
-                String usernameMatch = serviceKeysStorage.get(serviceKey);
 
-                if (usernameMatch.equals(username) && usersStorage.containsKey(username)) {
+                if (usersStorage.containsKey(username)) {
                     String passwordMatch = usersStorage.get(username);
 
                     if (passwordMatch.equals(password)) {
@@ -96,12 +102,11 @@ public final class Authenticator {
                         authorizationTokensStorage.put(authToken, username);
                         LDAPUser u = new LDAPUser();
                         u.setShortName(username);
-                        u.setAuthToken(authToken);
-                        u.setEMail("tuttas@mmbbs.de");
+                        u.setAuthToken(authToken);                        
+                        u.setRole(rolesStorage.get(username));
                         return u;
                     }
                 }
-            }
             throw new LoginException("Don't Come Here Again!");
         }
     }
@@ -109,45 +114,30 @@ public final class Authenticator {
          * The method that pre-validates if the client which invokes the REST
          * API is from a authorized and authenticated source.
          *
-         * @param serviceKey The service key
          * @param authToken The authorization token generated after login
          * @return TRUE for acceptance and FALSE for denied.
          */
-    public boolean isAuthTokenValid(String serviceKey, String authToken) {
-        if (isServiceKeyValid(serviceKey)) {
-            String usernameMatch1 = serviceKeysStorage.get(serviceKey);
+    public boolean isAuthTokenValid(String authToken) {
+        //if (isServiceKeyValid(serviceKey)) {
+//            String usernameMatch1 = serviceKeysStorage.get(serviceKey);
 
             if (authorizationTokensStorage.containsKey(authToken)) {
-                String usernameMatch2 = authorizationTokensStorage.get(authToken);
+  //              String usernameMatch2 = authorizationTokensStorage.get(authToken);
 
-                if (usernameMatch1.equals(usernameMatch2)) {
+    //            if (usernameMatch1.equals(usernameMatch2)) {
                     return true;
-                }
+      //          }
             }
-        }
+        //}
 
         return false;
     }
 
-    /**
-     * This method checks is the service key is valid
-     *
-     * @param serviceKey
-     * @return TRUE if service key matches the pre-generated ones in service key
-     * storage. FALSE for otherwise.
-     */
-    public boolean isServiceKeyValid(String serviceKey) {
-        return serviceKeysStorage.containsKey(serviceKey);
-    }
 
     public void logout(String serviceKey, String authToken) throws GeneralSecurityException {
-        if (serviceKeysStorage.containsKey(serviceKey)) {
-            String usernameMatch1 = serviceKeysStorage.get(serviceKey);
 
             if (authorizationTokensStorage.containsKey(authToken)) {
-                String usernameMatch2 = authorizationTokensStorage.get(authToken);
 
-                if (usernameMatch1.equals(usernameMatch2)) {
 
                     /**
                      * When a client logs out, the authentication token will be
@@ -155,10 +145,12 @@ public final class Authenticator {
                      */
                     authorizationTokensStorage.remove(authToken);
                     return;
-                }
-            }
-        }
-
+            }        
         throw new GeneralSecurityException("Invalid service key and authorization token match.");
+    }
+
+    String getRole(String authToken) {
+        String user = authorizationTokensStorage.get(authToken);
+        return rolesStorage.get(user);
     }
 }

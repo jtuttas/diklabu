@@ -28,7 +28,7 @@ import javax.ws.rs.Produces;
  *
  * @author Jörg
  */
-@Path("betriebe")
+@Path("admin/betriebe")
 @Stateless
 public class BetriebeManager {
 

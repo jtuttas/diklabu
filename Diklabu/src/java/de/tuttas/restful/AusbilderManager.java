@@ -31,7 +31,7 @@ import javax.ws.rs.Produces;
  *
  * @author Jörg
  */
-@Path("ausbilder")
+@Path("admin/ausbilder")
 @Stateless
 public class AusbilderManager {
      /**
@@ -90,11 +90,13 @@ public class AusbilderManager {
             if (schueler.size() != 0) {
                 ro.setSuccess(false);
                 ro.setMsg("Dem Ausbilder " + a.getNNAME()+ " sind noch Schüler zugewiesen!");
+                Log.d("Dem Ausbilder sind noch "+schueler.size()+" zugewiesen");
                 int[] ids = new int[schueler.size()];
                 for (int i=0;i<schueler.size();i++) {
-                    ids[i]=schueler.get(i).getId();                    
+                    ids[i]=schueler.get(i).getId();   
                 }
-                ro.setIds(ids);
+                ro.setIds(ids);                
+                return ro;
             }
             else {
                 em.remove(a);

@@ -89,7 +89,7 @@ public class KlassenManager {
     }
     
     @POST
-    @Path("/add")
+    @Path("admin/add")
      @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject addSchuelerToKlasse(Schueler_Klasse sk) {        
         Log.d("Schüler einer Klasse zuweisen:"+sk.toString());
@@ -110,7 +110,7 @@ public class KlassenManager {
     }
     
     @DELETE
-    @Path("/{idschueler}/{idklasse}")
+    @Path("admin/{idschueler}/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject deleteSchuelerfromKlasse(@PathParam("idschueler") int sid,@PathParam("idklasse") int kid) {
         Log.d("Webservice delete Schüler "+sid+" von Klasse:" + kid);
@@ -132,7 +132,7 @@ public class KlassenManager {
     }
     
     @DELETE
-    @Path("/{idklasse}")
+    @Path("admin/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
     public PsResultObject deleteKlasse(@PathParam("idklasse") int kid) {
         Log.d("Webservice delete Klasse:" + kid);
@@ -165,7 +165,7 @@ public class KlassenManager {
     }
     
     @POST
-    @Path("id/{idklasse}")
+    @Path("admin/id/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
     public Klasse setKlasse(@PathParam("idklasse") int kid,Klasse k) {
         em.getEntityManagerFactory().getCache().evictAll();
@@ -183,6 +183,7 @@ public class KlassenManager {
     }
     
      @POST
+     @Path("/admin")
     @Produces({"application/json; charset=iso-8859-1"})
     public Klasse createKlasse(Klasse k) {
         em.getEntityManagerFactory().getCache().evictAll();
@@ -223,7 +224,7 @@ public class KlassenManager {
     }
 
     @POST
-    @Path("/details/{id}")
+    @Path("admin/details/{id}")
     public Klasse setDetails(@PathParam("id") int id, Klasse k) {
         Log.d("Webservice klasse POST details: klasse=" + id);
         Klasse kl = em.find(Klasse.class, id);

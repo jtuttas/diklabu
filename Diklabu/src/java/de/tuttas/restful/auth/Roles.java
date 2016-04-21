@@ -11,4 +11,16 @@ package de.tuttas.restful.auth;
  */
 public enum Roles {
     SCHUELER,LEHRER,ADMIN;
+    
+    public static String toString(Roles r) {
+        switch (r) {
+            case ADMIN:
+                return "Admin";
+            case LEHRER:
+                return "Lehrer";
+            case SCHUELER:
+                return "Schueler";                       
+        }
+        return null;
+    }
 }

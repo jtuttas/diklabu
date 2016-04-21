@@ -5,6 +5,9 @@
  */
 package de.tuttas.util;
 
+import de.tuttas.restful.auth.Roles;
+import javax.json.JsonValue;
+
 /**
  *
  * @author Jörg
@@ -17,6 +20,7 @@ public class LDAPUser {
     private String authToken;
     // ShortName ohne deutsche Umlaute
     private String idPlain;
+    private String role;
 
     public LDAPUser() {
     }
@@ -85,6 +89,18 @@ public class LDAPUser {
         this.ShortName = ShortName;
         this.idPlain=StringUtil.removeGermanCharacters(ShortName);
     }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    
+
+    
     
     
     

@@ -26,7 +26,7 @@ import javax.ws.rs.core.MediaType;
  *
  * @author Jörg
  */
-@Path("manager/pscaller")
+@Path("admin/pscaller")
 @Stateless
 public class PSCaller {
     

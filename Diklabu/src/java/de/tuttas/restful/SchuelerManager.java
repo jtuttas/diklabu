@@ -80,6 +80,7 @@ public class SchuelerManager {
 
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
+    @Path("/admin")
     public Schueler addSchueler(Schueler s) {
         Log.d("add Schuler " + s.toString());
         em.getEntityManagerFactory().getCache().evictAll();
@@ -90,7 +91,7 @@ public class SchuelerManager {
 
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
-    @Path("/{idschueler}")
+    @Path("admin/{idschueler}")
     public Schueler setSchueler(@PathParam("idschueler") int sid,Schueler s) {
         Log.d("set Schuler " + s.toString());
         Schueler sl = em.find(Schueler.class, sid);
@@ -122,7 +123,7 @@ public class SchuelerManager {
     }
 
     @DELETE
-    @Path("/{idschueler}")
+    @Path("/admin/{idschueler}")
     @Produces({"application/json; charset=iso-8859-1"})
     public PsResultObject deleteSchueler(@PathParam("idschueler") int sid) {
         em.getEntityManagerFactory().getCache().evictAll();

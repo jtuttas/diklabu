@@ -20,4 +20,11 @@ public class Config {
     //public static final String LDAP_CONF_PATH = "/home/pi/ldapconfig.json";    
     //public static final String LDAP_CONF_PATH="c:\\ProgramData\\digitales Klassenbuch\\ldapconfig.json";
     
+    // Kennwort für den Admin zugang
+    public static final String ADMIN="admin";
+    
+    // Authentifizierung für die RestFul Services notwenig (im debug mode ist das Kennwort mmbbs und der Benutzername das Lehrerkürzel
+    public static boolean auth=true;
+    
+    
 }
