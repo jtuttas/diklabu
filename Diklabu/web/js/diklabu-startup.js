@@ -1640,7 +1640,7 @@ function performLogin() {
 
                 toastr["success"]("Login erfolgreich", "Info!");
                 sessionStorage.myselfplain = idplain;
-                sessionStorage.myself = $('#benutzername').val();
+                sessionStorage.myself = jsonObj.ID;
                 sessionStorage.myemail = jsonObj.email;
                 getLehrerData(sessionStorage.myself);
                 nameKlasse = $("#klassen").val();

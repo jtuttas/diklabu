@@ -333,8 +333,8 @@ function performLogin() {
                 console.log("idplain = " + jsonObj.idPlain);
                 localStorage.service_key = jsonObj.idPlain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
                 console.log("Service key =" + localStorage.service_key);
-                localStorage.myself = jsonObj.ID_LEHRER;
-                getLehrerData(jsonObj.ID_LEHRER);
+                localStorage.myself = jsonObj.ID;
+                getLehrerData(jsonObj.ID);
 
                 sessionStorage.kennwort = $('#kennwort').val();
                 $.mobile.changePage("#klassenliste", {transition: "fade"});
