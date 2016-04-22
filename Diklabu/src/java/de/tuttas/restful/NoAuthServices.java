@@ -117,6 +117,7 @@ public class NoAuthServices {
         }
         else {
             termine = new ArrayList<>();
+            to.setTime(to.getTime()+24*60*60*1000);
             while (from.before(to)) {
                 termine.add(new Termin(new Timestamp(from.getTime())));
                 from.setTime(from.getTime()+24*60*60*1000);
