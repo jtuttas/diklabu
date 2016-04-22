@@ -78,7 +78,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
             jsonObjBuilder.add("ID", u.getShortName());
             jsonObjBuilder.add("idPlain", u.getIdPlain());
             jsonObjBuilder.add("role", u.getRole());
-
+            Log.d("User zurück:"+u);
             JsonObject jsonObj = jsonObjBuilder.build();
             return getNoCacheResponseBuilder(Response.Status.OK).entity(jsonObj.toString()).build();
 

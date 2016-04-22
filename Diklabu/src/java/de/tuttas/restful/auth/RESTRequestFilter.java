@@ -63,7 +63,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
                 } // Schauen ob der Zugriff auf den Service mit der Rolle erlaubt ist
                 else {
                     String userRole = demoAuthenticator.getRole(authToken);
-                    Log.d("User hat die Rolle " + userRole);
+                    Log.d("User hat die Rolle " + userRole+" auth_toke="+authToken);
                     if (userRole.equals(Roles.toString(Roles.ADMIN))) {
                         // Admin darf alles
                     } 

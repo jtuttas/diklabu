@@ -80,14 +80,16 @@ public final class Authenticator {
                     Log.d("found User " + u.toString());
                     serviceKey = StringUtil.removeGermanCharacters(u.getShortName()) + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
                     String authToken = UUID.randomUUID().toString();
-                    authorizationTokensStorage.put(authToken, u.getShortName());
-                    Log.d("Login Successfull!");
+                    authorizationTokensStorage.put(authToken, username);
+                    
                     u.setAuthToken(authToken);
                     for (int i=0;i<Config.adminusers.length;i++) {
                         if (Config.adminusers[i].equals(username.toUpperCase())) {
                             u.setRole(Roles.toString(Roles.ADMIN));
                         }
                     }
+                    Log.d("Login Successfull! u="+u+" authToken="+authToken);
+                    rolesStorage.put(username, u.getRole());
                     return u;
                 }
                 throw new LoginException("Don't Come Here Again!");
@@ -156,6 +158,7 @@ public final class Authenticator {
 
     String getRole(String authToken) {
         String user = authorizationTokensStorage.get(authToken);
+        Log.d("User mit token "+authToken +" ist "+user);
         return rolesStorage.get(user);
     }
 }

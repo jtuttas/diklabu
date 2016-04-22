@@ -103,7 +103,7 @@ public class LDAPUtil {
         LDAPUtil lpd = LDAPUtil.getInstance();
         LDAPUser u;
         try {
-            u = lpd.authenticateJndi("fiae15h.timm", "Xicuxi14");
+            u = lpd.authenticateJndi("Fisi13a.boltze", "Tuttas1!");
             Log.d("Habe gefunden " + u);
         } catch (Exception ex) {
             ex.printStackTrace();
