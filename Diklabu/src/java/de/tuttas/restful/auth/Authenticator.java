@@ -83,7 +83,11 @@ public final class Authenticator {
                     authorizationTokensStorage.put(authToken, u.getShortName());
                     Log.d("Login Successfull!");
                     u.setAuthToken(authToken);
-                    u.setRole(rolesStorage.get(username));
+                    for (int i=0;i<Config.adminusers.length;i++) {
+                        if (Config.adminusers[i].equals(username.toUpperCase())) {
+                            u.setRole(Roles.toString(Roles.ADMIN));
+                        }
+                    }
                     return u;
                 }
                 throw new LoginException("Don't Come Here Again!");

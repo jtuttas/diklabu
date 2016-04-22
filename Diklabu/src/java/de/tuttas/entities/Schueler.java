@@ -1,4 +1,3 @@
-
 package de.tuttas.entities;
 
 import java.io.Serializable;
@@ -12,20 +11,23 @@ import javax.persistence.NamedQuery;
 
 /**
  * Entity eines Schuelers
+ *
  * @author Jörg
  */
-
 @Entity
 @NamedQueries({
-   @NamedQuery(name = "findSchuelerbyCredentials", query= "select s from Schueler s where s.NNAME like :paramName and s.VNAME like :paramVorname and S.GEBDAT = :paramGebDatum"),
-   @NamedQuery(name = "findSchuelerbyNameKlasse", query= "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k on k.ID=sk.ID_KLASSE where s.NNAME like :paramName and s.VNAME like :paramVorname and k.KNAME like :paramKlasse"),
-   @NamedQuery(name = "findBetriebeEinerBenanntenKlasse", query= "select NEW de.tuttas.restful.Data.AusbilderObject(s.ID,a.ANREDE,a.NNAME,a.EMAIL,a.TELEFON,a.FAX,b.NAME,b.PLZ,b.ORT,b.STRASSE,b.NR) from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE JOIN Ausbilder a on a.ID=s.ID_AUSBILDER JOIN Betrieb b on b.ID=a.ID_BETRIEB where k.KNAME like :paramNameKlasse AND s.ABGANG not like 'J' order BY s.NNAME"),
-    @NamedQuery(name = "findSchuelerByAusbilderId", query= "select s from Schueler s where s.ID_AUSBILDER = :paramAusbilderId")   
+    @NamedQuery(name = "findSchuelerbyCredentials", query = "select s from Schueler s where s.NNAME like :paramName and s.VNAME like :paramVorname and S.GEBDAT = :paramGebDatum"),
+   // findSchuelerByNameAndKlasse
+    @NamedQuery(name = "findSchuelerByNameAndKlasse", query = "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k on k.ID=sk.ID_KLASSE where s.NNAME = :paramNNAME and s.VNAME = :paramVNAME and k.KNAME = :paramKLASSE"),
+    @NamedQuery(name = "findSchuelerbyNameKlasse", query = "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k on k.ID=sk.ID_KLASSE where s.NNAME like :paramName and s.VNAME like :paramVorname and k.KNAME like :paramKlasse"),
+    @NamedQuery(name = "findBetriebeEinerBenanntenKlasse", query = "select NEW de.tuttas.restful.Data.AusbilderObject(s.ID,a.ANREDE,a.NNAME,a.EMAIL,a.TELEFON,a.FAX,b.NAME,b.PLZ,b.ORT,b.STRASSE,b.NR) from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE JOIN Ausbilder a on a.ID=s.ID_AUSBILDER JOIN Betrieb b on b.ID=a.ID_BETRIEB where k.KNAME like :paramNameKlasse AND s.ABGANG not like 'J' order BY s.NNAME"),
+    @NamedQuery(name = "findSchuelerByAusbilderId", query = "select s from Schueler s where s.ID_AUSBILDER = :paramAusbilderId")
 })
 public class Schueler implements Serializable {
+
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     /**
      * Primärschlüssel
      */
@@ -42,17 +44,16 @@ public class Schueler implements Serializable {
      * Geburtsdatum in der Form yyyy-mm-dd
      */
     private Date GEBDAT;
-    
+
     private String EMAIL;
-    
 
     private String ACC;
-    
+
     // Kommentare zu Schülern
     private String INFO;
-    
+
     private Integer ID_AUSBILDER;
-    
+
     private String ABGANG;
 
     public void setINFO(String INFO) {
@@ -71,7 +72,6 @@ public class Schueler implements Serializable {
         return ABGANG;
     }
 
-        
     public void setEMAIL(String EMAIL) {
         this.EMAIL = EMAIL;
     }
@@ -80,8 +80,6 @@ public class Schueler implements Serializable {
         return EMAIL;
     }
 
-    
-    
     public void setID_AUSBILDER(Integer ID_AUSBILDER) {
         this.ID_AUSBILDER = ID_AUSBILDER;
     }
@@ -89,8 +87,6 @@ public class Schueler implements Serializable {
     public Integer getID_AUSBILDER() {
         return ID_AUSBILDER;
     }
-    
-    
 
     public String getACC() {
         return ACC;
@@ -99,9 +95,7 @@ public class Schueler implements Serializable {
     public void setACC(String ACC) {
         this.ACC = ACC;
     }
-    
-    
-    
+
     public Date getGEBDAT() {
         return GEBDAT;
     }
@@ -125,8 +119,6 @@ public class Schueler implements Serializable {
     public void setVNAME(String VNAME) {
         this.VNAME = VNAME;
     }
-    
-   
 
     public Integer getId() {
         return ID;
@@ -157,7 +149,7 @@ public class Schueler implements Serializable {
 
     @Override
     public String toString() {
-        return "Schueler[ id=" + ID + "GEBDAT="+GEBDAT+" NAME="+VNAME+" "+NNAME+"]";
+        return "Schueler[ id=" + ID + "GEBDAT=" + GEBDAT + " NAME=" + VNAME + " " + NNAME + "]";
     }
-    
+
 }

@@ -35,7 +35,7 @@ public class LDAPUser {
 
     @Override
     public String toString() {
-        return "NName="+NName+" VName="+VName+" EMail="+EMail+" Kürzel="+ShortName;
+        return "NName="+NName+" VName="+VName+" EMail="+EMail+" Kürzel="+ShortName+ " Role="+role;
     }
 
     public void setIdPlain(String idPlan) {
