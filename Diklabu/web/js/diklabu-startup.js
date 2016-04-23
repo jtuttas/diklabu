@@ -1635,6 +1635,12 @@ function performLogin() {
             type: "POST",
             data: JSON.stringify(myData),
             success: function (jsonObj, textStatus, xhr) {
+                
+                if (jsonObj.role=="Schueler") {
+                window.location.replace("index.html");
+                }
+                else {
+                
                 sessionStorage.auth_token = jsonObj.auth_token;
                 console.log("Thoken = " + jsonObj.auth_token);
 
@@ -1647,6 +1653,7 @@ function performLogin() {
                 idKlasse = $('option:selected', "#klassen").attr('dbid');
                 loggedIn();
                 updateCurrentView();
+            }
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Login fehlgeschlagen", "Fehler!");

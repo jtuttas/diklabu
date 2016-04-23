@@ -28,7 +28,7 @@ import javax.ws.rs.Produces;
  *
  * @author Jörg
  */
-@Path("admin/betriebe")
+@Path("betriebe")
 @Stateless
 public class BetriebeManager {
 
@@ -70,7 +70,7 @@ public class BetriebeManager {
     }
 
     @DELETE
-    @Path("/{idbetrieb}")
+    @Path("admin/{idbetrieb}")
     @Produces({"application/json; charset=iso-8859-1"})
     public PsResultObject deleteCompanies(@PathParam("idbetrieb") int bid) {
         Betrieb b = em.find(Betrieb.class, bid);
@@ -105,6 +105,7 @@ public class BetriebeManager {
     
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
+    @Path("admin")
     public Betrieb createCompany(Betrieb b) {
         em.persist(b);
         em.flush();
@@ -113,7 +114,7 @@ public class BetriebeManager {
     
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
-    @Path("id/{idbetrieb}")
+    @Path("admin/id/{idbetrieb}")
     public Betrieb setCompany(@PathParam("idbetrieb") int bid, Betrieb b) {
         em.getEntityManagerFactory().getCache().evictAll();
         Betrieb be = em.find(Betrieb.class, bid);

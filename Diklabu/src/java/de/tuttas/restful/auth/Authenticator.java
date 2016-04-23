@@ -33,32 +33,31 @@ public final class Authenticator {
 
     // An authentication token storage which stores <auth_token,  Benutzername>.
     private final Map<String, String> authorizationTokensStorage = new HashMap();
-    
+
     // Benutzernamen zu Rollen <Benutzername, Rolle>
     private final Map<String, String> rolesStorage = new HashMap();
-    
+
+    // Live time of a aut_token <auth_token, TimeStamp>
+    private final Map<String, Long> liveTimeStorage = new HashMap();
 
     private Authenticator() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("DiklabuPU");
-        EntityManager em = emf.createEntityManager();
-        Query query = em.createNamedQuery("findAllTeachers");
-        List<Lehrer> lehrer = query.getResultList();
+        if (Config.debug) {
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("DiklabuPU");
+            EntityManager em = emf.createEntityManager();
+            Query query = em.createNamedQuery("findAllTeachers");
+            List<Lehrer> lehrer = query.getResultList();
 
-        for (Lehrer l : lehrer) {
-            Log.d("Anlegen Benutzer (" + l.getId() + ")");
-            usersStorage.put(l.getIdplain(), "mmbbs");
-            rolesStorage.put(l.getIdplain(), Roles.toString(Roles.LEHRER));
+            for (Lehrer l : lehrer) {
+                Log.d("Anlegen Benutzer (" + l.getId() + ")");
+                usersStorage.put(l.getIdplain(), "mmbbs");
+                rolesStorage.put(l.getIdplain(), Roles.toString(Roles.LEHRER));
+            }
+
+            // Schüler Testzugang
+            usersStorage.put("schueler", "mmbbs");
+            rolesStorage.put("schueler", Roles.toString(Roles.SCHUELER));
         }
 
-        // Admin Benutzer zuweisen erzeugen
-        for (int i=0;i<Config.adminusers.length;i++) {
-            rolesStorage.put(Config.adminusers[i], Roles.toString(Roles.ADMIN));
-        }
-        
-        // Schüler Testzugang
-        usersStorage.put("schueler", "mmbbs");
-        rolesStorage.put("schueler", Roles.toString(Roles.SCHUELER));
-        
     }
 
     public static Authenticator getInstance() {
@@ -81,14 +80,15 @@ public final class Authenticator {
                     serviceKey = StringUtil.removeGermanCharacters(u.getShortName()) + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
                     String authToken = UUID.randomUUID().toString();
                     authorizationTokensStorage.put(authToken, username);
-                    
+                    liveTimeStorage.put(authToken, System.currentTimeMillis());
+
                     u.setAuthToken(authToken);
-                    for (int i=0;i<Config.adminusers.length;i++) {
+                    for (int i = 0; i < Config.adminusers.length; i++) {
                         if (Config.adminusers[i].equals(username.toUpperCase())) {
                             u.setRole(Roles.toString(Roles.ADMIN));
                         }
                     }
-                    Log.d("Login Successfull! u="+u+" authToken="+authToken);
+                    Log.d("Login Successfull! u=" + u + " authToken=" + authToken);
                     rolesStorage.put(username, u.getRole());
                     return u;
                 }
@@ -98,67 +98,70 @@ public final class Authenticator {
             }
             throw new LoginException("Don't Come Here Again!");
         } else {
-            Log.d("Login im Debug Mode serviceKey="+serviceKey);
+            Log.d("Login im Debug Mode serviceKey=" + serviceKey);
 
-                if (usersStorage.containsKey(username)) {
-                    String passwordMatch = usersStorage.get(username);
+            if (usersStorage.containsKey(username)) {
+                String passwordMatch = usersStorage.get(username);
 
-                    if (passwordMatch.equals(password)) {
+                if (passwordMatch.equals(password)) {
 
-                        String authToken = UUID.randomUUID().toString();
-                        authorizationTokensStorage.put(authToken, username);
-                        LDAPUser u = new LDAPUser();
-                        u.setShortName(username);
-                        u.setAuthToken(authToken);                        
-                        u.setRole(rolesStorage.get(username));
-                        return u;
+                    String authToken = UUID.randomUUID().toString();
+                    authorizationTokensStorage.put(authToken, username);
+                    liveTimeStorage.put(authToken, System.currentTimeMillis());
+                    LDAPUser u = new LDAPUser();
+                    u.setShortName(username);
+                    u.setAuthToken(authToken);
+                    u.setRole(rolesStorage.get(username));
+                    for (int i = 0; i < Config.adminusers.length; i++) {
+                        if (Config.adminusers[i].equals(username.toUpperCase())) {
+                            u.setRole(Roles.toString(Roles.ADMIN));
+                        }
                     }
+                    return u;
                 }
+            }
             throw new LoginException("Don't Come Here Again!");
         }
     }
-        /**
-         * The method that pre-validates if the client which invokes the REST
-         * API is from a authorized and authenticated source.
-         *
-         * @param authToken The authorization token generated after login
-         * @return TRUE for acceptance and FALSE for denied.
-         */
+
+    /**
+     * The method that pre-validates if the client which invokes the REST API is
+     * from a authorized and authenticated source.
+     *
+     * @param authToken The authorization token generated after login
+     * @return TRUE for acceptance and FALSE for denied.
+     */
     public boolean isAuthTokenValid(String authToken) {
-        //if (isServiceKeyValid(serviceKey)) {
-//            String usernameMatch1 = serviceKeysStorage.get(serviceKey);
-
-            if (authorizationTokensStorage.containsKey(authToken)) {
-  //              String usernameMatch2 = authorizationTokensStorage.get(authToken);
-
-    //            if (usernameMatch1.equals(usernameMatch2)) {
-                    return true;
-      //          }
+        if (authorizationTokensStorage.containsKey(authToken)) {
+            Long t = liveTimeStorage.get(authToken);
+            if (System.currentTimeMillis() < t + Config.AUTH_TOKE_TIMEOUT) {
+                return true;
+            } else {
+                Log.d("Auth Token Timed out");
+                authorizationTokensStorage.remove(authToken);
+                liveTimeStorage.remove(authToken);
             }
-        //}
-
+        }
         return false;
     }
 
-
     public void logout(String serviceKey, String authToken) throws GeneralSecurityException {
 
-            if (authorizationTokensStorage.containsKey(authToken)) {
+        if (authorizationTokensStorage.containsKey(authToken)) {
 
-
-                    /**
-                     * When a client logs out, the authentication token will be
-                     * remove and will be made invalid.
-                     */
-                    authorizationTokensStorage.remove(authToken);
-                    return;
-            }        
+            /**
+             * When a client logs out, the authentication token will be remove
+             * and will be made invalid.
+             */
+            authorizationTokensStorage.remove(authToken);
+            return;
+        }
         throw new GeneralSecurityException("Invalid service key and authorization token match.");
     }
 
     String getRole(String authToken) {
         String user = authorizationTokensStorage.get(authToken);
-        Log.d("User mit token "+authToken +" ist "+user);
+        Log.d("User mit token " + authToken + " ist " + user);
         return rolesStorage.get(user);
     }
 }

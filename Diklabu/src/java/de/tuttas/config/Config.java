@@ -10,7 +10,7 @@ package de.tuttas.config;
  * @author Jörg
  */
 public class Config {
-    public static final boolean debug=false;
+    public static final boolean debug=true;
     
     public static final String IMAGE_FILE_PATH = "c:\\Temp\\";
     //public static final String IMAGE_FILE_PATH = "/home/pi/diklabuimages/";    
@@ -21,10 +21,13 @@ public class Config {
     //public static final String LDAP_CONF_PATH="c:\\ProgramData\\digitales Klassenbuch\\ldapconfig.json";
     
     // Nutzer mit Admin Rechten
-    public static final String[] adminusers = new String[]{"TU","TUTTAS"};
+    public static final String[] adminusers = new String[]{"TU","TUTTAS","KEMMRIES"};
     
     // Authentifizierung für die RestFul Services notwenig (im debug mode ist das Kennwort mmbbs und der Benutzername das Lehrerkürzel
     public static boolean auth=true;
+    
+    // Zeitspanne in ms, bis zu der ein auth_token verworfen wird 
+    public static long AUTH_TOKE_TIMEOUT=5*24*60*60*1000;
     
     
 }

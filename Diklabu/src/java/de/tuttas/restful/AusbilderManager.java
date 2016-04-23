@@ -31,7 +31,7 @@ import javax.ws.rs.Produces;
  *
  * @author Jörg
  */
-@Path("admin/ausbilder")
+@Path("ausbilder")
 @Stateless
 public class AusbilderManager {
      /**
@@ -60,7 +60,7 @@ public class AusbilderManager {
 
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
-    @Path("{id}")
+    @Path("admin/{id}")
     public Ausbilder setAusbilder(@PathParam("id") int id,Ausbilder aus) {
         em.getEntityManagerFactory().getCache().evictAll();
         Ausbilder a = em.find(Ausbilder.class, id);
@@ -78,7 +78,7 @@ public class AusbilderManager {
     
     @DELETE
     @Produces({"application/json; charset=iso-8859-1"})
-    @Path("{id}")
+    @Path("admin/{id}")
     public PsResultObject delAusbilder(@PathParam("id") int id) {
         em.getEntityManagerFactory().getCache().evictAll();
         PsResultObject ro = new PsResultObject();
@@ -112,7 +112,8 @@ public class AusbilderManager {
     }
     
     @POST
-    @Produces({"application/json; charset=iso-8859-1"})    
+    @Produces({"application/json; charset=iso-8859-1"})   
+    @Path("admin")
     public Ausbilder setAusbilder(Ausbilder aus) {
         em.getEntityManagerFactory().getCache().evictAll();
         em.persist(aus);
