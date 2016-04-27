@@ -447,7 +447,7 @@ function Stop-Coursevoting
     }
     Process {
         try {
-            $r=Invoke-RestMethod -Method Put -Uri ($uri+"coursevoting/admin/schueler/$id") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
+            $r=Invoke-RestMethod -Method Put -Uri ($uri+"coursevoting/admin/schueler/$id") -Headers $headers      
             return $r
         } catch {
             Write-Host "Stop-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
