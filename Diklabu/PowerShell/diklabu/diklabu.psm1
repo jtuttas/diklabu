@@ -43,3 +43,5 @@ Export-ModuleMember -Function Reset-Coursevoting
 Export-ModuleMember -Function Clear-Coursevoting
 Export-ModuleMember -Function Get-Coursevoting
 Export-ModuleMember -Function List-Coursevoting
+Export-ModuleMember -Function New-Coursevoting
+Export-ModuleMember -Function Stop-Coursevoting

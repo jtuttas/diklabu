@@ -72,11 +72,9 @@ function Find-Course
    Set-Course -id 3456 -uri http://localhost:8080/Diklabu/api/v1/ -termine Block_blau
 .EXAMPLE
    1234,5678,9876| Set-Course -uri http://localhost:8080/Diklabu/api/v1/ -termine Block_blau
-.DESCRIPTION
    Weist die Termine der Klassen den Block_blau zu !
 .EXAMPLE
    Find-Course -KNAME "FISI13%" | Set-Course -ID_LEHRER TU
-.DESCRIPTION
    Der Klassenlehrer aller Klassen die mit FISI13 beginnen ist TU
 
 #>
@@ -266,7 +264,6 @@ function New-Course
    Import-CSV datei.csv | Delete-Course 
 .EXAMPLE
    Find-Course -KNAME "WPK%lila" | Delete-Course
-.DESCRIPTION
    Löscht alle WPK Kurse, die mit "lila" enden
 #>
 function Delete-Course

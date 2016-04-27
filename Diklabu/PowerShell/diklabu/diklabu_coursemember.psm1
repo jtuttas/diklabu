@@ -32,7 +32,6 @@
     "1968-04-11","Tuttas","Joerg"
 .EXAMPLE
    Find-Coursemember FISI13A  | Add-Coursemember -klassenid 612 -uri http://localhost:8080/Diklabu/api/v1/
-.DESCRIPTION
    Fügt die Schüler der Klasse Fisi13A in die Klasse mit der id 612 ein
 #>
 function Add-Coursemember
@@ -93,7 +92,6 @@ function Add-Coursemember
    "FISI13%","SYK13%" | Find-Coursemember 
 .EXAMPLE
    Import-Csv klasse.csv | Find-Coursemember 
-.DESCRIPTION
    Liefert die Schülerobjekte der in der CSV gelisteten Klassen, die CSV Datei hat dabei folgendes Format
    "KNAME"
    "WPK_TU_lila"
@@ -188,17 +186,14 @@ function Get-Coursemember
   123,456,789| Remove-Coursemember -klassenid 1234 -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
   Find-Pupil -VNAME % -NNAME % -GEBDAT 1968-04-12| Remove-Coursemember -klassenid 1234 
-.DESCRIPTION
    Löscht die Schüler , die am 12.4.1968 geboren sind aus der Klasse mit der id 1234
 .EXAMPLE
   Import-CSV schueler.csv | Find-Pupil | Remove-Coursemember -klassenid 1234 
-.DESCRIPTION
    Löscht die Schüler , die in der CSV Datei enthalten sind aus der Klasse mit der ID 1234. Die CSV Datei hat dabei folgendes Aussehen
    "GEBDAT","NNAME","VNAME"
    "1968-04-11","Tuttas","Jörg"
 .EXAMPLE
   Find-Coursemember FISI13A  | Remove-Coursemember -klassenid 1234 
-.DESCRIPTION
    Löscht die Schüler aus der Klasse Fisi13A in der Klasse mit der ID 1234.
 #>
 function Remove-Coursemember

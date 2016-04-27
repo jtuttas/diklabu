@@ -64,7 +64,6 @@ function Find-Company
    1234,5678| Set-Company -ORT Hannover
 .EXAMPLE
    Find-Company -NAME "Tel%"| Set-Company -ORT Hannover
-.DESCRIPTION
    Alle Betriebe die mit "Tel" anfangen wird der Ort auf Hannover gesetzt
 
 #>
@@ -239,7 +238,6 @@ function New-Company
    1234,5678 | Delete-Company 
 .EXAMPLE
    find-company -NAME "Tel%" | Delete-Company 
-.DESCRIPTION
    Löscht alle Betriebe die mit "Tel" anfangen
 
 #>

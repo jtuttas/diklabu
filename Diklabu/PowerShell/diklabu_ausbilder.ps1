@@ -111,8 +111,9 @@ function Get-Instructor
   1234,4567|Set-Instructor -TELEFON 110 -FAX 112
 .EXAMPLE
   Find-Instructor -NNAME "Herr Schmidt" |Set-Instructor -TELEFON 110 -FAX 112
-.DESCRIPTION
   Weist allen Ausbildern "Herr Schmidt" die angegebene Televon und FAX Nummer zu
+
+  
 
 #>
 function Set-Instructor
@@ -256,8 +257,7 @@ function New-Instructor
   1234,4567|Delete-Instructor 
 .EXAMPLE
   Find-Instruktor -NNAME "%Tuttas"|Delete-Instructor 
-.DESCRIPTION
-   Löscht alle Ausbilder die Tuttas im Namen haben
+  Löscht alle Ausbilder die Tuttas im Namen haben
 
 #>
 function Delete-Instructor

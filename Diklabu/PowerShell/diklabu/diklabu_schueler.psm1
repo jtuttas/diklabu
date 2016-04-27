@@ -22,7 +22,6 @@
    Find-Pupil -VNAME Joerg -NNAME Tuttas -GEBDAT 1968-04-11 -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
    Find-Pupil -VNAME % -NNAME % -GEBDAT 1968-04-11 
-.DESCRIPTION
    Findet alle Schüler, die an dem Tag Geburtstag haben
 .EXAMPLE
    Import-Csv schueler.csv | Find-Pupil 
@@ -86,11 +85,9 @@ function Find-Pupil
    1234,5678 | Get-Pupil 
 .EXAMPLE
    Find-Pupil -VNAME % -NNAME % -GEBDAT 1993-12-30 | Get-Pupil 
-.DESCRIPTION
    Zeit Schülerdaten an der Schüler, die an dem Tag geburtstag habenb
 .EXAMPLE
    Find-Coursemember -KNAME FISI13A | Get-Pupil 
-.DESCRIPTION
    Zeit Schülerdaten der Klasse Fisi13A an
 #>
 function Get-Pupil
@@ -221,11 +218,9 @@ function New-Pupil
    1234,5678 | Set-Pupil -ABGANG "J"
 .EXAMPLE
    Find-Pupil -VNAME % -NNAME % -GEBDAT 1993-12-30 | Set-Pupil -INFO "Im Dezember Geburtstag"
-.DESCRIPTION
    Alle Schüler die am 30.12.1993 Geburtstag haben, wird die Bemerkung "Im Dezember Geburtstag" zugewiesen
 .EXAMPLE
    Find-Coursemember FISI13B | Set-Pupil -ABGANG "J"
-.DESCRIPTION
    Alle Schüler der Klasse FISI13B erhalten das Attribut ABGANG=J
 #>
 function Set-Pupil
@@ -312,11 +307,9 @@ function Set-Pupil
    1234,5678 | Delete-Pupil 
 .EXAMPLE
    Find-Pupil -VNAME % -NNAME % -GEBDAT 1968-04-11 | Delete-Pupil 
-.DESCRIPTION
    Löscht alle Schüler, die am 11.4.1968 geboren sind
 .EXAMPLE
    Import-Csv schueler.csv | Find-Pupil | Delete-Pupil 
-.DESCRIPTION
    Löscht alle Schüler, die in der CSV Datei sich befinden, die CSV Datei hat dabei folgendes Format
     "GEBDAT","NNAME","VNAME"
     "1968-04-11","Tuttas","Jörg"

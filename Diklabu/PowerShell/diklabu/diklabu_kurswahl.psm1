@@ -30,7 +30,6 @@
    11234,5678,7654 | Add-Coursevoting 
 .EXAMPLE
    Find-Course -KNAME "WPK%lila" | Add-Coursevoting 
-.DESCRIPTION
    Fügt alle Kurse, die mit "WPK" beginnen und mit "lila" enden der Kurswahl hinzu
 
 #>
@@ -188,15 +187,12 @@ function Disable-Coursevoting
    11234,5678,7654 | Reset-Coursevoting 
 .EXAMPLE
    Find-Coursemember -KNAME FISI13A | Reset-Coursevoting 
-.DESCRIPTION
    Löscht die Kurswahl der Schüler aus der Klasse Fisi13A
 .EXAMPLE
    import-Csv schueler.csv | Find-Pupil | Reset-Coursevoting 
-.DESCRIPTION
    Löscht die Kurswahl der in der CSV Datei enthaltenen Schüler 
 .EXAMPLE
    Find-Pupil -VNAME Jörg -NNAME Tuttas -GEBDAT 1968-04-11 | Reset-Coursevoting 
-.DESCRIPTION
    Löscht die Kurswahl des angegebenen Schülers Schüler 
 
 #>
@@ -287,7 +283,6 @@ function Clear-Coursevoting
    Get-Coursevoting -id 123 -priotity 2
 .EXAMPLE
    Get-Coursevoting -id 123 -gebucht
-.DESCRIPTION
    Zeigt die Schüler an, die einen (oder mehrere) Kurs gewählt haben. Dabei werden nur gebuchte Kurse gelistet!
 .EXAMPLE
    Get-Coursevoting  -id 123 -uri http://localhost:8080/Diklabu/api/v1/
@@ -295,7 +290,6 @@ function Clear-Coursevoting
    1234,5678 | get-Coursevoting -priority 1
 .EXAMPLE
    Find-Course -KNAME "WPK%lila"| get-Coursevoting -priority 1
-.DESCRIPTION
    Zeigt die alle Schüler an, die einen WPK Kurs mit der Priorität 1 gewählt haben, dessen Namen mit WPK beginnt und mit lila endet!
 
 #>
@@ -348,7 +342,6 @@ function Get-Coursevoting
    1234,5678 | New-Coursevoting -course1 1234 -course2 4567 -course3 891
 .EXAMPLE
    Import-Csv schueler.csv | Find-Pupil | New-Coursevoting -course1 1234 -course2 4567 -course3 891
-.DESCRIPTION
    Alle Schüler die in der CSV Datei enthalten sind, wählen die genannten Kurse
 
 #>
@@ -422,7 +415,6 @@ function New-Coursevoting
    1234,5678 | Stop-Coursevoting 
 .EXAMPLE
    Import-Csv schueler.csv | Find-Pupil | Stop-Coursevoting 
-.DESCRIPTION
    Alle Schüler die in der CSV Datei enthalten sind, werden in der Kurswahl auf gebucht gesetzt
 
 #>
