@@ -23,6 +23,7 @@ import javax.persistence.Query;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -154,13 +155,15 @@ public class CourseVotingManager {
     }
     
     @GET
-    @Path("{klassenid}/{prio}")
+    @Path("{klassenid}/{prio}/{gebucht}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<Schueler> getVotings(@PathParam("klassenid") int kid,@PathParam("prio") String prio) {
+    public List<Schueler> getVotings(@PathParam("klassenid") int kid,@PathParam("prio") String prio,@PathParam("gebucht") String gebucht) {
         
         Query query = em.createNamedQuery("findWunschByKlasseAndPrio");
         query.setParameter("paramId", kid);
         query.setParameter("paramPrio", prio);
+        if (gebucht.equals("True")) query.setParameter("paramGebucht", "1");
+        else query.setParameter("paramGebucht", "0");
         List<Schueler> schueler = query.getResultList();
         return schueler;
     }
@@ -205,6 +208,31 @@ public class CourseVotingManager {
             ro.setSuccess(false);
         }
                 
+        return ro;
+    }
+    
+    @PUT
+    @Path("admin/schueler/{idschueler}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject changeVoting(@PathParam("idschueler") int sid) {
+        Log.d("Gebucht Kurswunsch für = " + sid);
+        ResultObject ro = new ResultObject();
+        Query query = em.createNamedQuery("findWunschBySchuelerId");
+        query.setParameter("paramId", sid);
+        List<Kurswunsch> wunsche = query.getResultList();
+        if (wunsche.size()!=0) {
+            for (Kurswunsch kw : wunsche) {
+                kw.setGEBUCHT("1");
+                em.merge(kw);
+            }
+            ro.setMsg("Kurswüsche als gebucht vermerkt");
+            ro.setSuccess(true);
+        }
+        else {
+            ro.setMsg("Kann keine Kurswünsche f. Schüler mit id "+sid+" finden!");
+            ro.setSuccess(false);
+            
+        }
         return ro;
     }
 }

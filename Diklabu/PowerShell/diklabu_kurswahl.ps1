@@ -6,6 +6,8 @@
         *disbale . sperrt die Kurswahl
         *clear ... löscht die Kurswünsche nach Rückfrage (oder Schalter -force ist gesetzt)
         *reset ... Löscht den Kurswunsch für einen (oder mehrere) Schüler
+        *new ..... Eine Kurswahl für einen (oder mehrere( Schüler durchführen
+        *Stop .... Einen Wurswunsch als gebucht setzten
         get ...... Liste der Schüler, die einen Kurs gewählt haben
         list ..... Zeigt die Kurse an, die zur Wahl stehen
 
@@ -275,14 +277,18 @@ function Clear-Coursevoting
         }
     }
 }
-
+ 
 <#
 .Synopsis
    Abfrage der Kurswahl
 .DESCRIPTION
-   Zeigt die Schüler an, die einen (oder mehrere) Kurs gewählt haben
+   Zeigt die Schüler an, die einen (oder mehrere) Kurs gewählt haben. Dabei werden nur nicht gebuchte Kurse gelistet (siehe Option gebucht)
 .EXAMPLE
    Get-Coursevoting -id 123 -priotity 2
+.EXAMPLE
+   Get-Coursevoting -id 123 -gebucht
+.DESCRIPTION
+   Zeigt die Schüler an, die einen (oder mehrere) Kurs gewählt haben. Dabei werden nur gebuchte Kurse gelistet!
 .EXAMPLE
    Get-Coursevoting  -id 123 -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
@@ -306,7 +312,11 @@ function Get-Coursevoting
         [String]$priority=1,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        # Schalter (nur noch nicht gebuchte Kurse anzeigen)
+        [switch]$gebucht=$false
+
 
     )
 
@@ -318,7 +328,7 @@ function Get-Coursevoting
     }
     Process {
         try {            
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"coursevoting/"+$id+"/"+$priority) -Headers $headers 
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"coursevoting/"+$id+"/"+$priority+"/"+$gebucht) -Headers $headers 
             return $r;
         } catch {
             Write-Host "Get-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
@@ -333,16 +343,16 @@ function Get-Coursevoting
 .DESCRIPTION
    Ein Schüler wählt Drei Kurse aus
 .EXAMPLE
-   Set-Coursevoting -id 123 -course1 1234 -course2 4567 -course3 891
+   New-Coursevoting -id 123 -course1 1234 -course2 4567 -course3 891
 .EXAMPLE
-   1234,5678 | set-Coursevoting -course1 1234 -course2 4567 -course3 891
+   1234,5678 | New-Coursevoting -course1 1234 -course2 4567 -course3 891
 .EXAMPLE
-   Import-Csv schueler.csv | Find-Pupil | Set-Coursevoting -course1 1234 -course2 4567 -course3 891
+   Import-Csv schueler.csv | Find-Pupil | New-Coursevoting -course1 1234 -course2 4567 -course3 891
 .DESCRIPTION
    Alle Schüler die in der CSV Datei enthalten sind, wählen die genannten Kurse
 
 #>
-function Set-Coursevoting
+function New-Coursevoting
 {
     Param
     (
@@ -395,7 +405,52 @@ function Set-Coursevoting
             $r=Invoke-RestMethod -Method POST -Uri ($uri+"coursevoting/admin/schueler/") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
             Write-Host $r
         } catch {
-            Write-Host "Set-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Host "New-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+
+    }
+}
+
+<#
+.Synopsis
+   Beendet die Kurswahl für einen oder mehrere Schüler
+.DESCRIPTION
+   Beendet die Kurswahl für einen oder mehrere Schüler, das Attribut GEBUCHT wird in der Tabelle Kurswunsch auf "1" gesetzte!
+.EXAMPLE
+   Stop-Coursevoting -id 123
+.EXAMPLE
+   1234,5678 | Stop-Coursevoting 
+.EXAMPLE
+   Import-Csv schueler.csv | Find-Pupil | Stop-Coursevoting 
+.DESCRIPTION
+   Alle Schüler die in der CSV Datei enthalten sind, werden in der Kurswahl auf gebucht gesetzt
+
+#>
+function Stop-Coursevoting
+{
+    Param
+    (
+          # ID des Schülers
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [int]$id,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+    }
+    Process {
+        try {
+            $r=Invoke-RestMethod -Method Put -Uri ($uri+"coursevoting/admin/schueler/$id") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
+            return $r
+        } catch {
+            Write-Host "Stop-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
         }
 
     }

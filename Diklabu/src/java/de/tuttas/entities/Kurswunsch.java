@@ -23,7 +23,7 @@ import javax.persistence.NamedQuery;
     @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId ORDER BY rel.PRIORITAET"),
     @NamedQuery(name = "findWunschByKlassenId", query= "select c from Kurswunsch c where c.ID_KURS = :paramId"),
     @NamedQuery(name = "findWunschBySchuelerId", query= "select c from Kurswunsch c where c.ID_SCHUELER = :paramId"),  
-    @NamedQuery(name = "findWunschByKlasseAndPrio", query= "select s from Schueler s Join Kurswunsch kw on s.ID=kw.ID_SCHUELER where kw.ID_KURS = :paramId and kw.PRIORITAET = :paramPrio")
+    @NamedQuery(name = "findWunschByKlasseAndPrio", query= "select s from Schueler s Join Kurswunsch kw on s.ID=kw.ID_SCHUELER where kw.ID_KURS = :paramId and kw.PRIORITAET = :paramPrio and kw.GEBUCHT = :paramGebucht")
 })
 @IdClass(KurswunschId.class)
 public class Kurswunsch implements Serializable {
