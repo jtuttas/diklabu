@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
@@ -22,12 +23,21 @@ import javax.persistence.NamedQuery;
    @NamedQuery(name = "findKlassenids", query= "select sk from Schueler_Klasse sk where sk.ID_SCHUELER = :paramidSchueler "),
    @NamedQuery(name = "findSchuelerKlasse", query= "select sk from Schueler_Klasse sk where sk.ID_SCHUELER = :paramidSchueler and sk.ID_KLASSE = :paramidKlasse")        
 })
+@IdClass(Schueler_KlasseId.class)
 public class Schueler_Klasse implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     private Integer ID_SCHUELER;
     @Id
     private Integer ID_KLASSE;
+
+    public Schueler_Klasse() {
+    }
+
+    public Schueler_Klasse(Integer ID_SCHUELER, Integer ID_KLASSE) {
+        this.ID_SCHUELER = ID_SCHUELER;
+        this.ID_KLASSE = ID_KLASSE;
+    }
 
     
     public void setID_KLASSE(Integer ID_KLASSE) {

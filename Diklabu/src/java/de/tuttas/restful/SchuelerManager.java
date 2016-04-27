@@ -112,13 +112,15 @@ public class SchuelerManager {
     @POST
     @Path("/info/")
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<Schueler> getPupilbyCredential(Credential c) {
+    public List<Schueler> getPupilbyCredential(Schueler c) {
+        Log.d("gesucht wird "+c);
         em.getEntityManagerFactory().getCache().evictAll();
         Query query = em.createNamedQuery("findSchuelerbyCredentials");
-        query.setParameter("paramName", c.getName());
-        query.setParameter("paramVorname", c.getVorName());
-        query.setParameter("paramGebDatum", c.getGebDatum());
+        query.setParameter("paramName", c.getNNAME());
+        query.setParameter("paramVorname", c.getVNAME());
+        query.setParameter("paramGebDatum", c.getGEBDAT());
         List<Schueler> pupils = query.getResultList();
+        Log.d("Schuler gefunden:"+pupils);
         return pupils;
     }
 

@@ -14,19 +14,25 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-   @NamedQuery(name = "getSelectedKlassen", query= "select k from Buchungsfreigabe b JOIN Klasse k on b.ID_KURS=k.ID")
+   @NamedQuery(name = "getSelectedKlassen", query= "select k from Buchungsfreigabe b JOIN Klasse k on b.ID_KURS=k.ID"),    
+   @NamedQuery(name = "findBuchungsfreigabe", query= "select k from Klasse k JOIN Buchungsfreigabe bf on bf.ID_KURS=k.ID")
 })
 
 public class Buchungsfreigabe implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-
     /**
      * ID des freigebenen Kurses
      */
     private Integer ID_KURS;
+
+    public Buchungsfreigabe() {
+    }      
+
+    public Buchungsfreigabe(Integer ID_KURS) {
+        this.ID_KURS = ID_KURS;
+    }
+    
 
     /**
      * Abfrage der ID
@@ -40,38 +46,9 @@ public class Buchungsfreigabe implements Serializable {
         this.ID_KURS = ID_KURS;
     }
     
-    
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (!(object instanceof Buchungsfreigabe)) {
-            return false;
-        }
-        Buchungsfreigabe other = (Buchungsfreigabe) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
-        return true;
-    }
-
     @Override
     public String toString() {
-        return "de.tuttas.entities.Buchungsfreigabe[ id=" + id + " ]";
+        return "de.tuttas.entities.Buchungsfreigabe[ id=" + ID_KURS + " ]";
     }
     
 }

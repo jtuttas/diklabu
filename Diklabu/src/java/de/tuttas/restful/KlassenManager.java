@@ -12,6 +12,7 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
+import de.tuttas.entities.Schueler_KlasseId;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.BildObject;
@@ -69,6 +70,19 @@ public class KlassenManager {
     }
     
     @GET
+    @Path("/member/{id}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<Schueler> getPupil(@PathParam("id") int klid) {
+        Log.d("Webservice klasse GET: klasse=" + klid);
+
+        Query query = em.createNamedQuery("findSchuelerEinerKlasse");
+        query.setParameter("paramKlasseId", klid);
+        List<Schueler> schueler = query.getResultList();
+        Log.d("Result List:" + schueler);
+        return schueler;
+    }
+    
+    @GET
     @Path("/info/{klasse}")
      @Produces({"application/json; charset=iso-8859-1"})
     public List<Klasse> getKlasse(@PathParam("klasse") String kl) {
@@ -97,9 +111,16 @@ public class KlassenManager {
         Klasse k = em.find(Klasse.class, sk.getID_KLASSE());
         ResultObject ro = new ResultObject();
         if (s!=null && k!=null) {
-            em.persist(sk);        
-            ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" zugewiesen zur Klasse "+k.getKNAME());
-            ro.setSuccess(true);
+            Schueler_Klasse sch_kl = em.find(Schueler_Klasse.class, new Schueler_KlasseId(sk.getID_SCHUELER(),sk.getID_KLASSE()));
+            if (sch_kl==null) {
+                em.persist(sk);        
+                ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" zugewiesen zur Klasse "+k.getKNAME());
+                ro.setSuccess(true);
+            }
+            else {
+                ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" befindet sich bereits in der Klasse "+k.getKNAME());
+                ro.setSuccess(false);                
+            }
         }
         else {
             ro.setSuccess(false);
@@ -170,6 +191,7 @@ public class KlassenManager {
     public Klasse setKlasse(@PathParam("idklasse") int kid,Klasse k) {
         em.getEntityManagerFactory().getCache().evictAll();
         Klasse kl = em.find(Klasse.class, kid);
+        Log.d("Setze Klasse id="+kid+" gefunden k="+k);
         if (kl!=null) {
             if (k.getKNAME()!=null) kl.setKNAME(k.getKNAME());
             if (k.getID_LEHRER()!=null) kl.setID_LEHRER(k.getID_LEHRER());

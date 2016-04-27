@@ -9,6 +9,7 @@ import de.tuttas.util.Log;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
@@ -20,17 +21,16 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
     // Finden der Kurswünsche eines Schülers   
     @NamedQuery(name = "findKlasseByUserId", query= "select c from Kurswunsch rel JOIN Klasse c ON rel.ID_KURS=c.ID where rel.ID_SCHUELER = :paramId ORDER BY rel.PRIORITAET"),
+    @NamedQuery(name = "findWunschByKlassenId", query= "select c from Kurswunsch c where c.ID_KURS = :paramId"),
+    @NamedQuery(name = "findWunschBySchuelerId", query= "select c from Kurswunsch c where c.ID_SCHUELER = :paramId"),  
+    @NamedQuery(name = "findWunschByKlasseAndPrio", query= "select s from Schueler s Join Kurswunsch kw on s.ID=kw.ID_SCHUELER where kw.ID_KURS = :paramId and kw.PRIORITAET = :paramPrio")
 })
+@IdClass(KurswunschId.class)
 public class Kurswunsch implements Serializable {
     private static final long serialVersionUID = 1L;
+    @Id    
+    private Integer ID_SCHUELER;    
     @Id
-    /**
-     * Welcher Schüler
-     */
-    private Integer ID_SCHUELER;
-    /**
-     * Wählt welchen Kurs
-     */
     private Integer ID_KURS;
     /**
      * Mit dieser Priorität
@@ -91,7 +91,7 @@ public class Kurswunsch implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Kurswunsch[ id_Schueler=" + ID_SCHUELER + " ]";
+        return "de.tuttas.entities.Kurswunsch[ id_Schueler=" + ID_SCHUELER + " id_kurs="+ID_KURS+"]";
     }
     
 }

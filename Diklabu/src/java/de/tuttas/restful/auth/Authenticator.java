@@ -54,8 +54,8 @@ public final class Authenticator {
             }
 
             // Schüler Testzugang
-            usersStorage.put("schueler", "mmbbs");
-            rolesStorage.put("schueler", Roles.toString(Roles.SCHUELER));
+            usersStorage.put("fisi13a.schueler", "mmbbs");
+            rolesStorage.put("fisi13a.schueler", Roles.toString(Roles.SCHUELER));
         }
 
     }
@@ -117,6 +117,7 @@ public final class Authenticator {
                             u.setRole(Roles.toString(Roles.ADMIN));
                         }
                     }
+                    rolesStorage.put(username, u.getRole());
                     return u;
                 }
             }

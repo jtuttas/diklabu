@@ -105,8 +105,7 @@
                     <li><a data-toggle="tab" href="#tabFehlzeiten">Fehlzeiten</a></li>
                     <li><a data-toggle="tab" href="#tabNoten">Noten</a></li>
                     <li><a data-toggle="tab" href="#tabBemerkungen">Klasse</a></li>
-                    <li><a data-toggle="tab" href="#tabStundenplan">Stundenplan</a></li>
-                    <li><a data-toggle="tab" href="#tabVertretungsplan">Vertretungsplan</a></li>
+                    <li><a data-toggle="tab" href="#tabPlan">Pläne</a></li>
                     <li><a data-toggle="tab" href="#tabChat">Chat</a></li>
                 </ul>
                 <br>
@@ -201,11 +200,11 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                            <div class="form-group">
-                                            <label for="lernfelderFilder">Lernfeld</label>
-                                            <select class="form-control" id="lernfelderFilder">
-                                            </select>
-                                        </div>
+                                <div class="form-group">
+                                    <label for="lernfelderFilder">Lernfeld</label>
+                                    <select class="form-control" id="lernfelderFilder">
+                                    </select>
+                                </div>
                             </div>
                         </div>
                         <div class="row">
@@ -474,12 +473,27 @@
                             </div>
                         </div>
                     </div>
-                    <div id="tabStundenplan" class="tab-pane fade">
-                        <div id="stundenplan" style="display: none;"></div>
-                    </div>
+                    <div id="tabPlan" class="tab-pane fade">
+                        <ul class="nav nav-tabs" id="plaene">
+                            <li class="active"><a data-toggle="tab" href="#tabStundeplanKlasse">Stundenplan Klasse</a></li>
+                            <li><a data-toggle="tab" href="#tabVertretungsplanKlasse">Vertretungsplan Klasse</a></li>
+                            <li><a data-toggle="tab" href="#tabStundenplanLehrer">Stundenplan Lehrer</a></li>
+                            <li><a data-toggle="tab" href="#tabVertretungsplanLehrer">Vertretungsplan Lehrer</a></li>
+                        </ul>
+                        <div id="tabStundeplanKlasse" class="tab-pane fade">
+                            <div id="stundenplan" style="display: none;"></div>
+                        </div>
 
-                    <div id="tabVertretungsplan" class="tab-pane fade">
-                        <div id="vertertungsplan" style="display: none;"></div>
+                        <div id="tabVertretungsplanKlasse" class="tab-pane fade">
+                            <div id="vertertungsplan" style="display: none;"></div>
+                        </div>
+                        <div id="tabStundenplanLehrer" class="tab-pane fade">
+                            <div id="lvertertungsplan" style="display: none;"></div>
+                        </div>
+                        <div id="tabVertretungsplanLehrer" class="tab-pane fade">
+                            <div id="lvertertungsplan" style="display: none;"></div>
+                        </div>
+
                     </div>
                     <div id="tabChat" class="tab-pane fade">
                         <div id="chatContainer" style="display: none;">

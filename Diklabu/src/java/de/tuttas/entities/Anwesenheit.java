@@ -50,16 +50,7 @@ public class Anwesenheit implements Serializable {
         this.VERMERK = VERMERK;        
     }
 
-    /*
-    public void setID_KLASSE(int ID_KLASSE) {
-        this.ID_KLASSE = ID_KLASSE;
-    }
-    */
-    /*
-    public int getID_KLASSE() {
-        return ID_KLASSE;
-    } 
-    */
+    
     public void setDATUM(Timestamp DATUM) {
         this.DATUM = DATUM;
     }
