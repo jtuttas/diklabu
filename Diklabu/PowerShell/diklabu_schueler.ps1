@@ -31,9 +31,6 @@ function Find-Pupil
 {
     Param
     (    
-        # Objekt des Schülers
-        [Parameter(ValueFromPipeline=$true)]
-        $schueler,   
         # Vorname des Schülers
         [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
         [String]$VNAME,
@@ -135,14 +132,13 @@ function Get-Pupil
    New-Pupil -VNAME Jörg -NNAME Tuttas -GEBDAT 1968-04-11 -EMAIL jtuttas@gmx.net -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
    New-Pupil -VNAME Joerg -NNAME Tuttas -GEBDAT 1968-04-11 -uri http://localhost:8080/Diklabu/api/v1/ -ID_AUSBILDER=4711
+.EXAMPLE
+   Import-Csv schueler.csv  | New-Pupil
 #>
 function New-Pupil
 {
     Param
     (
-        # Schülerobjekt
-        [Parameter(ValueFromPipeline=$true)]
-        $schueler,
         # Vorname des Schülers
         [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
         [String]$VNAME,
@@ -189,9 +185,12 @@ function New-Pupil
         $schueler.NNAME=$NNAME
         $schueler.GEBDAT=$GEBDAT
         $schueler.EMAIL=$EMAIL
-        $schueler.ID_AUSBILDER=$ID_AUSBILDER
+        if ($ID_AUSBILDER -ne 0) {
+            $schueler.ID_AUSBILDER=$ID_AUSBILDER
+         }
         $schueler.ABGANG=$ABGANG
         $schueler.INFO=$INFO
+        
         try {
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/admin") -Headers $headers -Body (ConvertTo-Json $schueler)
             return $r;
@@ -227,11 +226,8 @@ function Set-Pupil
 {
     Param
     (
-        # Schülerobjekt
-        [Parameter(ValueFromPipeline=$true)]
-        $schueler,
         # ID des Schülers
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
         [int]$id,
 
         # Vorname des Schülers
@@ -277,13 +273,28 @@ function Set-Pupil
     Process
     {
         $schueler=echo "" | Select-Object -Property "EMAIL","GEBDAT","VNAME","NNAME","ID_AUSBILDER","ABGANG","INFO"
-        $schueler.VNAME=$VNAME
-        $schueler.NNAME=$NNAME
-        $schueler.GEBDAT=$GEBDAT
-        $schueler.EMAIL=$EMAIL
-        $schueler.ID_AUSBILDER=$ID_AUSBILDER
-        $schueler.ABGANG=$ABGANG
-        $schueler.INFO=$INFO
+        if ($VNAME) {
+            $schueler.VNAME=$VNAME
+        }
+        if ($NNAME) {
+            $schueler.NNAME=$NNAME
+        }
+        if ($GEBDAT) {
+            $schueler.GEBDAT=$GEBDAT
+            }
+        if ($EMAIL) {
+            $schueler.EMAIL=$EMAIL
+        }
+        if ($ID_AUSBILDER -ne 0) {
+            $schueler.ID_AUSBILDER=$ID_AUSBILDER
+        }
+        if ($ABGANG) {
+            $schueler.ABGANG=$ABGANG
+        }
+        if ($INFO) {
+            $schueler.INFO=$INFO
+        }
+
         try {
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/admin/"+$id) -Headers $headers -Body (ConvertTo-Json $schueler)
             return $r;
@@ -319,10 +330,7 @@ function Set-Pupil
 function Delete-Pupil
 {
     Param
-    (
-        # Schülerobjekt
-        [Parameter(ValueFromPipeline=$true)]
-        $schueler,
+    (        
         # ID des Schülers
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [int]$id,

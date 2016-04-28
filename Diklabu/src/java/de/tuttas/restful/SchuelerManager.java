@@ -89,11 +89,13 @@ public class SchuelerManager {
         return s;
     }
 
+    
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin/{idschueler}")
     public Schueler setSchueler(@PathParam("idschueler") int sid,Schueler s) {
-        Log.d("set Schuler " + s.toString());
+        Log.d("set Schuler " + s);
+        
         Schueler sl = em.find(Schueler.class, sid);
         if (sl!=null) {
             if (s.getABGANG()!=null) sl.setABGANG(s.getABGANG());
@@ -104,10 +106,9 @@ public class SchuelerManager {
             if (s.getNNAME()!=null) sl.setNNAME(s.getNNAME());
             if (s.getVNAME()!=null) sl.setVNAME(s.getVNAME());
             em.merge(sl);
-        }
+        }  
         return sl;
     }
-    
            
     @POST
     @Path("/info/")

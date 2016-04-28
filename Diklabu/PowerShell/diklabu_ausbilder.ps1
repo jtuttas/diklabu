@@ -25,7 +25,7 @@ function Find-Instructor
     (
        
         # Name des Ausbilders
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
         [String]$NNAME,
 
         # Adresse des Diklabu Servers
@@ -157,12 +157,24 @@ function Set-Instructor
     Process
     {
         $ausbilder=echo "" | Select-Object -Property "NNAME","ANREDE","EMAIL","FAX","ID_BETRIEB","TELEFON"
-        $ausbilder.ANREDE=$ANREDE
-        $ausbilder.EMAIL=$EMAIL
-        $ausbilder.FAX=$FAX
-        $ausbilder.ID_BETRIEB=$ID_BETRIEB
-        $ausbilder.TELEFON=$TELEFON
-        $ausbilder.NNAME=$NNAME       
+        if ($ANREDE) {
+            $ausbilder.ANREDE=$ANREDE
+        }
+        if ($EMAIL) {
+            $ausbilder.EMAIL=$EMAIL
+        }
+        if ($FAX) {
+            $ausbilder.FAX=$FAX
+        }
+        if ($ID_BETRIEB -ne 0) {
+             $ausbilder.ID_BETRIEB=$ID_BETRIEB
+        }
+        if ($TELEFON) {
+            $ausbilder.TELEFON=$TELEFON
+        }
+        if ($NNAME) {
+            $ausbilder.NNAME=$NNAME       
+        }
         try {         
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"ausbilder/admin/"+$ID) -Headers $headers -Body (ConvertTo-Json $ausbilder)
             return $r;
@@ -191,11 +203,8 @@ function New-Instructor
 {
     Param
     ( 
-        # Objekt des Ausbilders
-        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-        $ausbilder,
         # Name des Ausbilders
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [String]$NNAME,
         
         # Adresse des Diklabu Servers

@@ -21,7 +21,9 @@
    Find-Course -kname "FISI13A" -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
    "FISI13%","FIAE13%" | Find-Course -uri http://localhost:8080/Diklabu/api/v1/
-
+.EXAMPLE
+   Import-Csv klassen.csv | Find-Course 
+   Findet die Klassen die in der CSV Datei mit dem Attribut/Spalte "KNAME" versehen sind
 #>
 function Find-Course
 {
@@ -110,12 +112,24 @@ function Set-Course
     Process
     {
         $klasse=echo "" | Select-Object -Property "ID_LEHRER","KNAME","TITEL","NOTIZ","TERMINE","ID_KATEGORIE"
-        $klasse.ID_LEHRER=$ID_LEHRER
-        $klasse.KNAME=$KNAME
-        $klasse.TITEL=$TITEL
-        $klasse.NOTIZ=$NOTIZ
-        $klasse.TERMINE=$TERMINE
-        $klasse.ID_KATEGORIE=$ID_KATEGORIE
+        if ($ID_LEHRER) {
+            $klasse.ID_LEHRER=$ID_LEHRER
+        }
+        if ($KNAME) {
+            $klasse.KNAME=$KNAME
+        }
+        if ($TITEL) {
+            $klasse.TITEL=$TITEL
+        }
+        if ($NOTIZ) {
+            $klasse.NOTIZ=$NOTIZ
+        }
+        if ($TERMINE) {
+            $klasse.TERMINE=$TERMINE
+        }
+        if ($ID_KATEGORIE -ne 0) {
+            $klasse.ID_KATEGORIE=$ID_KATEGORIE
+        }
         try {
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/id/"+$id) -Headers $headers  -Body (ConvertTo-Json $klasse)
             return $r;
@@ -198,14 +212,11 @@ function New-Course
 {
     Param
     (
-        # Objekt der Klasse
-        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-        $klasse,
+        # Name der Klasse
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [String]$KNAME,
         # Adresse des Diklabu Servers
         [String]$uri=$global:server,
-        # Name der Klasse
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
-        [String]$KNAME,
         # Kürzel (fk) des Klassenlehrers        
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [String]$ID_LEHRER,

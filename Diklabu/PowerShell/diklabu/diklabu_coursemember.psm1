@@ -21,11 +21,9 @@
    11234,5678,7654 | Add-Coursemember -klassenid 612 -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
    Find-Pupil -VNAME % -NNAME % -GEBDAT 1968-04-12 | Add-Coursemember -klassenid 612 -uri http://localhost:8080/Diklabu/api/v1/
-.DESCRIPTION
    Fügt die Schüler die an dem 12.4.1968 geboren wurden der Klasse hinzu
 .EXAMPLE
    Import-Csv schueler.csv | Find-Pupil  | Add-Coursemember -klassenid 612 -uri http://localhost:8080/Diklabu/api/v1/
-.DESCRIPTION
    Fügt die Schüler in der enthaltenener CSV Datei der Klasse hinzu, die CSV Datei hat dabei folgendes Format:
    "GEBDAT","NNAME","VNAME"
     "1968-04-11","Tuttas","Jörg"
@@ -38,9 +36,6 @@ function Add-Coursemember
 {
     Param
     (
-        # Schülerobjekt
-        [Parameter(ValueFromPipeline=$true)]
-        $schueler,
         # ID des Schülers
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [int]$id,
@@ -101,9 +96,7 @@ function Find-Coursemember
 {
     Param
     (
-        # Objekt der Klasse
-        [Parameter(ValueFromPipeline=$true)]
-        $klasse, 
+        
         # Name der Klasse
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
         [String]$KNAME,
@@ -144,10 +137,7 @@ function Find-Coursemember
 function Get-Coursemember
 {
     Param
-    (
-        # Objekt der Klasse
-        [Parameter(ValueFromPipeline=$true)]
-        $klasse, 
+    (         
         # id der Klasse
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
         [int]$id,
@@ -199,10 +189,7 @@ function Get-Coursemember
 function Remove-Coursemember
 {
     Param
-    (
-        # Objekt des Schülers
-        [Parameter(ValueFromPipeline=$true)]
-        $schueler, 
+    (       
         # Name der Klasse
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [int]$id,

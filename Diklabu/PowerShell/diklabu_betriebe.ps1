@@ -19,6 +19,8 @@
    Find-Company -NAME "xy gmbh"
 .EXAMPLE
    "Tel%","Comp%" | Find-Company 
+.EXAMPLE
+   Import-Csv betriebe.csv | Find-Company 
 
 #>
 function Find-Company
@@ -26,7 +28,7 @@ function Find-Company
     Param
     (
         # Name des Betriebes
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
         [String]$NAME,
 
         # Adresse des Diklabu Servers
@@ -98,11 +100,21 @@ function Set-Company
     Process
     {
         $betrieb=echo "" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR"
-        $betrieb.NAME=$NAME
-        $betrieb.PLZ=$PLZ
-        $betrieb.ORT=$ORT
-        $betrieb.STRASSE=$STRASSE
-        $betrieb.NR=$NR
+        if ($NAME) {
+            $betrieb.NAME=$NAME
+        }
+        if ($PLZ) {
+            $betrieb.PLZ=$PLZ
+        }
+        if ($ORT) {
+            $betrieb.ORT=$ORT
+        }
+        if ($STRASSE) {
+            $betrieb.STRASSE=$STRASSE
+        }
+        if ($NR) {
+            $betrieb.NR=$NR
+        }
         try {
           $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/id/"+$ID) -Headers $headers -Body (ConvertTo-Json $betrieb)
           return $r;
@@ -178,10 +190,8 @@ function New-Company
 {
     Param
     (
-        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-        $betrieb,
         # Name des Betriebes
-        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
         [String]$NAME,
 
         # Adresse des Diklabu Servers

@@ -3,10 +3,10 @@
         *add ..... fügt einen Kurs (oder mehrere) zur Kurswahl hinzu
         *remove .. löscht einen (oder mehrere) Kurse aus der Kurswahl
         *enable .. schaltet die Kurswahl frei
-        *disbale . sperrt die Kurswahl
+        *disable . sperrt die Kurswahl
         *clear ... löscht die Kurswünsche nach Rückfrage (oder Schalter -force ist gesetzt)
         *reset ... Löscht den Kurswunsch für einen (oder mehrere) Schüler
-        *new ..... Eine Kurswahl für einen (oder mehrere( Schüler durchführen
+        *new ..... Eine Kurswahl für einen (oder mehrere) Schüler durchführen
         *Stop .... Einen Wurswunsch als gebucht setzten
         get ...... Liste der Schüler, die einen Kurs gewählt haben
         list ..... Zeigt die Kurse an, die zur Wahl stehen
@@ -169,7 +169,7 @@ function Disable-Coursevoting
           $r=Invoke-RestMethod -Method post -Uri ($uri+"coursevoting/admin/voting/0") -Headers $headers 
           return $r;
         } catch {
-            Write-Host "Enable-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Host "Disable-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
         }
     }
 }
@@ -308,7 +308,7 @@ function Get-Coursevoting
         # Adresse des Diklabu Servers
         [String]$uri=$global:server,
 
-        # Schalter (nur noch nicht gebuchte Kurse anzeigen)
+        # Schalter (nur gebuchte Kurse anzeigen)
         [switch]$gebucht=$false
 
 
