@@ -231,7 +231,10 @@ function New-Course
         [String]$TERMINE,
         # ID_Kategorie
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [int]$ID_KATEGORIE
+        [int]$ID_KATEGORIE,
+        # id
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [int]$id
     )
      Begin
     {
@@ -241,13 +244,28 @@ function New-Course
     }  
     Process
     {
-        $klasse=echo "" | Select-Object -Property "ID_LEHRER","KNAME","TITEL","NOTIZ","TERMINE","ID_KATEGORIE"
-        $klasse.ID_LEHRER=$ID_LEHRER
-        $klasse.KNAME=$KNAME
-        $klasse.TITEL=$TITEL
-        $klasse.NOTIZ=$NOTIZ
-        $klasse.TERMINE=$TERMINE
-        $klasse.ID_KATEGORIE=$ID_KATEGORIE
+        $klasse=echo "" | Select-Object -Property "ID_LEHRER","KNAME","TITEL","NOTIZ","TERMINE","ID_KATEGORIE","id"
+        if ($ID_LEHRER) {
+          $klasse.ID_LEHRER=$ID_LEHRER
+        }
+        if ($KNAME) {
+          $klasse.KNAME=$KNAME
+        }
+        if ($TITEL) {
+          $klasse.TITEL=$TITEL
+        }
+        if ($NOTIZ) {
+          $klasse.NOTIZ=$NOTIZ
+        }
+        if ($TERMINE) {
+          $klasse.TERMINE=$TERMINE
+        }
+        if ($ID_KATEGORIE -ne 0) {
+          $klasse.ID_KATEGORIE=$ID_KATEGORIE
+        }
+        if ($id -ne 0) {
+          $klasse.id=$id
+        }
         try {
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/") -Headers $headers  -Body (ConvertTo-Json $klasse)                         
             return $r;       

@@ -208,7 +208,10 @@ function New-Company
         [String]$STRASSE,
         #Hausnummer des Betriebes
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [String]$NR
+        [String]$NR,
+
+        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [int]$ID
 
     )
 
@@ -220,14 +223,15 @@ function New-Company
     }
     Process
     {
-        $betrieb=echo "" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR"
+        $betrieb=echo "" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID"
         $betrieb.NAME=$NAME
         $betrieb.PLZ=$PLZ
         $betrieb.ORT=$ORT
         $betrieb.STRASSE=$STRASSE
         $betrieb.NR=$NAME
+        $betrieb.ID=$ID
         try {
-          $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/"+$ID) -Headers $headers -Body (ConvertTo-Json $betrieb)
+          $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/") -Headers $headers -Body (ConvertTo-Json $betrieb)
           return $r;
         } catch {
             Write-Host "New-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
