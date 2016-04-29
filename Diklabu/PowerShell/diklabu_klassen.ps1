@@ -317,6 +317,7 @@ function Delete-Course
     {
         try {
             $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id) -Headers $headers 
+            return $r
         } catch {
             Write-Host "Delete-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
         }

@@ -13,6 +13,7 @@ import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
 import de.tuttas.entities.Schueler_KlasseId;
+import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.BildObject;
@@ -160,11 +161,11 @@ public class KlassenManager {
         PsResultObject ro = new PsResultObject();
         Klasse k = em.find(Klasse.class, kid);
         if (k!=null) {            
-            Query query = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
-            query.setParameter("paramNameKlasse", k.getKNAME());
+            Query query = em.createNamedQuery("findSchulerEinerKlasse");
+            query.setParameter("paramidKlasse", kid);
             List<Schueler> schueler = query.getResultList();
             if (schueler.size()!=0) {
-                ro.setMsg("Kann Klasse nicht löschen, da die Klasse noch Schüler hat");
+                ro.setMsg("Kann Klasse nicht löschen, da die Klasse "+k.getKNAME()+"("+kid+") noch Schüler hat");
                 ro.setSuccess(false);
                  int[] ids = new int[schueler.size()];
                 for (int i=0;i<schueler.size();i++) {
@@ -173,6 +174,16 @@ public class KlassenManager {
                 ro.setIds(ids);
             }
             else {
+                // Wenn die Klasse keine Schüler mehr hat, kann auch der Verlauf gelöscht werden!
+                query = em.createNamedQuery("findVerlaufbyKlasseId");
+                query.setParameter("paramidKlasse", kid);
+                List<Verlauf> verlauf= query.getResultList();
+                Log.d("Result LIst="+verlauf);
+                for (Verlauf v:verlauf) {
+                    Log.d("Lösche Verlauf "+v);
+                    em.remove(v);
+                }
+                em.flush();
                 em.remove(k);
                 ro.setMsg("Klasse "+k.getKNAME()+" gelöscht");
                 ro.setSuccess(true);

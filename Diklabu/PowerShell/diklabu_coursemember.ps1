@@ -190,7 +190,7 @@ function Remove-Coursemember
 {
     Param
     (       
-        # Name der Klasse
+        # id des Schülers
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [int]$id,
 
@@ -210,13 +210,12 @@ function Remove-Coursemember
     }
     Process
     {
-        try {
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id+"/"+$klassenid) -Headers $headers 
-            return $r;
-         } catch {
-            Write-Host "Remove-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          try {
+              $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id+"/"+$klassenid) -Headers $headers 
+              return $r;
+           } catch {
+              Write-Host "Remove-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
         }
-
     }
     End
     {
