@@ -474,26 +474,26 @@
                         </div>
                     </div>
                     <div id="tabPlan" class="tab-pane fade">
-                        <ul class="nav nav-tabs" id="plaene">
-                            <li class="active"><a data-toggle="tab" href="#tabStundeplanKlasse">Stundenplan Klasse</a></li>
+                        <ul class="nav nav-tabs" id="plaene" style="display: none;">
+                            <li class="active"><a data-toggle="tab" href="#tabStundenplanKlasse">Stundenplan Klasse</a></li>
                             <li><a data-toggle="tab" href="#tabVertretungsplanKlasse">Vertretungsplan Klasse</a></li>
                             <li><a data-toggle="tab" href="#tabStundenplanLehrer">Stundenplan Lehrer</a></li>
                             <li><a data-toggle="tab" href="#tabVertretungsplanLehrer">Vertretungsplan Lehrer</a></li>
                         </ul>
-                        <div id="tabStundeplanKlasse" class="tab-pane fade">
-                            <div id="stundenplan" style="display: none;"></div>
+                        <div class="tab-content">
+                            <div id="tabStundenplanKlasse" class="tab-pane fade in active">
+                                <div id="stundenplan" ></div>
+                            </div>
+                            <div id="tabVertretungsplanKlasse" class="tab-pane">
+                                <div id="vertertungsplan" ></div>
+                            </div>
+                            <div id="tabStundenplanLehrer" class="tab-pane">
+                                <div id="lstundenplan"></div>
+                            </div>
+                            <div id="tabVertretungsplanLehrer" class="tab-pane">
+                                <div id="lvertertungsplan"></div>
+                            </div>
                         </div>
-
-                        <div id="tabVertretungsplanKlasse" class="tab-pane fade">
-                            <div id="vertertungsplan" style="display: none;"></div>
-                        </div>
-                        <div id="tabStundenplanLehrer" class="tab-pane fade">
-                            <div id="lvertertungsplan" style="display: none;"></div>
-                        </div>
-                        <div id="tabVertretungsplanLehrer" class="tab-pane fade">
-                            <div id="lvertertungsplan" style="display: none;"></div>
-                        </div>
-
                     </div>
                     <div id="tabChat" class="tab-pane fade">
                         <div id="chatContainer" style="display: none;">

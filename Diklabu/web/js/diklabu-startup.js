@@ -56,7 +56,7 @@ getFilter();
 
 $("#print").click(function () {
     currentView = getCurrentView();
-    if (currentView == "Stundenplan") {
+    if (currentView == "Stundenplan Klasse") {
         $("#stundenplan").printThis({
             debug: false,
             printContainer: true,
@@ -64,7 +64,7 @@ $("#print").click(function () {
             removeInline: false
         });
     }
-    else if (currentView == "Vertretungsplan") {
+    else if (currentView == "Vertretungsplan Klasse") {
         $("#vertertungsplan").printThis({
             debug: false,
             printContainer: true,
@@ -231,6 +231,10 @@ $('#anwesenheitTabs').on('shown.bs.tab', function (e) {
 });
 $('#fehlzeitenTab').on('shown.bs.tab', function (e) {
     console.log("fehlzeitenTab shown " + $(e.target).text());
+    updateCurrentView();
+});
+$('#plaene').on('shown.bs.tab', function (e) {
+    console.log("plaene shown " + $(e.target).text());
     updateCurrentView();
 });
 $('#klassenTabs').on('shown.bs.tab', function (e) {
@@ -621,7 +625,8 @@ function getNoten(kl, callback) {
  * Details zu einem Lehrer abfragen
  * @param {type} id die Lehrer ID
  */
-function getLehrerData(id) {
+function getLehrerData(id,callback) {
+    console.log("Get LehrerData "+id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/lehrer/" + id + "/",
         type: "GET",
@@ -636,6 +641,9 @@ function getLehrerData(id) {
             sessionStorage.lehrerEMAIL = data.EMAIL;
             sessionStorage.lehrerVNAME = data.VNAME;
             $("#fromMail").val(data.EMAIL);
+            if (callback!=undefined) {
+                callback(data);
+            }
         },
         error: function () {
             toastr["error"]("kann Lehrerdaten nicht vom Server laden", "Fehler!");
@@ -1053,7 +1061,7 @@ function getBildKlasse(kl) {
  */
 function getCurrentView() {
     target = $("ul#navTabs li.active").text();
-    console.log("target=(" + target + ")");
+    console.log("get Current View Base target=(" + target + ")");
     if (target == "Anwesenheit") {
         sub = $("ul#anwesenheitTabs li.active").text();
         return sub;
@@ -1068,6 +1076,10 @@ function getCurrentView() {
     }
     if (target == "Klasse") {
         sub = $("ul#klassenTabs li.active").text();
+        return sub;
+    }
+    if (target=="Pläne") {
+        sub = $("ul#plaene li.active").text();
         return sub;
     }
     return target;
@@ -1101,11 +1113,11 @@ function findNote(ids, idlf) {
 function loadStundenPlan() {
     console.log("Lade Stundenplan der Klasse " + nameKlasse);
     $("#stundenplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/stundenplan/" + nameKlasse, function (response, status, xhr) {
-        console.log("Status=" + status);
+        console.log("Stundenplan Status=" + status);
         if (status == "nocontent") {
             console.log("Kann Stundenplan der Klasse " + nameKlasse + " nicht laden!")
             $("#stundenplan").empty();
-            $("#stundenplan").append('<div class="noplan"><center><h1>Kann Stundenplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
+            $("#stundenplan").append('<div><center><h1>Kann Stundenplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
         }
     });
 }
@@ -1116,15 +1128,50 @@ function loadStundenPlan() {
 function loadVertertungsPlan() {
     console.log("Lade Vertretungsplan der Klasse " + nameKlasse);
     $("#vertertungsplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/vertertungsplan/" + nameKlasse, function (response, status, xhr) {
-        console.log("Status=" + status);
+        console.log("Vertretungsplan Status=" + status);
         if (status == "nocontent") {
             console.log("Kann Vertertungsplan der Klasse " + nameKlasse + " nicht laden!")
             $("#vertertungsplan").empty();
-            $("#vertertungsplan").append('<div class="noplan"><center><h1>Kann Vertertungsplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
+            $("#vertertungsplan").append('<div><center><h1>Kann Vertertungsplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
         }
     });
 }
 
+/**
+ * Stundenplan des Lehrers anzeigen
+ */
+function loadStundenPlanLehrer() {
+    console.log("Lade Stundenplan für " + sessionStorage.lehrerNNAME);
+    getLehrerData(sessionStorage.myself, function(data) {
+        $("#lstundenplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/stundenplanlehrer/" + sessionStorage.lehrerNNAME, function (response, status, xhr) {
+            console.log("Stundenplan Lehere Status=" + status);
+            if (status == "nocontent") {
+                console.log("Kann Stundenplan für Lehrer nicht laden");
+                $("#lstundenplan").empty();
+                $("#lstundenplan").append('<div><center><h1>Kann Stundenplan für ' + sessionStorage.lehrerNNAME + ' nicht finden</h1></center></div>');
+            }
+        });
+        
+    });
+}
+
+/**
+ * Vertretungsplan des Lehrers anzeigen
+ */
+function loadVertretungsPlanLehrer() {
+    console.log("Lade Vertretungsplan für " + sessionStorage.lehrerNNAME);
+    getLehrerData(sessionStorage.myself, function(data) {
+        $("#lvertertungsplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/vertretungsplanlehrer/" + sessionStorage.lehrerNNAME, function (response, status, xhr) {
+            console.log("Vertretungsplan Lehrer Status=" + status);
+            if (status == "nocontent") {
+                console.log("Kann Stundenplan für Lehrer nicht laden");
+                $("#lvertertungsplan").empty();
+                $("#lvertertungsplan").append('<div><center><h1>Kann Vertretungsplan für ' + sessionStorage.lehrerNNAME + ' nicht finden</h1></center></div>');
+            }
+        });
+        
+    });
+}
 /**
  * Datum in eimem lesbaren Format ausgeben
  * @param {type} d Date Objekt 
@@ -1172,8 +1219,6 @@ function showContainer(b) {
         $("#tabelleFehlzeiten").show();
         $("#chatContainer").show();
         $("#tabChat").show();
-        $("#stundenplan").show();
-        $("#vertertungsplan").show();
         $("#bemerkungContainer").show();
         $("#betriebeContainer").show();
         $("#klassenTabs").show();
@@ -1183,6 +1228,11 @@ function showContainer(b) {
         $("#tabNoteneintrag").show();
         $("#emailBetriebeContainer").show();
         $("#klassenBemerkungContainer").show();
+        $("#plaene").show();
+        $("#lvertertungsplan").show();
+        $("#lstundenplan").show();
+        $("#stundenplan").show();
+        $("#vertertungsplan").show();
     }
     else {
         $("#kuerzelContainer").show();
@@ -1194,8 +1244,6 @@ function showContainer(b) {
         $("#tabelleFehlzeiten").hide();
         $("#chatContainer").hide();
         $("#tabChat").hide();
-        $("#stundenplan").hide();
-        $("#vertertungsplan").hide();
         $("#bemerkungContainer").hide();
         $("#betriebeContainer").hide();
         $("#klassenTabs").hide();
@@ -1206,6 +1254,11 @@ function showContainer(b) {
         $("#emailBetriebeContainer").hide();
         $("#klassenBemerkungContainer").hide();
         $("#tabMail").hide();
+        $("#plaene").hide();
+        $("#lvertertungsplan").hide();
+        $("#lstundenplan").hide();
+        $("#stundenplan").hide();
+        $("#vertertungsplan").hide();
     }
 }
 
@@ -1849,6 +1902,7 @@ function updateCurrentView() {
         return;
 
     view = getCurrentView();
+    console.log("Update Current View = "+view);
     switch (view) {
         case "Verlauf":
             refreshVerlauf(nameKlasse);
@@ -1953,13 +2007,28 @@ function updateCurrentView() {
             $("#dokumentationContainer").hide();
             $("#printContainer").show();
             break;
-        case "Stundenplan":
+        case "Pläne":
             loadStundenPlan();
             $("#dokumentationContainer").hide();
             $("#printContainer").show();
             break;
-        case "Vertretungsplan":
+        case "Stundenplan Klasse":
+            loadStundenPlan();
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
+            break;
+        case "Vertretungsplan Klasse":
             loadVertertungsPlan();
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
+            break;
+        case "Stundenplan Lehrer":
+            loadStundenPlanLehrer();
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
+            break;
+        case "Vertretungsplan Lehrer":
+            loadVertretungsPlanLehrer();
             $("#dokumentationContainer").hide();
             $("#printContainer").show();
             break;

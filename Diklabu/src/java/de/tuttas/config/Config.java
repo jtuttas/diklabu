@@ -24,7 +24,7 @@ public class Config {
     public static final String[] adminusers = new String[]{"TU","TUTTAS","KEMMRIES"};
     
     // Authentifizierung für die RestFul Services notwenig (im debug mode ist das Kennwort mmbbs und der Benutzername das Lehrerkürzel
-    public static boolean auth=true;
+    public static boolean auth=false;
     
     // Zeitspanne in ms, bis zu der ein auth_token verworfen wird 
     public static long AUTH_TOKE_TIMEOUT=5*24*60*60*1000;

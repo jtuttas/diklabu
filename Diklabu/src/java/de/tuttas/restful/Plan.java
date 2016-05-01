@@ -33,6 +33,23 @@ public class Plan {
     }
 
     @GET
+    @Path("/stundenplanlehrer/{lehrerName}")
+    @Produces("text/html")
+    public String getLehrerStundenplanHtml(@PathParam("lehrerName") String lehrerName) {
+        Log.d("Get Stundenplan HTML für Lehrer " + lehrerName);
+        return StundenplanUtil.getInstance().getPlan(lehrerName,PlanType.STDPlanLehrer);
+    }
+
+    @GET
+    @Path("/vertretungsplanlehrer/{lehrerName}")
+    @Produces("text/html")
+    public String getLehrerVertretungsplanHtml(@PathParam("lehrerName") String lehrerName) {
+        Log.d("Get Vertretungsplan HTML für Lehrer " + lehrerName);
+        return StundenplanUtil.getInstance().getPlan(lehrerName,PlanType.VERTRPlanLehrer);
+    } 
+    
+
+    @GET
     @Path("/stundenplan/{klasse}")
     @Produces("text/html")
     public String getStundenplanHtml(@PathParam("klasse") String kl) {
