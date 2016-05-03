@@ -72,6 +72,22 @@ $("#print").click(function () {
             removeInline: false
         });
     }
+     else if (currentView == "Vertretungsplan Lehrer") {
+        $("#lvertertungsplan").printThis({
+            debug: false,
+            printContainer: true,
+            pageTitle: "Stundenplan " + nameKlasse,
+            removeInline: false
+        });
+    }
+     else if (currentView == "Stundenplan Lehrer") {
+        $("#lstundenplan").printThis({
+            debug: false,
+            printContainer: true,
+            pageTitle: "Stundenplan " + nameKlasse,
+            removeInline: false
+        });
+    }
     else if (currentView == "Bilder") {
         $("#tabAnwesenheitBilder").printThis({
             debug: false,
@@ -128,6 +144,16 @@ $("#print").click(function () {
     }
 
 
+});
+
+$("#eigeneEintraege").click(function () {
+   console.log("Eigene Einträge Click");
+    refreshVerlauf(nameKlasse);
+});
+
+$("#lernfelderFilter").change(function () {
+    console.log("Filter Lernfelder =" + $(this).val());
+    refreshVerlauf(nameKlasse);
 });
 
 $("#emailZurueck").click(function () {
@@ -224,6 +250,7 @@ $("#filter2").change(function () {
     console.log("Filter change ID=" + $('option:selected', this).attr('filter_id'));
     refreshAnwesenheit(nameKlasse);
 });
+
 
 $('#anwesenheitTabs').on('shown.bs.tab', function (e) {
     console.log("anwesenheitsTab shown " + $(e.target).text());
@@ -575,10 +602,15 @@ function getLernfelder(callback) {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             $("#lernfelder").empty();
+            $("#lernfelderFilter").empty();
+            $("#lernfelderFilter").append("<option lfid='-1'>alle</option>");
             for (i = 0; i < data.length; i++) {
-                if (data[i].BEZEICHNUNG != undefined)
+                if (data[i].BEZEICHNUNG != undefined) {
                     $("#lernfelder").append("<option dbid='" + data[i].id + "'>" + data[i].BEZEICHNUNG + "</option>");
-                $("#notenlernfelder").append("<option lfid='" + data[i].id + "'>" + data[i].BEZEICHNUNG + "</option>");
+                    $("#notenlernfelder").append("<option lfid='" + data[i].id + "'>" + data[i].BEZEICHNUNG + "</option>");
+                    $("#lernfelderFilter").append("<option lfid='" + data[i].id + "'>" + data[i].BEZEICHNUNG + "</option>");
+
+                }
             }
             callback();
         },
@@ -625,8 +657,8 @@ function getNoten(kl, callback) {
  * Details zu einem Lehrer abfragen
  * @param {type} id die Lehrer ID
  */
-function getLehrerData(id,callback) {
-    console.log("Get LehrerData "+id);
+function getLehrerData(id, callback) {
+    console.log("Get LehrerData " + id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/lehrer/" + id + "/",
         type: "GET",
@@ -641,7 +673,7 @@ function getLehrerData(id,callback) {
             sessionStorage.lehrerEMAIL = data.EMAIL;
             sessionStorage.lehrerVNAME = data.VNAME;
             $("#fromMail").val(data.EMAIL);
-            if (callback!=undefined) {
+            if (callback != undefined) {
                 callback(data);
             }
         },
@@ -699,14 +731,24 @@ function refreshVerlauf(kl) {
         success: function (data) {
             verlauf = data;
             $("#tabelleVerlauf").empty();
+            console.log("Filter eigene Einträege="+$("#eigeneEintraege").is(':checked'));
             for (i = 0; i < data.length; i++) {
                 var datum = data[i].wochentag + " " + data[i].DATUM;
                 datum = datum.substring(0, datum.indexOf('T'));
                 if (data[i].ID_LEHRER == sessionStorage.myself) {
-                    $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' class='success'><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
+                    if ($("#lernfelderFilter").val()=="alle" || $("#lernfelderFilter").val()==data[i].ID_LERNFELD) {
+                        $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' class='success'><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
+                    }
                 }
                 else {
-                    $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' ><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
+                    if ($("#eigeneEintraege").is(':checked')) {
+                        
+                    }
+                    else {
+                        if ($("#lernfelderFilter").val()=="alle" || $("#lernfelderFilter").val()==data[i].ID_LERNFELD) {
+                            $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' ><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
+                        }
+                    }
                 }
             }
             $(".success").click(function () {
@@ -1078,7 +1120,7 @@ function getCurrentView() {
         sub = $("ul#klassenTabs li.active").text();
         return sub;
     }
-    if (target=="Pläne") {
+    if (target == "Pläne") {
         sub = $("ul#plaene li.active").text();
         return sub;
     }
@@ -1142,7 +1184,7 @@ function loadVertertungsPlan() {
  */
 function loadStundenPlanLehrer() {
     console.log("Lade Stundenplan für " + sessionStorage.lehrerNNAME);
-    getLehrerData(sessionStorage.myself, function(data) {
+    getLehrerData(sessionStorage.myself, function (data) {
         $("#lstundenplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/stundenplanlehrer/" + sessionStorage.lehrerNNAME, function (response, status, xhr) {
             console.log("Stundenplan Lehere Status=" + status);
             if (status == "nocontent") {
@@ -1151,7 +1193,7 @@ function loadStundenPlanLehrer() {
                 $("#lstundenplan").append('<div><center><h1>Kann Stundenplan für ' + sessionStorage.lehrerNNAME + ' nicht finden</h1></center></div>');
             }
         });
-        
+
     });
 }
 
@@ -1160,7 +1202,7 @@ function loadStundenPlanLehrer() {
  */
 function loadVertretungsPlanLehrer() {
     console.log("Lade Vertretungsplan für " + sessionStorage.lehrerNNAME);
-    getLehrerData(sessionStorage.myself, function(data) {
+    getLehrerData(sessionStorage.myself, function (data) {
         $("#lvertertungsplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/vertretungsplanlehrer/" + sessionStorage.lehrerNNAME, function (response, status, xhr) {
             console.log("Vertretungsplan Lehrer Status=" + status);
             if (status == "nocontent") {
@@ -1169,7 +1211,7 @@ function loadVertretungsPlanLehrer() {
                 $("#lvertertungsplan").append('<div><center><h1>Kann Vertretungsplan für ' + sessionStorage.lehrerNNAME + ' nicht finden</h1></center></div>');
             }
         });
-        
+
     });
 }
 /**
@@ -1363,8 +1405,8 @@ function generateAnwesenheitsTable(termine) {
     var tab = "";
     for (var i = 0; i < schueler.length; i++) {
         tab += "<tr>";
-        
-        for (j=0;j<termine.length;j++) {
+
+        for (j = 0; j < termine.length; j++) {
             termin = new Date(termine[j].milliseconds);
             if (termin.getDay() == 0 || termin.getDay() == 6) {
                 tab += "<td class=\"anwesenheit wochenende\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(termin) + "\" >&nbsp;</td>";
@@ -1688,25 +1730,25 @@ function performLogin() {
             type: "POST",
             data: JSON.stringify(myData),
             success: function (jsonObj, textStatus, xhr) {
-                
-                if (jsonObj.role=="Schueler") {
-                window.location.replace("index.html");
+
+                if (jsonObj.role == "Schueler") {
+                    window.location.replace("index.html");
                 }
                 else {
-                
-                sessionStorage.auth_token = jsonObj.auth_token;
-                console.log("Thoken = " + jsonObj.auth_token);
 
-                toastr["success"]("Login erfolgreich", "Info!");
-                sessionStorage.myselfplain = idplain;
-                sessionStorage.myself = jsonObj.ID;
-                sessionStorage.myemail = jsonObj.email;
-                getLehrerData(sessionStorage.myself);
-                nameKlasse = $("#klassen").val();
-                idKlasse = $('option:selected', "#klassen").attr('dbid');
-                loggedIn();
-                updateCurrentView();
-            }
+                    sessionStorage.auth_token = jsonObj.auth_token;
+                    console.log("Thoken = " + jsonObj.auth_token);
+
+                    toastr["success"]("Login erfolgreich", "Info!");
+                    sessionStorage.myselfplain = idplain;
+                    sessionStorage.myself = jsonObj.ID;
+                    sessionStorage.myemail = jsonObj.email;
+                    getLehrerData(sessionStorage.myself);
+                    nameKlasse = $("#klassen").val();
+                    idKlasse = $('option:selected', "#klassen").attr('dbid');
+                    loggedIn();
+                    updateCurrentView();
+                }
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Login fehlgeschlagen", "Fehler!");
@@ -1902,7 +1944,7 @@ function updateCurrentView() {
         return;
 
     view = getCurrentView();
-    console.log("Update Current View = "+view);
+    console.log("Update Current View = " + view);
     switch (view) {
         case "Verlauf":
             refreshVerlauf(nameKlasse);
@@ -2299,11 +2341,11 @@ function buildeAnwesenheitstabelle(data) {
     getTermindaten(function (termine) {
         $("#tabelleAnwesenheit").empty();
         // Leere Anwesenheitstabelle erzeugen
-        console.log("Termine = "+JSON.stringify(termine));
+        console.log("Termine = " + JSON.stringify(termine));
         var tab = "";
         tab += '<thead><tr>';
-        for (i=0;i<termine.length;i++) {
-            console.log("Add Termin: i="+i);
+        for (i = 0; i < termine.length; i++) {
+            console.log("Add Termin: i=" + i);
             current = new Date(termine[i].milliseconds);
             if (current.getDay() == 0 || current.getDay() == 6) {
                 tab += '<th class="wochenende">&nbsp; ' + days[current.getDay()] + "<br>" + current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
