@@ -110,6 +110,11 @@ th{ height: 75px; }
     white-space:nowrap;
     
 }
+.fehltagEntschuldigt a:link { color: white; }
+.fehltagEntschuldigt a:visited { color: white; }
+.fehltagEntschuldigt a:hover { color: white; }
+.fehltagEntschuldigt a:active { color: white; }
+
 .fehltagUnentschuldigt {
     border-radius: 8px;
     margin: 5px;
@@ -123,6 +128,11 @@ th{ height: 75px; }
     padding-right: 5px;
     
 }
+
+.fehltagUnentschuldigt a:link { color: white; }
+.fehltagUnentschuldigt a:visited { color: white; }
+.fehltagUnentschuldigt a:hover { color: white; }
+.fehltagUnentschuldigt a:active { color: white; }
 
 .chatLine {
     margin-left: 10px;

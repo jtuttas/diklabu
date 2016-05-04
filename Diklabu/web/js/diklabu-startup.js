@@ -1484,14 +1484,14 @@ function generateVerspaetungen() {
             for (var j = 0; j < entschuldigt.length; j++) {
                 var dat = entschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagEntschuldigt\">" + dat + "</span> &nbsp;";
+                tr += "<span class=\"fehltagEntschuldigt\">"+'<a href="#" data-toggle="tooltip" title="' + entschuldigt[j].ID_LEHRER+ '">'+dat + "</a></span> &nbsp;";
             }
             var unentschuldigt = anwesenheit[i].fehltageUnentschuldigt;
             console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
             for (var j = 0; j < unentschuldigt.length; j++) {
                 var dat = unentschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagUnentschuldigt\">" + dat + "</span> &nbsp;";
+                tr += "<span class=\"fehltagUnentschuldigt\">"+'<a href="#" data-toggle="tooltip" title="' + unentschuldigt[j].ID_LEHRER+ '">'+dat + "</a></span> &nbsp;";
             }
             tr += "</td>";
 
