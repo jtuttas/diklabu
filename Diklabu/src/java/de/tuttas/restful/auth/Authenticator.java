@@ -160,9 +160,13 @@ public final class Authenticator {
         throw new GeneralSecurityException("Invalid service key and authorization token match.");
     }
 
-    String getRole(String authToken) {
+    public String getRole(String authToken) {
         String user = authorizationTokensStorage.get(authToken);
         Log.d("User mit token " + authToken + " ist " + user);
         return rolesStorage.get(user);
+    }
+    
+    public String getUser(String authToken) {
+        return authorizationTokensStorage.get(authToken);
     }
 }

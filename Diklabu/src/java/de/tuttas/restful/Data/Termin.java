@@ -39,6 +39,11 @@ public class Termin {
     public void setMilliseconds(long milliseconds) {
         this.milliseconds = milliseconds;
     }
+
+    @Override
+    public String toString() {
+        return "Termin"+this.date;
+    }
     
     
     

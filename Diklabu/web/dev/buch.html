@@ -84,6 +84,10 @@
                                     <input type="hidden" name="idklasse" id="idklasse"/>
                                     <input type="hidden" name="from" id="from"/>
                                     <input type="hidden" name="to" id="to"/>
+                                    <input type="hidden" name="dokufilter1" id="dokufilter1" value="alle"/>
+                                    <input type="hidden" name="dokufilter2" id="dokufilter2" value="alle"/>
+                                    <input type="hidden" name="anwfilter1" id="anwfilter1" value="0"/>
+                                    <input type="hidden" name="anwfilter2" id="anwfilter2" value="0"/>
 
                                     <div class="row">
                                         <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
@@ -190,7 +194,7 @@
 
 
                         </div>
-                        <div class="row">
+                        <div class="row" id="verlaufsFilter" style="display: none;">
                             <div class="col-md-1">
                                 <h3>&nbsp;Filter:</h3>
                             </div>

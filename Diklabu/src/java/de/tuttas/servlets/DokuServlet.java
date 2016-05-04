@@ -10,16 +10,19 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import com.sun.org.apache.xerces.internal.xs.StringList;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Noten;
 import de.tuttas.entities.Schueler;
+import de.tuttas.entities.Termine;
 import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.NotenObjekt;
+import de.tuttas.restful.Data.Termin;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.DatumUtil;
 import de.tuttas.util.Log;
@@ -31,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.Timestamp;
 
 import java.util.Date;
 import java.text.DateFormat;
@@ -99,6 +103,20 @@ public class DokuServlet extends HttpServlet {
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
                 String type = request.getParameter("type");
+                String filter1 = request.getParameter("dokufilter1");
+                String filter2 = request.getParameter("dokufilter2");
+                 int anwFilter1 = 0;                 
+                 int anwFilter2 = 0;                 
+                 if (request.getParameter("anwfilter1")!=null) {
+                     anwFilter1 = Integer.parseInt(request.getParameter("anwfilter1"));
+                 }
+                 if (request.getParameter("anwfilter2")!=null) {
+                     anwFilter2 = Integer.parseInt(request.getParameter("anwfilter2"));
+                 }
+                Authenticator a = Authenticator.getInstance();
+                String me = a.getUser(auth);
+                Log.d("Verlauf Filter1=" + filter1 + " Verlauf Filter2=" + filter2 + " me=" + me);
+                Log.d("Anwesenheitsfilter 1 = "+anwFilter1+" Filter2="+anwFilter2);
                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date parsedFrom = null;
                 try {
@@ -139,12 +157,12 @@ public class DokuServlet extends HttpServlet {
                     } else if (cmd.compareTo("Anwesenheit") == 0) {
                         response.setContentType("text/csv");
                         response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
-                        myModel = getModelAnwesenheit(kl, parsedFrom, parsedTo);
+                        myModel = getModelAnwesenheit(kl, parsedFrom, parsedTo,anwFilter1, anwFilter2);
                         out.println(myModel.toCsv());
                     } else if (cmd.compareTo("Verlauf") == 0) {
                         response.setContentType("text/csv");
                         response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
-                        myModel = getModelVerlauf(kl, parsedFrom, parsedTo);
+                        myModel = getModelVerlauf(kl, parsedFrom, parsedTo, filter1, filter2, me);
                         out.println(myModel.toCsv());
                     } else {
                         response.setContentType("application/json; charset=UTF-8");
@@ -196,10 +214,10 @@ public class DokuServlet extends HttpServlet {
                         Document document;
                         if (cmd.compareTo("Verlauf") == 0) {
                             response.addHeader("Content-Disposition", "attachment; filename=Verlauf_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                            document = createVerlauf(kl, kopf, parsedFrom, parsedTo, out);
+                            document = createVerlauf(kl, kopf, parsedFrom, parsedTo, out, filter1, filter2, me);
                         } else if (cmd.compareTo("Anwesenheit") == 0) {
                             response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                            document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out);
+                            document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out, anwFilter1, anwFilter2);
                         } else if (cmd.compareTo("Fehlzeiten") == 0) {
                             response.addHeader("Content-Disposition", "attachment; filename=Fehlzeiten_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
                             MyTableDataModel myModel = getModelFehlzeiten(kl, parsedFrom, parsedTo);
@@ -522,7 +540,7 @@ public class DokuServlet extends HttpServlet {
         return document;
     }
 
-    private MyTableDataModel getModelAnwesenheit(Klasse kl, Date parsedFrom, Date parsedTo) {
+    private MyTableDataModel getModelAnwesenheit(Klasse kl, Date parsedFrom, Date parsedTo, int filter1Id, int filter2Id) {
         TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);
         query.setParameter("paramKName", kl.getKNAME());
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
@@ -534,14 +552,68 @@ public class DokuServlet extends HttpServlet {
         q.setParameter("paramNameKlasse", kl.getKNAME());
         List<Schueler> schueler = q.getResultList();
 
+                /**
+         * Termindaten holen
+         */
+        Termine t1=null;
+        Termine t2=null;
+        if (filter1Id!=-1) {
+            t1 = em.find(Termine.class, filter1Id);
+        
+        }
+        if (filter2Id!=-1) {
+            t2 = em.find(Termine.class, filter2Id);    
+        }
+        List<Termin> termine = null;
+        TypedQuery<Termin> tquery = null;
+        if (filter1Id != 0) {
+            // zwei Filter
+            if (filter2Id != 0) {
+                tquery = em.createNamedQuery("findAllTermineTwoFilters", Termin.class);
+                tquery.setParameter("filter1", t1.getId());
+                tquery.setParameter("filter2", t2.getId());
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));
+                termine = tquery.getResultList();
+            } // nur Filter1
+            else {
+                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery.setParameter("filter1", t1.getId());
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                termine = tquery.getResultList();
+            }
+        } else {
+            // nur Filter2
+            if (filter2Id != 0) {
+                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery.setParameter("filter1", t2.getId());
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                termine = tquery.getResultList();
+            }
+            // kein Filter, Termine so generieren
+            else {
+                termine = new ArrayList<>();                        
+                Date current=new Date(parsedFrom.getTime());
+                parsedTo.setTime(parsedTo.getTime()+1000);
+                while (current.before(parsedTo)) {
+                    termine.add(new Termin(new Timestamp(current.getTime())));
+                    Log.d("Erzeuge neuen Termin:"+new Termin(new Timestamp(current.getTime())));
+                    current.setTime(current.getTime()+24*60*60*1000);
+                }
+            }
+        }
+
+        Log.d("Result List:" + anwesenheit);
+
+        
         List<String> sb = new ArrayList<>();
         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
-        Date current = new Date(parsedFrom.getTime());
-        c.setTime(current);
-        while (!current.after(parsedTo)) {
+        
+        for (Termin t:termine) {           
+            c.setTime(new Date(t.getDate().getTime()));        
             sb.add("" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
-            current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
-            c.setTime(current);
         }
         System.out.println("Es werden " + sb.size() + " Tage dargestellt");
         sb.add(0, "Name");
@@ -551,21 +623,19 @@ public class DokuServlet extends HttpServlet {
         }
         MyTableDataModel mo = new MyTableDataModel(schueler.size(), cols);
         Schueler s;
-        for (int y=0;y<schueler.size();y++) {
-            s=schueler.get(y);
-            mo.setData(0,y, s.getVNAME()+" "+s.getNNAME());
-            current = new Date(parsedFrom.getTime());
-            int x=1;
-            while (!current.after(parsedTo)) {
-                mo.setData(x, y, findVermerk(s.getId(), current, anwesenheit));
-                x++;
-                current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
+        for (int y = 0; y < schueler.size(); y++) {
+            s = schueler.get(y);
+            mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
+            int x = 1;
+            for (Termin t:termine) {           
+                mo.setData(x, y, findVermerk(s.getId(), t.getDate(), anwesenheit));
+                x++;               
             }
         }
         return mo;
     }
 
-    private Document createAnwesenheit(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
+    private Document createAnwesenheit(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out, int filter1Id, int filter2Id) throws ParseException, IOException, DocumentException {
         Document document = new Document();
         /* Basic PDF Creation inside servlet */
         PdfWriter writer = PdfWriter.getInstance(document, out);
@@ -576,47 +646,106 @@ public class DokuServlet extends HttpServlet {
         query.setParameter("paramKName", kl.getKNAME());
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
+
         Log.d("setze From auf " + new java.sql.Date(parsedFrom.getTime()));
         List<AnwesenheitObjekt> anwesenheit = getData(query);
+
+        /**
+         * Termindaten holen
+         */
+        Termine t1=null;
+        Termine t2=null;
+        if (filter1Id!=-1) {
+            t1 = em.find(Termine.class, filter1Id);
+        
+        }
+        if (filter2Id!=-1) {
+            t2 = em.find(Termine.class, filter2Id);    
+        }
+        List<Termin> termine = null;
+        TypedQuery<Termin> tquery = null;
+        if (filter1Id != 0) {
+            // zwei Filter
+            if (filter2Id != 0) {
+                tquery = em.createNamedQuery("findAllTermineTwoFilters", Termin.class);
+                tquery.setParameter("filter1", t1.getId());
+                tquery.setParameter("filter2", t2.getId());
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));
+                termine = tquery.getResultList();
+            } // nur Filter1
+            else {
+                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery.setParameter("filter1", t1.getId());
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                termine = tquery.getResultList();
+            }
+        } else {
+            // nur Filter2
+            if (filter2Id != 0) {
+                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery.setParameter("filter1", t2.getId());
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                termine = tquery.getResultList();
+            }
+            // kein Filter, Termine so generieren
+            else {
+                termine = new ArrayList<>();                        
+                Date current=new Date(parsedFrom.getTime());
+                parsedTo.setTime(parsedTo.getTime()+1000);
+                while (current.before(parsedTo)) {
+                    termine.add(new Termin(new Timestamp(current.getTime())));
+                    Log.d("Erzeuge neuen Termin:"+new Termin(new Timestamp(current.getTime())));
+                    current.setTime(current.getTime()+24*60*60*1000);
+                }
+            }
+        }
 
         Log.d("Result List:" + anwesenheit);
         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
         c.setTime(parsedFrom);
-        Log.d("KW beginnt bei " + c.get(GregorianCalendar.WEEK_OF_YEAR));
-        int spalte = 0;
+        
         String tagZeile = "";
         document.open();
         Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
         q.setParameter("paramNameKlasse", kl.getKNAME());
         List<Schueler> schueler = q.getResultList();
         Date current = new Date(parsedFrom.getTime());
-        while (!parsedFrom.after(parsedTo)) {
+        Log.d("Current="+current+" TO="+parsedTo+" From="+parsedFrom+" Termine="+termine.size());
+        int spalte=0;
+        
+        for (spalte=0;spalte<termine.size();spalte++) {        
             tagZeile += "<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">\n";
             tagZeile += ("<tr >\n");
             tagZeile += ("<td width='25%' style=\"font-size: 14;border: 1px solid black;\"><b>Name</b></td>\n");
-            spalte = 0;
-            // Zeile f.  Tage
-            while (spalte < 7 && !current.after(parsedTo)) {
+            // Zeile f.  Tage (Headline)
+            Log.d("Spalte ist nun "+spalte);
+            int i=0;
+            for (i=0;i<7 && spalte+i<termine.size();i++) {
+                current = new Date(termine.get(spalte+i).getDate().getTime());                        
                 c.setTime(current);
                 if (c.get(GregorianCalendar.DAY_OF_WEEK) == 1 || c.get(GregorianCalendar.DAY_OF_WEEK) == 7) {
                     tagZeile += ("<td align=\"center\" style=\"padding:5px; background-color: #cccccc; font-size: 12;border: 1px solid black;\">" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + "<br></br>" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR) + "</td>\n");
                 } else {
                     tagZeile += ("<td align=\"center\" style=\"padding: 5px; font-size: 12;border: 1px solid black;\">" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + "<br></br>" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR) + "</td>\n");
                 }
-                Log.d("Spalte " + spalte + " Datum=" + current);
-                current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
-                spalte++;
+                Log.d("Spalte " + (i+spalte) + " Datum=" + current);                                
             }
+            Log.d("Head aufgebaut");
             tagZeile += "</tr>\n";
+                                           
+            
             // Zeile pro Name
+            
             for (Schueler s : schueler) {
                 tagZeile += "<tr>\n";
                 tagZeile += ("<td width='20%' style=\"padding: 5px;font-size: 12;border: 1px solid black;\"><b>" + s.getVNAME() + " " + s.getNNAME() + "</b></td>\n");
                 // Zeile f.  Tage
-                Log.d("Zeile f. Schüler " + s.getNNAME());
-                spalte = 0;
-                current = new Date(parsedFrom.getTime());
-                while (spalte < 7 && !current.after(parsedTo)) {
+                //Log.d("Zeile f. Schüler " + s.getNNAME());
+                for (i=0;i<7 && spalte+i<termine.size();i++) {
+                    current = new Date(termine.get(spalte+i).getDate().getTime());                        
                     c.setTime(current);
                     if (c.get(GregorianCalendar.DAY_OF_WEEK) == 1 || c.get(GregorianCalendar.DAY_OF_WEEK) == 7) {
                         tagZeile += ("<td style=\"background-color:#cccccc;font-size: 11;border: 1px solid black;\">" + findVermerk(s.getId(), current, anwesenheit) + "</td>\n");
@@ -624,14 +753,15 @@ public class DokuServlet extends HttpServlet {
                         tagZeile += ("<td style=\"font-size: 11;border: 1px solid black;\">" + findVermerk(s.getId(), current, anwesenheit) + "</td>\n");
                     }
                     Log.d("Zeile f. Schüler " + s.getNNAME() + " Datum " + current);
-                    current = new Date(current.getTime() + 24 * 60 * 60 * 1000);
-                    c.setTime(parsedFrom);
-                    spalte++;
                 }
                 tagZeile += "</tr>\n";
             }
-            parsedFrom = new Date(current.getTime());
-            if (spalte == 7) {
+            Log.d("Rumpf aufgebaut");
+            
+            spalte=spalte+i-1;
+            
+            // neue Seite bei 7 Terminen
+            if (i==7) {                
                 tagZeile += "</table>\n";
                 htmlString.append(tagZeile);
                 InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
@@ -643,20 +773,23 @@ public class DokuServlet extends HttpServlet {
                 document.add(image);
                 XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
                 document.newPage();
-                Log.d("neue Seite html=" + htmlString);
+                Log.d("neue Seite");
                 htmlString = new StringBuilder();
                 tagZeile = "";
                 htmlString.append(kopf);
             }
-            Log.d("parsedFrom ist nun " + parsedFrom);
+            Log.d("SPalte ist "+spalte+" Termine="+termine.size());
+            
         }
-        if (spalte < 7) {
-
+        Log.d("Ende der ForSchleife spalte="+spalte);
+        // den Rest der Seite noch drucken
+        if (spalte%7!=0) {
             tagZeile += "</table>\n";
-            htmlString.append(tagZeile);
-            Log.d("fertig");
-            Log.d("html String =" + htmlString.toString());
+            htmlString.append(tagZeile);            
+            Log.d("Rest Seite erzeugen");
+            //Log.d("html String =" + htmlString.toString());
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
+            
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
             String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
@@ -664,40 +797,58 @@ public class DokuServlet extends HttpServlet {
             image.setAbsolutePosition(45f, 720f);
             image.scalePercent(50f);
             document.add(image);
+            Log.d("writer="+writer+" document="+document+" is="+is);
             XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+            
         }
 
         document.close();
         return document;
     }
 
-     private MyTableDataModel getModelVerlauf(Klasse kl, Date parsedFrom, Date parsedTo) {
+    private MyTableDataModel getModelVerlauf(Klasse kl, Date parsedFrom, Date parsedTo, String filter1, String filter2, String me) {
         Query query = em.createNamedQuery("findVerlaufbyKlasse");
         query.setParameter("paramKName", kl.getKNAME());
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
-        List<Verlauf> verlauf = query.getResultList();
-        
-         MyTableDataModel mo = new MyTableDataModel(verlauf.size(), new String[]{"Datum","Stunde","LF","LK","Inhalt","Bemerkung","Lernsituation"});
-         Verlauf v;
-         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
-                
-         for (int y=0;y<verlauf.size();y++) {
-             v=verlauf.get(y);
-             
-             c.setTime(v.getDATUM());
-             mo.setData(0, y, DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
-             mo.setData(1, y, v.getSTUNDE());
-             mo.setData(2, y, v.getID_LERNFELD());
-             mo.setData(3, y, v.getID_LEHRER());
-             mo.setData(4, y, v.getINHALT());
-             mo.setData(5, y, v.getBEMERKUNG());
-             mo.setData(6, y, v.getAUFGABE());             
-         }
-         return mo;
+        List<Verlauf> overlauf = query.getResultList();
+        List<Verlauf> verlauf = new ArrayList<>();
+        /**
+         * Filtern der oVerlauf Liste
+         */
+        for (Verlauf v : overlauf) {
+            if (filter1.equals("eigeneEintraege")) {
+                if (v.getID_LEHRER().equals(me)) {
+                    if (filter2.equals("alle") || filter2.equals(v.getID_LERNFELD())) {
+                        verlauf.add(v);
+                    }
+                }
+            } else {
+                if (filter2.equals("alle") || filter2.equals(v.getID_LERNFELD())) {
+                    verlauf.add(v);
+                }
+            }
+        }
+
+        MyTableDataModel mo = new MyTableDataModel(verlauf.size(), new String[]{"Datum", "Stunde", "LF", "LK", "Inhalt", "Bemerkung", "Lernsituation"});
+        Verlauf v;
+        GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
+        Log.d("Verlaufsmodel erzeugen filter1=(" + filter1 + ") filter2=(" + filter2 + ")");
+        for (int y = 0; y < verlauf.size(); y++) {
+            v = verlauf.get(y);
+            c.setTime(v.getDATUM());
+            mo.setData(0, y, DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
+            mo.setData(1, y, v.getSTUNDE());
+            mo.setData(2, y, v.getID_LERNFELD());
+            mo.setData(3, y, v.getID_LEHRER());
+            mo.setData(4, y, v.getINHALT());
+            mo.setData(5, y, v.getBEMERKUNG());
+            mo.setData(6, y, v.getAUFGABE());
+        }
+        return mo;
     }
-     
-    private Document createVerlauf(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out) throws ParseException, IOException, DocumentException {
+
+    private Document createVerlauf(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out, String filter1, String filter2, String me) throws ParseException, IOException, DocumentException {
         Document document = new Document();
         /* Basic PDF Creation inside servlet */
         PdfWriter writer = PdfWriter.getInstance(document, out);
@@ -708,7 +859,26 @@ public class DokuServlet extends HttpServlet {
         query.setParameter("paramKName", kl.getKNAME());
         query.setParameter("paramFromDate", new java.sql.Date(parsedFrom.getTime()));
         query.setParameter("paramToDate", new java.sql.Date(parsedTo.getTime()));
-        List<Verlauf> verlauf = query.getResultList();
+        List<Verlauf> overlauf = query.getResultList();
+        List<Verlauf> verlauf = new ArrayList<>();
+
+        /**
+         * Filtern der oVerlauf Liste
+         */
+        for (Verlauf v : overlauf) {
+            if (filter1.equals("eigeneEintraege")) {
+                if (v.getID_LEHRER().equals(me)) {
+                    if (filter2.equals("alle") || filter2.equals(v.getID_LERNFELD())) {
+                        verlauf.add(v);
+                    }
+                }
+            } else {
+                if (filter2.equals("alle") || filter2.equals(v.getID_LERNFELD())) {
+                    verlauf.add(v);
+                }
+            }
+        }
+
         Log.d("Result List:" + verlauf);
         htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
         String tagZeile = Verlauf.getTRHead();
@@ -812,7 +982,7 @@ public class DokuServlet extends HttpServlet {
     private String findVermerk(Integer id, Date current, List<AnwesenheitObjekt> anwesenheit) {
         for (AnwesenheitObjekt ao : anwesenheit) {
             if (ao.getId_Schueler() == id) {
-                Log.d("Schuler mit id= " + id + " gefunden!");
+                //Log.d("Schuler mit id= " + id + " gefunden!");
                 for (AnwesenheitEintrag a : ao.getEintraege()) {
                     if (a.getDATUM().compareTo(current) == 0) {
                         return a.getVERMERK();
@@ -872,7 +1042,5 @@ public class DokuServlet extends HttpServlet {
         }
         return null;
     }
-
-   
 
 }

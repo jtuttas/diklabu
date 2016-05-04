@@ -148,11 +148,18 @@ $("#print").click(function () {
 
 $("#eigeneEintraege").click(function () {
    console.log("Eigene Einträge Click");
+   if ($("#eigeneEintraege").is(':checked')) {
+        $("#dokufilter1").val("eigeneEintraege")
+    }
+    else {
+        $("#dokufilter1").val("alle")
+    }
     refreshVerlauf(nameKlasse);
 });
 
 $("#lernfelderFilter").change(function () {
     console.log("Filter Lernfelder =" + $(this).val());
+    $("#dokufilter2").val($("#lernfelderFilter").val());
     refreshVerlauf(nameKlasse);
 });
 
@@ -243,11 +250,13 @@ $('#bildUploadForm').on('submit', (function (e) {
 
 $("#filter1").change(function () {
     console.log("Filter change ID=" + $('option:selected', this).attr('filter_id'));
+    $("#anwfilter1").val($('option:selected', this).attr('filter_id'));
     refreshAnwesenheit(nameKlasse);
 });
 
 $("#filter2").change(function () {
     console.log("Filter change ID=" + $('option:selected', this).attr('filter_id'));
+    $("#anwfilter2").val($('option:selected', this).attr('filter_id'));
     refreshAnwesenheit(nameKlasse);
 });
 
@@ -1275,6 +1284,7 @@ function showContainer(b) {
         $("#lstundenplan").show();
         $("#stundenplan").show();
         $("#vertertungsplan").show();
+        $("#verlaufsFilter").show();
     }
     else {
         $("#kuerzelContainer").show();
@@ -1301,6 +1311,7 @@ function showContainer(b) {
         $("#lstundenplan").hide();
         $("#stundenplan").hide();
         $("#vertertungsplan").hide();
+        $("#verlaufsFilter").hide();
     }
 }
 
