@@ -75,9 +75,14 @@ public class RESTRequestFilter implements ContainerRequestFilter {
                         }
                     }
                     else if (userRole.equals(Roles.toString(Roles.SCHUELER))) {
-                        // Schüler dürfen gar nichts
-                        Log.d("Nicht genügend Rechte");
-                        requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                        // Schüler dürfen Nur auf Dienste zugreifen, die 'sauth' im Namen haben
+                        if (path.contains("sauth")) {
+                            
+                        }
+                        else {
+                            Log.d("Nicht genügend Rechte");
+                            requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                        }
                     }
 
                 }

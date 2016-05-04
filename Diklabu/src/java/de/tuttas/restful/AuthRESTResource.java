@@ -60,6 +60,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
         try {
             LDAPUser u = demoAuthenticator.login(serviceKey, username, password);
             Log.d("Rest Login u=" + u);
+            JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
             if (u.getRole().equals(Roles.toString(Roles.SCHUELER))) {
                 Query query = em.createNamedQuery("findSchuelerByNameAndKlasse");
                 query.setParameter("paramVNAME", u.getVName());
@@ -69,14 +70,28 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                 List<Schueler> schueler = query.getResultList();
                 Log.d("Result List:" + schueler);
                 if (schueler.size()!=0) {
-                   u.setShortName(""+schueler.get(0).getId());
-            
+                   u.setShortName(""+schueler.get(0).getId()); 
+                   demoAuthenticator.setUser(u.getAuthToken(), schueler.get(0).getId().toString());
+                   demoAuthenticator.setRole(schueler.get(0).getId().toString(), Roles.toString(Roles.SCHUELER));
                 }
+                String kname=username.substring(0,username.indexOf("."));
+                jsonObjBuilder.add("nameKlasse",kname.toUpperCase());
+                
+                query = em.createNamedQuery("findKlassebyName");
+                query.setParameter("paramKName",kname.toUpperCase());
+                List<Klasse> klasse = query.getResultList();
+                if (klasse.size()!=0) {
+                   jsonObjBuilder.add("idKlasse",klasse.get(0).getId());
+                }
+                 jsonObjBuilder.add("VNAME",u.getVName());
+                 jsonObjBuilder.add("NNAME",u.getNName());
             }
-            JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
+            
             jsonObjBuilder.add("auth_token", u.getAuthToken());
-            jsonObjBuilder.add("ID", u.getShortName());
+            jsonObjBuilder.add("ID", u.getShortName());    
             jsonObjBuilder.add("idPlain", u.getIdPlain());
+            
+            
             jsonObjBuilder.add("role", u.getRole());
             Log.d("User zurück:"+u);
             JsonObject jsonObj = jsonObjBuilder.build();

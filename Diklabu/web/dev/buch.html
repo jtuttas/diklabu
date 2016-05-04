@@ -33,35 +33,12 @@
             <div class="row">                
                 <div class="jumbotron jhead">
                     <div class="row">
-                        <div class="col-md-offset-11">
-                            <a href="https://github.com/jtuttas/diklabu/issues" target="bugs" id="version">&nbsp;</a>
-                        </div>
+                            <button id="login" type="button" class="btn  btn-danger mybutton col-md-1 col-md-offset-11">Logout</button>                                                    
                     </div>
                     <h1>Diklabu@MMBbS</h1>
                     <div class="row">
-                        <div class="col-md-2">
-                            <div  id="kuerzelContainer">
-                                <label for="benutzername" >Benutzername</label>
-                                <input type="text" class="form-control" id="benutzername" value="TU"/>
-                            </div>
-                        </div>
-                        <div class="col-md-2" >
-                            <div id="kennwortContainer">
-                                <label for="kennwort" >
-                                    Kennwort
-                                </label>
-                                <input type="password" class="form-control mypassword" id="kennwort" value="mmbbs"/>
-                            </div>
-                        </div>
-                        <div class="col-md-1">
 
-
-                            <br>
-                            <button id="login" type="button" class="btn  btn-success mybutton">Login</button>                                                    
-
-                        </div>
-
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-md-offset-5">
                             <label for="klassen">Klassen</label>
                             <select class="form-control" id="klassen">
                             </select>
@@ -90,7 +67,7 @@
                                     <input type="hidden" name="anwfilter2" id="anwfilter2" value="0"/>
 
                                     <div class="row">
-                                        <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled">Dokumentation</button>
+                                        <button id="dokumentation" type="submit"  class="btn  btn-success mybutton disabled col-md-12">Dokumentation</button>
                                         <input type="radio" name="type" value="pdf" checked/> pdf <input type="radio" name="type" value="csv"/> csv
                                     </div>
                                 </form>

@@ -1324,15 +1324,13 @@ function loggedOut() {
     $('#endDate').datepicker().off('changeDate');
     $("#klassen").unbind();
     $("#dokumentation").unbind();
-    $("#login").removeClass("btn-danger");
-    $("#login").addClass("btn-success");
-    $("#login").text("Login");
     $("#dokumentation").addClass("disabled");
     chatDisconnect();
     $("tbody").empty();
     sessionStorage.clear();
     schueler = undefined;
     $("#trNoten").empty();
+    window.location.replace("index.html");
 }
 
 /**
@@ -1340,9 +1338,7 @@ function loggedOut() {
  */
 function loggedIn() {
     showContainer(true);
-    $("#login").removeClass("btn-success");
-    $("#login").addClass("btn-danger");
-    $("#login").text("Logout " + sessionStorage.myself);
+    
     $("#dokumentation").removeClass("disabled");
     $('#startDate').datepicker().on('changeDate', function (ev) {
         $("#from").val($("#startDate").val());

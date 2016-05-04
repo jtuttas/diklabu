@@ -54,8 +54,8 @@ public final class Authenticator {
             }
 
             // Schüler Testzugang
-            usersStorage.put("fisi13a.schueler", "mmbbs");
-            rolesStorage.put("fisi13a.schueler", Roles.toString(Roles.SCHUELER));
+            usersStorage.put("fisi14a.aue", "mmbbs");
+            rolesStorage.put("fisi14a.aue", Roles.toString(Roles.SCHUELER));
         }
 
     }
@@ -111,6 +111,9 @@ public final class Authenticator {
                     LDAPUser u = new LDAPUser();
                     u.setShortName(username);
                     u.setAuthToken(authToken);
+                    // Diese Daten kommen eigentlich über LDAP
+                    u.setVName("Marcel");
+                    u.setNName("Aue");
                     u.setRole(rolesStorage.get(username));
                     for (int i = 0; i < Config.adminusers.length; i++) {
                         if (Config.adminusers[i].equals(username.toUpperCase())) {
@@ -166,7 +169,15 @@ public final class Authenticator {
         return rolesStorage.get(user);
     }
     
+    public void setRole(String username,String role) {
+        rolesStorage.put(username, role);
+    }
+    
     public String getUser(String authToken) {
         return authorizationTokensStorage.get(authToken);
+    }
+    
+    public void setUser(String authToken,String user) {
+        authorizationTokensStorage.put(authToken, user);
     }
 }
