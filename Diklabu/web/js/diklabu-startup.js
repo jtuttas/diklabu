@@ -244,6 +244,7 @@ $('#bildUploadForm').on('submit', (function (e) {
             console.log("error");
             toastr["error"]("Fehler beim Hochladen des Bildes!", "Fehler!");
             $("#uploadBildButton").show();
+            loggedOut();
         }
     });
 }));
@@ -427,6 +428,7 @@ $("body").on('keydown', ".bemerkung", function (e) {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("kann Bemerkungen nicht Eintragen! Status Code=" + xhr.status, "Fehler!");
+                loggedOut();
             }
         });
     }
@@ -574,6 +576,7 @@ function getKlassenliste(callback) {
         },
         error: function () {
             toastr["error"]("kann Klassenliste nicht vom Server laden", "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -599,6 +602,7 @@ function getFilter(callback) {
         },
         error: function () {
             toastr["error"]("kann Filter nicht vom Server laden", "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -625,6 +629,7 @@ function getLernfelder(callback) {
         },
         error: function () {
             toastr["error"]("kann Lernfelder nicht vom Server laden", "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -657,6 +662,7 @@ function getNoten(kl, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kann Noten der Klasse " + kl + " nicht vom Server laden!", "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -688,6 +694,7 @@ function getLehrerData(id, callback) {
         },
         error: function () {
             toastr["error"]("kann Lehrerdaten nicht vom Server laden", "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -717,6 +724,7 @@ function submitAnwesenheit(eintr, success) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Anwesenheitseintrag nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 
@@ -781,6 +789,7 @@ function refreshVerlauf(kl) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Verlauf nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -807,6 +816,7 @@ function getKlassenBemerkungen(klid) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -837,6 +847,7 @@ function setKlassenBemerkungen(klid) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -864,6 +875,7 @@ function refreshBemerkungen(kl) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -898,6 +910,7 @@ function submitNote(lf, ids, wert) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kann Note nicht eintragen! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -920,6 +933,7 @@ function getTermindaten(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Termindaten nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -962,6 +976,7 @@ function refreshAnwesenheit(kl, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Anwesenheit der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -1002,6 +1017,7 @@ function getSchuelerBild(id, elem) {
                         },
                         error: function () {
                             toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
+                            loggedOut();
                         }
                     });
 
@@ -1042,6 +1058,7 @@ function getBetriebe(kl, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann SBetriebe der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 
@@ -1067,6 +1084,7 @@ function loadSchulerDaten(id, callback) {
         },
         error: function () {
             toastr["error"]("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden", "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -1088,6 +1106,7 @@ function getBildKlasse(kl) {
         type: 'GET',
         error: function () {
             toastr["error"]("kann Bilder der Klasse " + kl + " nicht vom Server laden", "Fehler!");
+            loggedOut();
         },
         success:
                 function (data) {
@@ -1762,6 +1781,7 @@ function performLogin() {
                 console.log("HTTP Status: " + xhr.status);
                 console.log("Error textStatus: " + textStatus);
                 console.log("Error thrown: " + errorThrown);
+                loggedOut();
             }
         });
     }
@@ -1933,6 +1953,7 @@ function refreshKlassenliste(kl, callback) {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("kann Schüler der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+                loggedOut();
             }
         });
     }

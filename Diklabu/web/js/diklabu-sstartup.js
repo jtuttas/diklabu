@@ -21,8 +21,8 @@ $("#endDate").datepicker("setDate", new Date());
 $('[data-toggle="tooltip"]').tooltip();
 $(".infoIcon").unbind();
 
-console.log("found token:" + sessionStorage.auth_token+" id="+sessionStorage.myself+" nameKlasse="+sessionStorage.kname+" idKlasse="+sessionStorage.idKlasse);
-console.log("Build gui for logged in user");
+////console.log("found token:" + sessionStorage.auth_token+" id="+sessionStorage.myself+" nameKlasse="+sessionStorage.kname+" idKlasse="+sessionStorage.idKlasse);
+//console.log("Build gui for logged in user");
 loggedIn();
 updateCurrentView();
 $("#anwesenheitName").text(sessionStorage.VNAME+" "+sessionStorage.NNAME);
@@ -33,20 +33,20 @@ getSchuelerInfo();
  */
 
 $('#fehlzeitenTab').on('shown.bs.tab', function (e) {
-    console.log("fehlzeitenTab shown " + $(e.target).text());
+    //console.log("fehlzeitenTab shown " + $(e.target).text());
     updateCurrentView();
 });
 $('#plaene').on('shown.bs.tab', function (e) {
-    console.log("plaene shown " + $(e.target).text());
+    //console.log("plaene shown " + $(e.target).text());
     updateCurrentView();
 });
 
 $('#navTabs').on('shown.bs.tab', function (e) {
-    console.log("New Nav Target =" + $(e.target).text());
+    //console.log("New Nav Target =" + $(e.target).text());
     updateCurrentView();
 });
 $("#login").click(function() {
-    console.log("Perform Login");
+    //console.log("Perform Login");
     performLogin();
 });
 
@@ -68,9 +68,9 @@ $("#login").click(function() {
  */
 function refreshAnwesenheit(sid, callback) {
 
-    console.log("--> Refresh Anwesenheit f. sid " + sid + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
+    //console.log("--> Refresh Anwesenheit f. sid " + sid + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
     var url = SERVER + "/Diklabu/api/v1/sauth/" + sid + "/" + $("#startDate").val() + "/" + $("#endDate").val();
-    console.log("URL=" + url);
+    //console.log("URL=" + url);
     $.ajax({
         
         url: SERVER + "/Diklabu/api/v1/sauth/" + sid + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
@@ -83,7 +83,7 @@ function refreshAnwesenheit(sid, callback) {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             anwesenheit = data;
-            console.log("anwesenheit empfangen! ("+JSON.stringify(data))+")";
+            //console.log("anwesenheit empfangen! ("+JSON.stringify(data))+")";
             // Eventhandler auf einen anwesenheitseintrag
             if (callback != undefined) {
                 callback();
@@ -92,6 +92,7 @@ function refreshAnwesenheit(sid, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Anwesenheit für Schüler ID " + sid + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -101,7 +102,7 @@ function refreshAnwesenheit(sid, callback) {
  * @param {type} elem Element im dem das Bild angezeigt werden soll (als attr 'src')
  */
 function getSchuelerBild(id, elem) {
-    console.log("--> Lade Schülerbild vom Schüler mit der id=" + id);
+    //console.log("--> Lade Schülerbild vom Schüler mit der id=" + id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/sauth/bild/" + id,
         cache: false,
@@ -124,13 +125,14 @@ function getSchuelerBild(id, elem) {
                             "auth_token": sessionStorage.auth_token
                         },
                         success: function (data) {
-                            console.log("Bild Daten geladen:" + data.id + " elem=" + elem);
+                            //console.log("Bild Daten geladen:" + data.id + " elem=" + elem);
                             data = data.base64.replace(/(?:\r\n|\r|\n)/g, '');
                             $(elem).attr('src', "data:image/png;base64," + data);
 
                         },
                         error: function () {
                             toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
+                            loggedOut();
                         }
                     });
 
@@ -144,7 +146,7 @@ function getSchuelerBild(id, elem) {
  * @param {type} callback Callback
  */
 function loadSchulerDaten(id, callback) {
-    console.log("--> loadSchuelerData id=" + id);
+    //console.log("--> loadSchuelerData id=" + id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/sauth/" + id,
         type: "GET",
@@ -158,6 +160,7 @@ function loadSchulerDaten(id, callback) {
         },
         error: function () {
             toastr["error"]("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden", "Fehler!");
+            loggedOut();
         }
     });
 }
@@ -170,7 +173,7 @@ function loadSchulerDaten(id, callback) {
  */
 function getCurrentView() {
     target = $("ul#navTabs li.active").text();
-    console.log("get Current View Base target=(" + target + ")");
+    //console.log("get Current View Base target=(" + target + ")");
     
     if (target == "Pläne") {
         sub = $("ul#plaene li.active").text();
@@ -184,11 +187,11 @@ function getCurrentView() {
  * Stundenplan (HTML) der Klasse Abfragen und anzeigen
  */
 function loadStundenPlan() {
-    console.log("Lade Stundenplan der Klasse " + nameKlasse);
+    //console.log("Lade Stundenplan der Klasse " + nameKlasse);
     $("#stundenplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/stundenplan/" + nameKlasse, function (response, status, xhr) {
-        console.log("Stundenplan Status=" + status);
+        //console.log("Stundenplan Status=" + status);
         if (status == "nocontent") {
-            console.log("Kann Stundenplan der Klasse " + nameKlasse + " nicht laden!")
+            //console.log("Kann Stundenplan der Klasse " + nameKlasse + " nicht laden!")
             $("#stundenplan").empty();
             $("#stundenplan").append('<div><center><h1>Kann Stundenplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
         }
@@ -199,11 +202,11 @@ function loadStundenPlan() {
  * Vertretungsplan (HTML) der Klasse Abfragen und anzeigen
  */
 function loadVertertungsPlan() {
-    console.log("Lade Vertretungsplan der Klasse " + nameKlasse);
+    //console.log("Lade Vertretungsplan der Klasse " + nameKlasse);
     $("#vertertungsplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/vertertungsplan/" + nameKlasse, function (response, status, xhr) {
-        console.log("Vertretungsplan Status=" + status);
+        //console.log("Vertretungsplan Status=" + status);
         if (status == "nocontent") {
-            console.log("Kann Vertertungsplan der Klasse " + nameKlasse + " nicht laden!")
+            //console.log("Kann Vertertungsplan der Klasse " + nameKlasse + " nicht laden!")
             $("#vertertungsplan").empty();
             $("#vertertungsplan").append('<div><center><h1>Kann Vertertungsplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
         }
@@ -277,7 +280,7 @@ function loggedIn() {
  * Erzeugen der Fehlzeitentabelle 
  */
 function generateVerspaetungen() {
-    console.log("Generate Verspaetungen");
+    //console.log("Generate Verspaetungen");
     $("#verspaetungenTabelle").empty();
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0 || anwesenheit[i].parseErrors.length != 0) {
@@ -286,14 +289,14 @@ function generateVerspaetungen() {
             tr += "<span class=\"fehltagEntschuldigt\">" + anwesenheit[i].summeFehltageEntschuldigt + "</span></td>";
             tr += "<td>";
             var entschuldigt = anwesenheit[i].fehltageEntschuldigt;
-            console.log("Fehltage Entschuldigt size=" + entschuldigt.length);
+            //console.log("Fehltage Entschuldigt size=" + entschuldigt.length);
             for (var j = 0; j < entschuldigt.length; j++) {
                 var dat = entschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
                 tr += "<span class=\"fehltagEntschuldigt\">"+'<a href="#" data-toggle="tooltip" title="' + entschuldigt[j].ID_LEHRER+ '">'+dat + "</a></span> &nbsp;";
             }
             var unentschuldigt = anwesenheit[i].fehltageUnentschuldigt;
-            console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
+            //console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
             for (var j = 0; j < unentschuldigt.length; j++) {
                 var dat = unentschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
@@ -306,7 +309,7 @@ function generateVerspaetungen() {
             tr += "<td>" + anwesenheit[i].summeMinutenVerspaetungenEntschuldigt + " min</td>";
             var fehler = anwesenheit[i].parseErrors;
             tr += "<td>";
-            console.log("Fehler size=" + fehler.length);
+            //console.log("Fehler size=" + fehler.length);
             for (var j = 0; j < fehler.length; j++) {
                 var dat = fehler[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
@@ -325,11 +328,11 @@ function generateVerspaetungen() {
  * Erzeugen der Fehlzeitentabelle 
  */
 function generateAnwesenheit() {
-    console.log("Generate Anwesenheit");
+    //console.log("Generate Anwesenheit");
     $("#anwesenheitsTabelle").empty();
     from = new Date($("#startDate").val());
     to = new Date($("#endDate").val());
-    console.log("from="+from+" time="+from.getTime()+" to="+to.getTime());
+    //console.log("from="+from+" time="+from.getTime()+" to="+to.getTime());
     while (from.getTime() <= to.getTime()) {
         var s=toSQLString(from);
         $("#anwesenheitsTabelle").append('<tr><td>'+days[from.getDay()]+' '+from.getDate()+'.'+from.getMonth()+'.'+from.getFullYear()+'</td><td id="LK'+s+'"></td><td id="Verm'+s+'"></td>');
@@ -339,7 +342,7 @@ function generateAnwesenheit() {
     anw = anwesenheit[0].eintraege;
     for (var i = 0; i < anw.length; i++) {
         eintrag = anw[i];
-        console.log(eintrag);
+        //console.log(eintrag);
         dat = eintrag.DATUM;
         dat = dat.substr(0,dat.indexOf("T"));
         $("#LK"+dat).text(eintrag.ID_LEHRER);
@@ -434,7 +437,7 @@ function getSchuelerInfo() {
     $(".infoIcon").unbind();
     $(".infoIcon").click(function () {
         idSchueler = $(this).attr("ids");
-        console.log("lade Schuler ID=" + idSchueler);
+        //console.log("lade Schuler ID=" + idSchueler);
         loadSchulerDaten(idSchueler, function (data) {
             $("#infoName").text(data.vorname + " " + data.name);
             $("#infoGeb").text("Geburtsdatum " + data.gebDatum);
@@ -464,7 +467,7 @@ function getSchuelerInfo() {
     });
     $(".mailIcon").unbind();
     $(".mailIcon").click(function () {
-        console.log("mail to Schüler with id=" + $(this).attr("ids"));
+        //console.log("mail to Schüler with id=" + $(this).attr("ids"));
         var s = findSchueler($(this).attr("ids"));
         $("#mailName").text(s.VNAME + " " + s.NNAME);
         $("#mailSAdr").text(s.EMAIL);
@@ -477,7 +480,7 @@ function getSchuelerInfo() {
     });
     $(".mailBetrieb").unbind();
     $(".mailBetrieb").click(function () {
-        console.log("mail to Betrieb to=" + $(this).attr("aemail"));
+        //console.log("mail to Betrieb to=" + $(this).attr("aemail"));
         $("#mailName").text($(this).attr("aname"));
         $("#mailSAdr").text($(this).attr("aemail"));
         $("#fromLehrerMail").val(sessionStorage.myemail)
@@ -517,9 +520,9 @@ function performLogin() {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
-                console.log("HTTP Status: " + xhr.status);
-                console.log("Error textStatus: " + textStatus);
-                console.log("Error thrown: " + errorThrown);
+                //console.log("HTTP Status: " + xhr.status);
+                //console.log("Error textStatus: " + textStatus);
+                //console.log("Error thrown: " + errorThrown);
                 if (xhr.status = 401) {
                     loggedOut();
                 }
@@ -541,7 +544,7 @@ function updateCurrentView() {
         return;
 
     view = getCurrentView();
-    console.log("Update Current View = " + view);
+    //console.log("Update Current View = " + view);
     switch (view) {
         case "Anwesenheit":            
             refreshAnwesenheit(sessionStorage.myself, function () {
