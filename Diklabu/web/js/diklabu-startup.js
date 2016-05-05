@@ -687,6 +687,7 @@ function getLehrerData(id, callback) {
             sessionStorage.lehrerNNAME = data.NNAME;
             sessionStorage.lehrerEMAIL = data.EMAIL;
             sessionStorage.lehrerVNAME = data.VNAME;
+            sessionStorage.myemail=data.EMAIL;
             $("#fromMail").val(data.EMAIL);
             if (callback != undefined) {
                 callback(data);
@@ -1673,7 +1674,7 @@ function getSchuelerInfo() {
     });
     $(".mailIcon").unbind();
     $(".mailIcon").click(function () {
-        console.log("mail to Schüler with id=" + $(this).attr("ids"));
+        console.log("mail to Schüler with id=" + $(this).attr("ids")+ "abs="+sessionStorage.myemail);
         var s = findSchueler($(this).attr("ids"));
         $("#mailName").text(s.VNAME + " " + s.NNAME);
         $("#mailSAdr").text(s.EMAIL);

@@ -46,7 +46,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 
 /**
- *
+ * Diese Dienste sind aus der Schülerrolle ausrufbar!
  * @author Jörg
  */
 @Path("sauth")

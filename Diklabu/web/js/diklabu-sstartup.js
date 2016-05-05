@@ -335,7 +335,7 @@ function generateAnwesenheit() {
     //console.log("from="+from+" time="+from.getTime()+" to="+to.getTime());
     while (from.getTime() <= to.getTime()) {
         var s=toSQLString(from);
-        $("#anwesenheitsTabelle").append('<tr><td>'+days[from.getDay()]+' '+from.getDate()+'.'+from.getMonth()+'.'+from.getFullYear()+'</td><td id="LK'+s+'"></td><td id="Verm'+s+'"></td>');
+        $("#anwesenheitsTabelle").append('<tr><td>'+days[from.getDay()]+' '+from.getDate()+'.'+(from.getMonth()+1)+'.'+from.getFullYear()+'</td><td id="LK'+s+'"></td><td id="Verm'+s+'"></td>');
         from.setDate(from.getDate() + 1);     
     }
     
