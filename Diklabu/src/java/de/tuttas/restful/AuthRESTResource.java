@@ -53,7 +53,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
 
         String username = a.getBenutzer();
         String password = a.getKennwort();
-        Log.d("login post empfangen f. " + a.toString() + " debug=" + Config.debug);
+        Log.d("login post empfangen f. " + a.toString() + " debug=" + Config.getInstance().debug);
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
 

@@ -207,7 +207,7 @@ public class SchuelerManager {
     @Produces("image/jpg")
     public Response getFile(@PathParam("idschueler") int idschueler) {
 
-        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("Lade  file " + filename);
         File file = new File(filename);
         if (!file.exists()) {
@@ -222,7 +222,7 @@ public class SchuelerManager {
     public BildObject getFile64(@PathParam("idschueler") int idschueler) {
         BildObject bo = new BildObject();
         bo.setId(idschueler);
-        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("Lade file " + filename);
         File file = new File(filename);
 
@@ -249,7 +249,7 @@ public class SchuelerManager {
             @FormDataParam("file") FormDataContentDisposition fileDetail) {
 
         ResultObject r = new ResultObject();
-        String fileLocation = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        String fileLocation = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("upload  File for " + idschueler);
         try {
 
@@ -272,7 +272,7 @@ public class SchuelerManager {
                 int newWidth = 200;
                 int newHeight = Math.round(newWidth * ((float) originalHeight / originalWidth));
                 BufferedImage bi = this.createResizedCopy(bImage, newWidth, newHeight, true);
-                ImageIO.write(bi, "jpg", new File(Config.IMAGE_FILE_PATH + idschueler + ".jpg"));
+                ImageIO.write(bi, "jpg", new File(Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg"));
                 r.setMsg("Bild erfolgreich hochgeladen!");
                 r.setSuccess(true);
             } else {

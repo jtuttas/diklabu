@@ -159,7 +159,7 @@ public class SAuthServices {
         if (user==null || Integer.parseInt(user)!=idschueler) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
-        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("Lade  file " + filename);
         File file = new File(filename);
         if (!file.exists()) {
@@ -181,7 +181,7 @@ public class SAuthServices {
         }
         BildObject bo = new BildObject();
         bo.setId(idschueler);
-        String filename = Config.IMAGE_FILE_PATH + idschueler + ".jpg";
+        String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("Lade file " + filename);
         File file = new File(filename);
 

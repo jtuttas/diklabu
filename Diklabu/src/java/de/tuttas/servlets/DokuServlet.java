@@ -94,12 +94,12 @@ public class DokuServlet extends HttpServlet {
                 out.println("</head>");
                 out.println("<body>");
                 out.println("<h1>Doku Servlet @ " + request.getContextPath() + "</h1>");
-                out.println("<a href='?cmd=Verlauf&idklasse=3608&from=2015-09-08&debug=" + Config.debug + "' target='_pdf'>Usage: ?cmd=verlauf&idklasse=3608&from=2015-09-08</a>");
+                out.println("<a href='?cmd=Verlauf&idklasse=3608&from=2015-09-08&debug=" + Config.getInstance().debug + "' target='_pdf'>Usage: ?cmd=verlauf&idklasse=3608&from=2015-09-08</a>");
                 out.println("</body>");
                 out.println("</html>");
             }
         } else {
-            if (de.tuttas.config.Config.debug || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(auth)) {
+            if (Config.getInstance().debug || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(auth)) {
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
                 String type = request.getParameter("type");

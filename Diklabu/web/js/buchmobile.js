@@ -851,8 +851,11 @@ function getLehrerData(le) {
                     $("#btnVertrPlanLehrer").hide();
                 }
             },
-            error: function () {
+            error: function (xhr, textStatus, errorThrown) {
                 toast("kann Daten für " + le + " nicht vom Server laden");
+                 if (xhr.status == 401) {
+                performLogout();
+            }
             }
         });
     }
@@ -872,8 +875,11 @@ else {
             sessionStorage.klassen = JSON.stringify(data);
             buildKlassenListeView(data);
         },
-        error: function () {
+        error: function (xhr, textStatus, errorThrown) {
             toast("kann Klassenliste nicht vom Server laden");
+             if (xhr.status == 401) {
+                performLogout();
+            }
         }
     });
 }
@@ -1013,9 +1019,11 @@ else {
                 $("#lernfelder").append('<option value="' + data[i].id + '">' + data[i].id + '</option>');
             }
         },
-        error: function () {
+        error: function (xhr, textStatus, errorThrown) {
             toast("kann Lernfelder nicht vom Server laden");
-
+ if (xhr.status == 401) {
+                performLogout();
+            }
 
         }
     });

@@ -284,7 +284,7 @@ public class KlassenManager {
         for (Schueler s : schueler) {
             BildObject bo = new BildObject();
             bo.setId(s.getId());
-            String filename = Config.IMAGE_FILE_PATH + s.getId() + ".jpg";
+            String filename = Config.getInstance().IMAGE_FILE_PATH + s.getId() + ".jpg";
             Log.d("Lade file " + filename);
             File file = new File(filename);
             if (!file.exists()) {

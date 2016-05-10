@@ -41,7 +41,7 @@ public final class Authenticator {
     private final Map<String, Long> liveTimeStorage = new HashMap();
 
     private Authenticator() {
-        if (Config.debug) {
+        if (Config.getInstance().debug) {
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("DiklabuPU");
             EntityManager em = emf.createEntityManager();
             Query query = em.createNamedQuery("findAllTeachers");
@@ -70,7 +70,7 @@ public final class Authenticator {
 
     public LDAPUser login(String serviceKey, String username, String password) throws LoginException {
 
-        if (!Config.debug) {
+        if (!Config.getInstance().debug) {
             LDAPUtil ldap;
             try {
                 ldap = LDAPUtil.getInstance();
@@ -83,8 +83,9 @@ public final class Authenticator {
                     liveTimeStorage.put(authToken, System.currentTimeMillis());
 
                     u.setAuthToken(authToken);
-                    for (int i = 0; i < Config.adminusers.length; i++) {
-                        if (Config.adminusers[i].equals(username.toUpperCase())) {
+                    
+                    for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
+                        if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {
                             u.setRole(Roles.toString(Roles.ADMIN));
                         }
                     }
@@ -115,8 +116,8 @@ public final class Authenticator {
                     u.setVName("Marcel");
                     u.setNName("Aue");
                     u.setRole(rolesStorage.get(username));
-                    for (int i = 0; i < Config.adminusers.length; i++) {
-                        if (Config.adminusers[i].equals(username.toUpperCase())) {
+                    for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
+                        if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {
                             u.setRole(Roles.toString(Roles.ADMIN));
                         }
                     }
@@ -138,7 +139,7 @@ public final class Authenticator {
     public boolean isAuthTokenValid(String authToken) {
         if (authorizationTokensStorage.containsKey(authToken)) {
             Long t = liveTimeStorage.get(authToken);
-            if (System.currentTimeMillis() < t + Config.AUTH_TOKE_TIMEOUT) {
+            if (System.currentTimeMillis() < t + Config.getInstance().AUTH_TOKE_TIMEOUT) {
                 return true;
             } else {
                 Log.d("Auth Token Timed out");

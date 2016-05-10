@@ -5,6 +5,7 @@
  */
 package de.tuttas.servlets;
 
+import de.tuttas.config.Config;
 import de.tuttas.util.Log;
 import java.io.File;
 import java.io.IOException;
@@ -32,48 +33,21 @@ import org.json.simple.parser.ParseException;
  */
 public class MailSender implements Runnable {
 
-    private String host;
-    private String port;
-    private String user;
-    private String pass;
+    
     private Properties properties = new Properties();
     private Thread runner;
     private ArrayList<MailObject> mails = new ArrayList();
 
     public MailSender() {
-        /*
-         {
-         "host": "xxxx",
-         "port": "587",
-         "user": "xxxx",
-         "pass": "xxxx"
-         }
 
-         */
+        // sets SMTP server properties
+        properties.put("mail.smtp.host", Config.getInstance().smtphost);
+        properties.put("mail.smtp.port", Config.getInstance().port);
+        properties.put("mail.smtp.auth", "true");
+        properties.put("mail.smtp.starttls.enable", "true");
+        runner = new Thread(this);
+        runner.start();
 
-        try {
-            // reads SMTP server setting from web.xml file
-            String conf = this.getFile("/de/tuttas/servlets/mailconfig.json");
-            JSONParser parser = new JSONParser();
-
-            JSONObject jo = (JSONObject) parser.parse(conf);
-            host = (String) jo.get("host");
-            port = (String) jo.get("port");
-            user = (String) jo.get("user");
-            pass = (String) jo.get("pass");
-            Log.d("host=" + host);
-
-            // sets SMTP server properties
-            properties.put("mail.smtp.host", host);
-            properties.put("mail.smtp.port", port);
-            properties.put("mail.smtp.auth", "true");
-            properties.put("mail.smtp.starttls.enable", "true");
-            runner = new Thread(this);
-            runner.start();
-
-        } catch (ParseException ex) {
-            Logger.getLogger(MailServlet.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     private void transmitMail(MailObject mo) throws MessagingException {
@@ -81,7 +55,7 @@ public class MailSender implements Runnable {
         // creates a new session with an authenticator
         Authenticator auth = new Authenticator() {
             public PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(user, pass);
+                return new PasswordAuthentication(Config.getInstance().user, Config.getInstance().pass);
             }
         };
         Session session = Session.getInstance(properties, auth);

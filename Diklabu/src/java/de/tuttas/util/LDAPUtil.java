@@ -33,10 +33,7 @@ import org.json.simple.parser.ParseException;
 public class LDAPUtil {
 
     private static LDAPUtil instance;
-    private String bindUser;
-    private String bindPassword;
-    private String host;
-    private String userContext;
+    
     private InitialDirContext context;
     private SearchControls ctrls;
 
@@ -47,56 +44,8 @@ public class LDAPUtil {
         return instance;
     }
 
-    /*
-     ldapconfig.json
     
-        {
-        "host": "ldap://192.168.178.147:389",
-        "binduser": "CN=Administrator,CN=Users,DC=tuttas,DC=de",
-        "bindpassword":"geheim",
-        "context": "OU=ou-lehrer,OU=mmbbs,DC=tuttas,DC=de"
-        }
-
-     */
     private LDAPUtil() {
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(Config.LDAP_CONF_PATH));
-            try {
-                StringBuilder sb = new StringBuilder();
-                String line = br.readLine();
-
-                while (line != null) {
-                    sb.append(line);
-                    sb.append(System.lineSeparator());
-                    line = br.readLine();
-                }
-                String conf = sb.toString();
-                JSONParser parser = new JSONParser();
-                JSONObject jo = (JSONObject) parser.parse(conf);
-                host = (String) jo.get("host");
-                bindUser = (String) jo.get("binduser");
-                bindPassword = (String) jo.get("bindpassword");
-                userContext = (String) jo.get("context");
-                Log.d("Context is " + userContext);
-
-            } catch (IOException ex) {
-                Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ParseException ex) {
-                Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-                try {
-                    br.close();
-                } catch (IOException ex) {
-                    Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
-                }
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-               
-
     }
 
     public static void main(String[] args) {
@@ -115,9 +64,9 @@ public class LDAPUtil {
 // Anbindung ans LDAP
         Properties props = new Properties();
         props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        props.put(Context.PROVIDER_URL, host);
-        props.put(Context.SECURITY_PRINCIPAL, bindUser);//adminuser - User with special priviledge, dn user
-        props.put(Context.SECURITY_CREDENTIALS, bindPassword);//dn user password
+        props.put(Context.PROVIDER_URL, Config.getInstance().ldaphost);
+        props.put(Context.SECURITY_PRINCIPAL, Config.getInstance().bindUser);//adminuser - User with special priviledge, dn user
+        props.put(Context.SECURITY_CREDENTIALS, Config.getInstance().bindPassword);//dn user password
         try {
             context = new InitialDirContext(props);
             ctrls = new SearchControls();
@@ -126,7 +75,7 @@ public class LDAPUtil {
         } catch (NamingException ex) {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
         }       
-        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(userContext, "(cn=" + username + ")", ctrls);
+        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(Config.getInstance().userContext, "(cn=" + username + ")", ctrls);
         Log.d("answers=" + answers);
         Log.d("answers=" + answers.hasMore());
         if (!answers.hasMore()) {
@@ -176,7 +125,7 @@ public class LDAPUtil {
             
             props = new Properties();
             props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-            props.put(Context.PROVIDER_URL, host);
+            props.put(Context.PROVIDER_URL, Config.getInstance().ldaphost);
             props.put(Context.SECURITY_PRINCIPAL, user);
             props.put(Context.SECURITY_CREDENTIALS, password);
 
