@@ -13,6 +13,7 @@ public class StringUtil {
 
     public static String removeGermanCharacters(String id) {
         String out = "";
+        if (id==null) return null;
         for (int i = 0; i < id.length(); i++) {
             char c = id.charAt(i);
             switch (c) {

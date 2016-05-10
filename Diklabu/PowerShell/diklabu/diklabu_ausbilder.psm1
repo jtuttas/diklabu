@@ -224,8 +224,10 @@ function New-Instructor
         [String]$TELEFON,
         #ID_Betrieb des Ausbilders
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [int]$ID_BETRIEB
+        [int]$ID_BETRIEB,
 
+         [Parameter(ValueFromPipelineByPropertyName=$true)]
+         [int]$ID
     )
 
     Begin
@@ -237,13 +239,28 @@ function New-Instructor
     }
     Process
     {
-          $ausbilder=echo "" | Select-Object -Property "NNAME","ANREDE","EMAIL","FAX","ID_BETRIEB","TELEFON"
-          $ausbilder.ANREDE=$ANREDE
-          $ausbilder.EMAIL=$EMAIL
-          $ausbilder.FAX=$FAX
-          $ausbilder.ID_BETRIEB=$ID_BETRIEB
-          $ausbilder.TELEFON=$TEL
-          $ausbilder.NNAME=$NNAME      
+          $ausbilder=echo "" | Select-Object -Property "NNAME","ANREDE","EMAIL","FAX","ID_BETRIEB","TELEFON","ID"
+          if ($ANREDE) {
+            $ausbilder.ANREDE=$ANREDE
+          }
+          if ($EMAIL) {
+            $ausbilder.EMAIL=$EMAIL
+          }
+          if ($FAX) {
+            $ausbilder.FAX=$FAX
+          }
+          if ($ID_BETRIEB -ne 0) {
+            $ausbilder.ID_BETRIEB=$ID_BETRIEB
+          }
+          if ($TEL) {
+            $ausbilder.TELEFON=$TEL
+          }
+          if ($NNAME) {
+            $ausbilder.NNAME=$NNAME      
+          }
+          if ($ID -ne 0) {
+            $ausbilder.ID=$ID
+          }
           try {        
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"ausbilder/admin/") -Headers $headers -Body (ConvertTo-Json $ausbilder)
             return $r;

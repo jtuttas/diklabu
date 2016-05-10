@@ -5,6 +5,8 @@ Import-Module diklabu_betriebe.psm1
 Import-Module diklabu_ausbilder.psm1
 Import-Module diklabu_coursemember.psm1
 Import-Module diklabu_kurswahl.psm1
+Import-Module diklabu_lehrer.psm1
+
 
 Export-ModuleMember -Function Set-Diklabuserver
 Export-ModuleMember -Function Get-Diklabuserver
@@ -45,3 +47,8 @@ Export-ModuleMember -Function Get-Coursevoting
 Export-ModuleMember -Function List-Coursevoting
 Export-ModuleMember -Function New-Coursevoting
 Export-ModuleMember -Function Stop-Coursevoting
+
+Export-ModuleMember -Function Get-Teacher
+Export-ModuleMember -Function Set-Teacher
+Export-ModuleMember -Function New-Teacher
+Export-ModuleMember -Function Delete-Teacher

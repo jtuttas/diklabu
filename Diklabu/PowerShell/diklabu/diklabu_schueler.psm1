@@ -168,7 +168,12 @@ function New-Pupil
 
         # Info
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [String]$INFO
+        [String]$INFO,
+
+        # Info
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [int]$id
+
 
     )
 
@@ -180,16 +185,31 @@ function New-Pupil
     }
     Process
     {
-        $schueler=echo "" | Select-Object -Property "EMAIL","GEBDAT","VNAME","NNAME","ID_AUSBILDER","ABGANG","INFO"
-        $schueler.VNAME=$VNAME
-        $schueler.NNAME=$NNAME
-        $schueler.GEBDAT=$GEBDAT
-        $schueler.EMAIL=$EMAIL
+        $schueler=echo "" | Select-Object -Property "EMAIL","GEBDAT","VNAME","NNAME","ID_AUSBILDER","ABGANG","INFO","id"
+        if ($VNAME) {
+          $schueler.VNAME=$VNAME
+        }
+        if ($NNAME) {
+          $schueler.NNAME=$NNAME
+        }
+        if ($GEBDAT) {
+          $schueler.GEBDAT=$GEBDAT
+        }
+        if ($EMAIL) {
+          $schueler.EMAIL=$EMAIL
+        }
+        if ($id -ne 0) {
+          $schueler.id=$id
+        }
         if ($ID_AUSBILDER -ne 0) {
             $schueler.ID_AUSBILDER=$ID_AUSBILDER
          }
-        $schueler.ABGANG=$ABGANG
-        $schueler.INFO=$INFO
+         if ($ABGANG) {
+          $schueler.ABGANG=$ABGANG
+        }
+        if ($INFO) {
+          $schueler.INFO=$INFO
+        }
         
         try {
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/admin") -Headers $headers -Body (ConvertTo-Json $schueler)

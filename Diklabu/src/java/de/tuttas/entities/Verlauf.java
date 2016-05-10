@@ -30,6 +30,7 @@ import org.apache.jasper.Constants;
 @NamedQueries({
     @NamedQuery(name = "findVerlaufbyKlasse", query = "select v from Verlauf v INNER JOIN Klasse k on v.ID_KLASSE=k.ID where k.KNAME like :paramKName and (v.DATUM between :paramFromDate and :paramToDate) ORDER BY v.DATUM,v.STUNDE "),
     @NamedQuery(name = "findVerlaufbyKlasseId", query = "select v from Verlauf v where v.ID_KLASSE = :paramidKlasse"),
+    @NamedQuery(name = "findVerlaufByLehrerId", query = "select v from Verlauf v where v.ID_LEHRER = :paramLehrerId"),
     @NamedQuery(name = "findVerlaufbyDatumStundeAndKlassenID", query = "select v from Verlauf v where v.ID_KLASSE= :paramKlassenID and v.DATUM=:paramDatum and v.STUNDE = :paramStunde"),})
 public class Verlauf implements Serializable {
 

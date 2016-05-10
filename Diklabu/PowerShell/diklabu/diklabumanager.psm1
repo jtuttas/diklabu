@@ -11,7 +11,8 @@
         course ....... Klasse
         company ...... Firma
         instructor ... Ausbilder 
-        coursemember . Kursmitgliedschaft        
+        coursemember . Kursmitgliedschaft     
+        teacher ...... Lehrer   
 
 #>
 
