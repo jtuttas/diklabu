@@ -66,7 +66,8 @@ public class Config {
                 JSONObject jo = (JSONObject) parser.parse(conf);
                 debug = (boolean)jo.get("debug");
                 auth = (boolean)jo.get("auth");
-                IMAGE_FILE_PATH = (String)jo.get("IMAGE_FILE_PATH");                
+                IMAGE_FILE_PATH = (String)jo.get("IMAGE_FILE_PATH");   
+                Log.d("IMage_File_Path="+IMAGE_FILE_PATH); 
                 JSONArray ja = (JSONArray) jo.get("adminusers");               
                 adminusers = new String[ja.size()];
                 for (int i=0;i<adminusers.length;i++) {
