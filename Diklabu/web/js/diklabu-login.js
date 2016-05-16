@@ -3,6 +3,7 @@ $("#login").click(function () {
     performLogin();
 });
 
+$("#diklabuname").text(DIKLABUNAME);
 $("#version").text(VERSION);
 /**
  * 

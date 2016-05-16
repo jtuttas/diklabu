@@ -31,7 +31,7 @@ $(".infoIcon").unbind();
 $("#template").load(SERVER + "/Diklabu/template.txt", function () {
     console.log("Load Template")
 });
-
+$("#diklabuname").text(DIKLABUNAME);
 console.log("found token:" + sessionStorage.auth_token);
 
 getKlassenliste(function () {

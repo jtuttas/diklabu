@@ -20,6 +20,7 @@ $("#endDate").datepicker("setDate", new Date());
 // Tooltip Aktivieren
 $('[data-toggle="tooltip"]').tooltip();
 $(".infoIcon").unbind();
+$("#diklabuname").text(DIKLABUNAME);
 
 ////console.log("found token:" + sessionStorage.auth_token+" id="+sessionStorage.myself+" nameKlasse="+sessionStorage.kname+" idKlasse="+sessionStorage.idKlasse);
 //console.log("Build gui for logged in user");
