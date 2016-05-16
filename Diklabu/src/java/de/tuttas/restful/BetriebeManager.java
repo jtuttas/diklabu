@@ -107,6 +107,7 @@ public class BetriebeManager {
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin")
     public Betrieb createCompany(Betrieb b) {
+        Log.d("create Company "+b);
         em.persist(b);
         em.flush();
         return b;        

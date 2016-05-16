@@ -224,12 +224,24 @@ function New-Company
     Process
     {
         $betrieb=echo "" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID"
-        $betrieb.NAME=$NAME
-        $betrieb.PLZ=$PLZ
-        $betrieb.ORT=$ORT
-        $betrieb.STRASSE=$STRASSE
-        $betrieb.NR=$NAME
-        $betrieb.ID=$ID
+        if ($NAME) {
+          $betrieb.NAME=$NAME
+          }
+        if ($PLZ) {
+          $betrieb.PLZ=$PLZ
+          }
+        if ($ORT) {
+          $betrieb.ORT=$ORT
+          }
+        if ($STRASSE) {
+          $betrieb.STRASSE=$STRASSE
+          }
+        if ($NR) {
+          $betrieb.NR=$NR
+        }
+        if ($ID) {
+          $betrieb.ID=$ID
+          }
         try {
           $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/") -Headers $headers -Body (ConvertTo-Json $betrieb)
           return $r;
