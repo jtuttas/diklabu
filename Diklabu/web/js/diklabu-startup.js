@@ -72,7 +72,7 @@ $("#print").click(function () {
             removeInline: false
         });
     }
-     else if (currentView == "Vertretungsplan Lehrer") {
+    else if (currentView == "Vertretungsplan Lehrer") {
         $("#lvertertungsplan").printThis({
             debug: false,
             printContainer: true,
@@ -80,7 +80,7 @@ $("#print").click(function () {
             removeInline: false
         });
     }
-     else if (currentView == "Stundenplan Lehrer") {
+    else if (currentView == "Stundenplan Lehrer") {
         $("#lstundenplan").printThis({
             debug: false,
             printContainer: true,
@@ -147,8 +147,8 @@ $("#print").click(function () {
 });
 
 $("#eigeneEintraege").click(function () {
-   console.log("Eigene Einträge Click");
-   if ($("#eigeneEintraege").is(':checked')) {
+    console.log("Eigene Einträge Click");
+    if ($("#eigeneEintraege").is(':checked')) {
         $("#dokufilter1").val("eigeneEintraege")
     }
     else {
@@ -240,11 +240,11 @@ $('#bildUploadForm').on('submit', (function (e) {
                 $("#uploadBildButton").show();
             }
         },
-        error: function (xhr, textStatus, errorThrown) { 
+        error: function (xhr, textStatus, errorThrown) {
             console.log("error");
             toastr["error"]("Fehler beim Hochladen des Bildes!", "Fehler!");
             $("#uploadBildButton").show();
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -430,7 +430,7 @@ $("body").on('keydown', ".bemerkung", function (e) {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("kann Bemerkungen nicht Eintragen! Status Code=" + xhr.status, "Fehler!");
-                if (xhr.status==401) {
+                if (xhr.status == 401) {
                     loggedOut();
                 }
             }
@@ -578,9 +578,9 @@ function getKlassenliste(callback) {
             $("#idklasse").val(idKlasse);
             callback();
         },
-        error: function (xhr, textStatus, errorThrown)  {
+        error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Klassenliste nicht vom Server laden", "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -608,7 +608,7 @@ function getFilter(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Filter nicht vom Server laden", "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -637,7 +637,7 @@ function getLernfelder(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Lernfelder nicht vom Server laden", "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -672,7 +672,7 @@ function getNoten(kl, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kann Noten der Klasse " + kl + " nicht vom Server laden!", "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -699,7 +699,7 @@ function getLehrerData(id, callback) {
             sessionStorage.lehrerNNAME = data.NNAME;
             sessionStorage.lehrerEMAIL = data.EMAIL;
             sessionStorage.lehrerVNAME = data.VNAME;
-            sessionStorage.myemail=data.EMAIL;
+            sessionStorage.myemail = data.EMAIL;
             $("#fromMail").val(data.EMAIL);
             if (callback != undefined) {
                 callback(data);
@@ -707,7 +707,7 @@ function getLehrerData(id, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Lehrerdaten nicht vom Server laden", "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -739,7 +739,7 @@ function submitAnwesenheit(eintr, success) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Anwesenheitseintrag nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -765,21 +765,21 @@ function refreshVerlauf(kl) {
         success: function (data) {
             verlauf = data;
             $("#tabelleVerlauf").empty();
-            console.log("Filter eigene Einträege="+$("#eigeneEintraege").is(':checked'));
+            console.log("Filter eigene Einträege=" + $("#eigeneEintraege").is(':checked'));
             for (i = 0; i < data.length; i++) {
                 var datum = data[i].wochentag + " " + data[i].DATUM;
                 datum = datum.substring(0, datum.indexOf('T'));
                 if (data[i].ID_LEHRER == sessionStorage.myself) {
-                    if ($("#lernfelderFilter").val()=="alle" || $("#lernfelderFilter").val()==data[i].ID_LERNFELD) {
+                    if ($("#lernfelderFilter").val() == "alle" || $("#lernfelderFilter").val() == data[i].ID_LERNFELD) {
                         $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' class='success'><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
                     }
                 }
                 else {
                     if ($("#eigeneEintraege").is(':checked')) {
-                        
+
                     }
                     else {
-                        if ($("#lernfelderFilter").val()=="alle" || $("#lernfelderFilter").val()==data[i].ID_LERNFELD) {
+                        if ($("#lernfelderFilter").val() == "alle" || $("#lernfelderFilter").val() == data[i].ID_LERNFELD) {
                             $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' ><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
                         }
                     }
@@ -806,7 +806,7 @@ function refreshVerlauf(kl) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Verlauf nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -835,7 +835,7 @@ function getKlassenBemerkungen(klid) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -868,7 +868,7 @@ function setKlassenBemerkungen(klid) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -898,7 +898,7 @@ function refreshBemerkungen(kl) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bemerkungen der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -921,7 +921,7 @@ function submitNote(lf, ids, wert) {
     }
 
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/noten",
+        url: SERVER + "/Diklabu/api/v1/noten/" + idKlasse,
         type: "POST",
         data: JSON.stringify(eintr),
         cache: false,
@@ -931,11 +931,13 @@ function submitNote(lf, ids, wert) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-
+            if (data.success == false) {
+                toastr["error"](data.msg, "Fehler!");
+            }
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kann Note nicht eintragen! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -960,7 +962,7 @@ function getTermindaten(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Termindaten nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -1005,7 +1007,7 @@ function refreshAnwesenheit(kl, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Anwesenheit der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -1048,7 +1050,7 @@ function getSchuelerBild(id, elem) {
                         },
                         error: function (xhr, textStatus, errorThrown) {
                             toastr["error"]("kann Schülerbild ID=" + id + " nicht vom Server laden", "Fehler!");
-                            if (xhr.status==401) {
+                            if (xhr.status == 401) {
                                 loggedOut();
                             }
                         }
@@ -1091,7 +1093,7 @@ function getBetriebe(kl, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann SBetriebe der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -1119,7 +1121,32 @@ function loadSchulerDaten(id, callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Schülerinfo ID=" + idSchueler + " nicht vom Server laden", "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
+
+function loadPortfolio(id, callback) {
+    console.log("--> loadPortfiol Klassen id=" + id);
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/portfolio/" + id,
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            console.log("Load Portfolio data=" + JSON.stringify(data));
+            if (callback != undefined) {
+                callback(data);
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Portfolio für Klasse ID=" + id + " nicht vom Server laden", "Fehler!");
+            if (xhr.status == 401) {
                 loggedOut();
             }
         }
@@ -1141,9 +1168,9 @@ function getBildKlasse(kl) {
             "auth_token": sessionStorage.auth_token
         },
         type: 'GET',
-        error: function (xhr, textStatus, errorThrown){
+        error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("kann Bilder der Klasse " + kl + " nicht vom Server laden", "Fehler!");
-            if (xhr.status==401) {
+            if (xhr.status == 401) {
                 loggedOut();
             }
         },
@@ -1396,7 +1423,7 @@ function loggedOut() {
  */
 function loggedIn() {
     showContainer(true);
-    
+
     $("#dokumentation").removeClass("disabled");
     $('#startDate').datepicker().on('changeDate', function (ev) {
         $("#from").val($("#startDate").val());
@@ -1538,14 +1565,14 @@ function generateVerspaetungen() {
             for (var j = 0; j < entschuldigt.length; j++) {
                 var dat = entschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagEntschuldigt\">"+'<a href="#" data-toggle="tooltip" title="' + entschuldigt[j].ID_LEHRER+ '">'+dat + "</a></span> &nbsp;";
+                tr += "<span class=\"fehltagEntschuldigt\">" + '<a href="#" data-toggle="tooltip" title="' + entschuldigt[j].ID_LEHRER + '">' + dat + "</a></span> &nbsp;";
             }
             var unentschuldigt = anwesenheit[i].fehltageUnentschuldigt;
             console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
             for (var j = 0; j < unentschuldigt.length; j++) {
                 var dat = unentschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagUnentschuldigt\">"+'<a href="#" data-toggle="tooltip" title="' + unentschuldigt[j].ID_LEHRER+ '">'+dat + "</a></span> &nbsp;";
+                tr += "<span class=\"fehltagUnentschuldigt\">" + '<a href="#" data-toggle="tooltip" title="' + unentschuldigt[j].ID_LEHRER + '">' + dat + "</a></span> &nbsp;";
             }
             tr += "</td>";
 
@@ -1712,7 +1739,7 @@ function getSchuelerInfo() {
     });
     $(".mailIcon").unbind();
     $(".mailIcon").click(function () {
-        console.log("mail to Schüler with id=" + $(this).attr("ids")+ "abs="+sessionStorage.myemail);
+        console.log("mail to Schüler with id=" + $(this).attr("ids") + "abs=" + sessionStorage.myemail);
         var s = findSchueler($(this).attr("ids"));
         $("#mailName").text(s.VNAME + " " + s.NNAME);
         $("#mailSAdr").text(s.EMAIL);
@@ -1820,7 +1847,7 @@ function performLogin() {
                 console.log("HTTP Status: " + xhr.status);
                 console.log("Error textStatus: " + textStatus);
                 console.log("Error thrown: " + errorThrown);
-                if (xhr.status==401) {
+                if (xhr.status == 401) {
                     loggedOut();
                 }
             }
@@ -1967,6 +1994,7 @@ function refreshKlassenliste(kl, callback) {
                 schueler.klasse = kl;
                 $("#tabelleKlasse").empty();
                 $("#tabelleBemerkungen").empty();
+
                 $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
                 $("#tabelleKlasse").append("<tbody>");
                 for (i = 0; i < data.length; i++) {
@@ -1980,11 +2008,7 @@ function refreshKlassenliste(kl, callback) {
                 }
                 $("#tabelleKlasse").append("</tbody>");
                 $("#tabelleBemerkungen").append("</tbody>");
-                /*
-                 refreshAnwesenheit(nameKlasse, function (data) {
-                 renderBilder();
-                 });
-                 */
+
                 getSchuelerInfo();
                 if (callback != undefined) {
                     callback(data);
@@ -1994,7 +2018,7 @@ function refreshKlassenliste(kl, callback) {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("kann Schüler der Klasse " + kl + " nicht vom Server laden! Status Code=" + xhr.status, "Fehler!");
-                if (xhr.status==401) {
+                if (xhr.status == 401) {
                     loggedOut();
                 }
             }
@@ -2145,11 +2169,75 @@ function updateCurrentView() {
             $("#dokumentationContainer").hide();
             $("#printContainer").show();
             break;
+        case "Portfolio":
+            refreshKlassenliste(nameKlasse, function (data) {
+                loadPortfolio(idKlasse, function (data) {
+                    updatePortfolio(data);
+                });
+            });
+            $("#dokumentationType").val("Portfolio");
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
+            break;
         case "Chat":
             $("#dokumentationContainer").hide();
             $("#printContainer").hide();
             break;
     }
+
+}
+
+/** 
+ * POrtfolio Tabelle erzeugen
+ * @param {type} data Portfolio Einträge pro Schüler
+ */
+function updatePortfolio(data) {
+
+    var years = {};
+    for (i = 0; i < data.length; i++) {
+        var eintraege = data[i].eintraege;
+        for (j = 0; j < eintraege.length; j++) {
+            years[eintraege[j].schuljahr] = eintraege[j].schuljahrName;
+        }
+    }
+    console.log("years=" + JSON.stringify(years) + " size=" + years.length);
+
+    $("#headPortfolio").empty();
+    $("#bodyPortfolio").empty();
+    var head = '<tr><th width="25%" rowspan="2">Name</th>';
+    for (var i in years) {
+        head += '<th colspan="2">' + years[i] + '</th>';
+    }
+    head += "</tr><tr>";
+    for (var i in years) {
+        head += '<th>WPK</th><th width="5%" >Note</th>';
+    }
+    head += "</tr>";
+    $("#headPortfolio").append(head);
+    var body;
+    for (i = 0; i < schueler.length; i++) {
+        body += "<tr>";
+        body += '<td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon">&nbsp;' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td>';
+        for (var j in years) {
+            body += '<td id="wpktitel'+j+'_'+schueler[i].id+'">&nbsp;</td><td id="wpkwert'+j+'_'+schueler[i].id+'">&nbsp;</td>';
+        }
+        body += "</tr>";
+
+    }
+    $("#bodyPortfolio").append(body);
+    
+    // Werte Eintragen
+    
+    for (i=0;i<data.length;i++) {
+        eintraege=data[i].eintraege;
+        for (j=0;j<eintraege.length;j++) {
+            eintrag=eintraege[j];
+            $("#wpktitel"+eintrag.schuljahr+"_"+eintrag.ID_Schueler).text(eintrag.titel);
+            $("#wpkwert"+eintrag.schuljahr+"_"+eintrag.ID_Schueler).text(eintrag.wert);
+        }
+    }
+    
+    getSchuelerInfo();
 
 }
 
