@@ -14,6 +14,8 @@ Export-ModuleMember -Function Login-Diklabu
 Export-ModuleMember -Function Add-Coursemember
 Export-ModuleMember -Function Find-Coursemember
 Export-ModuleMember -Function Remove-Coursemember
+Export-ModuleMember -Function Get-Coursemember
+Export-ModuleMember -Function Get-Coursemembership
 Export-ModuleMember -Function Find-Pupil
 Export-ModuleMember -Function Get-Pupil
 Export-ModuleMember -Function Set-Pupil

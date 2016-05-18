@@ -17,6 +17,7 @@ import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.Credential;
+import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.util.ImageUtil;
@@ -65,6 +66,19 @@ public class SchuelerManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+     @GET
+    @Path("/member/{id}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<KlasseDetails> getMembership(@PathParam("id") int sid) {
+        Log.d("Webservice schueler GET: schueler=" + sid);
+
+        Query query = em.createNamedQuery("findKlasseEinesSchuelers");
+        query.setParameter("paramSchuelerId", sid);
+        List<KlasseDetails> klassen = query.getResultList();
+        Log.d("Result List:" + klassen);
+        return klassen;
+    }
+    
     @POST
     @Path("/{idschueler}")
     public SchuelerObject getPupil(@PathParam("idschueler") int idschueler, SchuelerObject so) {
