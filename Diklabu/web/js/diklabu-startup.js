@@ -1128,6 +1128,34 @@ function loadSchulerDaten(id, callback) {
     });
 }
 
+/**
+ * Aktuelles Schuljahr laden
+ * @param {type} callback
+ * @returns {undefined}
+ */
+function loadSchuljahr(callback) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/schuljahr/",
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            console.log ("Load Schuljahr empfangen:"+JSON.stringify(data));
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Schuljahr nicht vom Server laden", "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
+
+
 function loadPortfolio(id, callback) {
     console.log("--> loadPortfiol Klassen id=" + id);
     $.ajax({
@@ -2107,6 +2135,9 @@ function updateCurrentView() {
             refreshKlassenliste(nameKlasse, function (data) {
                 getNoten(nameKlasse, function (data) {
                     buildNoteneintrag(data);
+                    loadSchuljahr(function (data) {
+                        $("#schuljahr").text("Schuljahr "+data.NAME);
+                    })
                 });
             });
             $("#tabNoteneintrag").show();
