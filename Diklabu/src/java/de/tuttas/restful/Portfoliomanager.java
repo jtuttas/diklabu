@@ -5,7 +5,7 @@
  */
 package de.tuttas.restful;
 
-import com.sun.javafx.scene.control.skin.VirtualFlow;
+
 import de.tuttas.entities.Portfolio;
 import de.tuttas.entities.Schuljahr;
 import de.tuttas.restful.Data.NotenObjekt;
