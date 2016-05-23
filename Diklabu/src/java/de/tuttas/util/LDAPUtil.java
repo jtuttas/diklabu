@@ -103,10 +103,19 @@ public class LDAPUtil {
         if (result.getAttributes().get("initials")!=null) {
             inititials=result.getAttributes().get("initials").getAll().next().toString();
         }
-        LDAPUser u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
-                result.getAttributes().get("givenName").getAll().next().toString(),
-                result.getAttributes().get("mail").getAll().next().toString(),
-                inititials);
+        LDAPUser u;
+        if (result.getAttributes().get("mail")==null) {
+                    u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
+                    result.getAttributes().get("givenName").getAll().next().toString(),
+                    "",
+                    inititials);
+        }
+        else {
+            u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
+                    result.getAttributes().get("givenName").getAll().next().toString(),
+                    result.getAttributes().get("mail").getAll().next().toString(),
+                    inititials);
+        }
 
         String dName=result.getAttributes().get("distinguishedName").getAll().next().toString();
         Log.d("dName="+dName);
