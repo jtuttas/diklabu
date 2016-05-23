@@ -5,6 +5,7 @@
  */
 package de.tuttas.restful.Data;
 
+import de.tuttas.entities.Kategorie;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 
@@ -24,12 +25,25 @@ public class KlasseDetails {
     private String LEHRER_EMAIL;
     private String Stundenplan;
     private String Vertretungsplan;
+    private int ID_Kategorie;
+    private String KategorieName;
 
     public KlasseDetails() {
     }
 
+    public KlasseDetails(Integer ID, String ID_LEHRER, String TITEL, String KNAME, String NOTIZ, int ID_Kategorie, String KategorieName) {
+        this.ID = ID;
+        this.ID_LEHRER = ID_LEHRER;
+        this.TITEL = TITEL;
+        this.KNAME = KNAME;
+        this.NOTIZ = NOTIZ;
+        this.ID_Kategorie = ID_Kategorie;
+        this.KategorieName = KategorieName;
+    }
+
+    
         
-    public KlasseDetails(Klasse k,Lehrer l) {
+    public KlasseDetails(Klasse k,Lehrer l,Kategorie ka) {
         this.ID=k.getId();
         this.ID_LEHRER=k.getID_LEHRER();
         this.TITEL=k.getTITEL();
@@ -38,12 +52,27 @@ public class KlasseDetails {
         this.LEHRER_EMAIL=l.getEMAIL();
         this.LEHRER_NNAME=l.getNNAME();
         this.LEHRER_TELEFON=l.getTELEFON();
-        this.LEHRER_VNAME=l.getVNAME();
-        
-        
-        
+        this.LEHRER_VNAME=l.getVNAME(); 
+        this.ID_Kategorie=ka.getID();
+        this.KategorieName=ka.getKATEGORIE();
     }
 
+    public int getID_Kategorie() {
+        return ID_Kategorie;
+    }
+
+    public String getKategorieName() {
+        return KategorieName;
+    }
+
+    public void setID_Kategorie(int ID_Kategorie) {
+        this.ID_Kategorie = ID_Kategorie;
+    }
+
+    public void setKategorieName(String KategorieName) {
+        this.KategorieName = KategorieName;
+    }
+        
     public void setStundenplan(String Stundenplan) {
         this.Stundenplan = Stundenplan;
     }

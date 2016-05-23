@@ -23,7 +23,9 @@ import javax.persistence.NamedQuery;
    @NamedQuery(name = "findKlasseByLehrerId", query= "select k from Klasse k  where k.ID_LEHRER= :paramLehrerId"),
    @NamedQuery(name = "findAllKlassen", query= "select NEW de.tuttas.restful.Data.KlasseShort(k.ID,k.ID_LEHRER,k.KNAME) from Klasse k ORDER BY k.KNAME"),
    @NamedQuery(name = "findSchuelerEinerBenanntenKlasse", query= "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE where k.KNAME like :paramNameKlasse AND s.ABGANG not like 'J' order BY s.NNAME"),
-   @NamedQuery(name = "findSchuelerEinerKlasse", query= "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE where k.ID = :paramKlasseId AND s.ABGANG not like 'J' order BY s.NNAME")
+   @NamedQuery(name = "findSchuelerEinerKlasse", query= "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k ON k.ID=sk.ID_KLASSE where k.ID = :paramKlasseId AND s.ABGANG not like 'J' order BY s.NNAME"),
+   @NamedQuery(name = "findKlasseEinesSchuelers", query= "select NEW de.tuttas.restful.Data.KlasseDetails(k.ID,k.ID_LEHRER,k.TITEL,k.KNAME,k.NOTIZ,ka.ID,ka.KATEGORIE) from Klasse k JOIN Schueler_Klasse sk ON k.ID=sk.ID_KLASSE JOIN Kategorie ka ON k.ID_KATEGORIE=ka.ID where sk.ID_SCHUELER =:paramSchuelerId"),
+   
 })
 
 public class Klasse implements Serializable {

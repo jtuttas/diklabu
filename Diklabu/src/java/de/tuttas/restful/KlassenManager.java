@@ -8,6 +8,7 @@ package de.tuttas.restful;
 import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Betrieb;
+import de.tuttas.entities.Kategorie;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
@@ -248,7 +249,8 @@ public class KlassenManager {
         Log.d("Klasse = " + k.toString());
         Lehrer l = em.find(Lehrer.class, k.getID_LEHRER());
         Log.d("Klassenlehrer = " + l.toString());
-        KlasseDetails d = new KlasseDetails(k, l);
+        Kategorie ka = em.find(Kategorie.class, k.getID_KATEGORIE());
+        KlasseDetails d = new KlasseDetails(k, l,ka);
         PlanObject po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(),PlanType.STDPlanSchueler);
         d.setStundenplan(po.getUrl());
         po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(),PlanType.VERTRPlanSchueler);

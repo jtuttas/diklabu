@@ -51,6 +51,7 @@ public class Config {
     private Config() {
         BufferedReader br = null;
         try {
+            Log.d("Glassfish Path="+System.getProperty("catalina.base"));  
             InputStream is = Config.class.getResourceAsStream("config.json");
             br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
             StringBuilder sb = new StringBuilder();

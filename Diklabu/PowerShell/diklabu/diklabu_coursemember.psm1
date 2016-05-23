@@ -2,10 +2,12 @@
     VERBEN:
         find ... Listet die Schüler auf, die sich in der / den via Namen angegebenen Klassen befinden
         get .... Listet die Schüler auf, die sich in der / den via ID angegebenen Klassen befinden
+        get .... Listet die Klassen auf, in der sich ein Schüler befindet
         Add .... Fügt einen oder mehrere Schüler einer Klasse Hinzu
         Remove . Entfernt einen oder mehrere Schüler aus einer Klasse
     Nome:
         CourseMember
+        Membership
 #>
 
 <#
@@ -162,6 +164,48 @@ function Get-Coursemember
         }
     }
 }
+
+<#
+.Synopsis
+   Klassenzugehörigkeit eines Schülers abfragen
+.DESCRIPTION
+   Liefert die Klassenobjekte einer oder mehrere Schüler. 
+.EXAMPLE
+   Get-Membership  -id 1234
+.EXAMPLE
+   Get-Membership  -id 1234 -uri http://localhost:8080/Diklabu/api/v1/
+.EXAMPLE
+   1234,5678 | Get-Membership 
+#>
+function Get-Coursemembership
+{
+    Param
+    (         
+        # id des Schülers
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [int]$id,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+    }
+    Process
+    {
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/member/"+$id) -Headers $headers  
+            return  $r;
+         } catch {
+            Write-Host "Get-Membership: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+}
+
 
 <#
 .Synopsis
