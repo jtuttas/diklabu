@@ -70,7 +70,7 @@ public class SchuelerManager {
     @Path("/member/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<KlasseDetails> getMembership(@PathParam("id") int sid) {
-        Log.d("Webservice schueler GET: schueler=" + sid);
+        Log.d("Webservice member schueler GET: schueler=" + sid);
 
         Query query = em.createNamedQuery("findKlasseEinesSchuelers");
         query.setParameter("paramSchuelerId", sid);

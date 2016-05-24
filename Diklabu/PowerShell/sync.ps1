@@ -231,16 +231,23 @@ foreach ($s in $schueler) {
   else {
       Write-Host "  Bekannten Schüler gefunden "$s.VNAME" "$s.NNAME"! Aktualisiere Einträge!" -BackgroundColor DarkGreen
       $s.diklabuID=$c.id
-      $kl = Find-Course -KNAME $s.KL_NAME
-      $res=Add-Coursemember -id $c.id -klassenid $kl.id
-      if ($res.success -eq $True) {
-        Write-Host "Der Schüler hat die Klasse gewechselt!" -ForegroundColor DarkYellow
+      $kl = Get-Coursemembership $c.id
+      foreach ($k in $kl) {
+        if ($k.ID_Kategorie -eq 0) {
+            if ($s.KL_NAME -ne $k.KNAME) {
+                Write-Host "Der Schüler hat die Klasse gewechselt! Aus der Klasse "$k.KNAME" in die Klasse"$s.KL_NAME -ForegroundColor DarkYellow
+                Remove-Coursemember -id $s.diklabuID -klassenid $k.ID
+                $newKlasse = Find-Course -KNAME $s.KL_NAME
+                Add-Coursemember -id $s.diklabuID -klassenid $newKlasse.ID
+            }
+        }
       }
+
       $ausb=Get-Instructor -ID $c.ID_AUSBILDER
       $ausb2=findAusbilder $s.BETRIEB_NR
       if ($ausb.ID -ne $ausb2.diklabuID) {
         Write-Host "Der Schüler hat einen neuen Ausbildungsbetrieb / Ausbilder" -ForegroundColor DarkYellow
-      
+        Set-Pupil -id $s.diklabuID -ID_AUSBILDER $ausb2.diklabuID      
       }
       
       
