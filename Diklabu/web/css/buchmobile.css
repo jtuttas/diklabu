@@ -1,3 +1,19 @@
+.selectKlasse {
+    cursor: pointer;
+}
+
+.setAnwesenheit {
+    cursor: pointer;
+}
+
+.schueler {
+    cursor: pointer;   
+}
+.detailsKlasse {
+    cursor: pointer;   
+}
+
+
 .lehrer {
     margin: 10px;
     font-size: 16px;

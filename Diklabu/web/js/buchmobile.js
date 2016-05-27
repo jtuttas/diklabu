@@ -14,9 +14,7 @@ if (localStorage.favorites != undefined) {
     console.log("restore favorites:"+JSON.stringify(favorites));
 }
 
-if (currentDate == undefined) {
-    currentDate = new Date();
-}
+currentDate = new Date(Date.now());
 
 $.datepicker.setDefaults({
     dateFormat: 'dd.mm.yy'
@@ -694,7 +692,7 @@ $(document).on("pagebeforeshow", "#verlaufDetail", function () {
 
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
-    currentDate = new Date();
+    currentDate = new Date(Date.now());
     lastAnnwesenheitUpdate=undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
@@ -902,13 +900,13 @@ function buildKlassenListeView(data) {
     /*
      * Eine Klasse wird ausgewählt
      */
-    $(".selectKlasse").click(function () {
+    $(".selectKlasse").click(function () {        
         kl = $(this).attr("klname");
         klid = $(this).attr("klid");
         sessionStorage.idKlasse = klid;
         console.log("nameKlasse=" + kl + "idKlasse=" + klid);
-        $("#namensListView").empty();
-        refreshKlassenliste(kl);
+        $("#namensListView").empty();        
+        refreshKlassenliste(kl);        
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
 
@@ -1033,17 +1031,20 @@ function refreshKlassenliste(kl) {
 
     $("#anwContainer").hide();
     $(".loadingContainer").show();
-
+    //alert("RF kl="+kl+" nk="+sessionStorage.nameKlasse+" s="+sessionStorage.schueler);
     console.log("Refresh Klassenliste f. Klasse " + kl + " alte Klassenbezeichnung==" + sessionStorage.nameKlasse);
     $("#anwesenheitKlassenName").text(kl);
     if (sessionStorage.nameKlasse == kl && sessionStorage.schueler != undefined) {
         console.log("Schülerdaten schon geladen !");
-
         data = JSON.parse(sessionStorage.schueler);
+        
         buildNamensliste(data);
-        $.mobile.loading('show');
+        //$.mobile.loading('show');
+        
         refreshBilderKlasse(kl);
+        
         buildAnwesenheit(kl);
+        
     }
     else {
         console.log("Schülerdaten vom Server geladen !");
@@ -1296,17 +1297,22 @@ function getSchuelerBild(id, elem) {
     });
 }
 
-function buildAnwesenheit(kl) {
+function buildAnwesenheit(kl) {   
     d = currentDate;
-    if (anwKlasse != kl || anwesenheit == undefined || lastAnnwesenheitUpdate == undefined || d.getTime() > lastAnnwesenheitUpdate + 1000 * 60 * 60) {
-        console.log(" Aktualisierung der Anwesenheit ! currentDate=" + currentDate);
-        console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d=" + d.getFullYear());
-
-        lastAnnwesenheitUpdate = d.getTime();
+    if (anwKlasse != kl || anwesenheit == undefined || lastAnnwesenheitUpdate == undefined || currentDate.getTime() > lastAnnwesenheitUpdate + 1000 * 60 * 60) {
+        //alert ("aktualisiere currentDate="+currentDate.getMonth());        
+        
+        //console.log(" Aktualisierung der Anwesenheit ! currentDate=" + currentDate);
+        //console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d=" + d.getFullYear());
+        
+        lastAnnwesenheitUpdate = currentDate.getTime();
+        
         anwKlasse = kl;
-        $("#currentDate").val(getReadableDate(d));
+        $("#currentDate").val(getReadableDate(currentDate));
+
+        
         $.ajax({
-            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + toSQLString(d),
+            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + toSQLString(currentDate),
             type: "GET",
             cache: false,
             headers: {
@@ -1314,7 +1320,7 @@ function buildAnwesenheit(kl) {
                 "auth_token": localStorage.auth_token
             },
             contentType: "application/json; charset=UTF-8",
-            success: function (data) {
+            success: function (data) {        
                 console.log("Anwesenheit geladen!");
                 anwesenheit = data;
                 renderAnwesenheit(data);
@@ -1329,7 +1335,7 @@ function buildAnwesenheit(kl) {
         });
     }
     else {
-        console.log("Anwesenheit ist wohl aktuell !" + lastAnnwesenheitUpdate + "anwesenheit=" + anwesenheit);
+        console.log("Anwesenheit ist wohl aktuell !" + lastAnnwesenheitUpdate + "anwesenheit=" + anwesenheit);        
         renderAnwesenheit(anwesenheit);
     }
 
