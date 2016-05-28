@@ -7,6 +7,7 @@ package de.tuttas.config;
 
 import de.tuttas.util.Log;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,6 +26,9 @@ import org.json.simple.parser.ParseException;
  */
 public class Config {
     private static Config instance;
+    public final static String VERSION="V 1.94";
+    
+    public JSONObject clientConfig;
     
     /**
      * Beispielhaftes JSON File
@@ -44,19 +48,25 @@ public class Config {
     "port": "587",
     "user": "joerg.tuttas@ifbe.uni-hannover.de",
     "pass": "geheim"
+    "clientConfig" : {
+        "SERVER": "http://localhost:8080",
+        "WEBSOCKET": "ws://",
+        "DIKLABUNAME":"DiKlaBu@MMBbS"
+    }
     }
 
      */
 
     private Config() {
         BufferedReader br = null;
-        try {
-            Log.d("Glassfish Path="+System.getProperty("catalina.base"));  
-            InputStream is = Config.class.getResourceAsStream("config.json");
-            br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+        try { 
+            String pathConfig=System.getProperty("catalina.base")+File.separator+"config.json";
+            Log.d("Config Path="+pathConfig);  
+            
+            br = new BufferedReader(new FileReader(pathConfig));
             StringBuilder sb = new StringBuilder();
             String line = br.readLine();
-            while (line != null) {
+            while (line != null) { 
                 sb.append(line);
                 sb.append(System.lineSeparator());
                 line = br.readLine();
@@ -89,6 +99,11 @@ public class Config {
                 port=(String)jo.get("port");
                 user=(String)jo.get("user");
                 pass=(String)jo.get("pass");
+                
+                // Client Configuration
+                clientConfig = (JSONObject) jo.get("clientConfig");
+                clientConfig.put("VERSION",Config.VERSION);
+                System.out.println("!ClientConfig="+clientConfig.toJSONString());
                                 
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
@@ -124,7 +139,7 @@ public class Config {
     //public static final String LDAP_CONF_PATH="c:\\ProgramData\\digitales Klassenbuch\\ldapconfig.json";
     
     // Nutzer mit Admin Rechten 
-    public  String[] adminusers = new String[]{"TU","TUTTAS","KEMMRIES"};
+    public  String[] adminusers = new String[]{"TU","TUTTAS"};
     
     // Authentifizierung für die RestFul Services notwenig (im debug mode ist das Kennwort mmbbs und der Benutzername das Lehrerkürzel
     public boolean auth=true; 
