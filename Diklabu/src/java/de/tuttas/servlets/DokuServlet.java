@@ -11,11 +11,12 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 
-
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Noten;
+import de.tuttas.entities.Portfolio;
 import de.tuttas.entities.Schueler;
+import de.tuttas.entities.Schuljahr;
 import de.tuttas.entities.Termine;
 import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
@@ -26,6 +27,7 @@ import de.tuttas.restful.Data.Termin;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.util.DatumUtil;
 import de.tuttas.util.Log;
+import de.tuttas.util.NotenUtil;
 import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
 import de.tuttas.util.VerspaetungsUtil;
@@ -105,18 +107,18 @@ public class DokuServlet extends HttpServlet {
                 String type = request.getParameter("type");
                 String filter1 = request.getParameter("dokufilter1");
                 String filter2 = request.getParameter("dokufilter2");
-                 int anwFilter1 = 0;                 
-                 int anwFilter2 = 0;                 
-                 if (request.getParameter("anwfilter1")!=null) {
-                     anwFilter1 = Integer.parseInt(request.getParameter("anwfilter1"));
-                 }
-                 if (request.getParameter("anwfilter2")!=null) {
-                     anwFilter2 = Integer.parseInt(request.getParameter("anwfilter2"));
-                 }
+                int anwFilter1 = 0;
+                int anwFilter2 = 0;
+                if (request.getParameter("anwfilter1") != null) {
+                    anwFilter1 = Integer.parseInt(request.getParameter("anwfilter1"));
+                }
+                if (request.getParameter("anwfilter2") != null) {
+                    anwFilter2 = Integer.parseInt(request.getParameter("anwfilter2"));
+                }
                 Authenticator a = Authenticator.getInstance();
                 String me = a.getUser(auth);
                 Log.d("Verlauf Filter1=" + filter1 + " Verlauf Filter2=" + filter2 + " me=" + me);
-                Log.d("Anwesenheitsfilter 1 = "+anwFilter1+" Filter2="+anwFilter2);
+                Log.d("Anwesenheitsfilter 1 = " + anwFilter1 + " Filter2=" + anwFilter2);
                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 Date parsedFrom = null;
                 try {
@@ -157,7 +159,7 @@ public class DokuServlet extends HttpServlet {
                     } else if (cmd.compareTo("Anwesenheit") == 0) {
                         response.setContentType("text/csv");
                         response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
-                        myModel = getModelAnwesenheit(kl, parsedFrom, parsedTo,anwFilter1, anwFilter2);
+                        myModel = getModelAnwesenheit(kl, parsedFrom, parsedTo, anwFilter1, anwFilter2);
                         out.println(myModel.toCsv());
                     } else if (cmd.compareTo("Verlauf") == 0) {
                         response.setContentType("text/csv");
@@ -215,6 +217,9 @@ public class DokuServlet extends HttpServlet {
                         if (cmd.compareTo("Verlauf") == 0) {
                             response.addHeader("Content-Disposition", "attachment; filename=Verlauf_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
                             document = createVerlauf(kl, kopf, parsedFrom, parsedTo, out, filter1, filter2, me);
+                        } else if (cmd.compareTo("Portfolio") == 0) {
+                            response.addHeader("Content-Disposition", "attachment; filename=Portfolio_" + kl.getKNAME() + ".pdf");
+                            document = createPortfolio(kl, out);
                         } else if (cmd.compareTo("Anwesenheit") == 0) {
                             response.addHeader("Content-Disposition", "attachment; filename=Anwesenheit_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
                             document = createAnwesenheit(kl, kopf, parsedFrom, parsedTo, out, anwFilter1, anwFilter2);
@@ -233,6 +238,7 @@ public class DokuServlet extends HttpServlet {
                         }
 
                     } catch (DocumentException exc) {
+                        exc.printStackTrace();
                         throw new IOException(exc.getMessage());
                     } catch (ParseException ex) {
                         Logger.getLogger(DokuServlet.class.getName()).log(Level.SEVERE, null, ex);
@@ -552,17 +558,17 @@ public class DokuServlet extends HttpServlet {
         q.setParameter("paramNameKlasse", kl.getKNAME());
         List<Schueler> schueler = q.getResultList();
 
-                /**
+        /**
          * Termindaten holen
          */
-        Termine t1=null;
-        Termine t2=null;
-        if (filter1Id!=-1) {
+        Termine t1 = null;
+        Termine t2 = null;
+        if (filter1Id != -1) {
             t1 = em.find(Termine.class, filter1Id);
-        
+
         }
-        if (filter2Id!=-1) {
-            t2 = em.find(Termine.class, filter2Id);    
+        if (filter2Id != -1) {
+            t2 = em.find(Termine.class, filter2Id);
         }
         List<Termin> termine = null;
         TypedQuery<Termin> tquery = null;
@@ -577,42 +583,40 @@ public class DokuServlet extends HttpServlet {
                 termine = tquery.getResultList();
             } // nur Filter1
             else {
-                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery = em.createNamedQuery("findAllTermineOneFilter", Termin.class);
                 tquery.setParameter("filter1", t1.getId());
-                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
-                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));
                 termine = tquery.getResultList();
             }
         } else {
             // nur Filter2
             if (filter2Id != 0) {
-                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery = em.createNamedQuery("findAllTermineOneFilter", Termin.class);
                 tquery.setParameter("filter1", t2.getId());
-                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
-                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));
                 termine = tquery.getResultList();
-            }
-            // kein Filter, Termine so generieren
+            } // kein Filter, Termine so generieren
             else {
-                termine = new ArrayList<>();                        
-                Date current=new Date(parsedFrom.getTime());
-                parsedTo.setTime(parsedTo.getTime()+1000);
+                termine = new ArrayList<>();
+                Date current = new Date(parsedFrom.getTime());
+                parsedTo.setTime(parsedTo.getTime() + 1000);
                 while (current.before(parsedTo)) {
                     termine.add(new Termin(new Timestamp(current.getTime())));
-                    Log.d("Erzeuge neuen Termin:"+new Termin(new Timestamp(current.getTime())));
-                    current.setTime(current.getTime()+24*60*60*1000);
+                    Log.d("Erzeuge neuen Termin:" + new Termin(new Timestamp(current.getTime())));
+                    current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
                 }
             }
         }
 
         Log.d("Result List:" + anwesenheit);
 
-        
         List<String> sb = new ArrayList<>();
         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
-        
-        for (Termin t:termine) {           
-            c.setTime(new Date(t.getDate().getTime()));        
+
+        for (Termin t : termine) {
+            c.setTime(new Date(t.getDate().getTime()));
             sb.add("" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
         }
         System.out.println("Es werden " + sb.size() + " Tage dargestellt");
@@ -627,9 +631,9 @@ public class DokuServlet extends HttpServlet {
             s = schueler.get(y);
             mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
             int x = 1;
-            for (Termin t:termine) {           
+            for (Termin t : termine) {
                 mo.setData(x, y, findVermerk(s.getId(), t.getDate(), anwesenheit));
-                x++;               
+                x++;
             }
         }
         return mo;
@@ -653,14 +657,14 @@ public class DokuServlet extends HttpServlet {
         /**
          * Termindaten holen
          */
-        Termine t1=null;
-        Termine t2=null;
-        if (filter1Id!=-1) {
+        Termine t1 = null;
+        Termine t2 = null;
+        if (filter1Id != -1) {
             t1 = em.find(Termine.class, filter1Id);
-        
+
         }
-        if (filter2Id!=-1) {
-            t2 = em.find(Termine.class, filter2Id);    
+        if (filter2Id != -1) {
+            t2 = em.find(Termine.class, filter2Id);
         }
         List<Termin> termine = null;
         TypedQuery<Termin> tquery = null;
@@ -675,30 +679,29 @@ public class DokuServlet extends HttpServlet {
                 termine = tquery.getResultList();
             } // nur Filter1
             else {
-                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery = em.createNamedQuery("findAllTermineOneFilter", Termin.class);
                 tquery.setParameter("filter1", t1.getId());
-                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
-                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));
                 termine = tquery.getResultList();
             }
         } else {
             // nur Filter2
             if (filter2Id != 0) {
-                tquery = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+                tquery = em.createNamedQuery("findAllTermineOneFilter", Termin.class);
                 tquery.setParameter("filter1", t2.getId());
-                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));            
-                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));            
+                tquery.setParameter("fromDate", new java.sql.Date(parsedFrom.getTime()));
+                tquery.setParameter("toDate", new java.sql.Date(parsedTo.getTime()));
                 termine = tquery.getResultList();
-            }
-            // kein Filter, Termine so generieren
+            } // kein Filter, Termine so generieren
             else {
-                termine = new ArrayList<>();                        
-                Date current=new Date(parsedFrom.getTime());
-                parsedTo.setTime(parsedTo.getTime()+1000);
+                termine = new ArrayList<>();
+                Date current = new Date(parsedFrom.getTime());
+                parsedTo.setTime(parsedTo.getTime() + 1000);
                 while (current.before(parsedTo)) {
                     termine.add(new Termin(new Timestamp(current.getTime())));
-                    Log.d("Erzeuge neuen Termin:"+new Termin(new Timestamp(current.getTime())));
-                    current.setTime(current.getTime()+24*60*60*1000);
+                    Log.d("Erzeuge neuen Termin:" + new Termin(new Timestamp(current.getTime())));
+                    current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
                 }
             }
         }
@@ -706,46 +709,44 @@ public class DokuServlet extends HttpServlet {
         Log.d("Result List:" + anwesenheit);
         GregorianCalendar c = (GregorianCalendar) GregorianCalendar.getInstance();
         c.setTime(parsedFrom);
-        
+
         String tagZeile = "";
         document.open();
         Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
         q.setParameter("paramNameKlasse", kl.getKNAME());
         List<Schueler> schueler = q.getResultList();
         Date current = new Date(parsedFrom.getTime());
-        Log.d("Current="+current+" TO="+parsedTo+" From="+parsedFrom+" Termine="+termine.size());
-        int spalte=0;
-        
-        for (spalte=0;spalte<termine.size();spalte++) {        
+        Log.d("Current=" + current + " TO=" + parsedTo + " From=" + parsedFrom + " Termine=" + termine.size());
+        int spalte = 0;
+
+        for (spalte = 0; spalte < termine.size(); spalte++) {
             tagZeile += "<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">\n";
             tagZeile += ("<tr >\n");
             tagZeile += ("<td width='25%' style=\"font-size: 14;border: 1px solid black;\"><b>Name</b></td>\n");
             // Zeile f.  Tage (Headline)
-            Log.d("Spalte ist nun "+spalte);
-            int i=0;
-            for (i=0;i<7 && spalte+i<termine.size();i++) {
-                current = new Date(termine.get(spalte+i).getDate().getTime());                        
+            Log.d("Spalte ist nun " + spalte);
+            int i = 0;
+            for (i = 0; i < 7 && spalte + i < termine.size(); i++) {
+                current = new Date(termine.get(spalte + i).getDate().getTime());
                 c.setTime(current);
                 if (c.get(GregorianCalendar.DAY_OF_WEEK) == 1 || c.get(GregorianCalendar.DAY_OF_WEEK) == 7) {
                     tagZeile += ("<td align=\"center\" style=\"padding:5px; background-color: #cccccc; font-size: 12;border: 1px solid black;\">" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + "<br></br>" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR) + "</td>\n");
                 } else {
                     tagZeile += ("<td align=\"center\" style=\"padding: 5px; font-size: 12;border: 1px solid black;\">" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + "<br></br>" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR) + "</td>\n");
                 }
-                Log.d("Spalte " + (i+spalte) + " Datum=" + current);                                
+                Log.d("Spalte " + (i + spalte) + " Datum=" + current);
             }
             Log.d("Head aufgebaut");
             tagZeile += "</tr>\n";
-                                           
-            
+
             // Zeile pro Name
-            
             for (Schueler s : schueler) {
                 tagZeile += "<tr>\n";
                 tagZeile += ("<td width='20%' style=\"padding: 5px;font-size: 12;border: 1px solid black;\"><b>" + s.getVNAME() + " " + s.getNNAME() + "</b></td>\n");
                 // Zeile f.  Tage
                 //Log.d("Zeile f. Schüler " + s.getNNAME());
-                for (i=0;i<7 && spalte+i<termine.size();i++) {
-                    current = new Date(termine.get(spalte+i).getDate().getTime());                        
+                for (i = 0; i < 7 && spalte + i < termine.size(); i++) {
+                    current = new Date(termine.get(spalte + i).getDate().getTime());
                     c.setTime(current);
                     if (c.get(GregorianCalendar.DAY_OF_WEEK) == 1 || c.get(GregorianCalendar.DAY_OF_WEEK) == 7) {
                         tagZeile += ("<td style=\"background-color:#cccccc;font-size: 11;border: 1px solid black;\">" + findVermerk(s.getId(), current, anwesenheit) + "</td>\n");
@@ -757,11 +758,11 @@ public class DokuServlet extends HttpServlet {
                 tagZeile += "</tr>\n";
             }
             Log.d("Rumpf aufgebaut");
-            
-            spalte=spalte+i-1;
-            
+
+            spalte = spalte + i - 1;
+
             // neue Seite bei 7 Terminen
-            if (i==7) {                
+            if (i == 7) {
                 tagZeile += "</table>\n";
                 htmlString.append(tagZeile);
                 InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
@@ -778,18 +779,18 @@ public class DokuServlet extends HttpServlet {
                 tagZeile = "";
                 htmlString.append(kopf);
             }
-            Log.d("SPalte ist "+spalte+" Termine="+termine.size());
-            
+            Log.d("SPalte ist " + spalte + " Termine=" + termine.size());
+
         }
-        Log.d("Ende der ForSchleife spalte="+spalte);
+        Log.d("Ende der ForSchleife spalte=" + spalte);
         // den Rest der Seite noch drucken
-        if (spalte%7!=0) {
+        if (spalte % 7 != 0) {
             tagZeile += "</table>\n";
-            htmlString.append(tagZeile);            
+            htmlString.append(tagZeile);
             Log.d("Rest Seite erzeugen");
             //Log.d("html String =" + htmlString.toString());
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
-            
+
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
             String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
@@ -797,9 +798,9 @@ public class DokuServlet extends HttpServlet {
             image.setAbsolutePosition(45f, 720f);
             image.scalePercent(50f);
             document.add(image);
-            Log.d("writer="+writer+" document="+document+" is="+is);
+            Log.d("writer=" + writer + " document=" + document + " is=" + is);
             XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-            
+
         }
 
         document.close();
@@ -846,6 +847,92 @@ public class DokuServlet extends HttpServlet {
             mo.setData(6, y, v.getAUFGABE());
         }
         return mo;
+    }
+
+    private Document createPortfolio(Klasse kl, OutputStream out) throws DocumentException, IOException {
+        Document document = new Document();
+        
+        /* Basic PDF Creation inside servlet */
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        StringBuilder htmlString = new StringBuilder();
+document.open();
+
+        Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
+        q.setParameter("paramNameKlasse", kl.getKNAME());
+        List<Schueler> schueler = q.getResultList();
+
+        Query q2 = em.createNamedQuery("findPortfolioEinerKlasse");
+        q2.setParameter("paramKlassenID", kl.getId());
+        List<Portfolio> portfolio = q2.getResultList();
+
+        Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
+        List<Schuljahr> schuljahr = q3.getResultList();
+        
+        System.out.println("Schuljahr = "+schuljahr.get(0).getNAME()+" Zeugnisdatum="+schuljahr.get(0).getZEUGNISDATUM());
+        
+        for (Schueler s : schueler) {
+
+            htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
+            htmlString.append("<h2 align=\"center\">der Region Hannover</h2>");
+            htmlString.append("<hr></hr>");            
+            htmlString.append("<h1 align=\"center\">Portfolio</h1>");
+            htmlString.append("<h3 align=\"center\">über besuchte Zusatzkurse</h3>");
+            htmlString.append("<p align=\"center\">für " + s.getVNAME() + " " + s.getNNAME() + " geb. am " + toReadable(s.getGEBDAT()) + "</p>");
+            htmlString.append("<br></br>");
+            htmlString.append("<hr></hr>");
+            htmlString.append("<br></br>");
+
+            for (Portfolio p : portfolio) {
+                if (p.getID_Schueler() == s.getId()) {
+                    Schuljahr sj = em.find(Schuljahr.class, p.getSchuljahr());
+                    htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
+                    htmlString.append("<table>");
+                    htmlString.append("<tr>");
+                    htmlString.append("<td width=\"70%\"><b>" + p.getTitel() + "</b><p>" + p.getNotiz() + "</p></td>");
+                    htmlString.append("<td>" + NotenUtil.getNote(p.getWert()) + "</td>");
+                    htmlString.append("</tr>");
+                    htmlString.append("</table>");                    
+                    htmlString.append("<br></br>");
+                }
+            }
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<b>Hannover, " + toReadable(schuljahr.get(0).getZEUGNISDATUM()) + "</b>");
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<table width=\"100%\" >");
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"font-size: 10;border-bottom: 0.5px solid #888888\" width=\"40%\" align=\"center\">&nbsp;</td>");
+            htmlString.append("<td></td>");                        
+            htmlString.append("</tr>");
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"font-size: 10;\" width=\"40%\" align=\"center\">Klassenlehrerin/Klassenlehrer</td>");
+            htmlString.append("<td>&nbsp;</td>");                        
+            htmlString.append("</tr>");
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"font-size: 9;border-top: 0.5px solid #888888\" colspan=\"2\">Noten: sehr gut (1), gut (2), befriedigend (3), ausreichend (4), mangelhaft (5), ungenügend (6)<br></br>*) Angegeben ist die durchschnittliche Unterrichtsstundenzahl pro Schuljahr.<br></br>*) In Kursen mit insgesamt 12 Unterrichtsstunden findet keine Bewertung statt.</td>");                        
+            htmlString.append("</tr>");
+            
+           
+            htmlString.append("</table>");
+
+            InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+            // Bild einfügen
+                    String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+                    Image image = Image.getInstance(url);
+                    image.setAbsolutePosition(480f, 730f);
+                    image.scalePercent(40f);
+                    System.out.println("Image="+image);
+                    document.add(image);
+            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+            htmlString = new StringBuilder();
+            document.newPage();
+        }
+
+        document.close();
+        return document;
     }
 
     private Document createVerlauf(Klasse kl, String kopf, Date parsedFrom, Date parsedTo, OutputStream out, String filter1, String filter2, String me) throws ParseException, IOException, DocumentException {
@@ -1041,6 +1128,12 @@ public class DokuServlet extends HttpServlet {
             }
         }
         return null;
+    }
+
+    private String toReadable(java.sql.Date gebdat) {
+        Calendar c = GregorianCalendar.getInstance();
+        c.setTime(gebdat);
+        return "" + c.get(Calendar.DAY_OF_MONTH) + "." + (c.get(Calendar.MONTH) + 1) + "." + c.get(Calendar.YEAR);
     }
 
 }

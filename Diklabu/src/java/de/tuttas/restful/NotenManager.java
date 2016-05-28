@@ -164,7 +164,7 @@ public class NotenManager {
                             Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
                             List<Schuljahr> schuljahr = q3.getResultList();
                             Log.d("Schuljahr = " + schuljahr);
-                            Portfolio p = new Portfolio(schuljahr.get(0).getID(), k.getKNAME(), k.getTITEL(), n.getWERT(), s.getId());
+                            Portfolio p = new Portfolio(schuljahr.get(0).getID(), k.getKNAME(), k.getTITEL(),k.getNOTIZ(), n.getWERT(), s.getId());
                             em.persist(p);
                         }
 

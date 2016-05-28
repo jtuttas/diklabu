@@ -33,6 +33,7 @@ public class Portfolio implements Serializable {
     private String KName;
     private String Titel;
     private String Wert;
+    private String Notiz;
     private int ID_Schueler;
     @Transient
     private String SchuljahrName;
@@ -40,7 +41,7 @@ public class Portfolio implements Serializable {
     public Portfolio() {
     }
     
-    public Portfolio(int Schuljahr,String KName, String Titel, String Wert, int ID_Schueler) {
+    public Portfolio(int Schuljahr,String KName, String Titel, String Notiz, String Wert, int ID_Schueler) {
         this.Schuljahr=Schuljahr;
         this.KName = KName;
         this.Titel = Titel;
@@ -48,6 +49,17 @@ public class Portfolio implements Serializable {
         this.ID_Schueler = ID_Schueler;
     }     
 
+    public String getNotiz() {
+        if (Notiz==null) return "";
+        return Notiz;
+    }
+
+    public void setNotiz(String Notiz) {
+        this.Notiz = Notiz;
+    }
+    
+    
+    
     public void setSchuljahrName(String SchuljahrName) {
         this.SchuljahrName = SchuljahrName;
     }

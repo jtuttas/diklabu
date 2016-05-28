@@ -6,6 +6,7 @@
 package de.tuttas.entities;
 
 import java.io.Serializable;
+import java.sql.Date;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -27,7 +28,18 @@ public class Schuljahr implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ID;
     private String NAME;
+    private Date ZEUGNISDATUM;
 
+    public void setZEUGNISDATUM(Date ZEUGNISDATUM) {
+        this.ZEUGNISDATUM = ZEUGNISDATUM;
+    }
+
+    public Date getZEUGNISDATUM() {
+        return ZEUGNISDATUM;
+    }
+
+    
+    
     public void setNAME(String NAME) {
         this.NAME = NAME;
     }
