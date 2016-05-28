@@ -11,7 +11,7 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 
-import com.sun.org.apache.xerces.internal.xs.StringList;
+
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Noten;
