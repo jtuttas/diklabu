@@ -3,14 +3,16 @@
  * Globale Variablen
  */
 // ID der gewählten Klasse
-var idKlasse=sessionStorage.idKlasse;
-var nameKlasse=sessionStorage.kname;
+var idKlasse = sessionStorage.idKlasse;
+var nameKlasse = sessionStorage.kname;
 // Anwesenheit der gewählten Klasse und des gewählten Zeitraums
 var anwesenheit;
 // ID eines ausgewählten Schülers
-var idSchueler=sessionStorage.myself;
+var idSchueler = sessionStorage.myself;
 // Index für email Form Fehlzeiten
 var indexFehlzeiten;
+// aktive Umfrage
+var umfrage;
 
 var days = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 $("#eintragDatum").datepicker("setDate", "+0");
@@ -26,8 +28,8 @@ $("#diklabuname").text(DIKLABUNAME);
 //console.log("Build gui for logged in user");
 loggedIn();
 updateCurrentView();
-$("#anwesenheitName").text(sessionStorage.VNAME+" "+sessionStorage.NNAME);
-$("#infoSchueler").attr("ids",sessionStorage.myself);
+$("#anwesenheitName").text(sessionStorage.VNAME + " " + sessionStorage.NNAME);
+$("#infoSchueler").attr("ids", sessionStorage.myself);
 getSchuelerInfo();
 /**
  * Event Handler
@@ -46,7 +48,7 @@ $('#navTabs').on('shown.bs.tab', function (e) {
     //console.log("New Nav Target =" + $(e.target).text());
     updateCurrentView();
 });
-$("#login").click(function() {
+$("#login").click(function () {
     //console.log("Perform Login");
     performLogin();
 });
@@ -73,7 +75,6 @@ function refreshAnwesenheit(sid, callback) {
     var url = SERVER + "/Diklabu/api/v1/sauth/" + sid + "/" + $("#startDate").val() + "/" + $("#endDate").val();
     //console.log("URL=" + url);
     $.ajax({
-        
         url: SERVER + "/Diklabu/api/v1/sauth/" + sid + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
         type: "GET",
         cache: false,
@@ -166,7 +167,78 @@ function loadSchulerDaten(id, callback) {
     });
 }
 
+/**
+ * Active Umfrage abfragen
+ * @param {type} callback Callback
+ */
+function getUmfrage(callback) {
+    console.log("--> getUmfrage");
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/sauth/umfrage",
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("kann aktive Umfrage nicht vom Server laden", "Fehler!");
+        }
+    });
+}
 
+/**
+ * Fragen und Antworten der Umfrage abfragen
+ * @param {type} callback Callback
+ */
+function getUmfrageFragen(id, callback) {
+    console.log("--> getUmfrage id=" + id);
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/sauth/umfrage/fragen/" + id,
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("kann keine Fragen der Umfrage vom Server laden", "Fehler!");
+        }
+    });
+}
+
+
+/**
+ * Bisherige Antworten abfragen
+ * @param {type} uid Umfrage ID
+ * @param {type} sid Schüler ID
+ * @param {type} callback 
+ * @returns {undefined}
+ */
+function getAntworten(uid,sid, callback) {
+    console.log("--> getAntworten uid=" + uid+" für Schüler sid="+sid);
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/sauth/umfrage/antworten/" + uid+"/"+sid,
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("Kann keine Fragen des Schüler mit ID="+sid+" vom Server laden!", "Fehler!");
+        }
+    });
+}
 
 /**
  * Ermittelt welchet Tab gerade geöffnet ist (nur diese Daten müssen nachgeladen werden!)
@@ -175,7 +247,7 @@ function loadSchulerDaten(id, callback) {
 function getCurrentView() {
     target = $("ul#navTabs li.active").text();
     //console.log("get Current View Base target=(" + target + ")");
-    
+
     if (target == "Pläne") {
         sub = $("ul#plaene li.active").text();
         return sub;
@@ -294,14 +366,14 @@ function generateVerspaetungen() {
             for (var j = 0; j < entschuldigt.length; j++) {
                 var dat = entschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagEntschuldigt\">"+'<a href="#" data-toggle="tooltip" title="' + entschuldigt[j].ID_LEHRER+ '">'+dat + "</a></span> &nbsp;";
+                tr += "<span class=\"fehltagEntschuldigt\">" + '<a href="#" data-toggle="tooltip" title="' + entschuldigt[j].ID_LEHRER + '">' + dat + "</a></span> &nbsp;";
             }
             var unentschuldigt = anwesenheit[i].fehltageUnentschuldigt;
             //console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
             for (var j = 0; j < unentschuldigt.length; j++) {
                 var dat = unentschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
-                tr += "<span class=\"fehltagUnentschuldigt\">"+'<a href="#" data-toggle="tooltip" title="' + unentschuldigt[j].ID_LEHRER+ '">'+dat + "</a></span> &nbsp;";
+                tr += "<span class=\"fehltagUnentschuldigt\">" + '<a href="#" data-toggle="tooltip" title="' + unentschuldigt[j].ID_LEHRER + '">' + dat + "</a></span> &nbsp;";
             }
             tr += "</td>";
 
@@ -335,22 +407,24 @@ function generateAnwesenheit() {
     to = new Date($("#endDate").val());
     //console.log("from="+from+" time="+from.getTime()+" to="+to.getTime());
     while (from.getTime() <= to.getTime()) {
-        var s=toSQLString(from);
-        $("#anwesenheitsTabelle").append('<tr><td>'+days[from.getDay()]+' '+from.getDate()+'.'+(from.getMonth()+1)+'.'+from.getFullYear()+'</td><td id="LK'+s+'"></td><td id="Verm'+s+'"></td>');
-        from.setDate(from.getDate() + 1);     
+        var s = toSQLString(from);
+        $("#anwesenheitsTabelle").append('<tr><td>' + days[from.getDay()] + ' ' + from.getDate() + '.' + (from.getMonth() + 1) + '.' + from.getFullYear() + '</td><td id="LK' + s + '"></td><td id="Verm' + s + '"></td>');
+        from.setDate(from.getDate() + 1);
     }
-    
+
+    if (anwesenheit.length>0) {
     anw = anwesenheit[0].eintraege;
     for (var i = 0; i < anw.length; i++) {
         eintrag = anw[i];
         //console.log(eintrag);
         dat = eintrag.DATUM;
-        dat = dat.substr(0,dat.indexOf("T"));
-        $("#LK"+dat).text(eintrag.ID_LEHRER);
-        $("#Verm"+dat).text(eintrag.VERMERK);
+        dat = dat.substr(0, dat.indexOf("T"));
+        $("#LK" + dat).text(eintrag.ID_LEHRER);
+        $("#Verm" + dat).text(eintrag.VERMERK);
     }
-    
-    
+    }
+
+
 
 }
 
@@ -360,7 +434,7 @@ function generateAnwesenheit() {
  * @returns {String} Der  Vor und Nachname des Schülers
  */
 function getNameSchuler() {
-    return sessionStorage.VNAME+" "+sessionStorage.NNAME;
+    return sessionStorage.VNAME + " " + sessionStorage.NNAME;
 }
 
 /**
@@ -492,43 +566,71 @@ function getSchuelerInfo() {
     });
 }
 
+function submitUmfrage(uid, sid, fid, aid) {
+    var eintr = {
+        "idAntwort": aid,
+        "idFrage": fid,
+        "idSchueler": sid,
+        "idUmfrage": uid,        
+    }
+    console.log("--> Sende:"+JSON.stringify(eintr));
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/sauth/umfrage",
+        type: "POST",
+        cache: false,
+        data: JSON.stringify(eintr),
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            if (data!=undefined && data.success==false) {
+                toastr["error"](data.msg, "Fehler!");
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Eintrag zur Umfrage nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
 
 /**
  * Login durchführen
  */
 function performLogin() {
-        var myData = {
-            "benutzer": $("#lehrer").val(),
-            "kennwort": $("#kennwort").val()
-        };
+    var myData = {
+        "benutzer": $("#lehrer").val(),
+        "kennwort": $("#kennwort").val()
+    };
 
-        $.ajax({
-            cache: false,
-            contentType: "application/json; charset=UTF-8",
-            headers: {
-                "service_key": sessionStorage.service_key,
-                "auth_token": sessionStorage.auth_token
-            },
-            dataType: "json",
-            url: "/Diklabu/api/v1/auth/logout/",
-            type: "POST",
-            data: JSON.stringify(myData),
-            success: function (jsonObj, textStatus, xhr) {
-                sessionStorage.auth_token = undefined;
-                toastr["success"]("Logout erfolgreich", "Info!");
-                sessionStorage.myself = undefined;
+    $.ajax({
+        cache: false,
+        contentType: "application/json; charset=UTF-8",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        dataType: "json",
+        url: "/Diklabu/api/v1/auth/logout/",
+        type: "POST",
+        data: JSON.stringify(myData),
+        success: function (jsonObj, textStatus, xhr) {
+            sessionStorage.auth_token = undefined;
+            toastr["success"]("Logout erfolgreich", "Info!");
+            sessionStorage.myself = undefined;
+            loggedOut();
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
+            //console.log("HTTP Status: " + xhr.status);
+            //console.log("Error textStatus: " + textStatus);
+            //console.log("Error thrown: " + errorThrown);
+            if (xhr.status = 401) {
                 loggedOut();
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
-                //console.log("HTTP Status: " + xhr.status);
-                //console.log("Error textStatus: " + textStatus);
-                //console.log("Error thrown: " + errorThrown);
-                if (xhr.status = 401) {
-                    loggedOut();
-                }
             }
-        });
+        }
+    });
 
 }
 
@@ -547,15 +649,15 @@ function updateCurrentView() {
     view = getCurrentView();
     //console.log("Update Current View = " + view);
     switch (view) {
-        case "Anwesenheit":            
+        case "Anwesenheit":
             refreshAnwesenheit(sessionStorage.myself, function () {
                 generateAnwesenheit();
-            });                        
+            });
             break;
-        case "Fehlzeiten":            
+        case "Fehlzeiten":
             refreshAnwesenheit(sessionStorage.myself, function () {
                 generateVerspaetungen();
-            });                        
+            });
             break;
         case "Pläne":
             loadStundenPlan();
@@ -566,6 +668,104 @@ function updateCurrentView() {
         case "Vertretungsplan Klasse":
             loadVertertungsPlan();
             break;
+        case "Befragung":
+
+            getUmfrage(function (data) {
+                umfrage = data;
+                if (data.length > 1) {
+                    toastr["error"]("Achtung mehr als eine Umfrage aktiv!", "Fehler!");
+                }
+                else if (data.length==0) {
+                    $("#titelBefragung").text("Keine aktive Umfrage gefunden!");
+                }
+                else {
+                    console.log("Aktive Umfrage id=" + data[0].id)
+                    getUmfrageFragen(data[0].id, function (data) {
+                        console.log("Hame empfangen" + JSON.stringify(data));
+                        $("#titelBefragung").text(data.titel);
+                        generateHeadUmfrage(data.antworten);
+                        generateBodyUmfrage(data.fragen, data.antworten);
+                        $(".checkfrage").click(function () {
+                            console.log("Click auf FRage id=(" + $(this).attr("fid") + ") antwort ID=" + $(this).attr("aid") + " checked=" + $(this).attr("state"));
+                            if ($(this).attr("state") == 1) {
+                            }
+                            else {
+                                $("[id^='U" + $(this).attr("fid") + "_']").attr("src", "../img/unchecked.png");
+                                $("[id^='U" + $(this).attr("fid") + "_']").attr("state", "0");
+                                $(this).attr("src", '../img/checked1.png');
+                                $(this).attr("state", '1');
+                                $(this).removeClass("checkedfrage");
+                                $(this).addClass("uncheckfrage");
+                                submitUmfrage(umfrage[0].id, sessionStorage.myself, $(this).attr("fid"), $(this).attr("aid"));
+                            }
+                        });
+                        // bisherige Antworten abfragen
+                        getAntworten(umfrage[0].id,sessionStorage.myself,function (data) {
+                            console.log("empfange "+JSON.stringify(data));
+                            if (data!=undefined) {
+                            for (i=0;i<data.length;i++) {
+                                antw = data[i];
+                                console.log("Bearbeite Frage "+antw.frage);
+                                $("#U"+antw.idFrage+"_"+antw.idAntwort).attr("src",'../img/checked1.png');
+                                $("#U"+antw.idFrage+"_"+antw.idAntwort).attr("state",'1');
+                                $("#U"+antw.idFrage+"_"+antw.idAntwort).removeClass("checkedfrage");
+                                $("#U"+antw.idFrage+"_"+antw.idAntwort).addClass("uncheckfrage");
+                            }
+                        }
+                        });
+                        
+                    });
+                }
+            });
+            break;
+    }
+
+    function generateHeadUmfrage(antworten) {
+        $("#umfrageHead").empty();
+        console.log("Antworten=" + JSON.stringify(antworten));
+        var html = "<tr>";
+        html += '<th width="40%"><h3>Fragen</h3></th>';
+        for (i = 0; i < antworten.length; i++) {
+            html += '<th class="antworten">' + antworten[i].name + '</th>'
+            console.log("Fühe Antwort hinzu" + antworten[i].name + " id=" + antworten[i].id);
+        }
+        html += '</tr>';
+        $("#umfrageHead").append(html);
+    }
+
+    function generateBodyUmfrage(fragen, antworten) {
+        $("#umfrageBody").empty();
+        console.log("Generate Fragen cols=" + antworten.length);
+        html = "";
+
+        for (i = 0; i < fragen.length; i++) {
+            html += '<tr>';
+            html += '<td>' + fragen[i].frage + '</td>';
+            for (j = 0; j < antworten.length; j++) {
+                console.log("Teste Antworten der Frage " + fragen[i].frage + " gegen Antwort ID=" + antworten[j].id);
+                if (findAntworten(antworten[j].id, fragen[i].antworten)) {
+                    console.log("Antwort mit ID " + antworten[j].id + " enthalten!");
+                    html += '<td><div align=\"center\"><img state="0" fid="' + fragen[i].id + '" aid="' + antworten[j].id + '" id="U' + fragen[i].id + '_' + antworten[j].id + '" class="checkfrage" src="../img/unchecked.png"></div></td>';
+                }
+                else {
+                    console.log("Antwort mit ID " + antworten[j].id + " ist NICHT enthalten!");
+                    html += '<td>&nbsp;</td>';
+                }
+            }
+            html += '</tr>';
+        }
+
+        $("#umfrageBody").append(html);
+    }
+
+    function findAntworten(aid, map) {
+        for (n = 0; n < map.length; n++) {
+            console.log("Teste id=" + map[n] + " gegen " + aid);
+            if (map[n] == aid) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -57,6 +57,7 @@
                     <li id="firstNavTab" class="active"><a data-toggle="tab" href="#tabAnwesenheit">Anwesenheit</a></li>
                     <li><a data-toggle="tab" href="#tabFehlzeiten">Fehlzeiten</a></li>
                     <li><a data-toggle="tab" href="#tabPlan">Pläne</a></li>
+                    <li><a data-toggle="tab" href="#tabBefragung">Befragung</a></li>
                 </ul>
                 <br>
                 <div class="tab-content">                                        
@@ -64,14 +65,14 @@
                         </br>
                         <table class="table table-bordered table-hover table-striped" id="tabelleAnwesenheit">
                             <thead>
-                            <tr>
-                                <th ><strong>Datum</strong></th>
-                                <th ><strong>Lehrkraft</strong></th>
-                                <th ><strong>Vermerk</strong></th>
-                            </tr>
+                                <tr>
+                                    <th ><strong>Datum</strong></th>
+                                    <th ><strong>Lehrkraft</strong></th>
+                                    <th ><strong>Vermerk</strong></th>
+                                </tr>
                             </thead>
                             <tbody id="anwesenheitsTabelle">
-                                
+
                             </tbody>
                         </table>
                     </div>
@@ -81,8 +82,8 @@
                         <table class="table table-bordered table-striped" id="tabelleFehlzeiten">
                             <thead>
                                 <tr>
-                                   
-                            <th colspan="2"><h3>Fehltage</h3></th>
+
+                                    <th colspan="2"><h3>Fehltage</h3></th>
                             <th colspan="2"><h3>Verspätungen</h3></th>
                             <th rowspan="2">Eintragsfehler</th>
                             </tr>
@@ -114,6 +115,16 @@
                                 <div id="vertertungsplan" ></div>
                             </div>
                         </div>
+                    </div>
+                    <div id="tabBefragung" class="tab-pane fade">
+                        <h1 id="titelBefragung">Titel</h1>
+                        <table class="table table-bordered table-striped" id="tabelleUmfrage">
+                            <thead id="umfrageHead">                               
+                            </thead>
+                            <tbody id="umfrageBody">
+
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
