@@ -17,6 +17,8 @@ var indexFehlzeiten;
 var betriebe;
 // Notenliste
 var notenliste;
+//  Umfragen (Objektliste)
+var umfragen;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -33,6 +35,9 @@ $("#template").load(SERVER + "/Diklabu/template.txt", function () {
 });
 $("#diklabuname").text(DIKLABUNAME);
 console.log("found token:" + sessionStorage.auth_token);
+
+// Load the Visualization API and the corechart package.
+google.charts.load('current', {'packages': ['corechart']});
 
 getKlassenliste(function () {
     getLernfelder(function () {
@@ -286,6 +291,10 @@ $("#updateKlassenBem").click(function () {
 
 $('#notenTabs').on('shown.bs.tab', function (e) {
     console.log("New NavNoten Target =" + $(e.target).text());
+    updateCurrentView();
+});
+$('#umfrageTabs').on('shown.bs.tab', function (e) {
+    console.log("New Navumfrage Target =" + $(e.target).text());
     updateCurrentView();
 });
 
@@ -1143,7 +1152,7 @@ function loadSchuljahr(callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log ("Load Schuljahr empfangen:"+JSON.stringify(data));
+            console.log("Load Schuljahr empfangen:" + JSON.stringify(data));
             callback(data);
         },
         error: function (xhr, textStatus, errorThrown) {
@@ -1155,6 +1164,104 @@ function loadSchuljahr(callback) {
     });
 }
 
+/**
+ * Active Umfrage abfragen
+ * @param {type} callback Callback
+ */
+function loadUmfrage(callback) {
+    console.log("--> getUmfrage");
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/sauth/umfrage",
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("kann aktive Umfrage nicht vom Server laden", "Fehler!");
+        }
+    });
+}
+
+/**
+ * alle Umfragen abfragen
+ * @param {type} callback Callback
+ */
+function loadUmfragen(callback) {
+    console.log("--> getUmfragen");
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/umfrage",
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("kann Umfragen nicht vom Server laden", "Fehler!");
+        }
+    });
+}
+
+/**
+ * Asuwertung der Umfrage abfragen
+ * @param {type} id Die ID der Umfrage
+ * @param {type} klassefilter der Filter (% ist Joker)
+ * @param {type} callback
+ * @returns {undefined}
+ */
+function loadResults(id, klassefilter, callback) {
+    console.log("--> getAuswertung");
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/umfrage/auswertung/" + id + "/" + encodeURIComponent(klassefilter),
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("kann Auswertung der Umfragen nicht vom Server laden", "Fehler!");
+        }
+    });
+}
+
+
+
+function loadBeteiligung(uid, kname, callback) {
+    console.log("--> load Beteiligung Klasse=" + kname);
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/umfrage/beteiligung/" + uid + "/" + kname,
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            console.log("Load Beteiligung data=" + JSON.stringify(data));
+            if (callback != undefined) {
+                callback(data);
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Umfragebeteiligung Klasse " + kname + " nicht vom Server laden", "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
 
 function loadPortfolio(id, callback) {
     console.log("--> loadPortfiol Klassen id=" + id);
@@ -1246,6 +1353,11 @@ function getCurrentView() {
         sub = $("ul#plaene li.active").text();
         return sub;
     }
+    if (target == "Umfrage") {
+        sub = $("ul#umfrageTabs li.active").text();
+        return sub;
+    }
+
     return target;
 }
 
@@ -2022,11 +2134,13 @@ function refreshKlassenliste(kl, callback) {
                 schueler.klasse = kl;
                 $("#tabelleKlasse").empty();
                 $("#tabelleBemerkungen").empty();
+                $("#tabelleBeteiligung").empty();
 
                 $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
                 $("#tabelleKlasse").append("<tbody>");
                 for (i = 0; i < data.length; i++) {
                     $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td></tr>');
+                    $("#tabelleBeteiligung").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td><td id="U' + data[i].id + '"></td></tr>');
                     if (data[i].INFO != undefined) {
                         $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" name="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
                     }
@@ -2136,7 +2250,7 @@ function updateCurrentView() {
                 getNoten(nameKlasse, function (data) {
                     buildNoteneintrag(data);
                     loadSchuljahr(function (data) {
-                        $("#schuljahr").text("Schuljahr "+data.NAME);
+                        $("#schuljahr").text("Schuljahr " + data.NAME);
                     })
                 });
             });
@@ -2214,10 +2328,196 @@ function updateCurrentView() {
             $("#dokumentationContainer").hide();
             $("#printContainer").hide();
             break;
+        case "Beteiligung":
+            refreshKlassenliste(nameKlasse, function (data) {
+                loadUmfrage(function (data) {
+                    console.log("empfange:" + JSON.stringify(data));
+                    if (data.length == 0) {
+                        toastr["warning"]("Keine aktive Umfrage!", "Warnung!");
+                    }
+                    else if (data.length > 1) {
+                        toastr["error"]("Mehr als eine aktive Umfrage!", "Fehler!");
+                    }
+                    else {
+                        loadBeteiligung(data[0].id, nameKlasse, function (data) {
+                            console.log("empfange:" + JSON.stringify(data));
+                            updateBeteiligung(data);
+                        });
+                    }
+                });
+            });
+            break;
+        case "Auswertung":
+            loadUmfragen(function (data) {
+                umfragen = data;
+                console.log("empfange:" + JSON.stringify(data));
+                umfrage = data[data.length - 1];
+                console.log("Umfrage=" + umfrage.id);
+                updateAuswertungsFilter(data);
+
+
+                if (umfrage.active == 1) {
+                    toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
+                }
+
+                loadResults(umfrage.id, nameKlasse, function (data) {
+                    console.log("empfange:" + JSON.stringify(data));
+                    updateAuswertung(data);
+                    drawResults(data, 1);
+                    drawResults(data, 2);
+                });
+
+
+            });
+            break;
     }
 
 }
 
+
+function drawResults(results, col) {
+
+    for (i = 0; i < results.length; i++) {
+        var result = results[i];
+        var antworten = results[i].skalen;
+        // Create the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        var rows = [];
+        for (j = 0; j < antworten.length; j++) {
+            antwort = antworten[j];
+            var row = [antwort.name, antwort.anzahl];
+            // console.log("drawResults antwort=" + antwort.name + " Anzahl=" + antwort.anzahl);
+            rows.push(row);
+        }
+        data.addRows(rows);
+        /*
+         data.addRows([
+         ['Mushrooms', 3],
+         ['Onions', 1],
+         ['Olives', 1],
+         ['Zucchini', 1],
+         ['Pepperoni', 2]
+         ]);
+         */
+
+        // Set chart options
+        var options = {'title': result.frage,
+            'width': 400,
+            'height': 300};
+
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(document.getElementById('chart' + col + result.id));
+        chart.draw(data, options);
+    }
+}
+
+
+function updateAuswertungsFilter(data) {
+    $("#gruppe1Filter").val(nameKlasse);
+    $("#gruppe2Filter").val(nameKlasse);
+    $("#gruppe1Umfrage").empty();
+    $("#gruppe2Umfrage").empty();
+    for (i = 0; i < data.length; i++) {
+        u = data[i];
+        console.log("Füge gruppe1Umfrage hinzu id" + u.id);
+        $("#gruppe1Umfrage").append('<option uid="' + u.id + '">' + u.titel + '</option>')
+        $("#gruppe2Umfrage").append('<option uid="' + u.id + '">' + u.titel + '</option>')
+    }
+    $("#gruppe1Umfrage").val(u.titel);
+    $("#gruppe2Umfrage").val(u.titel);
+    $('#gruppe1Filter').on('keypress', function (e) {
+        var keyCode = e.keyCode || e.which;
+        console.log("key Pressed gruppe1Filer" + keyCode);
+        if (keyCode == 13) {
+            loadResults(umfrage.id, $("#gruppe1Filter").val(), function (data) {
+                console.log("empfange:" + JSON.stringify(data));
+                drawResults(data, 1);
+            });
+        }
+    });
+    $('#gruppe2Filter').on('keypress', function (e) {
+        var keyCode = e.keyCode || e.which;
+        console.log("key Pressed gruppe2Filer" + keyCode);
+        if (keyCode == 13) {
+            loadResults(umfrage.id, $("#gruppe2Filter").val(), function (data) {
+                console.log("empfange:" + JSON.stringify(data));
+                drawResults(data, 2);
+            });
+
+        }
+    });
+    $("#gruppe1Umfrage").change(function () {
+        uid = $('option:selected', this).attr('uid');
+        console.log("gruppe1Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
+        umfrage = getUmfrage(uid);
+        console.log("Umfrage=" + umfrage.id);
+        if (umfrage.active == 1) {
+            toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
+        }
+
+        loadResults(uid, $('#gruppe1Filter').val(), function (data) {
+            updateAuswertung(data);
+            console.log("empfange 1:" + JSON.stringify(data));
+            drawResults(data, 1);
+            console.log("Rechte Seite id=" + $('option:selected', "#gruppe2Umfrage").attr('uid'));
+            loadResults($('option:selected', "#gruppe2Umfrage").attr('uid'), $('#gruppe2Filter').val(), function (data) {
+                //updateAuswertung(data);
+                console.log("empfange 2:" + JSON.stringify(data));
+                drawResults(data, 2);
+            });
+
+        });
+    });
+    $("#gruppe2Umfrage").change(function () {
+        uid = $('option:selected', this).attr('uid');
+        console.log("gruppe2Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
+        umfrage = getUmfrage(uid);
+        console.log("Umfrage=" + umfrage.id);
+        if (umfrage.active == 1) {
+            toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
+        }
+
+        loadResults(uid, $('#gruppe2Filter').val(), function (data) {            
+            console.log("empfange :" + JSON.stringify(data));
+            drawResults(data, 2);
+        });
+    });
+}
+
+function getUmfrage(id) {
+    for (m = 0; m < umfragen.length; m++) {
+        u = umfragen[m];
+        console.log("Teste Umfrage " + u.titel);
+        if (u.id == id) {
+            console.log("Umfrage mit der id=" + id + " gefunden");
+            return u;
+        }
+    }
+    console.log("Keine Umfrage mit der id=" + id + " gefunden");
+}
+
+function updateAuswertung(data) {
+    $("#tabelleUmfrageAuswertung").empty();
+    console.log("upodate Auswertung data=" + JSON.stringify(data));
+    for (i = 0; i < data.length; i++) {
+        console.log("Update Auswertung frage=" + data[i].frage + " id=" + data[i].id);
+        $("#tabelleUmfrageAuswertung").append('<tr><td>' + data[i].frage + '</td><td><div id="chart1' + data[i].id + '"></div></td><td><div id="chart2' + data[i].id + '"></div></td></tr>')
+    }
+}
+
+/**
+ * Beteiligung aktualisieren
+ * @param {type} data
+ * @returns {undefined}
+ */
+function updateBeteiligung(data) {
+    for (i = 0; i < data.length; i++) {
+        var eintraege = data[i];
+        $("#U" + eintraege.schuelerId).text(eintraege.anzahlFragenBeantwortet + "/" + eintraege.anzahlFragen);
+    }
+}
 /** 
  * POrtfolio Tabelle erzeugen
  * @param {type} data Portfolio Einträge pro Schüler
@@ -2250,24 +2550,24 @@ function updatePortfolio(data) {
         body += "<tr>";
         body += '<td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon">&nbsp;' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td>';
         for (var j in years) {
-            body += '<td id="wpktitel'+j+'_'+schueler[i].id+'">&nbsp;</td><td id="wpkwert'+j+'_'+schueler[i].id+'">&nbsp;</td>';
+            body += '<td id="wpktitel' + j + '_' + schueler[i].id + '">&nbsp;</td><td id="wpkwert' + j + '_' + schueler[i].id + '">&nbsp;</td>';
         }
         body += "</tr>";
 
     }
     $("#bodyPortfolio").append(body);
-    
+
     // Werte Eintragen
-    
-    for (i=0;i<data.length;i++) {
-        eintraege=data[i].eintraege;
-        for (j=0;j<eintraege.length;j++) {
-            eintrag=eintraege[j];
-            $("#wpktitel"+eintrag.schuljahr+"_"+eintrag.ID_Schueler).text(eintrag.titel);
-            $("#wpkwert"+eintrag.schuljahr+"_"+eintrag.ID_Schueler).text(eintrag.wert);
+
+    for (i = 0; i < data.length; i++) {
+        eintraege = data[i].eintraege;
+        for (j = 0; j < eintraege.length; j++) {
+            eintrag = eintraege[j];
+            $("#wpktitel" + eintrag.schuljahr + "_" + eintrag.ID_Schueler).text(eintrag.titel);
+            $("#wpkwert" + eintrag.schuljahr + "_" + eintrag.ID_Schueler).text(eintrag.wert);
         }
     }
-    
+
     getSchuelerInfo();
 
 }
@@ -2397,6 +2697,7 @@ function renderBilder() {
             });
         }
     });
+
 
     $('body').on('keydown', ".bemerkungTextFeld", function (e) {
         var keyCode = e.keyCode || e.which;

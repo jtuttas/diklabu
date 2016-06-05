@@ -60,6 +60,16 @@ public class UmfagenManager {
 
   
     @GET
+    @Produces({"application/json; charset=iso-8859-1"})    
+    public List<ActiveUmfrage> getUmfragen() {
+        System.out.println("Umfragen abfragen");
+        Query query = em.createNamedQuery("findAllUmfragen");
+        List<ActiveUmfrage> umfrage = query.getResultList();
+        Log.d("Result List:" + umfrage);
+        return umfrage;
+    }
+    
+    @GET
     @Path("beteiligung/{uid}/{kname}")
     public List<Beteiligung> getBeteiligung(@PathParam("uid") int uid, @PathParam("kname") String kname) {
         System.out.println("Get Beteiligung f. Umfrage " + uid + " und Klasse =" + kname);
@@ -93,7 +103,7 @@ public class UmfagenManager {
             return null;
         }
         for (Fragen f : u.getFragen()) {
-            UmfrageResult ur = new UmfrageResult(f.getTITEL());
+            UmfrageResult ur = new UmfrageResult(f.getTITEL(),f.getID_FRAGE());
             Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
             for (Antwortskalen skalen : f.getAntwortskalen()) {
                 antworten.put(skalen.getID(), new AntwortSkalaObjekt(skalen.getNAME(), skalen.getID(), 0));
@@ -119,7 +129,7 @@ public class UmfagenManager {
 
             resultList.add(ur);
         }
-
+        System.out.println("resultList="+resultList);
         return resultList;
     }
 

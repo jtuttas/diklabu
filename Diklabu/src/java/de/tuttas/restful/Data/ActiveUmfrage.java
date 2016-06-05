@@ -13,6 +13,7 @@ public class ActiveUmfrage {
 
     private int id;
     private String titel;
+    private int active;
 
     public ActiveUmfrage() {
     }
@@ -21,6 +22,24 @@ public class ActiveUmfrage {
         this.id = id;
         this.titel = titel;
     }
+
+    public ActiveUmfrage(int id, String titel, int active) {
+        this.id = id;
+        this.titel = titel;
+        this.active = active;
+    }
+    
+    
+
+    public void setActive(int active) {
+        this.active = active;
+    }
+
+    public int getActive() {
+        return active;
+    }
+    
+    
 
     public int getId() {
         return id;

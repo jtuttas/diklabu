@@ -22,7 +22,7 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
         <![endif]-->
-
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
         <link href="../css/toastr.css" rel="stylesheet"/>
 
@@ -88,6 +88,7 @@
                     <li><a data-toggle="tab" href="#tabBemerkungen">Klasse</a></li>
                     <li><a data-toggle="tab" href="#tabPlan">Pläne</a></li>
                     <li><a data-toggle="tab" href="#tabPortfolio">Portfolio</a></li>
+                    <li><a data-toggle="tab" href="#tabUmfrage">Umfrage</a></li>
                     <li><a data-toggle="tab" href="#tabChat">Chat</a></li>
                 </ul>
                 <br>
@@ -517,7 +518,60 @@
                         </table>
 
                     </div>
+                    <div id="tabUmfrage" class="tab-pane fade">
+                        <ul class="nav nav-tabs" id="umfrageTabs" >
+                            <li class="active"><a data-toggle="tab" href="#tabBeteiligung">Beteiligung</a></li>
+                            <li><a data-toggle="tab" href="#tabAuswertung">Auswertung</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tabBeteiligung" class="tab-pane fade in active">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th width="20%"><h3>Name</h3></th>
 
+                                    <th><h3>beantwortete Fragen</h3></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tabelleBeteiligung">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="tabAuswertung" class="tab-pane fade in">
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th width="33%" rowspan="2"><h2>Fragen</h2></th>
+
+                                    <th><h3>Hauptgruppe</h3></th>
+                                    <th><h3>Vergleichsgruppe</h3></th>
+                                    </tr>
+                                    <tr>
+                                        <th>
+                                             <label for="gruppe1Umfrage">Umfrage:</label>
+                                            <select class="form-control" id="gruppe1Umfrage">
+                                            </select>
+                                             <label for="gruppe1Filter">Filter:</label>
+                                            <input type="text" class="form-control" id="gruppe1Filter" />
+                                        </th>
+                                        <th>
+                                            <label for="gruppe2Umfrage">Umfrage:</label>
+                                            <select class="form-control" id="gruppe2Umfrage">
+                                            </select>
+                                            <label for="gruppe2Filter">Filter:</label>
+                                            <input type="text" class="form-control" id="gruppe2Filter" />
+                                            <div id="chart_div"></div>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="tabelleUmfrageAuswertung">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                     <div id="tabChat" class="tab-pane fade">
                         <div id="chatContainer" style="display: none;">
                             <div class="col-md-1"></div>

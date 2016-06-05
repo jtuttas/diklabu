@@ -25,6 +25,7 @@ import javax.persistence.OneToMany;
 @Entity
 @NamedQueries({
      @NamedQuery(name = "findActiveUmfrage", query= "select new de.tuttas.restful.Data.ActiveUmfrage(u.ID_UMFRAGE,u.NAME)  from Umfrage u where u.ACTIVE=1"),
+     @NamedQuery(name = "findAllUmfragen", query= "select new de.tuttas.restful.Data.ActiveUmfrage(u.ID_UMFRAGE,u.NAME,u.ACTIVE)  from Umfrage u "),
 })
 public class Umfrage implements Serializable {
     private static final long serialVersionUID = 1L;
