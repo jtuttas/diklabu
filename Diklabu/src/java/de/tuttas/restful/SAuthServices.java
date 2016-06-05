@@ -181,10 +181,12 @@ public class SAuthServices {
     @Path("umfrage/fragen/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt getUmfrage(@PathParam("id") int id) {
-
+        Log.d("Antworten und Fragen der Umfrage mit id="+id);
         Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
         em.getEntityManagerFactory().getCache().evictAll();
         Umfrage u = em.find(Umfrage.class, id);
+        if (u==null) return null;
+        Log.d("Umfrage ist "+u.getNAME());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
         System.out.println("Aktive Umfrage mit Titel" + u.getNAME());
         System.out.println("Die Umfrage hat FRagen n=" + u.getFragen().size());

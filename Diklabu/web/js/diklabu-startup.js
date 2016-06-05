@@ -147,7 +147,28 @@ $("#print").click(function () {
         });
 
     }
+     else if (currentView == "Beteiligung") {
+        $("#tabBeteiligung").printThis({
+            debug: false,
+            printContainer: true,
+            importCSS: true,
+            loadCSS: SERVER + "/Diklabu/css/bootstrap.min.css",
+            pageTitle: "nachricht an Betribe der Klasse " + nameKlasse,
+            formValues: true
+        });
 
+    }
+else if (currentView == "Auswertung") {
+        $("#tabAuswertung").printThis({
+            debug: false,
+            printContainer: true,
+            importCSS: true,
+            loadCSS: SERVER + "/Diklabu/css/bootstrap.min.css",
+            pageTitle: "nachricht an Betribe der Klasse " + nameKlasse,
+            formValues: true
+        });
+
+    }
 
 });
 
@@ -2329,6 +2350,8 @@ function updateCurrentView() {
             $("#printContainer").hide();
             break;
         case "Beteiligung":
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             refreshKlassenliste(nameKlasse, function (data) {
                 loadUmfrage(function (data) {
                     console.log("empfange:" + JSON.stringify(data));
@@ -2348,6 +2371,8 @@ function updateCurrentView() {
             });
             break;
         case "Auswertung":
+             $("#dokumentationContainer").hide();
+            $("#printContainer").show();
             loadUmfragen(function (data) {
                 umfragen = data;
                 console.log("empfange:" + JSON.stringify(data));
@@ -2405,7 +2430,9 @@ function drawResults(results, col) {
         // Set chart options
         var options = {'title': result.frage,
             'width': 400,
-            'height': 300};
+            'height': 300,
+        backgroundColor: { fill:'transparent' }
+        };
 
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.visualization.PieChart(document.getElementById('chart' + col + result.id));
@@ -2475,6 +2502,7 @@ function updateAuswertungsFilter(data) {
         console.log("gruppe2Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
         umfrage = getUmfrage(uid);
         console.log("Umfrage=" + umfrage.id);
+        $("[id^='chart2']").empty();
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
