@@ -328,6 +328,42 @@ function Get-PollQuestion
 
 <#
 .Synopsis
+   Abfrage aller Fragen
+.DESCRIPTION
+   Abfrage aller Fragen
+.EXAMPLE
+   List-PollQuestion
+#>
+function List-PollQuestion
+{
+    Param
+    ( 
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/frage") -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "List-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+
+<#
+.Synopsis
    Legt eine  oder mehrere neue(n) Antworten an
 .DESCRIPTION
    Erzeugt eine oder mehrere neue(n) Antworten. Als Import kann z.B. eine CSV Datei genutzt werden mit folgenden Einträgen
@@ -501,3 +537,135 @@ function Get-PollAnswer
           }
     }
 }
+
+<#
+.Synopsis
+   Abfrage aller Antworten
+.DESCRIPTION
+   Abfrage aller Antworten    
+.EXAMPLE
+   List-PollAnswer  
+#>
+function List-PollAnswer
+{
+    Param
+    ( 
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/antwort") -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "List-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Fügt eine Antwort einer Frage hinzu
+.DESCRIPTION
+   Fügt eine Antwort einer Frage hinzu    
+.EXAMPLE
+   Add-PollAnswer -IDFRage 1  -IDAntwort 1
+.EXAMPLE
+   1,2,3| Add-PollAnswer -IDAntwort 2
+   Fügt den Fagen mit der ID 1,2 und 3 die Antwort mit der ID 2 hinzu
+
+#>
+function Add-PollAnswer
+{
+    Param
+    ( 
+        #IDFrage
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $IDFrage,
+
+        #IDAntwort
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
+        $IDAntwort,
+        
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/add/"+$IDFrage+"/"+$IDAntwort) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Add-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Entfernt eine Antwort aus einer Frage
+.DESCRIPTION
+   Entfernt eine Antwort aus einer Frage
+.EXAMPLE
+   Remove-PollAnswer -IDFRage 1  -IDAntwort 1
+.EXAMPLE
+   1,2,3| Remove-PollAnswer -IDAntwort 2
+   Entfernt aus den Fagen mit der ID 1,2 und 3 die Antwort mit der ID 2 
+
+#>
+function Remove-PollAnswer
+{
+    Param
+    ( 
+        #IDFrage
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $IDFrage,
+
+        #IDAntwort
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
+        $IDAntwort,
+        
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/remove/"+$IDFrage+"/"+$IDAntwort) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Remove-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+

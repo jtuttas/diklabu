@@ -25,6 +25,9 @@ import javax.persistence.OneToMany;
  * @author Jörg
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(name = "getAntwortenSkalen", query = "select a from Antwortskalen a")
+    })
 public class Antwortskalen implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id

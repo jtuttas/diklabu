@@ -18,6 +18,7 @@ import de.tuttas.restful.Data.AntwortUmfrage;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.Beteiligung;
 import de.tuttas.restful.Data.FragenObjekt;
+import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.restful.Data.UmfrageObjekt;
 import de.tuttas.restful.Data.UmfrageResult;
@@ -214,6 +215,48 @@ public class UmfagenManager {
         }
         return null;
     }
+    @GET
+    @Path("admin/antwort/")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<AntwortSkalaObjekt> listAntwort() {
+        
+        System.out.println("list Antworten:");
+        Query query = em.createNamedQuery("getAntwortenSkalen");       
+        List<Antwortskalen> as = query.getResultList();
+        List<AntwortSkalaObjekt> asol = new ArrayList<>();
+        for (int i=0;i<as.size();i++) {
+            Antwortskalen a = as.get(i);
+            AntwortSkalaObjekt aso = new AntwortSkalaObjekt();
+            aso.setId(a.getID());
+            aso.setName(a.getNAME());            
+            asol.add(aso);            
+        } 
+        return asol;
+        
+    }
+    @GET
+    @Path("admin/frage/")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<FragenObjekt> listFrage() {
+        
+        System.out.println("list Fragen:");
+        Query query = em.createNamedQuery("getFragen");       
+        List<Fragen> fr = query.getResultList();
+        List<FragenObjekt> frol = new ArrayList<>();
+        for (int i=0;i<fr.size();i++) {
+            Fragen f = fr.get(i);
+            FragenObjekt fo= new FragenObjekt();
+            fo.setId(f.getID_FRAGE());
+            fo.setFrage(f.getTITEL());
+            for (Antwortskalen as : f.getAntwortskalen()) {
+                fo.getIDantworten().add(as.getID());
+                fo.getStringAntworten().add(as.getNAME());
+            }
+            frol.add(fo);            
+        } 
+        return frol;
+        
+    }
 
     @POST
     @Path("admin/antwort")
@@ -258,6 +301,73 @@ public class UmfagenManager {
             return aso;
         }
         return null;
+    }
+    
+    @POST
+    @Path("admin/add/{fid}/{aid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject addAntwort(@PathParam("fid") int fid,@PathParam("aid") int aid) {
+        System.out.println("addAntwort: ID=" + aid +" to Frage ID="+fid);
+        ResultObject ro = new ResultObject();
+        Fragen f = em.find(Fragen.class, fid);
+        if (f!=null) {
+             Antwortskalen as = em.find(Antwortskalen.class, aid);
+             if (as!=null) {
+                 if (f.getAntwortskalen().contains(as)) {
+                    ro.setSuccess(false);
+                    ro.setMsg("Die Frage ("+f.getTITEL()+") enthält bereits die Antwort ("+as.getNAME()+") !");                     
+                 }
+                 else {
+                    f.getAntwortskalen().add(as);
+                    em.merge(f);
+                    ro.setSuccess(true);
+                    ro.setMsg("Habe der Frage ("+f.getTITEL()+") die Antwort ("+as.getNAME()+") hinzugefügt!");
+                 }
+             }
+             else {
+                 ro.setMsg("Kann Antwort mit ID="+aid+" nicht finden!");
+                 ro.setSuccess(false);
+             }
+        }
+        else {
+            ro.setSuccess(false);
+            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+        }
+        return ro;
+    }
+    
+    @POST
+    @Path("admin/remove/{fid}/{aid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject removeAntwort(@PathParam("fid") int fid,@PathParam("aid") int aid) {
+        System.out.println("removeAntwort: ID=" + aid +" from Frage ID="+fid);
+        ResultObject ro = new ResultObject();
+        Fragen f = em.find(Fragen.class, fid);
+        if (f!=null) {
+             Antwortskalen as = em.find(Antwortskalen.class, aid);
+             if (as!=null) {
+                 if (f.getAntwortskalen().contains(as)) {
+                    f.getAntwortskalen().remove(as);
+                    em.merge(f);
+                    ro.setSuccess(true);
+                    ro.setMsg("Habe die Antwort ("+as.getNAME()+") aus der Frage ("+f.getTITEL()+") entfernt!");
+                 }
+                 else {
+                     ro.setSuccess(false);
+                     ro.setMsg("Die Antwort ("+as.getNAME()+") ist nicht in der Frage ("+f.getTITEL()+") enthalten!");
+                 }
+             }
+             else {
+                 ro.setMsg("Kann Antwort mit ID="+aid+" nicht finden!");
+                 ro.setSuccess(false);
+             }
+            
+        }
+        else {
+            ro.setSuccess(false);
+            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+        }
+        return ro;
     }
 
 }
