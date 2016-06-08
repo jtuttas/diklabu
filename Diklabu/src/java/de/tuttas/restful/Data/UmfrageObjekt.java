@@ -14,9 +14,11 @@ import java.util.List;
  */
 public class UmfrageObjekt {
     
+    private int id;
     private List<AntwortSkalaObjekt> antworten;
     private List<FragenObjekt> fragen ;
     private String titel;
+    private int active;
 
 
     public UmfrageObjekt() {
@@ -29,8 +31,26 @@ public class UmfrageObjekt {
         fragen = new ArrayList<>();
         antworten = new ArrayList<>();
     }
+
+    public void setActive(int active) {
+        this.active = active;
+    }
+
+    public int getActive() {
+        return active;
+    }
+
+    
+    
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
  
-   
+    
     
     public List<FragenObjekt> getFragen() {
         return fragen;

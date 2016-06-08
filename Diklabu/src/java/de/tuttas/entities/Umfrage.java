@@ -43,8 +43,16 @@ public class Umfrage implements Serializable {
     private Collection<Fragen> fragen;         
      
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer ID_UMFRAGE;
+
+    public Umfrage() {
+    }
+
+    
+    public Umfrage(String titel) {
+        this.NAME=titel;
+    }
     
 
     public void setFragen(Collection<Fragen> fragen) {

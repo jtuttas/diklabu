@@ -22,11 +22,11 @@
 .DESCRIPTION
    Listet die Umfragen auf
 .EXAMPLE
-   List-Poll
+   Get-Polls
 .EXAMPLE
-   List-Poll -uri http://localhost:8080/Diklabu/api/v1/
+   Get-Polls -uri http://localhost:8080/Diklabu/api/v1/
 #>
-function List-Poll
+function Get-Polls
 {
     Param
     (
@@ -46,7 +46,7 @@ function List-Poll
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage") -Headers $headers 
             return $r;
         } catch {
-            Write-Host "List-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Host "Get-Polls: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
         }
     }
 }
@@ -332,9 +332,9 @@ function Get-PollQuestion
 .DESCRIPTION
    Abfrage aller Fragen
 .EXAMPLE
-   List-PollQuestion
+   Get-PollQuestions
 #>
-function List-PollQuestion
+function Get-PollQuestions
 {
     Param
     ( 
@@ -356,7 +356,7 @@ function List-PollQuestion
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/frage") -Headers $headers 
             return $r;
           } catch {
-              Write-Host "List-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Host "Get-PollQuestions: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
           }
     }
 }
@@ -544,9 +544,9 @@ function Get-PollAnswer
 .DESCRIPTION
    Abfrage aller Antworten    
 .EXAMPLE
-   List-PollAnswer  
+   Get-PollAnswers  
 #>
-function List-PollAnswer
+function Get-PollAnswers
 {
     Param
     ( 
@@ -568,7 +568,7 @@ function List-PollAnswer
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/antwort") -Headers $headers 
             return $r;
           } catch {
-              Write-Host "List-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Host "Get-PollAnswers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
           }
     }
 }
@@ -669,3 +669,229 @@ function Remove-PollAnswer
     }
 }
 
+<#
+.Synopsis
+   Legt eine neue Umfrage an
+.DESCRIPTION
+   Erzeugt eine neue Umfrage    
+.EXAMPLE
+   New-Poll -TITEL "Schülerbefragung 2018"
+#>
+function New-Poll
+{
+    Param
+    ( 
+        # Titel
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [String]$TITEL,
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          $p=echo "" | Select-Object -Property "titel"
+          $p.titel=$TITEL
+          try {        
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
+            return $r;
+          } catch {
+              Write-Host "New-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Ändert eine Umfrage
+.DESCRIPTION
+   Ändert eine Umfrage
+    
+.EXAMPLE
+   Set-Poll  -id 1 -TITEL "Schülerbefragung 2018/19"
+#>
+function Set-Poll
+{
+    Param
+    ( 
+        #ID der Umfrage
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $ID,
+        # Titel der Umfage
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [String]$TITEL,
+        
+        # Aktive Umfage (1=ja)
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [String]$ACTIVE,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          $p=echo "" | Select-Object -Property "id","titel","active"
+          $p.titel=$TITEL
+          $p.id=$ID
+          $p.active=$ACTIVE
+          try {        
+            $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
+            return $r;
+          } catch {
+              Write-Host "Set-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+<#
+.Synopsis
+   Löscht eine Umfrage
+.DESCRIPTION
+   Löscht eine Umfrage
+    
+.EXAMPLE
+   Delete-Poll -id 1 
+#>
+function Delete-Poll
+{
+    Param
+    ( 
+        #ID der Antwort
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $ID,
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/"+$ID) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Delete-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Fügt eine Frage eine Umfrage hinzu
+.DESCRIPTION
+   Fügt eine Frage eine Umfrage hinzu
+.EXAMPLE
+   Add-PollQuestion -IDUmfrage 1  -IDFrage 1
+.EXAMPLE
+   1,2,3| Add-PollAnswer -IDUmfrage 2
+   Fügt den Fagen mit der ID 1,2 und 3 die Umfrage mit der ID 2 hinzu
+
+#>
+function Add-PollQuestion
+{
+    Param
+    ( 
+        #IDFrage
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $IDFrage,
+
+        #IDAntwort
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
+        $IDUmfrage,
+        
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/addUmfrage/"+$IDFrage+"/"+$IDUmfrage) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Add-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Entfernt eine Frage aus einer Umfrage
+.DESCRIPTION
+   Entfernt eine Frage aus einer Umfrage
+.EXAMPLE
+   Remove-PollQuestion -IDFrage 1  -IDUmfrage 1
+.EXAMPLE
+   1,2,3| Remove-PollQuestion -IDUmfrage 2
+   Entfernt die Fagen mit der ID 1,2 und 3 aus der Umfrage mit der ID 2 
+
+#>
+function Remove-PollQuestion
+{
+    Param
+    ( 
+        #IDFrage
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $IDFrage,
+
+        #IDUmfrage
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
+        $IDUmfrage,
+        
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/removeUmfrage/"+$IDFrage+"/"+$IDUmfrage) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Remove-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}

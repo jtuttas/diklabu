@@ -369,5 +369,117 @@ public class UmfagenManager {
         }
         return ro;
     }
+    
+    @POST
+    @Path("admin/")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public UmfrageObjekt newUmfrage(UmfrageObjekt uo) {
+        System.out.println("newUmfrage:" + uo);
+        Umfrage u = new Umfrage(uo.getTitel());        
+        em.persist(u);
+        em.flush();        
+        uo.setId(u.getID_UMFRAGE());
+        return uo;
+    }
+
+    @PUT
+    @Path("admin/")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public UmfrageObjekt setUmfrage(UmfrageObjekt uo) {
+        System.out.println("setUmfragenobjekt:" + uo);
+        Umfrage u = em.find(Umfrage.class, uo.getId());
+        if (u != null) {
+            u.setNAME(uo.getTitel());
+            u.setACTIVE(uo.getActive());
+            em.merge(u);
+            em.flush();            
+            uo.setId(u.getID_UMFRAGE());
+            return uo;
+        }
+        return null;
+    }
+
+    @DELETE
+    @Path("admin/{uid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public UmfrageObjekt deleteUmfrage(@PathParam("uid") int uid) {
+        System.out.println("Detele Umfrage id=:" + uid);
+        Umfrage u = em.find(Umfrage.class, uid);
+        if (u != null) {
+            em.remove(u);
+            em.flush();
+            UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
+            uo.setId(u.getID_UMFRAGE());
+            return uo;
+        }
+        return null;
+    }   
+    
+    @POST
+    @Path("admin/addUmfrage/{fid}/{uid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject addUmfrage(@PathParam("fid") int fid,@PathParam("uid") int uid) {
+        System.out.println("addFrage: ID=" + fid +" to Umfrage ID="+uid);
+        ResultObject ro = new ResultObject();
+        Fragen f = em.find(Fragen.class, fid);
+        if (f!=null) {
+             Umfrage u = em.find(Umfrage.class, uid);
+             if (u!=null) {
+                 if (u.getFragen().contains(f)) {
+                    ro.setSuccess(false);
+                    ro.setMsg("Die Frage ("+f.getTITEL()+") ist bereits in der Umfrage ("+u.getNAME()+") enthalten!");                     
+                 }
+                 else {
+                    u.getFragen().add(f);
+                    em.merge(f);
+                    ro.setSuccess(true);
+                    ro.setMsg("Habe der Frage ("+f.getTITEL()+") zur Umgfage ("+u.getNAME()+") hinzugefügt!");
+                 }
+             }
+             else {
+                 ro.setMsg("Kann Umfrage mit ID="+uid+" nicht finden!");
+                 ro.setSuccess(false);
+             }
+        }
+        else {
+            ro.setSuccess(false);
+            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+        }
+        return ro;
+    }
+    
+    @POST
+    @Path("admin/removeUmfrage/{fid}/{uid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject removeUmfrage(@PathParam("fid") int fid,@PathParam("uid") int uid) {
+        System.out.println("removeFrage: ID=" + fid +" from Umfrage ID="+uid);
+        ResultObject ro = new ResultObject();
+        Fragen f = em.find(Fragen.class, fid);
+        if (f!=null) {
+             Umfrage u = em.find(Umfrage.class, uid);
+             if (u!=null) {
+                 if (u.getFragen().contains(f)) {
+                    u.getFragen().remove(f);                    
+                    em.merge(f);
+                    ro.setSuccess(true);
+                    ro.setMsg("Habe die Frage ("+f.getTITEL()+") aus der Umfrage ("+u.getNAME()+") entfernt!");
+                 }
+                 else {
+                     ro.setSuccess(false);
+                     ro.setMsg("Die Frage ("+f.getTITEL()+") ist nicht in der Umfrage ("+u.getNAME()+") enthalten!");
+                 }
+             }
+             else {
+                 ro.setMsg("Kann Umfrage mit ID="+uid+" nicht finden!");
+                 ro.setSuccess(false);
+             }
+            
+        }
+        else {
+            ro.setSuccess(false);
+            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+        }
+        return ro;
+    }    
 
 }
