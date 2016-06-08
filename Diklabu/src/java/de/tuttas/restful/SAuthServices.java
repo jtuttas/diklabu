@@ -196,9 +196,9 @@ public class SAuthServices {
             fo.setId(f.getID_FRAGE());
             Collection<Antwortskalen> aw = f.getAntwortskalen();
             for (Antwortskalen as : aw) {
-                System.out.println("size=" + fo.getAntworten().size());
+                System.out.println("size=" + fo.getIDantworten().size());
                 Integer key = new Integer(as.getID());
-                fo.getAntworten().add(key);
+                fo.getIDantworten().add(key);
                 if (antworten.get(key) == null) {
                     System.out.println("Eine neue Antwort (" + as.getNAME() + ")");
                     antworten.put(key, new AntwortSkalaObjekt(as.getNAME(), key, as.getWERT()));

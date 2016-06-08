@@ -30,7 +30,7 @@ import javax.persistence.OneToMany;
 public class Fragen implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "ID_FRAGE")
     private Integer ID_FRAGE;
     private String TITEL;
@@ -48,6 +48,13 @@ public class Fragen implements Serializable {
     @OneToMany(mappedBy = "fragenAntworten")
     private Collection<Antworten> antworten;
 
+    public Fragen() {
+    }
+
+    public Fragen(String TITEL) {
+        this.TITEL = TITEL;
+    }
+       
     public void setAntworten(Collection<Antworten> antworten) {
         this.antworten = antworten;
     }

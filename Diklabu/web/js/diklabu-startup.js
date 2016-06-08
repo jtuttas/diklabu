@@ -2454,6 +2454,7 @@ function updateAuswertungsFilter(data) {
     }
     $("#gruppe1Umfrage").val(u.titel);
     $("#gruppe2Umfrage").val(u.titel);
+    $('#gruppe1Filter').off('keypress');
     $('#gruppe1Filter').on('keypress', function (e) {
         var keyCode = e.keyCode || e.which;
         console.log("key Pressed gruppe1Filer" + keyCode);
@@ -2464,6 +2465,7 @@ function updateAuswertungsFilter(data) {
             });
         }
     });
+    $('#gruppe2Filter').off('keypress');
     $('#gruppe2Filter').on('keypress', function (e) {
         var keyCode = e.keyCode || e.which;
         console.log("key Pressed gruppe2Filer" + keyCode);
@@ -2475,6 +2477,7 @@ function updateAuswertungsFilter(data) {
 
         }
     });
+    $("#gruppe1Umfrage").unbind("change");
     $("#gruppe1Umfrage").change(function () {
         uid = $('option:selected', this).attr('uid');
         console.log("gruppe1Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
@@ -2497,6 +2500,7 @@ function updateAuswertungsFilter(data) {
 
         });
     });
+    $("#gruppe2Umfrage").unbind("change");
     $("#gruppe2Umfrage").change(function () {
         uid = $('option:selected', this).attr('uid');
         console.log("gruppe2Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());

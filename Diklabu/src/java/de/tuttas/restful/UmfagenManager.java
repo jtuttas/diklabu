@@ -33,8 +33,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -58,9 +60,8 @@ public class UmfagenManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
-  
     @GET
-    @Produces({"application/json; charset=iso-8859-1"})    
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<ActiveUmfrage> getUmfragen() {
         System.out.println("Umfragen abfragen");
         Query query = em.createNamedQuery("findAllUmfragen");
@@ -68,7 +69,7 @@ public class UmfagenManager {
         Log.d("Result List:" + umfrage);
         return umfrage;
     }
-    
+
     @GET
     @Path("beteiligung/{uid}/{kname}")
     public List<Beteiligung> getBeteiligung(@PathParam("uid") int uid, @PathParam("kname") String kname) {
@@ -94,6 +95,7 @@ public class UmfagenManager {
 
     @GET
     @Path("auswertung/{uid}/{klassenname}")
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<UmfrageResult> getAntwortenKlasse(@PathParam("uid") int uid, @PathParam("klassenname") String kname) {
         System.out.println("Get Antworten f. Umfrage " + uid + " und Klasse =" + kname);
         em.getEntityManagerFactory().getCache().evictAll();
@@ -103,7 +105,7 @@ public class UmfagenManager {
             return null;
         }
         for (Fragen f : u.getFragen()) {
-            UmfrageResult ur = new UmfrageResult(f.getTITEL(),f.getID_FRAGE());
+            UmfrageResult ur = new UmfrageResult(f.getTITEL(), f.getID_FRAGE());
             Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
             for (Antwortskalen skalen : f.getAntwortskalen()) {
                 antworten.put(skalen.getID(), new AntwortSkalaObjekt(skalen.getNAME(), skalen.getID(), 0));
@@ -129,9 +131,73 @@ public class UmfagenManager {
 
             resultList.add(ur);
         }
-        System.out.println("resultList="+resultList);
+        System.out.println("resultList=" + resultList);
         return resultList;
     }
 
-   
+    @GET
+    @Path("admin/frage/{fid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public FragenObjekt getFrage(@PathParam("fid") int fid) {
+        System.out.println("get Fragen:" + fid);
+        Fragen f = em.find(Fragen.class, fid);
+        if (f != null) {
+            
+            FragenObjekt fro = new FragenObjekt(f.getTITEL());
+            fro.setId(f.getID_FRAGE());
+            for (Antwortskalen skalen : f.getAntwortskalen()) {
+                fro.getIDantworten().add(skalen.getID());
+                fro.getStringAntworten().add(skalen.getNAME());
+            }                        
+            return fro;
+        }
+        return null;
+    }
+
+    @POST
+    @Path("admin/frage")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public FragenObjekt newFrage(FragenObjekt fo) {
+        System.out.println("newFragenobjekt:" + fo);
+        Fragen f = new Fragen(fo.getFrage());
+        em.persist(f);
+        em.flush();
+        FragenObjekt fro = new FragenObjekt(f.getTITEL());
+        fro.setId(f.getID_FRAGE());
+        return fro;
+    }
+
+    @PUT
+    @Path("admin/frage/{fid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public FragenObjekt setFrage(FragenObjekt fo) {
+        System.out.println("setFragenobjekt:" + fo);
+        Fragen f = em.find(Fragen.class, fo.getId());
+        if (f != null) {
+            f.setTITEL(fo.getFrage());
+            em.merge(f);
+            em.flush();
+            FragenObjekt fro = new FragenObjekt(f.getTITEL());
+            fro.setId(f.getID_FRAGE());
+            return fro;
+        }
+        return null;
+    }
+
+    @DELETE
+    @Path("admin/frage/{fid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public FragenObjekt setFrage(@PathParam("fid") int fid) {
+        System.out.println("Detele Fragenobjekt id=:" + fid);
+        Fragen f = em.find(Fragen.class, fid);
+        if (f != null) {
+            em.remove(f);
+            em.flush();
+            FragenObjekt fro = new FragenObjekt(f.getTITEL());
+            fro.setId(f.getID_FRAGE());
+            return fro;
+        }
+        return null;
+    }
+
 }
