@@ -325,3 +325,179 @@ function Get-PollQuestion
           }
     }
 }
+
+<#
+.Synopsis
+   Legt eine  oder mehrere neue(n) Antworten an
+.DESCRIPTION
+   Erzeugt eine oder mehrere neue(n) Antworten. Als Import kann z.B. eine CSV Datei genutzt werden mit folgenden Einträgen
+    "ANTWORT"
+    
+.EXAMPLE
+   New-PollAnswer -ANTWORT "sehr gut!"
+.EXAMPLE
+   Import-Csv antworten.csv | New-PollAnswer
+#>
+function New-PollAnswer
+{
+    Param
+    ( 
+        # Antwort
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [String]$ANTWORT,
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          $a=echo "" | Select-Object -Property "name"
+          $a.name=$ANTWORT
+          try {        
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/antwort") -Headers $headers -Body (ConvertTo-Json $a)
+            return $r;
+          } catch {
+              Write-Host "New-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Ändert eine  oder mehrere Antworten
+.DESCRIPTION
+   Ändert eine oder mehrere Antworten. 
+    
+.EXAMPLE
+   Set-PollAnswer  -id 1 -ANTWORT "Sehr gut!"
+#>
+function Set-PollAnswer
+{
+    Param
+    ( 
+        #ID der Antwort
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $ID,
+        # Antowrt
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [String]$ANTWORT,
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          $a=echo "" | Select-Object -Property "id","name"
+          $a.name=$ANTWORT
+          $a.id=$ID
+          try {        
+            $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin/antwort") -Headers $headers -Body (ConvertTo-Json $a)
+            return $r;
+          } catch {
+              Write-Host "Set-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+<#
+.Synopsis
+   Löscht eine  oder mehrere Antworten
+.DESCRIPTION
+   Löscht eine oder mehrere Antworten. 
+    
+.EXAMPLE
+   delete-PollAnswer  -id 1 
+.EXAMPLE
+   1,2,3| delete-PollAnswer
+   Löscht die Antworten mit der ID 1 und ID 2 und ID 3
+
+#>
+function Delete-PollAnswer
+{
+    Param
+    ( 
+        #ID der Antwort
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $ID,
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/antwort/"+$ID) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Delete-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+<#
+.Synopsis
+   Abfrage einer  oder mehrere Antworten
+.DESCRIPTION
+   Abfrage einer oder mehrere Antworten. 
+    
+.EXAMPLE
+   Get-PollAnswer  -id 1 
+.EXAMPLE
+   1,2,3| Get-PollAnswer
+
+#>
+function Get-PollAnswer
+{
+    Param
+    ( 
+        #ID der Antwort
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $ID,
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/antwort/"+$ID) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Get-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}

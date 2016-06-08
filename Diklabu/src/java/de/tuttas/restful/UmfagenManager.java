@@ -199,5 +199,65 @@ public class UmfagenManager {
         }
         return null;
     }
+    
+     @GET
+    @Path("admin/antwort/{aid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public AntwortSkalaObjekt getAntwort(@PathParam("aid") int aid) {
+        System.out.println("get Antwort:" + aid);
+        Antwortskalen a = em.find(Antwortskalen.class, aid);
+        if (a != null) {
+            AntwortSkalaObjekt aso = new AntwortSkalaObjekt();
+            aso.setId(a.getID());
+            aso.setName(a.getNAME());
+            return aso;
+        }
+        return null;
+    }
+
+    @POST
+    @Path("admin/antwort")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public AntwortSkalaObjekt newAntwort(AntwortSkalaObjekt ao) {
+        System.out.println("newAntwortobjekt:" + ao);
+        Antwortskalen a = new Antwortskalen();
+        a.setNAME(ao.getName());        
+        em.persist(a);
+        em.flush();
+        ao.setId(a.getID());
+        return ao;
+    }
+
+    @PUT
+    @Path("admin/antwort")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public AntwortSkalaObjekt setAntwort(AntwortSkalaObjekt ao) {
+        System.out.println("setAntwortobjekt:" + ao);
+        Antwortskalen a = em.find(Antwortskalen.class, ao.getId());
+        if (a != null) {
+            a.setNAME(ao.getName());            
+            em.merge(a);
+            em.flush();
+            return ao;
+        }
+        return null;
+    }
+
+    @DELETE
+    @Path("admin/antwort/{aid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public AntwortSkalaObjekt setAntwort(@PathParam("aid") int aid) {
+        System.out.println("Detele Antwortobjekt id=:" + aid);
+        Antwortskalen a = em.find(Antwortskalen.class, aid);
+        if (a != null) {
+            em.remove(a);
+            em.flush();
+            AntwortSkalaObjekt aso = new AntwortSkalaObjekt();
+            aso.setId(a.getID());
+            aso.setName(a.getNAME());            
+            return aso;
+        }
+        return null;
+    }
 
 }
