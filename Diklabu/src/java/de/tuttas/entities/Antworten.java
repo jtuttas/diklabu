@@ -25,7 +25,7 @@ import javax.persistence.NamedQuery;
 @Entity
 @NamedQueries({
     @NamedQuery(name = "getAntworten", query = "select a from Antworten a where a.teilnehmer = :paramTeilnehmer "),
-    @NamedQuery(name = "getAntwort", query = "select a from Antworten a where a.ID_UMFRAGE = :paramUmfrageID and a.teilnehmer = :paramTeilnehmer and a.fragenAntworten = :paramFrage"),
+    @NamedQuery(name = "getAntwort", query = "select a from Antworten a inner join Teilnehmer t on a.teilnehmer = t where t.umfrage = :paramUmfrage and a.teilnehmer = :paramTeilnehmer and a.fragenAntworten = :paramFrage"),
     //@NamedQuery(name = "getAntwortenByKlasse", query = "select a from Antworten a inner join Schueler s on a.ID_SCHUELER=s.ID inner join Schueler_Klasse sk on s.id=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.id where a.ID_UMFRAGE = :paramUmfrageID and t.SCHUELERID= :paramSchuelerID and k.KNAME like :paramKlasse ORDER BY s.NNAME")
 })
 public class Antworten implements Serializable {
@@ -33,10 +33,6 @@ public class Antworten implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    
-    private int ID_UMFRAGE;
-   
-    
 
     @ManyToOne
     @JoinColumn(name = "ID_FRAGE", referencedColumnName = "ID_FRAGE")
@@ -53,23 +49,13 @@ public class Antworten implements Serializable {
     public Antworten() {
     }
 
-    public Antworten( int ID_UMFRAGE, Teilnehmer t, Fragen fragenAntworten, Antwortskalen antwortskala) {
-        this.ID_UMFRAGE = ID_UMFRAGE;
+    public Antworten( Teilnehmer t, Fragen fragenAntworten, Antwortskalen antwortskala) {
+        
         this.fragenAntworten = fragenAntworten;
         this.antwortskala = antwortskala;
         this.teilnehmer = t;
     }
            
-    
-    public void setID_UMFRAGE(int ID_UMFRAGE) {
-        this.ID_UMFRAGE = ID_UMFRAGE;
-    }
-
-    public int getID_UMFRAGE() {
-        return ID_UMFRAGE;
-    }
- 
-    
     
     public void setAntwortskala(Antwortskalen antwortskala) {
         this.antwortskala = antwortskala;

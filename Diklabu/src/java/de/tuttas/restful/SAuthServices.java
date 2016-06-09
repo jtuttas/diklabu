@@ -76,30 +76,33 @@ public class SAuthServices {
 
     /**
      * Antworten eines Teilnehmers abfragen
+     *
      * @param httpHeaders
      * @param key Key der Umfrage
-     * @return 
+     * @return
      */
     @GET
     @Path("/umfrage/antworten/{key}")
-    public List<AntwortUmfrage> getAntworten(@Context HttpHeaders httpHeaders,@PathParam("key") String key) {
-        System.out.println("Get Antworten f. key (" + key+")");
+    public List<AntwortUmfrage> getAntworten(@Context HttpHeaders httpHeaders, @PathParam("key") String key) {
+        System.out.println("Get Antworten f. key (" + key + ")");
         /*
-        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-        Authenticator aut = Authenticator.getInstance();
-        String user = aut.getUser(authToken);
-        Log.d("get  auth_token=" + authToken + " User=" + user);
-        if (user == null || Integer.parseInt(user) != sid) {
+         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+         Authenticator aut = Authenticator.getInstance();
+         String user = aut.getUser(authToken);
+         Log.d("get  auth_token=" + authToken + " User=" + user);
+         if (user == null || Integer.parseInt(user) != sid) {
+         return null;
+         }
+         */
+        Teilnehmer t = em.find(Teilnehmer.class, key);
+        if (t == null) {
             return null;
         }
-        */
-        Teilnehmer t = em.find(Teilnehmer.class, key);
-        if (t==null) return null;
-        
+
         Query q = em.createNamedQuery("getAntworten");
         q.setParameter("paramTeilnehmer", t);
         List<Antworten> anw = q.getResultList();
-        
+
         List<AntwortUmfrage> au = new ArrayList<>();
         System.out.println("Result=" + anw);
         for (Antworten a : anw) {
@@ -116,52 +119,49 @@ public class SAuthServices {
 
     /**
      * Umfrageeintrag erzeugen
+     *
      * @param httpHeaders
      * @param aw
-     * @return 
+     * @return
      */
     @POST
-    @Path("umfrage")    
-    public AntwortUmfrage addAntwort(@Context HttpHeaders httpHeaders,AntwortUmfrage aw) {
+    @Path("umfrage")
+    public AntwortUmfrage addAntwort(@Context HttpHeaders httpHeaders, AntwortUmfrage aw) {
         /*
-        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-        Authenticator aut = Authenticator.getInstance();
-        String user = aut.getUser(authToken);
-        Log.d("get  auth_token=" + authToken + " User=" + user);
-        if (user == null || Integer.parseInt(user) != aw.getIdSchueler()) {
-            return null;
-        }
-        */
-        
+         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+         Authenticator aut = Authenticator.getInstance();
+         String user = aut.getUser(authToken);
+         Log.d("get  auth_token=" + authToken + " User=" + user);
+         if (user == null || Integer.parseInt(user) != aw.getIdSchueler()) {
+         return null;
+         }
+         */
+
         Fragen f = em.find(Fragen.class, aw.getIdFrage());
         if (f != null) {
             Teilnehmer t = em.find(Teilnehmer.class, aw.getKey());
-            if (t!=null) {
+            if (t != null) {
                 Antwortskalen as = em.find(Antwortskalen.class, aw.getIdAntwort());
                 if (as != null) {
-                    Umfrage u = em.find(Umfrage.class, aw.getIdUmfrage());
-                    if (u != null) {
-                        Query q = em.createNamedQuery("getAntwort");
-                        q.setParameter("paramUmfrageID", aw.getIdUmfrage());
-                        q.setParameter("paramTeilnehmer", t);
-                        q.setParameter("paramFrage", f);
-                        List<Antworten> anw = q.getResultList();
-                        if (anw.size() == 0) {
-                            Antworten an = new Antworten(aw.getIdUmfrage(), t, f, as);
-                            em.persist(an);
-                            aw.setSuccess(true);
-                            aw.setMsg("Eintrag angelegt");
-                        } else {
-                            Antworten an = anw.get(0);
-                            an.setAntwortskala(as);
-                            em.merge(an);
-                            aw.setSuccess(true);
-                            aw.setMsg("Eintrag aktualisiert");
-                        }
+                    Umfrage u = t.getUmfrage();
+                    Query q = em.createNamedQuery("getAntwort");
+                    q.setParameter("paramUmfrage", u);
+                    q.setParameter("paramTeilnehmer", t);
+                    q.setParameter("paramFrage", f);
+                    List<Antworten> anw = q.getResultList();
+                    if (anw.size() == 0) {
+                        Antworten an = new Antworten(t, f, as);
+                        em.persist(an);
+                        aw.setSuccess(true);
+                        aw.setMsg("Eintrag angelegt");
                     } else {
-                        aw.setSuccess(false);
-                        aw.setMsg("Kann zur ID " + aw.getIdUmfrage() + " keine Umfrage finden!");
+                        Antworten an = anw.get(0);
+                        an.setAntwortskala(as);
+                        em.merge(an);
+                        aw.setSuccess(true);
+                        aw.setMsg("Eintrag aktualisiert");
                     }
+
                 } else {
                     aw.setSuccess(false);
                     aw.setMsg("Kann zur ID " + aw.getIdAntwort() + " keinen Antwort finden!");
@@ -176,26 +176,27 @@ public class SAuthServices {
             aw.setMsg("Kann zur ID " + aw.getIdFrage() + " keine Frage finden!");
         }
         return aw;
-        
-        
+
     }
 
     /**
-     * Liefert eine Liste von Fragen und Antwortsmöglichkeiten für eine Umfrage
+     * Liefert eine Liste von Fragen und Antwortsmöglichkeiten für einen key
      *
-     * @param id ID der Umfrage
+     * @param id key der Umfrage
      * @return Liste von Umfrageobjekten
      */
     @GET
-    @Path("umfrage/fragen/{id}")
+    @Path("umfrage/fragen/{key}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public UmfrageObjekt getUmfrage(@PathParam("id") int id) {
-        Log.d("Antworten und Fragen der Umfrage mit id="+id);
+    public UmfrageObjekt getUmfrage(@PathParam("key") String key) {
+        Log.d("Antworten und Fragen der Umfrage für key=" + key);
+
+        Teilnehmer t = em.find(Teilnehmer.class, key);
+        if (t == null) { return null; }
         Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
         em.getEntityManagerFactory().getCache().evictAll();
-        Umfrage u = em.find(Umfrage.class, id);
-        if (u==null) return null;
-        Log.d("Umfrage ist "+u.getNAME());
+        Umfrage u = t.getUmfrage();
+        Log.d("Umfrage ist " + u.getNAME());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
         System.out.println("Aktive Umfrage mit Titel" + u.getNAME());
         System.out.println("Die Umfrage hat FRagen n=" + u.getFragen().size());
@@ -206,12 +207,12 @@ public class SAuthServices {
             Collection<Antwortskalen> aw = f.getAntwortskalen();
             for (Antwortskalen as : aw) {
                 System.out.println("size=" + fo.getIDantworten().size());
-                Integer key = new Integer(as.getID());
-                fo.getIDantworten().add(key);
-                if (antworten.get(key) == null) {
+                Integer k = new Integer(as.getID());
+                fo.getIDantworten().add(k);
+                if (antworten.get(k) == null) {
                     System.out.println("Eine neue Antwort (" + as.getNAME() + ")");
-                    antworten.put(key, new AntwortSkalaObjekt(as.getNAME(), key, as.getWERT()));
-                    uo.getAntworten().add(new AntwortSkalaObjekt(as.getNAME(), key, as.getWERT()));
+                    antworten.put(k, new AntwortSkalaObjekt(as.getNAME(), k, as.getWERT()));
+                    uo.getAntworten().add(new AntwortSkalaObjekt(as.getNAME(), k, as.getWERT()));
                     System.out.println("Antworten size=" + uo.getAntworten().size());
                 }
 
@@ -227,9 +228,12 @@ public class SAuthServices {
     @Path("/umfrage")
     public List<ActiveUmfrage> getActiveUmfrage() {
         System.out.println("Aktive Umfrage abfragen");
-        TypedQuery<ActiveUmfrage> query = em.createNamedQuery("findActiveUmfrage", ActiveUmfrage.class);
+        TypedQuery<ActiveUmfrage> query = em.createNamedQuery("findActiveUmfrage", ActiveUmfrage.class
+        );
         List<ActiveUmfrage> umfrage = query.getResultList();
-        Log.d("Result List:" + umfrage);
+
+        Log.d(
+                "Result List:" + umfrage);
         return umfrage;
     }
 
@@ -253,11 +257,16 @@ public class SAuthServices {
         }
         to = new Date(to.getTime() + 24 * 60 * 60 * 1000);
         Log.d("Webservice Anwesenheit GET from=" + from + " to=" + to);
-        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbySchueler", AnwesenheitEintrag.class);
-        query.setParameter("paramIdSchueler", sid);
-        query.setParameter("paramFromDate", from);
-        query.setParameter("paramToDate", to);
+        TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbySchueler", AnwesenheitEintrag.class
+        );
+        query.setParameter(
+                "paramIdSchueler", sid);
+        query.setParameter(
+                "paramFromDate", from);
+        query.setParameter(
+                "paramToDate", to);
         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
+
         return getData(anwesenheit);
     }
 
@@ -291,11 +300,16 @@ public class SAuthServices {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
         String user = aut.getUser(authToken);
-        Log.d("get Anwesenheit auth_token=" + authToken + " User=" + user);
-        if (user == null || Integer.parseInt(user) != idschueler) {
+
+        Log.d(
+                "get Anwesenheit auth_token=" + authToken + " User=" + user);
+        if (user
+                == null || Integer.parseInt(user)
+                != idschueler) {
             return null;
         }
-        if (s != null) {
+        if (s
+                != null) {
             SchuelerObject so = new SchuelerObject();
             so.setId(idschueler);
             so.setGebDatum(s.getGEBDAT());
@@ -321,6 +335,7 @@ public class SAuthServices {
 
             return so;
         }
+
         return null;
     }
 

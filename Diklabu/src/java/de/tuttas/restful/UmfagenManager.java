@@ -62,6 +62,49 @@ public class UmfagenManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    
+        /**
+     * Liefert eine Liste von Fragen und Antwortsmöglichkeiten für einen key
+     *
+     * @param id ID der Umfrage
+     * @return Liste von Umfrageobjekten
+     */
+    @GET
+    @Path("umfrage/fragen/{id}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public UmfrageObjekt getUmfrage(@PathParam("id") int id) {
+        Log.d("Antworten und Fragen der Umfrage mit id="+id);
+        Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
+        em.getEntityManagerFactory().getCache().evictAll();
+        Umfrage u = em.find(Umfrage.class, id);
+        if (u==null) return null;
+        Log.d("Umfrage ist "+u.getNAME());
+        UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
+        System.out.println("Aktive Umfrage mit Titel" + u.getNAME());
+        System.out.println("Die Umfrage hat FRagen n=" + u.getFragen().size());
+        Collection<Fragen> fr = u.getFragen();
+        for (Fragen f : fr) {
+            FragenObjekt fo = new FragenObjekt(f.getTITEL());
+            fo.setId(f.getID_FRAGE());
+            Collection<Antwortskalen> aw = f.getAntwortskalen();
+            for (Antwortskalen as : aw) {
+                System.out.println("size=" + fo.getIDantworten().size());
+                Integer key = new Integer(as.getID());
+                fo.getIDantworten().add(key);
+                if (antworten.get(key) == null) {
+                    System.out.println("Eine neue Antwort (" + as.getNAME() + ")");
+                    antworten.put(key, new AntwortSkalaObjekt(as.getNAME(), key, as.getWERT()));
+                    uo.getAntworten().add(new AntwortSkalaObjekt(as.getNAME(), key, as.getWERT()));
+                    System.out.println("Antworten size=" + uo.getAntworten().size());
+                }
+
+            }
+            uo.getFragen().add(fo);
+            System.out.println("size=" + uo.getFragen().size() + "Frage:" + f.getTITEL());
+        }
+        return uo;
+    }
+
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     public List<ActiveUmfrage> getUmfragen() {
@@ -82,7 +125,7 @@ public class UmfagenManager {
             return null;
         }
         List<Beteiligung> beteiligungen = new ArrayList<>();
-        Query q = em.createQuery("SELECT a.teilnehmer,COUNT(a.teilnehmer) from Antworten a inner join Teilnehmer t on a.teilnehmer=t inner join Schueler s on t.SCHUELERID=s.ID inner join Schueler_Klasse sk on s.ID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE a.ID_UMFRAGE=" + uid + " AND k.KNAME like '" + kname + "' Group by a.teilnehmer");
+        Query q = em.createQuery("SELECT a.teilnehmer,COUNT(a.teilnehmer) from Antworten a inner join Teilnehmer t on a.teilnehmer=t inner join Schueler s on t.SCHUELERID=s.ID inner join Schueler_Klasse sk on s.ID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE t.umfrage.ID_UMFRAGE=" + uid + " AND k.KNAME like '" + kname + "' Group by a.teilnehmer");
         List<Object[]> r = q.getResultList();
         for (int i = 0; i < r.size(); i++) {
             Object[] ro = r.get(i);
@@ -114,7 +157,7 @@ public class UmfagenManager {
             }
             //Query q = em.createQuery("select aska.NAME,count(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Schueler s on a.ID_SCHUELER=s.ID inner join Schueler_Klasse sk on s.id=sk.ID_SCHUELER inner join Klasse k on k.ID=sk.IK_KLASSE Group by a.fragenAntworten");
             System.out.println("Frage=" + f);
-            Query q = em.createQuery("SELECT a.antwortskala,COUNT(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Teilnehmer t on a.teilnehmer = t inner join Schueler s on s.ID=t.SCHUELERID inner join Schueler_Klasse sk on t.SCHUELERID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE a.ID_UMFRAGE=" + uid + " AND k.KNAME like '" + kname + "' and a.fragenAntworten.ID_FRAGE=" + f.getID_FRAGE() + " Group by a.antwortskala");
+            Query q = em.createQuery("SELECT a.antwortskala,COUNT(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Teilnehmer t on a.teilnehmer = t inner join Schueler s on s.ID=t.SCHUELERID inner join Schueler_Klasse sk on t.SCHUELERID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE t.umfrage.ID_UMFRAGE=" + uid + " AND k.KNAME like '" + kname + "' and a.fragenAntworten.ID_FRAGE=" + f.getID_FRAGE() + " Group by a.antwortskala");
             List<Object[]> r = q.getResultList();
             for (int i = 0; i < r.size(); i++) {
                 Object[] ro = r.get(i);

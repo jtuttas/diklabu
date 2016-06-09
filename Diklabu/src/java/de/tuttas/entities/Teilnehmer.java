@@ -11,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 
 /**
@@ -30,18 +32,31 @@ public class Teilnehmer implements Serializable {
     @OneToMany(mappedBy = "teilnehmer")
     private Collection<Antworten> antworten;
 
+    @ManyToOne
+    @JoinColumn(name = "UMFRAGE", referencedColumnName = "ID_UMFRAGE")
+    private Umfrage umfrage;
+    
     public Teilnehmer() {
     }
 
-    public Teilnehmer(String key, int SCHUELERID, int BETRIEBID, int LEHRERID, int INVITED) {
+    public Teilnehmer(String key, int SCHUELERID, int BETRIEBID, int LEHRERID, int INVITED, Umfrage umfrage) {
         this.key = key;
         this.SCHUELERID = SCHUELERID;
         this.BETRIEBID = BETRIEBID;
         this.LEHRERID = LEHRERID;
         this.INVITED = INVITED;
+        this.umfrage = umfrage;
     }
-       
     
+
+    public void setUmfrage(Umfrage umfrage) {
+        this.umfrage = umfrage;
+    }
+
+    public Umfrage getUmfrage() {
+        return umfrage;
+    }
+           
     
     public void setAntworten(Collection<Antworten> antworten) {
         this.antworten = antworten;

@@ -15,7 +15,6 @@ public class AntwortUmfrage {
     private String frage;
     private int idAntwort;
     private String antwort;
-    private int idUmfrage;
     private String msg;
     private boolean success;
     
@@ -46,13 +45,6 @@ public class AntwortUmfrage {
         return this.success;
     }
     
-    public void setIdUmfrage(int idUmfrage) {
-        this.idUmfrage = idUmfrage;
-    }
-
-    public int getIdUmfrage() {
-        return idUmfrage;
-    }
 
     public void setKey(String key) {
         this.key = key;
