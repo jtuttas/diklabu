@@ -144,22 +144,28 @@ public class SAuthServices {
                 Antwortskalen as = em.find(Antwortskalen.class, aw.getIdAntwort());
                 if (as != null) {
                     Umfrage u = t.getUmfrage();
-                    Query q = em.createNamedQuery("getAntwort");
-                    q.setParameter("paramUmfrage", u);
-                    q.setParameter("paramTeilnehmer", t);
-                    q.setParameter("paramFrage", f);
-                    List<Antworten> anw = q.getResultList();
-                    if (anw.size() == 0) {
-                        Antworten an = new Antworten(t, f, as);
-                        em.persist(an);
-                        aw.setSuccess(true);
-                        aw.setMsg("Eintrag angelegt");
-                    } else {
-                        Antworten an = anw.get(0);
-                        an.setAntwortskala(as);
-                        em.merge(an);
-                        aw.setSuccess(true);
-                        aw.setMsg("Eintrag aktualisiert");
+                    if (u.getACTIVE()==1) { 
+                        Query q = em.createNamedQuery("getAntwort");
+                        q.setParameter("paramUmfrage", u);
+                        q.setParameter("paramTeilnehmer", t);
+                        q.setParameter("paramFrage", f);
+                        List<Antworten> anw = q.getResultList();
+                        if (anw.size() == 0) {
+                            Antworten an = new Antworten(t, f, as);
+                            em.persist(an);
+                            aw.setSuccess(true);
+                            aw.setMsg("Eintrag angelegt");
+                        } else {
+                            Antworten an = anw.get(0);
+                            an.setAntwortskala(as);
+                            em.merge(an);
+                            aw.setSuccess(true);
+                            aw.setMsg("Eintrag aktualisiert");
+                        }
+                    }
+                    else {
+                    aw.setSuccess(false);
+                    aw.setMsg("Die Umfrage ist nicht mehr aktiv");                        
                     }
 
                 } else {
@@ -190,14 +196,15 @@ public class SAuthServices {
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt getUmfrage(@PathParam("key") String key) {
         Log.d("Antworten und Fragen der Umfrage für key=" + key);
-
+        em.getEntityManagerFactory().getCache().evictAll();
         Teilnehmer t = em.find(Teilnehmer.class, key);
         if (t == null) { return null; }
         Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
-        em.getEntityManagerFactory().getCache().evictAll();
+        
         Umfrage u = t.getUmfrage();
-        Log.d("Umfrage ist " + u.getNAME());
+        Log.d("Umfrage ist " + u.getNAME()+" aktive="+u.getACTIVE());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
+        uo.setActive(u.getACTIVE());
         System.out.println("Aktive Umfrage mit Titel" + u.getNAME());
         System.out.println("Die Umfrage hat FRagen n=" + u.getFragen().size());
         Collection<Fragen> fr = u.getFragen();
