@@ -24,9 +24,9 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-    @NamedQuery(name = "getAntworten", query = "select a from Antworten a where a.ID_UMFRAGE = :paramUmfrageID and a.ID_SCHUELER= :paramSchuelerID "),
-    @NamedQuery(name = "getAntwort", query = "select a from Antworten a where a.ID_UMFRAGE = :paramUmfrageID and a.ID_SCHUELER= :paramSchuelerID and a.fragenAntworten = :paramFrage"),
-    @NamedQuery(name = "getAntwortenByKlasse", query = "select a from Antworten a inner join Schueler s on a.ID_SCHUELER=s.ID inner join Schueler_Klasse sk on s.id=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.id where a.ID_UMFRAGE = :paramUmfrageID and a.ID_SCHUELER= :paramSchuelerID and k.KNAME like :paramKlasse ORDER BY s.NNAME")
+    @NamedQuery(name = "getAntworten", query = "select a from Antworten a where a.teilnehmer = :paramTeilnehmer "),
+    @NamedQuery(name = "getAntwort", query = "select a from Antworten a where a.ID_UMFRAGE = :paramUmfrageID and a.teilnehmer = :paramTeilnehmer and a.fragenAntworten = :paramFrage"),
+    //@NamedQuery(name = "getAntwortenByKlasse", query = "select a from Antworten a inner join Schueler s on a.ID_SCHUELER=s.ID inner join Schueler_Klasse sk on s.id=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.id where a.ID_UMFRAGE = :paramUmfrageID and t.SCHUELERID= :paramSchuelerID and k.KNAME like :paramKlasse ORDER BY s.NNAME")
 })
 public class Antworten implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -35,7 +35,7 @@ public class Antworten implements Serializable {
     private Integer id;
     
     private int ID_UMFRAGE;
-    private int ID_SCHUELER;
+   
     
 
     @ManyToOne
@@ -45,28 +45,21 @@ public class Antworten implements Serializable {
     @ManyToOne
     @JoinColumn(name = "ID_ANTWORTSKALA", referencedColumnName = "ID")
     private Antwortskalen antwortskala;
+    
+    @ManyToOne
+    @JoinColumn(name = "KEY", referencedColumnName = "KEY")
+    private Teilnehmer teilnehmer; 
 
     public Antworten() {
     }
 
-    public Antworten( int ID_UMFRAGE, int ID_SCHUELER, Fragen fragenAntworten, Antwortskalen antwortskala) {
+    public Antworten( int ID_UMFRAGE, Teilnehmer t, Fragen fragenAntworten, Antwortskalen antwortskala) {
         this.ID_UMFRAGE = ID_UMFRAGE;
-        this.ID_SCHUELER = ID_SCHUELER;
         this.fragenAntworten = fragenAntworten;
         this.antwortskala = antwortskala;
+        this.teilnehmer = t;
     }
-    
-    
-
-    public void setID_SCHUELER(int ID_SCHUELER) {
-        this.ID_SCHUELER = ID_SCHUELER;
-    }
-
-    public int getID_SCHUELER() {
-        return ID_SCHUELER;
-    }
-
-    
+           
     
     public void setID_UMFRAGE(int ID_UMFRAGE) {
         this.ID_UMFRAGE = ID_UMFRAGE;

@@ -14,6 +14,7 @@ import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Fragen;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Schueler;
+import de.tuttas.entities.Teilnehmer;
 import de.tuttas.entities.Umfrage;
 import de.tuttas.restful.Data.ActiveUmfrage;
 import de.tuttas.restful.Data.AntwortSkalaObjekt;
@@ -74,16 +75,16 @@ public class SAuthServices {
     EntityManager em;
 
     /**
-     * Antworten eines Schülers abfragen
+     * Antworten eines Teilnehmers abfragen
      * @param httpHeaders
-     * @param uid ID der Umfrage
-     * @param sid ID des Schülers
+     * @param key Key der Umfrage
      * @return 
      */
     @GET
-    @Path("/umfrage/antworten/{uid}/{sid}")
-    public List<AntwortUmfrage> getAntworten(@Context HttpHeaders httpHeaders,@PathParam("uid") int uid, @PathParam("sid") int sid) {
-        System.out.println("Get Antworten f. Umfrage " + uid + " und Schüler =" + sid);
+    @Path("/umfrage/antworten/{key}")
+    public List<AntwortUmfrage> getAntworten(@Context HttpHeaders httpHeaders,@PathParam("key") String key) {
+        System.out.println("Get Antworten f. key (" + key+")");
+        /*
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
         String user = aut.getUser(authToken);
@@ -91,20 +92,23 @@ public class SAuthServices {
         if (user == null || Integer.parseInt(user) != sid) {
             return null;
         }
+        */
+        Teilnehmer t = em.find(Teilnehmer.class, key);
+        if (t==null) return null;
+        
         Query q = em.createNamedQuery("getAntworten");
-        q.setParameter("paramUmfrageID", uid);
-        q.setParameter("paramSchuelerID", sid);
+        q.setParameter("paramTeilnehmer", t);
         List<Antworten> anw = q.getResultList();
+        
         List<AntwortUmfrage> au = new ArrayList<>();
         System.out.println("Result=" + anw);
         for (Antworten a : anw) {
             AntwortUmfrage antU = new AntwortUmfrage();
-            antU.setIdUmfrage(uid);
-            antU.setIdSchueler(sid);
             antU.setFrage(a.getFragenAntworten().getTITEL());
             antU.setIdFrage(a.getFragenAntworten().getID_FRAGE());
             antU.setAntwort(a.getAntwortskala().getNAME());
             antU.setIdAntwort(a.getAntwortskala().getID());
+            antU.setKey(key);
             au.add(antU);
         }
         return au;
@@ -117,8 +121,9 @@ public class SAuthServices {
      * @return 
      */
     @POST
-    @Path("umfrage")
+    @Path("umfrage")    
     public AntwortUmfrage addAntwort(@Context HttpHeaders httpHeaders,AntwortUmfrage aw) {
+        /*
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
         String user = aut.getUser(authToken);
@@ -126,21 +131,23 @@ public class SAuthServices {
         if (user == null || Integer.parseInt(user) != aw.getIdSchueler()) {
             return null;
         }
+        */
+        
         Fragen f = em.find(Fragen.class, aw.getIdFrage());
         if (f != null) {
-            Schueler s = em.find(Schueler.class, aw.getIdSchueler());
-            if (s != null) {
+            Teilnehmer t = em.find(Teilnehmer.class, aw.getKey());
+            if (t!=null) {
                 Antwortskalen as = em.find(Antwortskalen.class, aw.getIdAntwort());
                 if (as != null) {
                     Umfrage u = em.find(Umfrage.class, aw.getIdUmfrage());
                     if (u != null) {
                         Query q = em.createNamedQuery("getAntwort");
                         q.setParameter("paramUmfrageID", aw.getIdUmfrage());
-                        q.setParameter("paramSchuelerID", aw.getIdSchueler());
+                        q.setParameter("paramTeilnehmer", t);
                         q.setParameter("paramFrage", f);
                         List<Antworten> anw = q.getResultList();
                         if (anw.size() == 0) {
-                            Antworten an = new Antworten(aw.getIdUmfrage(), aw.getIdSchueler(), f, as);
+                            Antworten an = new Antworten(aw.getIdUmfrage(), t, f, as);
                             em.persist(an);
                             aw.setSuccess(true);
                             aw.setMsg("Eintrag angelegt");
@@ -162,13 +169,15 @@ public class SAuthServices {
 
             } else {
                 aw.setSuccess(false);
-                aw.setMsg("Kann zur ID " + aw.getIdSchueler() + " keinen Schüler finden!");
+                aw.setMsg("Kann zum Key " + aw.getKey() + " keinen Teilnehmer finden!");
             }
         } else {
             aw.setSuccess(false);
             aw.setMsg("Kann zur ID " + aw.getIdFrage() + " keine Frage finden!");
         }
         return aw;
+        
+        
     }
 
     /**

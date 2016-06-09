@@ -10,15 +10,15 @@ package de.tuttas.restful.Data;
  * @author Jörg
  */
 public class Beteiligung {
-    private int schuelerId;
+    private String key;
     private int anzahlFragenBeantwortet;
     private int anzahlFragen;
     
     public Beteiligung() {
     }
 
-    public Beteiligung(int schuelerId, int anzahlFragenBeantwortet, int anzahlFragen) {
-        this.schuelerId = schuelerId;
+    public Beteiligung(String key, int anzahlFragenBeantwortet, int anzahlFragen) {
+        this.key = key;
         this.anzahlFragenBeantwortet = anzahlFragenBeantwortet;
         this.anzahlFragen=anzahlFragen;
     }
@@ -31,14 +31,15 @@ public class Beteiligung {
         this.anzahlFragen = anzahlFragen;
     }
 
-    
-    public int getSchuelerId() {
-        return schuelerId;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public void setSchuelerId(int schuelerId) {
-        this.schuelerId = schuelerId;
+    public String getKey() {
+        return key;
     }
+
+    
 
     public int getAnzahlFragenBeantwortet() {
         return anzahlFragenBeantwortet;

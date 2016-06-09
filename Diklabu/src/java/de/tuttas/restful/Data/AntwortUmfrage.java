@@ -10,7 +10,7 @@ package de.tuttas.restful.Data;
  * @author Jörg
  */
 public class AntwortUmfrage {
-    private int idSchueler;
+    private String key;
     private int idFrage;
     private String frage;
     private int idAntwort;
@@ -22,8 +22,8 @@ public class AntwortUmfrage {
     public AntwortUmfrage() {
     }
 
-    public AntwortUmfrage(int idSchueler, int idFrage, String frage, int idAntwort, String antwort) {
-        this.idSchueler = idSchueler;
+    public AntwortUmfrage(String key, int idFrage, String frage, int idAntwort, String antwort) {
+        this.key = key;
         this.idFrage = idFrage;
         this.frage = frage;
         this.idAntwort = idAntwort;
@@ -54,14 +54,15 @@ public class AntwortUmfrage {
         return idUmfrage;
     }
 
-    
-    public int getIdSchueler() {
-        return idSchueler;
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public void setIdSchueler(int idSchueler) {
-        this.idSchueler = idSchueler;
+    public String getKey() {
+        return key;
     }
+
+   
 
     public int getIdFrage() {
         return idFrage;
