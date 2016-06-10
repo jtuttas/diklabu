@@ -13,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 
 /**
@@ -20,6 +22,12 @@ import javax.persistence.OneToMany;
  * @author Jörg
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(name = "findBetriebTeilnehmer", query = "select t from Teilnehmer t where t.umfrage = :paramUmfrage and t.BETRIEBID = :paramBetriebId"),
+    @NamedQuery(name = "findSchuelerTeilnehmer", query = "select t from Teilnehmer t where t.umfrage = :paramUmfrage and t.SCHUELERID = :paramSchuelerId"),
+    @NamedQuery(name = "findLehrerTeilnehmer", query = "select t from Teilnehmer t where t.umfrage = :paramUmfrage and t.LEHRERID = :paramLehrerId"),
+    @NamedQuery(name = "findTeilnehmer", query = "select t from Teilnehmer t where t.umfrage = :paramUmfrage"),
+})
 public class Teilnehmer implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id

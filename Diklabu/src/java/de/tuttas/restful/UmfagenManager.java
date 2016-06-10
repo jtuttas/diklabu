@@ -8,7 +8,9 @@ package de.tuttas.restful;
 import de.tuttas.entities.Antworten;
 import de.tuttas.entities.Antwortskalen;
 import de.tuttas.entities.Anwesenheit;
+import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Fragen;
+import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Teilnehmer;
 import de.tuttas.entities.Umfrage;
@@ -21,6 +23,7 @@ import de.tuttas.restful.Data.Beteiligung;
 import de.tuttas.restful.Data.FragenObjekt;
 import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.restful.Data.ResultObject;
+import de.tuttas.restful.Data.TeilnehmerObjekt;
 import de.tuttas.restful.Data.UmfrageObjekt;
 import de.tuttas.restful.Data.UmfrageResult;
 import de.tuttas.util.Log;
@@ -30,6 +33,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -62,8 +66,7 @@ public class UmfagenManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
-    
-        /**
+    /**
      * Liefert eine Liste von Fragen und Antwortsmöglichkeiten für einen key
      *
      * @param id ID der Umfrage
@@ -73,12 +76,14 @@ public class UmfagenManager {
     @Path("umfrage/fragen/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt getUmfrage(@PathParam("id") int id) {
-        Log.d("Antworten und Fragen der Umfrage mit id="+id);
+        Log.d("Antworten und Fragen der Umfrage mit id=" + id);
         Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
         em.getEntityManagerFactory().getCache().evictAll();
         Umfrage u = em.find(Umfrage.class, id);
-        if (u==null) return null;
-        Log.d("Umfrage ist "+u.getNAME());
+        if (u == null) {
+            return null;
+        }
+        Log.d("Umfrage ist " + u.getNAME());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
         System.out.println("Aktive Umfrage mit Titel" + u.getNAME());
         System.out.println("Die Umfrage hat FRagen n=" + u.getFragen().size());
@@ -187,13 +192,13 @@ public class UmfagenManager {
         System.out.println("get Fragen:" + fid);
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
-            
+
             FragenObjekt fro = new FragenObjekt(f.getTITEL());
             fro.setId(f.getID_FRAGE());
             for (Antwortskalen skalen : f.getAntwortskalen()) {
                 fro.getIDantworten().add(skalen.getID());
                 fro.getStringAntworten().add(skalen.getNAME());
-            }                        
+            }
             return fro;
         }
         return null;
@@ -244,8 +249,8 @@ public class UmfagenManager {
         }
         return null;
     }
-    
-     @GET
+
+    @GET
     @Path("admin/antwort/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public AntwortSkalaObjekt getAntwort(@PathParam("aid") int aid) {
@@ -259,47 +264,49 @@ public class UmfagenManager {
         }
         return null;
     }
+
     @GET
     @Path("admin/antwort/")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<AntwortSkalaObjekt> listAntwort() {
-        
+
         System.out.println("list Antworten:");
-        Query query = em.createNamedQuery("getAntwortenSkalen");       
+        Query query = em.createNamedQuery("getAntwortenSkalen");
         List<Antwortskalen> as = query.getResultList();
         List<AntwortSkalaObjekt> asol = new ArrayList<>();
-        for (int i=0;i<as.size();i++) {
+        for (int i = 0; i < as.size(); i++) {
             Antwortskalen a = as.get(i);
             AntwortSkalaObjekt aso = new AntwortSkalaObjekt();
             aso.setId(a.getID());
-            aso.setName(a.getNAME());            
-            asol.add(aso);            
-        } 
+            aso.setName(a.getNAME());
+            asol.add(aso);
+        }
         return asol;
-        
+
     }
+
     @GET
     @Path("admin/frage/")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<FragenObjekt> listFrage() {
-        
+
         System.out.println("list Fragen:");
-        Query query = em.createNamedQuery("getFragen");       
+        Query query = em.createNamedQuery("getFragen");
         List<Fragen> fr = query.getResultList();
         List<FragenObjekt> frol = new ArrayList<>();
-        for (int i=0;i<fr.size();i++) {
+        for (int i = 0; i < fr.size(); i++) {
             Fragen f = fr.get(i);
-            FragenObjekt fo= new FragenObjekt();
+            FragenObjekt fo = new FragenObjekt();
             fo.setId(f.getID_FRAGE());
             fo.setFrage(f.getTITEL());
             for (Antwortskalen as : f.getAntwortskalen()) {
                 fo.getIDantworten().add(as.getID());
                 fo.getStringAntworten().add(as.getNAME());
             }
-            frol.add(fo);            
-        } 
+            frol.add(fo);
+        }
         return frol;
-        
+
     }
 
     @POST
@@ -308,7 +315,7 @@ public class UmfagenManager {
     public AntwortSkalaObjekt newAntwort(AntwortSkalaObjekt ao) {
         System.out.println("newAntwortobjekt:" + ao);
         Antwortskalen a = new Antwortskalen();
-        a.setNAME(ao.getName());        
+        a.setNAME(ao.getName());
         em.persist(a);
         em.flush();
         ao.setId(a.getID());
@@ -322,7 +329,7 @@ public class UmfagenManager {
         System.out.println("setAntwortobjekt:" + ao);
         Antwortskalen a = em.find(Antwortskalen.class, ao.getId());
         if (a != null) {
-            a.setNAME(ao.getName());            
+            a.setNAME(ao.getName());
             em.merge(a);
             em.flush();
             return ao;
@@ -341,87 +348,81 @@ public class UmfagenManager {
             em.flush();
             AntwortSkalaObjekt aso = new AntwortSkalaObjekt();
             aso.setId(a.getID());
-            aso.setName(a.getNAME());            
+            aso.setName(a.getNAME());
             return aso;
         }
         return null;
     }
-    
+
     @POST
     @Path("admin/add/{fid}/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject addAntwort(@PathParam("fid") int fid,@PathParam("aid") int aid) {
-        System.out.println("addAntwort: ID=" + aid +" to Frage ID="+fid);
+    public ResultObject addAntwort(@PathParam("fid") int fid, @PathParam("aid") int aid) {
+        System.out.println("addAntwort: ID=" + aid + " to Frage ID=" + fid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
-        if (f!=null) {
-             Antwortskalen as = em.find(Antwortskalen.class, aid);
-             if (as!=null) {
-                 if (f.getAntwortskalen().contains(as)) {
+        if (f != null) {
+            Antwortskalen as = em.find(Antwortskalen.class, aid);
+            if (as != null) {
+                if (f.getAntwortskalen().contains(as)) {
                     ro.setSuccess(false);
-                    ro.setMsg("Die Frage ("+f.getTITEL()+") enthält bereits die Antwort ("+as.getNAME()+") !");                     
-                 }
-                 else {
+                    ro.setMsg("Die Frage (" + f.getTITEL() + ") enthält bereits die Antwort (" + as.getNAME() + ") !");
+                } else {
                     f.getAntwortskalen().add(as);
                     em.merge(f);
                     ro.setSuccess(true);
-                    ro.setMsg("Habe der Frage ("+f.getTITEL()+") die Antwort ("+as.getNAME()+") hinzugefügt!");
-                 }
-             }
-             else {
-                 ro.setMsg("Kann Antwort mit ID="+aid+" nicht finden!");
-                 ro.setSuccess(false);
-             }
-        }
-        else {
+                    ro.setMsg("Habe der Frage (" + f.getTITEL() + ") die Antwort (" + as.getNAME() + ") hinzugefügt!");
+                }
+            } else {
+                ro.setMsg("Kann Antwort mit ID=" + aid + " nicht finden!");
+                ro.setSuccess(false);
+            }
+        } else {
             ro.setSuccess(false);
-            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+            ro.setMsg("Kann Frage mit ID=" + fid + " nicht finden!");
         }
         return ro;
     }
-    
+
     @POST
     @Path("admin/remove/{fid}/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject removeAntwort(@PathParam("fid") int fid,@PathParam("aid") int aid) {
-        System.out.println("removeAntwort: ID=" + aid +" from Frage ID="+fid);
+    public ResultObject removeAntwort(@PathParam("fid") int fid, @PathParam("aid") int aid) {
+        System.out.println("removeAntwort: ID=" + aid + " from Frage ID=" + fid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
-        if (f!=null) {
-             Antwortskalen as = em.find(Antwortskalen.class, aid);
-             if (as!=null) {
-                 if (f.getAntwortskalen().contains(as)) {
+        if (f != null) {
+            Antwortskalen as = em.find(Antwortskalen.class, aid);
+            if (as != null) {
+                if (f.getAntwortskalen().contains(as)) {
                     f.getAntwortskalen().remove(as);
                     em.merge(f);
                     ro.setSuccess(true);
-                    ro.setMsg("Habe die Antwort ("+as.getNAME()+") aus der Frage ("+f.getTITEL()+") entfernt!");
-                 }
-                 else {
-                     ro.setSuccess(false);
-                     ro.setMsg("Die Antwort ("+as.getNAME()+") ist nicht in der Frage ("+f.getTITEL()+") enthalten!");
-                 }
-             }
-             else {
-                 ro.setMsg("Kann Antwort mit ID="+aid+" nicht finden!");
-                 ro.setSuccess(false);
-             }
-            
-        }
-        else {
+                    ro.setMsg("Habe die Antwort (" + as.getNAME() + ") aus der Frage (" + f.getTITEL() + ") entfernt!");
+                } else {
+                    ro.setSuccess(false);
+                    ro.setMsg("Die Antwort (" + as.getNAME() + ") ist nicht in der Frage (" + f.getTITEL() + ") enthalten!");
+                }
+            } else {
+                ro.setMsg("Kann Antwort mit ID=" + aid + " nicht finden!");
+                ro.setSuccess(false);
+            }
+
+        } else {
             ro.setSuccess(false);
-            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+            ro.setMsg("Kann Frage mit ID=" + fid + " nicht finden!");
         }
         return ro;
     }
-    
+
     @POST
     @Path("admin/")
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt newUmfrage(UmfrageObjekt uo) {
         System.out.println("newUmfrage:" + uo);
-        Umfrage u = new Umfrage(uo.getTitel());        
+        Umfrage u = new Umfrage(uo.getTitel());
         em.persist(u);
-        em.flush();        
+        em.flush();
         uo.setId(u.getID_UMFRAGE());
         return uo;
     }
@@ -436,7 +437,7 @@ public class UmfagenManager {
             u.setNAME(uo.getTitel());
             u.setACTIVE(uo.getActive());
             em.merge(u);
-            em.flush();            
+            em.flush();
             uo.setId(u.getID_UMFRAGE());
             return uo;
         }
@@ -457,73 +458,202 @@ public class UmfagenManager {
             return uo;
         }
         return null;
-    }   
-    
+    }
+
     @POST
     @Path("admin/addUmfrage/{fid}/{uid}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject addUmfrage(@PathParam("fid") int fid,@PathParam("uid") int uid) {
-        System.out.println("addFrage: ID=" + fid +" to Umfrage ID="+uid);
+    public ResultObject addUmfrage(@PathParam("fid") int fid, @PathParam("uid") int uid) {
+        System.out.println("addFrage: ID=" + fid + " to Umfrage ID=" + uid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
-        if (f!=null) {
-             Umfrage u = em.find(Umfrage.class, uid);
-             if (u!=null) {
-                 if (u.getFragen().contains(f)) {
+        if (f != null) {
+            Umfrage u = em.find(Umfrage.class, uid);
+            if (u != null) {
+                if (u.getFragen().contains(f)) {
                     ro.setSuccess(false);
-                    ro.setMsg("Die Frage ("+f.getTITEL()+") ist bereits in der Umfrage ("+u.getNAME()+") enthalten!");                     
-                 }
-                 else {
+                    ro.setMsg("Die Frage (" + f.getTITEL() + ") ist bereits in der Umfrage (" + u.getNAME() + ") enthalten!");
+                } else {
                     u.getFragen().add(f);
                     em.merge(f);
                     ro.setSuccess(true);
-                    ro.setMsg("Habe der Frage ("+f.getTITEL()+") zur Umgfage ("+u.getNAME()+") hinzugefügt!");
-                 }
-             }
-             else {
-                 ro.setMsg("Kann Umfrage mit ID="+uid+" nicht finden!");
-                 ro.setSuccess(false);
-             }
-        }
-        else {
+                    ro.setMsg("Habe der Frage (" + f.getTITEL() + ") zur Umgfage (" + u.getNAME() + ") hinzugefügt!");
+                }
+            } else {
+                ro.setMsg("Kann Umfrage mit ID=" + uid + " nicht finden!");
+                ro.setSuccess(false);
+            }
+        } else {
             ro.setSuccess(false);
-            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+            ro.setMsg("Kann Frage mit ID=" + fid + " nicht finden!");
         }
         return ro;
     }
-    
+
     @POST
     @Path("admin/removeUmfrage/{fid}/{uid}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject removeUmfrage(@PathParam("fid") int fid,@PathParam("uid") int uid) {
-        System.out.println("removeFrage: ID=" + fid +" from Umfrage ID="+uid);
+    public ResultObject removeUmfrage(@PathParam("fid") int fid, @PathParam("uid") int uid) {
+        System.out.println("removeFrage: ID=" + fid + " from Umfrage ID=" + uid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
-        if (f!=null) {
-             Umfrage u = em.find(Umfrage.class, uid);
-             if (u!=null) {
-                 if (u.getFragen().contains(f)) {
-                    u.getFragen().remove(f);                    
+        if (f != null) {
+            Umfrage u = em.find(Umfrage.class, uid);
+            if (u != null) {
+                if (u.getFragen().contains(f)) {
+                    u.getFragen().remove(f);
                     em.merge(f);
                     ro.setSuccess(true);
-                    ro.setMsg("Habe die Frage ("+f.getTITEL()+") aus der Umfrage ("+u.getNAME()+") entfernt!");
-                 }
-                 else {
-                     ro.setSuccess(false);
-                     ro.setMsg("Die Frage ("+f.getTITEL()+") ist nicht in der Umfrage ("+u.getNAME()+") enthalten!");
-                 }
-             }
-             else {
-                 ro.setMsg("Kann Umfrage mit ID="+uid+" nicht finden!");
-                 ro.setSuccess(false);
-             }
-            
-        }
-        else {
+                    ro.setMsg("Habe die Frage (" + f.getTITEL() + ") aus der Umfrage (" + u.getNAME() + ") entfernt!");
+                } else {
+                    ro.setSuccess(false);
+                    ro.setMsg("Die Frage (" + f.getTITEL() + ") ist nicht in der Umfrage (" + u.getNAME() + ") enthalten!");
+                }
+            } else {
+                ro.setMsg("Kann Umfrage mit ID=" + uid + " nicht finden!");
+                ro.setSuccess(false);
+            }
+
+        } else {
             ro.setSuccess(false);
-            ro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+            ro.setMsg("Kann Frage mit ID=" + fid + " nicht finden!");
         }
         return ro;
-    }    
+    }
+
+    @POST
+    @Path("admin/subscriber")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public TeilnehmerObjekt newTeilnehmer(TeilnehmerObjekt to) {
+        System.out.println("new Teilnehmerobjekt:" + to);
+        String key = UUID.randomUUID().toString();
+        Umfrage u = em.find(Umfrage.class, to.getIdUmfrage());
+        if (u == null) {
+            to.setSuccess(false);
+            to.setMsg("Kann Umfrage mit id "+to.getIdUmfrage()+" nicht finden!");
+            return null;
+        }
+        if (to.getIdBetrieb()==null && to.getIdLehrer()==null && to.getIdSchueler()==null) {
+            to.setSuccess(false);
+            to.setMsg("Keine ID (Betrien,Schüler,Lehrer) angegeben!");
+            return null;
+        }
+        Teilnehmer t = new Teilnehmer();
+
+        t.setUmfrage(u);
+        t.setINVITED(0);
+        t.setKey(key);
+        if (to.getIdBetrieb() != null) {
+            t.setBETRIEBID(to.getIdBetrieb().intValue());
+            Betrieb b = em.find(Betrieb.class, to.getIdBetrieb().intValue());
+            if (b == null) {
+                to.setSuccess(false);
+                to.setMsg("Kann Betrieb mit ID=" + to.getIdBetrieb().intValue() + " nicht finden");
+                return to;
+            }
+            Query query = em.createNamedQuery("findBetriebTeilnehmer");
+            query.setParameter("paramBetriebId", to.getIdBetrieb().intValue());
+            query.setParameter("paramUmfrage", u);
+            List<Teilnehmer> betriebe = query.getResultList();
+            if (betriebe.size() > 0) {
+                to.setSuccess(false);
+                to.setMsg("Betrieb mit ID=" + to.getIdSchueler().intValue() + " nimmt bereits an der Umfrage " + u.getNAME() + " teil!");
+                to.setKey(betriebe.get(0).getKey());
+                return to;
+            }
+            to.setMsg("Betrieb " + b.getNAME() + " zur Umfrage " + u.getNAME() + " hinzugefügt");
+        }
+        if (to.getIdSchueler() != null) {
+            t.setSCHUELERID(to.getIdSchueler().intValue());
+            Schueler s = em.find(Schueler.class, to.getIdSchueler().intValue());
+            if (s == null) {
+                to.setSuccess(false);
+                to.setMsg("Kann Schüler mit ID=" + to.getIdSchueler().intValue() + " nicht finden");
+                return to;
+            }
+            Query query = em.createNamedQuery("findSchuelerTeilnehmer");
+            query.setParameter("paramSchuelerId", to.getIdSchueler().intValue());
+            query.setParameter("paramUmfrage", u);
+            List<Teilnehmer> teilnehmer = query.getResultList();
+            if (teilnehmer.size() > 0) {
+                to.setSuccess(false);
+                to.setMsg("Schüler mit ID=" + to.getIdSchueler().intValue() + " nimmt bereits an der Umfrage " + u.getNAME() + " teil!");
+                to.setKey(teilnehmer.get(0).getKey());
+                return to;
+            }
+            to.setMsg("Schueler " + s.getVNAME() + " " + s.getNNAME() + " zur Umfrage " + u.getNAME() + " hinzugefügt");
+        }
+        if (to.getIdLehrer() != null) {
+            t.setLEHRERID(to.getIdLehrer());
+            Lehrer l = em.find(Lehrer.class, to.getIdLehrer());
+            if (l == null) {
+                to.setSuccess(false);
+                to.setMsg("Kann Lehrer mit ID=" + to.getIdLehrer() + " nicht finden");
+                return to;
+            }
+            Query query = em.createNamedQuery("findLehrerTeilnehmer");
+            query.setParameter("paramLehrerId", to.getIdLehrer());
+            query.setParameter("paramUmfrage", u);
+            List<Teilnehmer> lehrer = query.getResultList();
+            if (lehrer.size() > 0) {
+                to.setSuccess(false);
+                to.setMsg("Lehrer mit ID=" + to.getIdSchueler().intValue() + " nimmt bereits an der Umfrage " + u.getNAME() + " teil!");
+                to.setKey(lehrer.get(0).getKey());
+                return to;
+            }
+            to.setMsg("Lehrer " + to.getIdLehrer() + " zur Umfrage " + u.getNAME() + " hinzugefügt");
+        }
+        em.persist(t);
+        em.flush();
+        to.setSuccess(true);
+        to.setKey(key);
+        return to;
+
+    }
+
+    @GET
+    @Path("admin/subscriber/{uid}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<TeilnehmerObjekt> getTeilnehmer(@PathParam("uid") int uid) {
+        Umfrage u = em.find(Umfrage.class, uid);
+        if (u == null) {
+            return null;
+        }
+        Query query = em.createNamedQuery("findTeilnehmer");
+        query.setParameter("paramUmfrage", u);
+        List<Teilnehmer> teilnehmer = query.getResultList();
+        List<TeilnehmerObjekt> lto = new ArrayList<>();
+        for (Teilnehmer t : teilnehmer) {
+            TeilnehmerObjekt to = new TeilnehmerObjekt();
+            to.setIdBetrieb(t.getBETRIEBID());
+            to.setIdLehrer(t.getLEHRERID());
+            to.setIdSchueler(t.getSCHUELERID());
+            to.setIdUmfrage(uid);
+            to.setKey(t.getKey());
+            to.setInvited(t.getINVITED());
+            lto.add(to);
+        }
+        return lto;
+    }
+    
+    @DELETE
+    @Path("admin/subscriber/{key}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public TeilnehmerObjekt deleteTeilnehmer(@PathParam("key") String key) {
+        Teilnehmer t = em.find(Teilnehmer.class, key);
+        if (t==null) return null;
+        
+        em.remove(t);
+        TeilnehmerObjekt to = new TeilnehmerObjekt();
+        to.setIdBetrieb(t.getBETRIEBID());
+        to.setIdLehrer(t.getLEHRERID());
+        to.setIdSchueler(t.getSCHUELERID());
+        to.setIdUmfrage(t.getUmfrage().getID_UMFRAGE());
+        to.setKey(t.getKey());
+        to.setInvited(t.getINVITED());
+        to.setMsg("Teilnehmer aus Umfrage entfernt!");
+        to.setSuccess(true);
+        return to;
+    }
 
 }

@@ -895,3 +895,149 @@ function Remove-PollQuestion
           }
     }
 }
+
+<#
+.Synopsis
+   Legt eine  oder mehrere neue(n) Teilnehmer für einer Umfrage an
+.DESCRIPTION
+   Erzeugt eine oder mehrere neue(n) Teilnehmer für eine Umfrage
+    
+.EXAMPLE
+   New-PollSubscriber -ID_UMFRAGE 1 -ID 2 -TYPE SCHUELER
+.EXAMPLE
+  find-Course -KNAME "FISI14A" | Get-Coursemember | ForEach-Object {$_.id} | New-PollSubscriber -ID_UMFRAGE 1 -TYPE SCHÜLER
+   Alle Schüler der FISI14A werden zur Umfrage 1 hinzugefügt
+#>
+function New-PollSubscriber
+{
+    Param
+    ( 
+        # Umfrage
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [int]$ID_UMFRAGE,
+
+        # ID-Subscriber
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        $id,
+
+        # TYPE
+        [Parameter(Mandatory=$true,Position=2,ValueFromPipelineByPropertyName=$true)]
+        [ValidateSet('SCHÜLER','BETRIEB','LEHRER')]
+        [String]$TYPE,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+         
+          if ($TYPE -eq "SCHÜLER") {
+            $t=echo "" | Select-Object -Property "idUmfrage","idSchueler"            
+            $t.idSchueler=$id
+          }
+          elseif ($TYPE -eq "BETRIEB") {
+            $t=echo "" | Select-Object -Property "idUmfrage","idBetrieb"
+            $t.idBetrieb=$id
+          }
+          elseif ($TYPE -eq "LEHRER") {
+            $t=echo "" | Select-Object -Property "idUmfrage","idLehrer"
+            $t.idLehrer=$id
+          }
+          $t.idUmfrage=$ID_UMFRAGE
+          
+          try {        
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/subscriber") -Headers $headers -Body (ConvertTo-Json $t)
+            return $r;
+          } catch {
+              Write-Host "New-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Fragt die Teilnehmer an einer Umfrage ab
+.DESCRIPTION
+   Fragt die Teilnehmer an einer Umfrage ab
+    
+.EXAMPLE
+   Get-PollSubscribers -ID_UMFRAGE 1 
+#>
+function Get-PollSubscribers
+{
+    Param
+    ( 
+        # Umfrage
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [String]$ID_UMFRAGE,
+
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/subscriber/"+$ID_UMFRAGE) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Get-PollSubscribers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Löscht einen Teilnehmer einer Umfrage ab
+.DESCRIPTION
+   Löscht einen Teilnehmer einer Umfrage ab
+    
+.EXAMPLE
+   Delete-PollSubscriber -KEY abcd
+#>
+function Delete-PollSubscriber
+{
+    Param
+    ( 
+        # key
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [String]$KEY,
+
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/subscriber/"+$Key) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Delete-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
