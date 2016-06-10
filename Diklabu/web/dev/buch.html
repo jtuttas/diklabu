@@ -525,6 +525,13 @@
                         </ul>
                         <div class="tab-content">
                             <div id="tabBeteiligung" class="tab-pane fade in active">
+                                <div class="row">
+                                    <div class="col-md-10 col-md-offset-1">
+                                        <label for="beteiligungUmfrage">Umfrage:</label>
+                                        <select class="form-control" id="beteiligungUmfrage">
+                                        </select>
+                                    </div>
+                                </div>
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
@@ -539,6 +546,7 @@
                                 </table>
                             </div>
                             <div id="tabAuswertung" class="tab-pane fade in">
+
                                 <table class="table table-striped table-hover">
                                     <thead>
                                         <tr>
@@ -549,10 +557,10 @@
                                     </tr>
                                     <tr>
                                         <th>
-                                             <label for="gruppe1Umfrage">Umfrage:</label>
+                                            <label for="gruppe1Umfrage">Umfrage:</label>
                                             <select class="form-control" id="gruppe1Umfrage">
                                             </select>
-                                             <label for="gruppe1Filter">Filter:</label>
+                                            <label for="gruppe1Filter">Filter:</label>
                                             <input type="text" class="form-control" id="gruppe1Filter" />
                                         </th>
                                         <th>
@@ -561,8 +569,8 @@
                                             </select>
                                             <label for="gruppe2Filter">Filter:</label>
                                             <input type="text" class="form-control" id="gruppe2Filter" />
-                                            <div id="chart_div"></div>
-                                        </th>
+                                    <div id="chart_div"></div>
+                                    </th>
                                     </tr>
                                     </thead>
                                     <tbody id="tabelleUmfrageAuswertung">

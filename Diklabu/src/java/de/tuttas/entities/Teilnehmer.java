@@ -26,7 +26,7 @@ public class Teilnehmer implements Serializable {
     private String key;
     private int SCHUELERID;
     private int BETRIEBID;
-    private int LEHRERID;
+    private String LEHRERID;
     private int INVITED;
 
     @OneToMany(mappedBy = "teilnehmer")
@@ -39,7 +39,7 @@ public class Teilnehmer implements Serializable {
     public Teilnehmer() {
     }
 
-    public Teilnehmer(String key, int SCHUELERID, int BETRIEBID, int LEHRERID, int INVITED, Umfrage umfrage) {
+    public Teilnehmer(String key, int SCHUELERID, int BETRIEBID, String LEHRERID, int INVITED, Umfrage umfrage) {
         this.key = key;
         this.SCHUELERID = SCHUELERID;
         this.BETRIEBID = BETRIEBID;
@@ -92,11 +92,11 @@ public class Teilnehmer implements Serializable {
         this.BETRIEBID = BETRIEBID;
     }
 
-    public int getLEHRERID() {
+    public String getLEHRERID() {
         return LEHRERID;
     }
 
-    public void setLEHRERID(int LEHRERID) {
+    public void setLEHRERID(String LEHRERID) {
         this.LEHRERID = LEHRERID;
     }
 

@@ -1260,7 +1260,7 @@ function loadResults(id, klassefilter, callback) {
 
 
 function loadBeteiligung(uid, kname, callback) {
-    console.log("--> load Beteiligung Klasse=" + kname);
+    console.log("--> load Beteiligung Klasse=" + kname+" uid="+uid);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/umfrage/beteiligung/" + uid + "/" + kname,
         type: "GET",
@@ -2161,7 +2161,7 @@ function refreshKlassenliste(kl, callback) {
                 $("#tabelleKlasse").append("<tbody>");
                 for (i = 0; i < data.length; i++) {
                     $("#tabelleKlasse").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td></tr>');
-                    $("#tabelleBeteiligung").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td><td id="U' + data[i].id + '"></td></tr>');
+                    $("#tabelleBeteiligung").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td><td class="rowBeteiligung" id="U' + data[i].id + '"></td></tr>');
                     if (data[i].INFO != undefined) {
                         $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" name="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
                     }
@@ -2353,21 +2353,35 @@ function updateCurrentView() {
             $("#dokumentationContainer").hide();
             $("#printContainer").show();
             refreshKlassenliste(nameKlasse, function (data) {
-                loadUmfrage(function (data) {
+                $("#beteiligungUmfrage").empty();
+                loadUmfragen(function (data) {
+                    for (i=0;i<data.length;i++) {
+                        $("#beteiligungUmfrage").append('<option uid="'+data[i].id+'" active="'+data[i].active+'">'+data[i].titel+'</option>');    
+                    }
+                    if (data[0].active == 1) {
+                        toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
+                    }
+
                     console.log("empfange:" + JSON.stringify(data));
-                    if (data.length == 0) {
-                        toastr["warning"]("Keine aktive Umfrage!", "Warnung!");
-                    }
-                    else if (data.length > 1) {
-                        toastr["error"]("Mehr als eine aktive Umfrage!", "Fehler!");
-                    }
-                    else {
-                        loadBeteiligung(data[0].id, nameKlasse, function (data) {
-                            console.log("empfange:" + JSON.stringify(data));
-                            updateBeteiligung(data);
-                        });
-                    }
+                    loadBeteiligung(data[0].id, nameKlasse, function (data) {
+                         console.log("empfange:" + JSON.stringify(data));
+                         updateBeteiligung(data);
+                    });
                 });
+            });
+            $("#beteiligungUmfrage").unbind("change");
+            $("#beteiligungUmfrage").change(function () {
+                $(".rowBeteiligung").text("");
+                    uid = $('option:selected', this).attr('uid');
+                    active = $('option:selected', this).attr('active');
+                    if (active == 1) {
+                        toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
+                    }
+                    console.log("Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
+                    loadBeteiligung(uid, nameKlasse, function (data) {
+                             console.log("empfange:" + JSON.stringify(data));
+                             updateBeteiligung(data);
+                    });
             });
             break;
         case "Auswertung":
