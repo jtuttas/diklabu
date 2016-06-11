@@ -149,6 +149,7 @@ public class UmfagenManager {
             System.out.println("Der Teilnehmer mit der ID " + ro[0] + " hat " + ro[1] + " Fragen beantwortet!");
             Teilnehmer t = (Teilnehmer) ro[0];
             Long fragen = (Long) ro[1];
+            System.out.println("t="+t+" fragen="+fragen+" u="+u);
             Beteiligung b = new Beteiligung(t.getKey(), fragen.intValue(), u.getFragen().size(), t.getSCHUELERID(), t.getBETRIEBID(), t.getLEHRERID());
             beteiligungen.add(b);
         }

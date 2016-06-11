@@ -36,6 +36,14 @@ $("#template").load(SERVER + "/Diklabu/template.txt", function () {
 $("#diklabuname").text(DIKLABUNAME);
 console.log("found token:" + sessionStorage.auth_token);
 
+$(document).ajaxSend(function(event, request, settings) {
+  $('#loading-indicator').show();
+});
+
+$(document).ajaxComplete(function(event, request, settings) {
+  $('#loading-indicator').hide();
+});
+
 // Load the Visualization API and the corechart package.
 google.charts.load('current', {'packages': ['corechart']});
 
@@ -2401,9 +2409,11 @@ function updateCurrentView() {
 
                 loadResults(umfrage.id, nameKlasse, function (data) {
                     console.log("empfange:" + JSON.stringify(data));
+                     $('#loading-indicator').show();
                     updateAuswertung(data);
                     drawResults(data, 1);
                     drawResults(data, 2);
+                    $('#loading-indicator').hide();
                 });
 
 

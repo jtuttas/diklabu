@@ -13,8 +13,8 @@ public class Beteiligung {
     private String key;
     private int anzahlFragenBeantwortet;
     private int anzahlFragen;
-    private int schuelerId;
-    private int betriebId;
+    private Integer schuelerId;
+    private Integer betriebId;
     private String lehrerId;
     
     
@@ -27,7 +27,7 @@ public class Beteiligung {
         this.anzahlFragen=anzahlFragen;
     }
 
-    public Beteiligung(String key, int anzahlFragenBeantwortet, int anzahlFragen, int schuelerId, int betriebId, String lehrerId) {
+    public Beteiligung(String key, int anzahlFragenBeantwortet, int anzahlFragen, Integer schuelerId, Integer betriebId, String lehrerId) {
         this.key = key;
         this.anzahlFragenBeantwortet = anzahlFragenBeantwortet;
         this.anzahlFragen = anzahlFragen;
@@ -38,7 +38,7 @@ public class Beteiligung {
     
     
 
-    public int getBetriebId() {
+    public Integer getBetriebId() {
         return betriebId;
     }
 
@@ -46,11 +46,11 @@ public class Beteiligung {
         return lehrerId;
     }
 
-    public int getSchuelerId() {
+    public Integer getSchuelerId() {
         return schuelerId;
     }
 
-    public void setBetriebId(int betriebId) {
+    public void setBetriebId(Integer betriebId) {
         this.betriebId = betriebId;
     }
 
@@ -58,7 +58,7 @@ public class Beteiligung {
         this.lehrerId = lehrerId;
     }
 
-    public void setSchuelerId(int schuelerId) {
+    public void setSchuelerId(Integer schuelerId) {
         this.schuelerId = schuelerId;
     }
 

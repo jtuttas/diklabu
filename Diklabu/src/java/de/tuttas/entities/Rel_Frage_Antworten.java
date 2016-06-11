@@ -19,41 +19,33 @@ import javax.persistence.Id;
 public class Rel_Frage_Antworten implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
-    private int ID_FRAGE;
-    private int ID_ANTWORT;
+    private Integer ID_FRAGE;
+    @Id
+    private Integer ID_ANTWORT;
 
-    public void setID_ANTWORT(int ID_ANTOWRT) {
+    public void setID_ANTWORT(Integer ID_ANTOWRT) {
         this.ID_ANTWORT = ID_ANTOWRT;
     }
 
-    public void setID_FRAGE(int ID_FRAGE) {
+    public void setID_FRAGE(Integer ID_FRAGE) {
         this.ID_FRAGE = ID_FRAGE;
     }
 
-    public int getID_ANTWORT() {
+    public Integer getID_ANTWORT() {
         return ID_ANTWORT;
     }
 
-    public int getID_FRAGE() {
+    public Integer getID_FRAGE() {
         return ID_FRAGE;
     }
-    
-    
+      
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
+        hash += (ID_FRAGE != null ? ID_FRAGE.hashCode() : 0);
+         hash += (ID_ANTWORT != null ? ID_ANTWORT.hashCode() : 0);
         return hash;
     }
 
@@ -64,7 +56,10 @@ public class Rel_Frage_Antworten implements Serializable {
             return false;
         }
         Rel_Frage_Antworten other = (Rel_Frage_Antworten) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
+        if ((this.ID_FRAGE == null && other.ID_FRAGE != null) || (this.ID_FRAGE != null && !this.ID_FRAGE.equals(other.ID_FRAGE))) {
+            return false;
+        }
+        if ((this.ID_ANTWORT == null && other.ID_ANTWORT != null) || (this.ID_ANTWORT != null && !this.ID_ANTWORT.equals(other.ID_ANTWORT))) {
             return false;
         }
         return true;
@@ -72,7 +67,7 @@ public class Rel_Frage_Antworten implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Rel_Frage_Antwort[ id=" + id + " ]";
+        return "de.tuttas.entities.Rel_Frage_Antwort[ id_frage=" + ID_FRAGE + " id_antwort="+ID_ANTWORT+" ]";
     }
     
 }

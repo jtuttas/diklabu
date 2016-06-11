@@ -88,7 +88,7 @@ else {
 function getUmfrage(callback) {
     console.log("--> getUmfrage");
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/sauth/umfrage",
+        url: SERVER + "/Diklabu/api/v1/noauth/umfrage",
         type: "GET",
         headers: {
             "service_key": sessionStorage.service_key,
@@ -111,7 +111,7 @@ function getUmfrage(callback) {
 function getUmfrageFragen(key, callback) {
     console.log("--> getUmfrage key=" + key);
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/sauth/umfrage/fragen/" + key,
+        url: SERVER + "/Diklabu/api/v1/noauth/umfrage/fragen/" + key,
         type: "GET",
         headers: {
             "service_key": sessionStorage.service_key,
@@ -137,7 +137,7 @@ function getUmfrageFragen(key, callback) {
 function getAntworten(key, callback) {
     console.log("--> getAntworten key=" + key);
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/sauth/umfrage/antworten/" + key,
+        url: SERVER + "/Diklabu/api/v1/noauth/umfrage/antworten/" + key,
         type: "GET",
         headers: {
             "service_key": sessionStorage.service_key,
@@ -179,7 +179,7 @@ function submitUmfrage(key, fid, aid) {
     }
     console.log("--> Sende:" + JSON.stringify(eintr));
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/sauth/umfrage",
+        url: SERVER + "/Diklabu/api/v1/noauth/umfrage",
         type: "POST",
         cache: false,
         data: JSON.stringify(eintr),

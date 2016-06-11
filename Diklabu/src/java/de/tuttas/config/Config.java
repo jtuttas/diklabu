@@ -26,7 +26,7 @@ import org.json.simple.parser.ParseException;
  */
 public class Config {
     private static Config instance;
-    public final static String VERSION="V 1.94";
+    public final static String VERSION="V 1.95";
     
     public JSONObject clientConfig;
     
