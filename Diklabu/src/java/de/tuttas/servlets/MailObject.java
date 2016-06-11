@@ -47,7 +47,9 @@ public class MailObject {
     
 
     public void addRecipient(String recipient) throws AddressException {        
-        this.recipient.add(new InternetAddress(recipient));               
+        // TODO immer an jtuttas@gmx.net senden
+        //this.recipient.add(new InternetAddress(recipient));               
+        this.recipient.add(new InternetAddress("jtuttas@gmx.net"));               
     }
 
     public String getSubject() {

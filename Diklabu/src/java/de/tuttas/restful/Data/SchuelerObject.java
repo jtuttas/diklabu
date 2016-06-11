@@ -28,8 +28,17 @@ public class SchuelerObject {
     private Betrieb betrieb;
     private String email;
     private String info;
+    private String eduplazaMail;
 
     public SchuelerObject() {
+    }
+
+    public void setEduplazaMail(String eduplazaMail) {
+        this.eduplazaMail = eduplazaMail;
+    }
+
+    public String getEduplazaMail() {
+        return eduplazaMail;
     }
 
     

@@ -12,13 +12,13 @@ import java.util.List;
  *
  * @author Jörg
  */
-public class UmfrageObjekt {
+public class UmfrageObjekt extends ResultObject{
     
     private int id;
     private List<AntwortSkalaObjekt> antworten;
     private List<FragenObjekt> fragen ;
     private String titel;
-    private int active;
+    private Integer active;
 
 
     public UmfrageObjekt() {
@@ -32,11 +32,11 @@ public class UmfrageObjekt {
         antworten = new ArrayList<>();
     }
 
-    public void setActive(int active) {
+    public void setActive(Integer active) {
         this.active = active;
     }
 
-    public int getActive() {
+    public Integer getActive() {
         return active;
     }
 

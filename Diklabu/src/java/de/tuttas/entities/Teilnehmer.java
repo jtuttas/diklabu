@@ -7,6 +7,7 @@ package de.tuttas.entities;
 
 import java.io.Serializable;
 import java.util.Collection;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -32,12 +33,12 @@ public class Teilnehmer implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     private String key;
-    private int SCHUELERID;
-    private int BETRIEBID;
+    private Integer SCHUELERID;
+    private Integer BETRIEBID;
     private String LEHRERID;
     private int INVITED;
 
-    @OneToMany(mappedBy = "teilnehmer")
+    @OneToMany(mappedBy = "teilnehmer",cascade = CascadeType.REMOVE)
     private Collection<Antworten> antworten;
 
     @ManyToOne
@@ -47,7 +48,7 @@ public class Teilnehmer implements Serializable {
     public Teilnehmer() {
     }
 
-    public Teilnehmer(String key, int SCHUELERID, int BETRIEBID, String LEHRERID, int INVITED, Umfrage umfrage) {
+    public Teilnehmer(String key, Integer SCHUELERID, Integer BETRIEBID, String LEHRERID, int INVITED, Umfrage umfrage) {
         this.key = key;
         this.SCHUELERID = SCHUELERID;
         this.BETRIEBID = BETRIEBID;
@@ -84,19 +85,19 @@ public class Teilnehmer implements Serializable {
         this.key = key;
     }
 
-    public int getSCHUELERID() {
+    public Integer getSCHUELERID() {
         return SCHUELERID;
     }
 
-    public void setSCHUELERID(int SCHUELERID) {
+    public void setSCHUELERID(Integer SCHUELERID) {
         this.SCHUELERID = SCHUELERID;
     }
 
-    public int getBETRIEBID() {
+    public Integer getBETRIEBID() {
         return BETRIEBID;
     }
 
-    public void setBETRIEBID(int BETRIEBID) {
+    public void setBETRIEBID(Integer BETRIEBID) {
         this.BETRIEBID = BETRIEBID;
     }
 

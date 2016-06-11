@@ -13,7 +13,7 @@ import java.util.Vector;
  *
  * @author Jörg
  */
-public class FragenObjekt {
+public class FragenObjekt extends ResultObject{
     private List<Integer> IDantworten;
     private List<String> StringAntworten;
     private String frage;

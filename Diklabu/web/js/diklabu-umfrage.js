@@ -26,7 +26,7 @@ else {
     getUmfrageFragen(key, function (data) {
         console.log("Hame empfangen" + JSON.stringify(data));
         if (data==undefined) {
-            toastr["error"]("Keine Umfrage für die ID gefunden!", "Fehler!");
+            toastr["error"]("Keine gültige ID!", "Fehler!");
         }
         else {
             $("#umfragename").text(data.titel);
@@ -242,7 +242,7 @@ function generateHeadUmfrage(antworten) {
     $("#umfrageHead").empty();
     console.log("Antworten=" + JSON.stringify(antworten));
     var html = "<tr>";
-    html += '<th width="40%"><h3>Fragen</h3></th>';
+    html += '<th><h3>Fragen</h3></th>';
     for (i = 0; i < antworten.length; i++) {
         html += '<th class="antworten">' + antworten[i].name + '</th>'
         console.log("Fühe Antwort hinzu" + antworten[i].name + " id=" + antworten[i].id);

@@ -72,6 +72,19 @@ public class KlassenManager {
     }
     
     @GET
+    @Path("/klassen/{idk}") 
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<Klasse> getCourses(@PathParam("idk") int idk) {
+        Log.d("Webservice klasse GET: Kategorie=" + idk);
+
+        Query query = em.createNamedQuery("findKlasse");
+        query.setParameter("paramKategorieId", idk);
+        List<Klasse> klassen = query.getResultList();
+        Log.d("Result List:" + klassen);
+        return klassen;
+    }
+    
+    @GET
     @Path("/member/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<Schueler> getPupil(@PathParam("id") int klid) {

@@ -7,6 +7,7 @@ package de.tuttas.entities;
 
 import java.io.Serializable;
 import java.util.Collection;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -43,7 +44,7 @@ public class Umfrage implements Serializable {
     @ManyToMany
     private Collection<Fragen> fragen;         
      
-    @OneToMany(mappedBy = "umfrage")
+    @OneToMany(mappedBy = "umfrage",cascade = CascadeType.REMOVE)
     private Collection<Teilnehmer> teilnehmer;
      
     @Id
@@ -51,6 +52,20 @@ public class Umfrage implements Serializable {
     private Integer ID_UMFRAGE;
 
     public Umfrage() {
+    }
+
+    public void setTeilnehmer(Collection<Teilnehmer> teilnehmer) {
+        this.teilnehmer = teilnehmer;
+    }
+
+    public Collection<Teilnehmer> getTeilnehmer() {
+        return teilnehmer;
+    }
+    
+    
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
     

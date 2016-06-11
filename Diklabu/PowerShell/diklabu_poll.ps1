@@ -85,7 +85,7 @@ function Get-Poll
     Process
     {
         try {
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"sauth/umfrage/fragen/"+$ID) -Headers $headers  
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/fragen/"+$ID) -Headers $headers  
             return $r;
         } catch {
             Write-Host "Get-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
@@ -748,10 +748,14 @@ function Set-Poll
     }
     Process
     {
-          $p=echo "" | Select-Object -Property "id","titel","active"
-          $p.titel=$TITEL
+          $p=echo "" | Select-Object -Property "id"
+          if ($TITEL) {
+            $p | Add-Member -NotePropertyName "titel" -NotePropertyValue $TITEL
+          }
           $p.id=$ID
-          $p.active=$ACTIVE
+          if ($ACTIVE) {
+            $p | Add-Member -NotePropertyName "active" -NotePropertyValue $ACTIVE
+          }
           try {        
             $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
             return $r;
@@ -776,6 +780,8 @@ function Delete-Poll
         #ID der Antwort
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         $ID,
+
+        [switch]$force=$false,
         
         # Adresse des Diklabu Servers
         [String]$uri=$global:server
@@ -792,7 +798,7 @@ function Delete-Poll
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/"+$ID) -Headers $headers 
+            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/"+$ID+"/"+$force) -Headers $headers 
             return $r;
           } catch {
               Write-Host "Delete-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
@@ -1010,12 +1016,62 @@ function Get-PollSubscribers
     
 .EXAMPLE
    Delete-PollSubscriber -KEY abcd
+.EXAMPLE
+   Get-PollSubscribers -ID_UMFRAGE 1 | ForEach-Object {$_.key} | Delete-PollSubscriber
+   Löscht alle Teilnehmer aus der Umfrage 1, die noch keine Antworten abgegeben haben
 #>
 function Delete-PollSubscriber
 {
     Param
     ( 
         # key
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [String]$KEY,
+
+        [switch]$force=$false,
+        
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        
+    }
+    Process
+    {
+          try {        
+            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/subscriber/"+$Key+"/"+$force) -Headers $headers 
+            return $r;
+          } catch {
+              Write-Host "Delete-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+          }
+    }
+}
+
+<#
+.Synopsis
+   Schickt eine EMail an einen  Teilnehmer der Umfrage
+.DESCRIPTION
+   Schickt eine EMail an einen Teilnehmer der Umfrage
+    
+.EXAMPLE
+   Invite-PollSubscriber -KEY abcd
+.EXAMPLE
+   "abcd","cdef" | Invite-PollSubscriber 
+.EXAMPLE
+   Import-Csv keys.csv | Invite-PollSubscriber 
+
+#>
+function Invite-PollSubscriber
+{
+    Param
+    ( 
+        # KEY
+        
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [String]$KEY,
 
@@ -1034,10 +1090,10 @@ function Delete-PollSubscriber
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/subscriber/"+$Key) -Headers $headers 
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/invite/"+$KEY) -Headers $headers 
             return $r;
           } catch {
-              Write-Host "Delete-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Host "Invite-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
           }
     }
 }

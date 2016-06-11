@@ -5,12 +5,14 @@
  */
 package de.tuttas.restful;
 
+import de.tuttas.config.Config;
 import de.tuttas.entities.Antworten;
 import de.tuttas.entities.Antwortskalen;
 import de.tuttas.entities.Anwesenheit;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Fragen;
 import de.tuttas.entities.Lehrer;
+import de.tuttas.entities.LoginSchueler;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Teilnehmer;
 import de.tuttas.entities.Umfrage;
@@ -26,7 +28,14 @@ import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.restful.Data.TeilnehmerObjekt;
 import de.tuttas.restful.Data.UmfrageObjekt;
 import de.tuttas.restful.Data.UmfrageResult;
+import de.tuttas.servlets.MailObject;
+import de.tuttas.servlets.MailSender;
 import de.tuttas.util.Log;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -34,7 +43,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
+import javax.mail.internet.AddressException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -67,13 +79,13 @@ public class UmfagenManager {
     EntityManager em;
 
     /**
-     * Liefert eine Liste von Fragen und Antwortsmöglichkeiten für einen key
+     * Liefert eine Liste von Fragen und Antwortsmöglichkeiten für eine Umfrage
      *
      * @param id ID der Umfrage
      * @return Liste von Umfrageobjekten
      */
     @GET
-    @Path("umfrage/fragen/{id}")
+    @Path("fragen/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt getUmfrage(@PathParam("id") int id) {
         Log.d("Antworten und Fragen der Umfrage mit id=" + id);
@@ -239,15 +251,21 @@ public class UmfagenManager {
     @Produces({"application/json; charset=iso-8859-1"})
     public FragenObjekt setFrage(@PathParam("fid") int fid) {
         System.out.println("Detele Fragenobjekt id=:" + fid);
+        FragenObjekt fro = new FragenObjekt();
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
             em.remove(f);
             em.flush();
-            FragenObjekt fro = new FragenObjekt(f.getTITEL());
+            fro.setFrage(f.getTITEL());
             fro.setId(f.getID_FRAGE());
-            return fro;
+            fro.setSuccess(true);
+            fro.setMsg("Frage '"+f.getTITEL()+"' entfernt!");
         }
-        return null;
+        else {
+            fro.setSuccess(false);
+            fro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+        }
+        return fro;
     }
 
     @GET
@@ -434,31 +452,54 @@ public class UmfagenManager {
         System.out.println("setUmfragenobjekt:" + uo);
         Umfrage u = em.find(Umfrage.class, uo.getId());
         if (u != null) {
-            u.setNAME(uo.getTitel());
-            u.setACTIVE(uo.getActive());
+            if (uo.getTitel() != null) {
+                u.setNAME(uo.getTitel());
+            }
+            if (uo.getActive() != null) {
+                u.setACTIVE(uo.getActive());
+            }
             em.merge(u);
             em.flush();
             uo.setId(u.getID_UMFRAGE());
+            uo.setActive(u.getACTIVE());
+            uo.setTitel(u.getNAME());
+            uo.setFragen(null);
+            uo.setAntworten(null);
+
             return uo;
         }
         return null;
     }
 
     @DELETE
-    @Path("admin/{uid}")
+    @Path("admin/{uid}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public UmfrageObjekt deleteUmfrage(@PathParam("uid") int uid) {
+    public UmfrageObjekt deleteUmfrage(@PathParam("uid") int uid,@PathParam("force") boolean force) {
         System.out.println("Detele Umfrage id=:" + uid);
         Umfrage u = em.find(Umfrage.class, uid);
+        UmfrageObjekt uo = new UmfrageObjekt();
         if (u != null) {
-            em.remove(u);
-            em.flush();
-            UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
-            uo.setId(u.getID_UMFRAGE());
-            return uo;
+            if (!force && u.getTeilnehmer().size()>0) {
+                uo.setId(u.getID_UMFRAGE());
+                uo.setTitel(u.getNAME());
+                uo.setSuccess(false);
+                uo.setMsg("Die Umfrage "+u.getNAME()+" hat noch Teilnehmer (evtl. force verwenden)!");
+            }
+            else {
+                em.remove(u);
+                em.flush();
+                uo.setId(u.getID_UMFRAGE());
+                uo.setTitel(u.getNAME());
+                uo.setSuccess(true);
+                uo.setMsg("Umfrage "+u.getNAME()+" gelöscht!");
+            }
         }
-        return null;
-    }
+        else {
+            uo.setSuccess(false);
+            uo.setMsg("Kann Umfrage mit ID="+uid+" nicht finden!");
+        }
+        return uo;
+    } 
 
     @POST
     @Path("admin/addUmfrage/{fid}/{uid}")
@@ -526,20 +567,25 @@ public class UmfagenManager {
     @Produces({"application/json; charset=iso-8859-1"})
     public TeilnehmerObjekt newTeilnehmer(TeilnehmerObjekt to) {
         System.out.println("new Teilnehmerobjekt:" + to);
-        String key = UUID.randomUUID().toString();
+
         Umfrage u = em.find(Umfrage.class, to.getIdUmfrage());
         if (u == null) {
             to.setSuccess(false);
-            to.setMsg("Kann Umfrage mit id "+to.getIdUmfrage()+" nicht finden!");
+            to.setMsg("Kann Umfrage mit id " + to.getIdUmfrage() + " nicht finden!");
             return null;
         }
-        if (to.getIdBetrieb()==null && to.getIdLehrer()==null && to.getIdSchueler()==null) {
+        if (to.getIdBetrieb() == null && to.getIdLehrer() == null && to.getIdSchueler() == null) {
             to.setSuccess(false);
             to.setMsg("Keine ID (Betrien,Schüler,Lehrer) angegeben!");
             return null;
         }
+        Teilnehmer te = null;
+        String key = null;
+        do {
+            key = UUID.randomUUID().toString();
+            te = em.find(Teilnehmer.class, key);
+        } while (te != null);
         Teilnehmer t = new Teilnehmer();
-
         t.setUmfrage(u);
         t.setINVITED(0);
         t.setKey(key);
@@ -635,16 +681,29 @@ public class UmfagenManager {
         }
         return lto;
     }
-    
+
     @DELETE
-    @Path("admin/subscriber/{key}")
+    @Path("admin/subscriber/{key}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public TeilnehmerObjekt deleteTeilnehmer(@PathParam("key") String key) {
+    public TeilnehmerObjekt deleteTeilnehmer(@PathParam("key") String key,@PathParam("force") boolean force) {
+        System.out.println("Lösche Teilnehmer force="+force);
         Teilnehmer t = em.find(Teilnehmer.class, key);
-        if (t==null) return null;
-        
-        em.remove(t);
         TeilnehmerObjekt to = new TeilnehmerObjekt();
+        if (t == null) {
+            to.setMsg("Kann Teilnehmer mit KEY "+key+" nicht finden!");
+            to.setSuccess(false);
+            to.setKey(key);
+            return to;
+            
+        }
+        if (!force && t.getAntworten().size()!=0) {
+            to.setMsg("Der Teilnehmer hat bereits Antworten eingereicht (force setzen um zu löschen)");
+            to.setSuccess(false);
+            to.setKey(key);
+            to.setIdUmfrage(t.getUmfrage().getID_UMFRAGE());
+            return to;
+        }
+        em.remove(t);
         to.setIdBetrieb(t.getBETRIEBID());
         to.setIdLehrer(t.getLEHRERID());
         to.setIdSchueler(t.getSCHUELERID());
@@ -656,4 +715,93 @@ public class UmfagenManager {
         return to;
     }
 
+    @GET
+    @Path("admin/invite/{key}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<ResultObject> inviteTeilnehmer(@PathParam("key") String key) {
+        ArrayList<ResultObject> rol = new ArrayList<>();
+        ResultObject ro = new ResultObject();
+
+        Teilnehmer t = em.find(Teilnehmer.class, key);
+        if (t == null) {
+            ro.setSuccess(false);
+            ro.setMsg("Kann Teilmnehmer mit Key=" + key + " nicht finden");
+            rol.add(ro);
+            return rol;
+        }
+        if (t.getINVITED()==1) {
+            ro.setSuccess(false);
+            ro.setMsg("Der Teilnehmer mit Key=" + key + " wurde bereits eingeladen");
+            rol.add(ro);
+            return rol;
+        }
+        Umfrage u = t.getUmfrage();
+        if (u.getACTIVE() != 1) {
+            ro.setSuccess(false);
+            ro.setMsg("Umfrage " + u.getNAME() + " ist nicht aktiv");
+            rol.add(ro);
+            return rol;
+        }
+        String pathTemplate = Config.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        pathTemplate = pathTemplate.substring(0, pathTemplate.indexOf("Config.class"));
+        pathTemplate = pathTemplate + File.separator + "templateSchuelerumfrage.txt";
+        Log.d("Path=" + pathTemplate);
+        BufferedReader br;
+        StringBuilder sb = new StringBuilder();
+        try {
+            br = new BufferedReader(new FileReader(pathTemplate));
+
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line);
+                sb.append(System.lineSeparator());
+                line = br.readLine();
+            }
+            Log.d("Habe gelesen:" + sb);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        MailSender mailSender = new MailSender();
+        if (t.getSCHUELERID() != null) {
+            ro = new ResultObject();
+            Schueler s = em.find(Schueler.class, t.getSCHUELERID());
+            if (s != null) {
+                LoginSchueler lo = em.find(LoginSchueler.class, s.getId());
+                if (lo != null) {
+                    String sbn = new String(sb.toString());
+                    sbn = sbn.replace("[[VNAME]]", s.getVNAME());
+                    sbn = sbn.replace("[[NNAME]]", s.getNNAME());
+                    sbn = sbn.replace("[[TITEL]]", u.getNAME());
+                    sbn = sbn.replace("[[LINK]]", Config.getInstance().clientConfig.get("SERVER") + "/Diklabu/dev/umfrage.html?ID=" + t.getKey());
+                    System.out.println("Nachricht = " + sbn);
+                    MailObject mo = new MailObject("tuttas@mmbbs.de", "Einladung zur Umfrage " + u.getNAME(), sbn);
+                    try {
+                        mo.addRecipient(lo.getLOGIN() + "@mmbbs.eduplaza.de");
+                        mailSender.sendMail(mo);
+                        ro.setSuccess(true);
+                        ro.setMsg("Habe " + s.getVNAME() + " " + s.getNNAME() + " (" + lo.getLOGIN() + "@mmbbs.eduplaza.de) Zur Umfrage '" + u.getNAME() + "' eingeladen!");
+                        t.setINVITED(1);
+                        em.persist(t);
+                        em.flush();
+                    } catch (AddressException ex) {
+                        ro.setSuccess(false);
+                        ro.setMsg(ex.getMessage());
+                        Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
+                } else {
+                    ro.setSuccess(false);
+                    ro.setMsg("Keine Mail Adresse für  " + s.getVNAME() + " " + s.getNNAME() + " gefunden!");
+                }
+            } else {
+                ro.setSuccess(false);
+                ro.setMsg("Kann Schüler mit ID=" + t.getSCHUELERID() + " nicht finden!");
+            }
+            rol.add(ro);
+        }
+        return rol;
+
+    }
 }

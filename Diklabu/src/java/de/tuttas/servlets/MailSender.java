@@ -65,7 +65,7 @@ public class MailSender implements Runnable {
         InternetAddress[] toAddresses =  mo.getRecipient();
         msg.setRecipients(Message.RecipientType.TO, toAddresses);
         InternetAddress[] bccAdresses = mo.getBcc();
-        msg.setRecipients(Message.RecipientType.BCC, bccAdresses);
+        if (bccAdresses[0]!=null) msg.setRecipients(Message.RecipientType.BCC, bccAdresses);
         msg.setSubject(mo.getSubject());
         msg.setSentDate(new Date());
         msg.setText(mo.getContent());
@@ -113,7 +113,7 @@ public class MailSender implements Runnable {
         }        
     }
 
-    void sendMail(MailObject mo) {
+    public void sendMail(MailObject mo) {
         mails.add(mo);
     }
 

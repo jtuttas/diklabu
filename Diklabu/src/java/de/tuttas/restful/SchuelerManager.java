@@ -12,6 +12,7 @@ import de.tuttas.entities.Anwesenheit;
 import de.tuttas.entities.Ausbilder;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
@@ -200,6 +201,9 @@ public class SchuelerManager {
             List<Klasse> klassen = query.getResultList();
             Log.d("Result List:" + klassen);
             so.setKlassen(klassen);
+            
+            LoginSchueler ls= em.find(LoginSchueler.class,idschueler);
+            so.setEduplazaMail(ls.getLOGIN()+"@mmbbs.eduplaza.de");
 
             if (s.getID_AUSBILDER() != null) {
                 Ausbilder a = em.find(Ausbilder.class, s.getID_AUSBILDER());

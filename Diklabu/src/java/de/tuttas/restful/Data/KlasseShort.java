@@ -13,15 +13,26 @@ public class KlasseShort {
     private String ID_LEHRER;
     private String KNAME;
     private Integer id;
+    private Integer idKategorie;
 
     public KlasseShort() {
     }
 
-    public KlasseShort(Integer id, String ID_LEHRER, String KNAME) {
+    public KlasseShort(Integer id, String ID_LEHRER, String KNAME, Integer ID_KATEGORIE) {
         this.ID_LEHRER = ID_LEHRER;
         this.KNAME = KNAME;
         this.id = id;
+        this.idKategorie = ID_KATEGORIE;
     }
+
+    public Integer getIdKategorie() {
+        return idKategorie;
+    }
+
+    public void setIdKategorie(Integer idKategorie) {
+        this.idKategorie = idKategorie;
+    }
+    
     
     
     public String getID_LEHRER() {
