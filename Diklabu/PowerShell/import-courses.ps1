@@ -1,6 +1,8 @@
 ﻿<#
 .Synopsis
-   Importtiert Kurse aus einer CSV Datei
+   Importtiert Kurse aus einer CSV Datei. Die Datei hat dabei folgende Attribute:
+   Kurs,Dozent,Kategorie,Titel
+   IT15_Eng_EK_rot_A2_1-2,EK,2,Englisch-WPK Niveau A2
 .DESCRIPTION
    Importtiert Kurse aus einer CSV Datei
 .EXAMPLE
@@ -13,10 +15,7 @@ function Import-Courses
         # Hilfebeschreibung zu Param1
         [Parameter(Mandatory=$true,                   
                    Position=0)]
-        $file,
-        [Parameter(Mandatory=$true,                   
-                   Position=1)]
-        [int]$kategorie
+        $file
 
     )
     BEGIN
@@ -31,7 +30,7 @@ function Import-Courses
                 Write-Host "Kurs mit dem Namen"$line.Kurs"existiert bereits" -BackgroundColor DarkGreen
               }
               else {
-                New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE $kategorie -TITEL $line.Titel
+                New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE $line.Kategorie -TITEL $line.Titel
               }
             }
             else {

@@ -160,7 +160,20 @@ public class UmfagenManager {
     @Path("auswertung/{uid}/{klassenname}")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<UmfrageResult> getAntwortenKlasse(@PathParam("uid") int uid, @PathParam("klassenname") String kname) {
-        System.out.println("Get Antworten f. Umfrage " + uid + " und Klasse =" + kname);
+        System.out.println("Get Antworten f. Umfrage " + uid + " und Klasse(n) =" + kname);
+        String[] klassen = kname.split(";");
+        
+        String qString = "SELECT a.antwortskala,COUNT(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Teilnehmer t on a.teilnehmer = t inner join Schueler s on s.ID=t.SCHUELERID inner join Schueler_Klasse sk on t.SCHUELERID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE (";
+        for (int i=0;i<klassen.length;i++) {
+            qString+="k.KNAME like '" + klassen[i]+"'";
+            if (i!=klassen.length-1) {
+                qString+=" or ";
+            }
+            
+        }
+        qString += ") and ";
+        System.out.println("qString="+qString);
+        
         em.getEntityManagerFactory().getCache().evictAll();
         List<UmfrageResult> resultList = new ArrayList<UmfrageResult>();
         Umfrage u = em.find(Umfrage.class, uid);
@@ -175,7 +188,8 @@ public class UmfagenManager {
             }
             //Query q = em.createQuery("select aska.NAME,count(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Schueler s on a.ID_SCHUELER=s.ID inner join Schueler_Klasse sk on s.id=sk.ID_SCHUELER inner join Klasse k on k.ID=sk.IK_KLASSE Group by a.fragenAntworten");
             System.out.println("Frage=" + f);
-            Query q = em.createQuery("SELECT a.antwortskala,COUNT(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Teilnehmer t on a.teilnehmer = t inner join Schueler s on s.ID=t.SCHUELERID inner join Schueler_Klasse sk on t.SCHUELERID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE t.umfrage.ID_UMFRAGE=" + uid + " AND k.KNAME like '" + kname + "' and a.fragenAntworten.ID_FRAGE=" + f.getID_FRAGE() + " Group by a.antwortskala");
+            
+            Query q = em.createQuery(qString+" t.umfrage.ID_UMFRAGE=" + uid + " and a.fragenAntworten.ID_FRAGE=" + f.getID_FRAGE() + " Group by a.antwortskala");
             List<Object[]> r = q.getResultList();
             for (int i = 0; i < r.size(); i++) {
                 Object[] ro = r.get(i);
@@ -231,7 +245,7 @@ public class UmfagenManager {
     }
 
     @PUT
-    @Path("admin/frage/{fid}")
+    @Path("admin/frage/")
     @Produces({"application/json; charset=iso-8859-1"})
     public FragenObjekt setFrage(FragenObjekt fo) {
         System.out.println("setFragenobjekt:" + fo);

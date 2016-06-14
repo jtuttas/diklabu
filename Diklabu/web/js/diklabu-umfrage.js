@@ -2,7 +2,13 @@
  * 
  * Globale Variablen
  */
+$(document).ajaxSend(function (event, request, settings) {
+    $('#loading-indicator').show();
+});
 
+$(document).ajaxComplete(function (event, request, settings) {
+    $('#loading-indicator').hide();
+});
 
 var getUrlParameter = function getUrlParameter(sParam) {
     var sPageURL = decodeURIComponent(window.location.search.substring(1)),
@@ -199,52 +205,16 @@ function submitUmfrage(key, fid, aid) {
     });
 }
 
-/**
- * Login durchführen
- */
-function performLogin() {
-    var myData = {
-        "benutzer": $("#lehrer").val(),
-        "kennwort": $("#kennwort").val()
-    };
 
-    $.ajax({
-        cache: false,
-        contentType: "application/json; charset=UTF-8",
-        headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
-        },
-        dataType: "json",
-        url: "/Diklabu/api/v1/auth/logout/",
-        type: "POST",
-        data: JSON.stringify(myData),
-        success: function (jsonObj, textStatus, xhr) {
-            sessionStorage.auth_token = undefined;
-            toastr["success"]("Logout erfolgreich", "Info!");
-            sessionStorage.myself = undefined;
-            loggedOut();
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
-            //console.log("HTTP Status: " + xhr.status);
-            //console.log("Error textStatus: " + textStatus);
-            //console.log("Error thrown: " + errorThrown);
-            if (xhr.status = 401) {
-                loggedOut();
-            }
-        }
-    });
-
-}
 
 function generateHeadUmfrage(antworten) {
     $("#umfrageHead").empty();
     console.log("Antworten=" + JSON.stringify(antworten));
     var html = "<tr>";
-    html += '<th><h3>Fragen</h3></th>';
+    var width=52/antworten.length;
+    html += '<th><h2>Fragen</h2></th>';
     for (i = 0; i < antworten.length; i++) {
-        html += '<th class="antworten">' + antworten[i].name + '</th>'
+        html += '<th class="antworten" width="'+width+'%">' + antworten[i].name + '</th>'
         console.log("Fühe Antwort hinzu" + antworten[i].name + " id=" + antworten[i].id);
     }
     html += '</tr>';
@@ -263,7 +233,7 @@ function generateBodyUmfrage(fragen, antworten) {
             console.log("Teste Antworten der Frage " + fragen[i].frage + " gegen Antwort ID=" + antworten[j].id);
             if (findAntworten(antworten[j].id, fragen[i].IDantworten)) {
                 console.log("Antwort mit ID " + antworten[j].id + " enthalten!");
-                html += '<td><div align=\"center\"><img state="0" fid="' + fragen[i].id + '" aid="' + antworten[j].id + '" id="U' + fragen[i].id + '_' + antworten[j].id + '" class="checkfrage" src="../img/unchecked.png"></div></td>';
+                html += '<td><div align=\"center\"><img state="0" fid="' + fragen[i].id + '" aid="' + antworten[j].id + '" id="U' + fragen[i].id + '_' + antworten[j].id + '" class="checkfrage " src="../img/unchecked.png"></div></td>';
             }
             else {
                 console.log("Antwort mit ID " + antworten[j].id + " ist NICHT enthalten!");

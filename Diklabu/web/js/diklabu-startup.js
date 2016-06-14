@@ -36,12 +36,12 @@ $("#template").load(SERVER + "/Diklabu/template.txt", function () {
 $("#diklabuname").text(DIKLABUNAME);
 console.log("found token:" + sessionStorage.auth_token);
 
-$(document).ajaxSend(function(event, request, settings) {
-  $('#loading-indicator').show();
+$(document).ajaxSend(function (event, request, settings) {
+    $('#loading-indicator').show();
 });
 
-$(document).ajaxComplete(function(event, request, settings) {
-  $('#loading-indicator').hide();
+$(document).ajaxComplete(function (event, request, settings) {
+    $('#loading-indicator').hide();
 });
 
 // Load the Visualization API and the corechart package.
@@ -155,7 +155,7 @@ $("#print").click(function () {
         });
 
     }
-     else if (currentView == "Beteiligung") {
+    else if (currentView == "Beteiligung") {
         $("#tabBeteiligung").printThis({
             debug: false,
             printContainer: true,
@@ -166,7 +166,7 @@ $("#print").click(function () {
         });
 
     }
-else if (currentView == "Auswertung") {
+    else if (currentView == "Auswertung") {
         $("#tabAuswertung").printThis({
             debug: false,
             printContainer: true,
@@ -1268,7 +1268,7 @@ function loadResults(id, klassefilter, callback) {
 
 
 function loadBeteiligung(uid, kname, callback) {
-    console.log("--> load Beteiligung Klasse=" + kname+" uid="+uid);
+    console.log("--> load Beteiligung Klasse=" + kname + " uid=" + uid);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/umfrage/beteiligung/" + uid + "/" + kname,
         type: "GET",
@@ -2363,8 +2363,8 @@ function updateCurrentView() {
             refreshKlassenliste(nameKlasse, function (data) {
                 $("#beteiligungUmfrage").empty();
                 loadUmfragen(function (data) {
-                    for (i=0;i<data.length;i++) {
-                        $("#beteiligungUmfrage").append('<option uid="'+data[i].id+'" active="'+data[i].active+'">'+data[i].titel+'</option>');    
+                    for (i = 0; i < data.length; i++) {
+                        $("#beteiligungUmfrage").append('<option uid="' + data[i].id + '" active="' + data[i].active + '">' + data[i].titel + '</option>');
                     }
                     if (data[0].active == 1) {
                         toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
@@ -2372,28 +2372,28 @@ function updateCurrentView() {
 
                     console.log("empfange:" + JSON.stringify(data));
                     loadBeteiligung(data[0].id, nameKlasse, function (data) {
-                         console.log("empfange:" + JSON.stringify(data));
-                         updateBeteiligung(data);
+                        console.log("empfange:" + JSON.stringify(data));
+                        updateBeteiligung(data);
                     });
                 });
             });
             $("#beteiligungUmfrage").unbind("change");
             $("#beteiligungUmfrage").change(function () {
                 $(".rowBeteiligung").text("");
-                    uid = $('option:selected', this).attr('uid');
-                    active = $('option:selected', this).attr('active');
-                    if (active == 1) {
-                        toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
-                    }
-                    console.log("Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
-                    loadBeteiligung(uid, nameKlasse, function (data) {
-                             console.log("empfange:" + JSON.stringify(data));
-                             updateBeteiligung(data);
-                    });
+                uid = $('option:selected', this).attr('uid');
+                active = $('option:selected', this).attr('active');
+                if (active == 1) {
+                    toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
+                }
+                console.log("Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
+                loadBeteiligung(uid, nameKlasse, function (data) {
+                    console.log("empfange:" + JSON.stringify(data));
+                    updateBeteiligung(data);
+                });
             });
             break;
         case "Auswertung":
-             $("#dokumentationContainer").hide();
+            $("#dokumentationContainer").hide();
             $("#printContainer").show();
             loadUmfragen(function (data) {
                 umfragen = data;
@@ -2408,12 +2408,12 @@ function updateCurrentView() {
                 }
 
                 loadResults(umfrage.id, nameKlasse, function (data) {
-                    console.log("empfange:" + JSON.stringify(data));
-                     $('#loading-indicator').show();
+                    console.log("empfange Results:" + JSON.stringify(data));
+                    $('#loading-indicator').show();
                     updateAuswertung(data);
                     drawResults(data, 1);
                     drawResults(data, 2);
-                    $('#loading-indicator').hide();
+
                 });
 
 
@@ -2425,7 +2425,7 @@ function updateCurrentView() {
 
 
 function drawResults(results, col) {
-
+    $('#loading-indicator').show();
     for (i = 0; i < results.length; i++) {
         var result = results[i];
         var antworten = results[i].skalen;
@@ -2455,13 +2455,19 @@ function drawResults(results, col) {
         var options = {'title': result.frage,
             'width': 400,
             'height': 300,
-        backgroundColor: { fill:'transparent' }
+            backgroundColor: {fill: 'transparent'}
         };
 
         // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.PieChart(document.getElementById('chart' + col + result.id));
-        chart.draw(data, options);
+        if ($("#chart" + col + result.id).length) {
+            var chart = new google.visualization.PieChart(document.getElementById('chart' + col + result.id));
+            chart.draw(data, options);
+        }
+        else {
+            console.log("Container existiert nicht!");
+        }
     }
+    $('#loading-indicator').hide();
 }
 
 
@@ -2485,6 +2491,7 @@ function updateAuswertungsFilter(data) {
         if (keyCode == 13) {
             loadResults(umfrage.id, $("#gruppe1Filter").val(), function (data) {
                 console.log("empfange:" + JSON.stringify(data));
+
                 drawResults(data, 1);
             });
         }
@@ -2535,7 +2542,7 @@ function updateAuswertungsFilter(data) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
 
-        loadResults(uid, $('#gruppe2Filter').val(), function (data) {            
+        loadResults(uid, $('#gruppe2Filter').val(), function (data) {
             console.log("empfange :" + JSON.stringify(data));
             drawResults(data, 2);
         });

@@ -104,7 +104,13 @@ function Get-Poll
 .EXAMPLE
    Get-Pollresults -ID 2 -KNAME FISI14A -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
-   FISI14A,FISI14% | Get-Poll -ID 1
+   "FISI15A","FISI14%" | Get-Pollresults -ID 1
+.EXAMPLE
+   Get-Pollresults -ID 1 -KNAME 'FISI14A;FISI14B'
+   Ermittelt die Ergebnisse der Klassen FISI14A und FISI14B
+.EXAMPLE
+   Get-Pollresults -ID 1 -KNAME 'FISI14%
+   Ermittelt die Ergebnisse aller FISI14 Klassen
 #>
 function Get-Pollresults
 {
@@ -132,14 +138,16 @@ function Get-Pollresults
     Process
     {
         try {
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/auswertung/"+$ID+"/"+$KNAME) -Headers $headers  
+            $Encode = [System.Web.HttpUtility]::UrlEncode($KNAME) 
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/auswertung/"+$ID+"/"+$Encode) -Headers $headers  
             foreach ($row in $r) {
                 $out = echo "" | Select-Object -Property "frage"
                 $out.frage=$row.frage;
                 $n=1;
+                $row.skalen=$row.skalen | Sort-Object -Property id
                 foreach ($skala in $row.skalen) {
-                    $out | Add-Member -NotePropertyName Item$n -NotePropertyValue $skala.name
-                    $out | Add-Member -NotePropertyName Value$n -NotePropertyValue $skala.anzahl
+                    $out | Add-Member -NotePropertyName $skala.name -NotePropertyValue $skala.anzahl
+                    #$out | Add-Member -NotePropertyName Value$n -NotePropertyValue $skala.anzahl
                     $n++;
                 }
                 $out
