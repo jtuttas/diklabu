@@ -6,6 +6,7 @@ Import-Module diklabu_ausbilder.psm1
 Import-Module diklabu_coursemember.psm1
 Import-Module diklabu_kurswahl.psm1
 Import-Module diklabu_lehrer.psm1
+Import-Module diklabu_poll.psm1
 
 
 Export-ModuleMember -Function Set-Diklabuserver
@@ -54,3 +55,28 @@ Export-ModuleMember -Function Get-Teacher
 Export-ModuleMember -Function Set-Teacher
 Export-ModuleMember -Function New-Teacher
 Export-ModuleMember -Function Delete-Teacher
+
+Export-ModuleMember -Function Get-Polls
+Export-ModuleMember -Function Get-Poll
+Export-ModuleMember -Function Get-Pollresults
+Export-ModuleMember -Function New-PollQuestion
+Export-ModuleMember -Function Set-PollQuestion
+Export-ModuleMember -Function Delete-PollQuestion
+Export-ModuleMember -Function Get-PollQuestion
+Export-ModuleMember -Function Get-PollQuestions
+Export-ModuleMember -Function New-PollAnswer
+Export-ModuleMember -Function Set-PollAnswer
+Export-ModuleMember -Function Delete-PollAnswer
+Export-ModuleMember -Function Get-PollAnswer
+Export-ModuleMember -Function Get-PollAnswers
+Export-ModuleMember -Function Add-PollAnswer
+Export-ModuleMember -Function Remove-PollAnswer
+Export-ModuleMember -Function New-Poll
+Export-ModuleMember -Function Set-Poll
+Export-ModuleMember -Function Delete-Poll
+Export-ModuleMember -Function Add-PollQuestion
+Export-ModuleMember -Function Remove-PollQuestion
+Export-ModuleMember -Function New-PollSubscriber
+Export-ModuleMember -Function Get-PollSubscribers
+Export-ModuleMember -Function Delete-PollSubscriber
+Export-ModuleMember -Function Invite-PollSubscriber

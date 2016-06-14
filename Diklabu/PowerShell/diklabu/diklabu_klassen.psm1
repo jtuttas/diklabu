@@ -187,6 +187,50 @@ function Get-Course
 
 <#
 .Synopsis
+   Klassen einer Kategorie abfragen
+.DESCRIPTION
+   Klassen einer Kategorie abfragen
+.EXAMPLE
+   Get-Courses -id 1 
+.EXAMPLE
+   Get-Courses -id 2 -uri http://localhost:8080/Diklabu/api/v1/
+#>
+function Get-Courses
+{
+    Param
+    (
+        # ID Kategorie der Klasse
+        [Parameter(Position=0)]
+        [int]$id_kategorie,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;       
+    }
+    Process
+    {
+        try {
+            if ($id_kategorie) {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/klassen/"+$id_kategorie) -Headers $headers 
+            }
+            else {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"noauth/klassen") -Headers $headers 
+            }
+            return $r;
+        } catch {
+            Write-Host "Get-Courses: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+}
+
+<#
+.Synopsis
    Eine neue Klasse anlegen
 .DESCRIPTION
    Legt eine Neue Klasse mit den Attributen an. Auch der Import aus einer CSV Datei
@@ -231,7 +275,7 @@ function New-Course
         [String]$TERMINE,
         # ID_Kategorie
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [int]$ID_KATEGORIE,
+        [int]$ID_KATEGORIE=-1,
         # id
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [int]$id
@@ -260,7 +304,7 @@ function New-Course
         if ($TERMINE) {
           $klasse.TERMINE=$TERMINE
         }
-        if ($ID_KATEGORIE -ne 0) {
+        if ($ID_KATEGORIE -ne -1) {
           $klasse.ID_KATEGORIE=$ID_KATEGORIE
         }
         if ($id -ne 0) {

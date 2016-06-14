@@ -20,7 +20,8 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-    @NamedQuery(name = "getLatestSchuljahr", query = "select s from Schuljahr s ORDER BY s.ID DESC")
+    @NamedQuery(name = "getLatestSchuljahr", query = "select s from Schuljahr s ORDER BY s.ID DESC"),
+    @NamedQuery(name = "getSchuljahre", query = "select s from Schuljahr s")
 })
 public class Schuljahr implements Serializable {
     private static final long serialVersionUID = 1L;

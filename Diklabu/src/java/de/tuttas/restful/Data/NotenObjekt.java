@@ -6,6 +6,7 @@
 package de.tuttas.restful.Data;
 
 import de.tuttas.entities.Noten;
+import de.tuttas.entities.Noten_all;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
  */
 public class NotenObjekt extends ResultObject{
     private int schuelerID;
-    private List<Noten> noten = new ArrayList<>();
+    private List<Noten_all> noten = new ArrayList<>();
 
     public int getSchuelerID() {
         return schuelerID;
@@ -25,11 +26,11 @@ public class NotenObjekt extends ResultObject{
         this.schuelerID = schuelerID;
     }
 
-    public List<Noten> getNoten() {
+    public List<Noten_all> getNoten() {
         return noten;
     }
 
-    public void setNoten(List<Noten> noten) {
+    public void setNoten(List<Noten_all> noten) {
         this.noten = noten;
     }
 

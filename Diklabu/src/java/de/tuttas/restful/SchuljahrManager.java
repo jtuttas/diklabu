@@ -37,4 +37,12 @@ public class SchuljahrManager {
         List<Schuljahr> jahr = query.getResultList();
         return jahr.get(0);
     }
+    
+    @GET
+    @Path("all")
+    public List<Schuljahr> getSchuljahre() {
+        Query query = em.createNamedQuery("getSchuljahre");        
+        List<Schuljahr> jahre = query.getResultList();
+        return jahre;
+    }
 }

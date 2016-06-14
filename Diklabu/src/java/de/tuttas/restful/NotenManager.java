@@ -10,6 +10,7 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Lernfeld;
 import de.tuttas.entities.Noten;
+import de.tuttas.entities.Noten_all;
 import de.tuttas.entities.Portfolio;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schuljahr;
@@ -50,17 +51,18 @@ public class NotenManager {
      * @return Liste der Noten
      */
     @GET
-    @Path("/{klasse}")
-    public List<NotenObjekt> getNoten(@PathParam("klasse") String kl) {
-        Log.d("Webservice noten GET: klasse=" + kl);
+    @Path("/{klasse}/{IDSchuljahr}")
+    public List<NotenObjekt> getNoten(@PathParam("klasse") String kl,@PathParam("IDSchuljahr") int ids) {
+        Log.d("Webservice noten GET: klasse=" + kl+" für Schuljahr ID="+ids);
         Query query = em.createNamedQuery("findNoteneinerKlasse");
         query.setParameter("paramNameKlasse", kl);
-        List<Noten> noten = query.getResultList();
+        query.setParameter("paramIDSchuljahr", ids);
+        List<Noten_all> noten = query.getResultList();
         Log.d("Result List:" + noten);
         List<NotenObjekt> lno = new ArrayList<>();
         int sid = 0;
         NotenObjekt no = null;
-        for (Noten n : noten) {
+        for (Noten_all n : noten) {
             if (sid != n.getID_SCHUELER()) {
                 no = new NotenObjekt();
                 no.setSchuelerID(n.getID_SCHUELER());
@@ -81,12 +83,13 @@ public class NotenManager {
      * @return Notenobjekt
      */
     @GET
-    @Path("/schueler/{schuelerID}")
-    public NotenObjekt getNoten(@PathParam("schuelerID") int sid) {
-        Log.d("Webservice noten GET: schuelerID=" + sid);
+    @Path("/schueler/{schuelerID}/{IDSchuljahr}")
+    public NotenObjekt getNoten(@PathParam("schuelerID") int sid,@PathParam("IDSchuljahr") int ids) {
+        Log.d("Webservice noten GET: schuelerID=" + sid+" Schuljahr ID="+ids);
         Query query = em.createNamedQuery("findNoteneinesSchuelers");
         query.setParameter("paramNameSchuelerID", sid);
-        List<Noten> noten = query.getResultList();
+        query.setParameter("paramIDSchuljahr", ids);
+        List<Noten_all> noten = query.getResultList();
         Log.d("Result List:" + noten);
         NotenObjekt no = new NotenObjekt();
         no.setSchuelerID(sid);

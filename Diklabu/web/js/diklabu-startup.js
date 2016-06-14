@@ -19,6 +19,8 @@ var betriebe;
 var notenliste;
 //  Umfragen (Objektliste)
 var umfragen;
+// aktuelles Schuljahr
+var currentSchuljahr;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -551,7 +553,7 @@ function handelKeyEvents(e) {
 $("#notenlernfelder").change(function () {
     lfid = $('option:selected', this).attr("lfid");
     console.log("Noten Lernfelder changed to " + $("#notenlernfelder").val() + " id=" + lfid);
-    getNoten(nameKlasse, function (data) {
+    getNoten(nameKlasse,currentSchuljahr.ID, function (data) {
         for (k = 0; k < schueler.length; k++) {
             sch = schueler[k];
             note = findNote(sch.id, lfid);
@@ -682,16 +684,36 @@ function getLernfelder(callback) {
     });
 }
 
+function getSchuljahre(callback) {
+
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/schuljahr/all",
+        type: "GET",
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Schuljahre nicht vom Server laden", "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
+
 
 /**
- * Noten der Klassen vom Server laden
+ * Noten einer Klasse vom Server Laden
  * @param {type} kl Name der Klasse
- * @param {type} callback optionales Callback
+ * @param {type} ids ID des Schuljahres
+ * @param {type} callback
+ * @returns {undefined}
  */
-function getNoten(kl, callback) {
-    console.log("--> Noten der Klasse kl=" + kl + " laden!");
+function getNoten(kl, ids, callback) {
+    console.log("--> Noten der Klasse kl=" + kl + " für Schuljahr ID=" + ids + "laden!");
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/noten/" + kl,
+        url: SERVER + "/Diklabu/api/v1/noten/" + kl + "/" + ids,
         type: "GET",
         cache: false,
         headers: {
@@ -2264,9 +2286,24 @@ function updateCurrentView() {
             // Noten
         case "Notenliste":
             refreshKlassenliste(nameKlasse, function (data) {
-                getNoten(nameKlasse, function (data) {
-                    buildNotenliste(data);
+                getSchuljahre(function (data) {
+                    $("#schuljahre").empty();
+                    for (i = 0; i < data.length; i++) {
+                        $("#schuljahre").append('<option sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
+                    }
+                    $("#schuljahre").val(data[i - 1].NAME);
+                    getNoten(nameKlasse, data[i - 1].ID, function (data) {
+                        buildNotenliste(data);
+                    });
                 });
+            });
+            $("#schuljahre").unbind("change");
+            $("#schuljahre").change(function () {
+                sid = $('option:selected', this).attr('sid');
+                console.log("Schuljahre changed sid=" + sid);
+                 getNoten(nameKlasse, sid, function (data) {
+                        buildNotenliste(data);
+                    });
             });
             $("#tabNoteneintrag").hide();
             $("#tabNotenliste").show();
@@ -2276,11 +2313,12 @@ function updateCurrentView() {
             break;
         case "Noteneintrag":
             refreshKlassenliste(nameKlasse, function (data) {
-                getNoten(nameKlasse, function (data) {
-                    buildNoteneintrag(data);
-                    loadSchuljahr(function (data) {
-                        $("#schuljahr").text("Schuljahr " + data.NAME);
-                    })
+                loadSchuljahr(function (data) {                    
+                   $("#schuljahr").text("Schuljahr " + data.NAME);
+                   currentSchuljahr=data;
+                   getNoten(nameKlasse,data.ID, function (data) {
+                        buildNoteneintrag(data);                    
+                   });
                 });
             });
             $("#tabNoteneintrag").show();

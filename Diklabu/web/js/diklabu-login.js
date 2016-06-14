@@ -90,7 +90,7 @@ function performLogin() {
                 sessionStorage.VNAME=jsonObj.VNAME;
                 sessionStorage.NNAME=jsonObj.NNAME;
                 if (jsonObj.role == "Admin" || jsonObj.role == "Lehrer") {
-                    window.location.replace("buch_kurz.html");
+                    window.location.replace("buch.html");
                 }
                 else {
                     sessionStorage.kname=jsonObj.nameKlasse;
