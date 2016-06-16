@@ -7,12 +7,16 @@ package de.tuttas.restful;
 
 import de.tuttas.entities.Kategorie;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.Klasse_all;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Lernfeld;
 import de.tuttas.entities.Noten;
 import de.tuttas.entities.Noten_all;
-import de.tuttas.entities.Portfolio;
+import de.tuttas.entities.Noten_all_Id;
+
 import de.tuttas.entities.Schueler;
+import de.tuttas.entities.Schueler_Klasse;
+import de.tuttas.entities.Schueler_KlasseId;
 import de.tuttas.entities.Schuljahr;
 import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.NotenObjekt;
@@ -52,8 +56,8 @@ public class NotenManager {
      */
     @GET
     @Path("/{klasse}/{IDSchuljahr}")
-    public List<NotenObjekt> getNoten(@PathParam("klasse") String kl,@PathParam("IDSchuljahr") int ids) {
-        Log.d("Webservice noten GET: klasse=" + kl+" für Schuljahr ID="+ids);
+    public List<NotenObjekt> getNoten(@PathParam("klasse") String kl, @PathParam("IDSchuljahr") int ids) {
+        Log.d("Webservice noten GET: klasse=" + kl + " für Schuljahr ID=" + ids);
         Query query = em.createNamedQuery("findNoteneinerKlasse");
         query.setParameter("paramNameKlasse", kl);
         query.setParameter("paramIDSchuljahr", ids);
@@ -84,8 +88,8 @@ public class NotenManager {
      */
     @GET
     @Path("/schueler/{schuelerID}/{IDSchuljahr}")
-    public NotenObjekt getNoten(@PathParam("schuelerID") int sid,@PathParam("IDSchuljahr") int ids) {
-        Log.d("Webservice noten GET: schuelerID=" + sid+" Schuljahr ID="+ids);
+    public NotenObjekt getNoten(@PathParam("schuelerID") int sid, @PathParam("IDSchuljahr") int ids) {
+        Log.d("Webservice noten GET: schuelerID=" + sid + " Schuljahr ID=" + ids);
         Query query = em.createNamedQuery("findNoteneinesSchuelers");
         query.setParameter("paramNameSchuelerID", sid);
         query.setParameter("paramIDSchuljahr", ids);
@@ -128,24 +132,28 @@ public class NotenManager {
                             Log.d("Es existier bereits ein Eintrag also Update");
                             no.setWERT(n.getWERT());
                             em.merge(no);
+                            em.flush();
                             no.setSuccess(true);
                             no.setMsg("Eintrag aktualisiert!");
-                            // Noten bei WPK's und Lernfeld=Kurs ins Portfolio übernehmen
-                            if (ka.getKATEGORIE().equals("IT-WPK") && n.getID_LERNFELD().equals("Kurs")) {
-                                Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
-                                List<Schuljahr> schuljahr = q3.getResultList();
-                                Log.d("Schuljahr = " + schuljahr);
-                                Query q2 = em.createNamedQuery("findPortfolioNote");
-                                q2.setParameter("paramSchuelerID", n.getID_SCHUELER());
-                                q2.setParameter("paramKName", k.getKNAME());
-                                q2.setParameter("paramSchuljahr", schuljahr.get(0).getID());
-                                List<Portfolio> pnoten = q2.getResultList();
-                                Log.d("Portfolio Noten = " + pnoten);
+                            // Klasse noch eintragen
+                            Schueler s = em.find(Schueler.class, n.getID_SCHUELER().intValue());
+                            Lernfeld lf = em.find(Lernfeld.class, n.getID_LERNFELD());
+                            // Klasse noch eintragen
+                            Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
+                            List<Schuljahr> schuljahr = q3.getResultList();
+                            Log.d("Schuljahr = " + schuljahr);
 
-                                Portfolio p = pnoten.get(0);
+                            System.out.println(" Finde Note mit ID_Schueler=" + s.getId() + " LF_ID=" + lf.getId() + " Schuljahr=" + schuljahr.get(0).getID());
+                            Noten_all na = em.find(Noten_all.class, new Noten_all_Id(s.getId(), lf.getId(), schuljahr.get(0).getID()));
+                            if (na == null) {
+                                System.out.println("Kein Eintrag gefunden!");
 
-                                p.setWert(n.getWERT());
-                                em.merge(p);
+                            } else {
+                                System.out.println("Eintrag gefunden!");
+                                // findKlasseEinesJahrgangs
+                                na.setID_LK(n.getID_LK());
+                                na.setWERT(n.getWERT());
+                                em.merge(na);
                             }
                             return no;
                         }
@@ -160,16 +168,39 @@ public class NotenManager {
                     if (s != null && l != null && lf != null) {
                         Log.d("Neuen Noteneintrag erzeugen");
                         em.persist(n);
+                        em.flush();
+
                         n.setSuccess(true);
 
-                        // Noten bei WPK's und Lernfeld=Kurs ins Portfolio übernehmen
-                        if (ka.getKATEGORIE().equals("IT-WPK") && n.getID_LERNFELD().equals("Kurs")) {
-                            Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
-                            List<Schuljahr> schuljahr = q3.getResultList();
-                            Log.d("Schuljahr = " + schuljahr);
-                            Portfolio p = new Portfolio(schuljahr.get(0).getID(), k.getKNAME(), k.getTITEL(),k.getNOTIZ(), n.getWERT(), s.getId());
-                            em.persist(p);
+                        // Klasse noch eintragen
+                        Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
+                        List<Schuljahr> schuljahr = q3.getResultList();
+                        Log.d("Schuljahr = " + schuljahr);
+
+                        System.out.println(" Finde Note mit ID_Schueler=" + s.getId() + " LF_ID=" + lf.getId() + " Schuljahr=" + schuljahr.get(0).getID());
+                        Noten_all na = em.find(Noten_all.class, new Noten_all_Id(s.getId(), lf.getId(), schuljahr.get(0).getID()));
+                        if (na == null) {
+                            System.out.println("Kein Eintrag gefunden!");
+
+                        } else {
+                            System.out.println("Eintrag gefunden!");
+                            // findKlasseEinesJahrgangs
+                            Query q4 = em.createNamedQuery("findKlasseEinesJahrgangs");
+                            q4.setParameter("paramIdSchuljahr", schuljahr.get(0).getID());
+                            q4.setParameter("paramIdKlasse", kid);
+                            List<Klasse_all> kla = q4.getResultList();
+                            Log.d("Klasse all = " + kla);
+                            if (kla.size()>0) {
+                                na.setID_KLASSEN_ALL(kla.get(0).getID());
+                                em.merge(na);
+                            }
+                            else {
+                                System.out.println("Kann Klasse ID="+kid+" nicht im Schuljahr "+schuljahr.get(0).getNAME()+" finden!");
+                            }
                         }
+
+                        n.setSuccess(true);
+                        n.setMsg("Neuer Noteneintrag erfolgt!");
 
                     } else {
                         Log.d("Neuen Noteneintrag konnte nicht erzeugt werden");

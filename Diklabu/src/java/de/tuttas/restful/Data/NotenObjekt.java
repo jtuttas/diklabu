@@ -17,6 +17,17 @@ import java.util.List;
 public class NotenObjekt extends ResultObject{
     private int schuelerID;
     private List<Noten_all> noten = new ArrayList<>();
+    private String schuljahrName;
+
+    public void setSchuljahrName(String schuljahrName) {
+        this.schuljahrName = schuljahrName;
+    }
+
+    public String getSchuljahrName() {
+        return schuljahrName;
+    }
+    
+    
 
     public int getSchuelerID() {
         return schuelerID;

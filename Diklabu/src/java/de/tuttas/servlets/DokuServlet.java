@@ -13,8 +13,10 @@ import com.itextpdf.tool.xml.XMLWorkerHelper;
 
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.Klasse_all;
 import de.tuttas.entities.Noten;
-import de.tuttas.entities.Portfolio;
+import de.tuttas.entities.Noten_all;
+
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schuljahr;
 import de.tuttas.entities.Termine;
@@ -105,6 +107,16 @@ public class DokuServlet extends HttpServlet {
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
                 String type = request.getParameter("type");
+                String sidSchuljahr = request.getParameter("idSchuljahr");
+                int idSchuljahr=-1;
+                if (sidSchuljahr!=null) {
+                    try {
+                        idSchuljahr=Integer.parseInt(sidSchuljahr);
+                    }
+                    catch (NumberFormatException nux) {
+                        
+                    }
+                }
                 String filter1 = request.getParameter("dokufilter1");
                 String filter2 = request.getParameter("dokufilter2");
                 int anwFilter1 = 0;
@@ -143,13 +155,13 @@ public class DokuServlet extends HttpServlet {
                     MyTableDataModel myModel = null;
                     if (cmd.compareTo("Betriebe") == 0) {
                         response.setContentType("text/csv");
-                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + ".csv");
+                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" +  new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
                         myModel = getModelBetriebsliste(kl);
                         out.println(myModel.toCsv());
                     } else if (cmd.compareTo("Notenliste") == 0) {
                         response.setContentType("text/csv");
-                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + ".csv");
-                        myModel = getModelNotenliste(kl);
+                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" +  new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        myModel = getModelNotenliste(kl,idSchuljahr);
                         out.println(myModel.toCsv());
                     } else if (cmd.compareTo("Fehlzeiten") == 0) {
                         response.setContentType("text/csv");
@@ -228,11 +240,12 @@ public class DokuServlet extends HttpServlet {
                             MyTableDataModel myModel = getModelFehlzeiten(kl, parsedFrom, parsedTo);
                             document = createFehlzeiten(kl, kopf, parsedFrom, parsedTo, out);
                         } else if (cmd.compareTo("Notenliste") == 0) {
-                            response.addHeader("Content-Disposition", "attachment; filename=Notenliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                            MyTableDataModel myModel = getModelNotenliste(kl);
-                            document = createNotenliste(myModel, kopf, out);
+                            response.addHeader("Content-Disposition", "attachment; filename=Notenliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            MyTableDataModel myModel = getModelNotenliste(kl,idSchuljahr);
+                            Schuljahr schuljahr = em.find(Schuljahr.class, idSchuljahr);
+                            document = createNotenliste(myModel, kopf, out,schuljahr.getNAME());
                         } else if (cmd.compareTo("Betriebe") == 0) {
-                            response.addHeader("Content-Disposition", "attachment; filename=Betriebsliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            response.addHeader("Content-Disposition", "attachment; filename=Betriebsliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
                             MyTableDataModel myModel = getModelBetriebsliste(kl);
                             document = createBetriebsListe(myModel, kopf, out);
                         }
@@ -265,21 +278,23 @@ public class DokuServlet extends HttpServlet {
         }
     }
 
-    private MyTableDataModel getModelNotenliste(Klasse kl) {
+    private MyTableDataModel getModelNotenliste(Klasse kl,int idSchuljahr) {
         Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
         q.setParameter("paramNameKlasse", kl.getKNAME());
         List<Schueler> schueler = q.getResultList();
 
         Query query = em.createNamedQuery("findNoteneinerKlasse");
         query.setParameter("paramNameKlasse", kl.getKNAME());
-        List<Noten> noten = query.getResultList();
+        query.setParameter("paramIDSchuljahr", idSchuljahr);
+        
+        List<Noten_all> noten = query.getResultList();
         Log.d("Result List:" + noten);
 
         List<NotenObjekt> lno = new ArrayList<>();
         List<String> lernfelder = new ArrayList<>();
         int sid = 0;
         NotenObjekt no = null;
-        for (Noten n : noten) {
+        for (Noten_all n : noten) {
             if (!lernfelder.contains(n.getID_LERNFELD())) {
                 Log.d("Neues Lernfeld mit id=" + n.getID_LERNFELD());
                 lernfelder.add(n.getID_LERNFELD());
@@ -291,7 +306,7 @@ public class DokuServlet extends HttpServlet {
                 lno.add(no);
                 sid = n.getID_SCHUELER();
             }
-            no.getNoten().add(n);
+            no.getNoten().add(n); 
         }
         Log.d("Habe " + schueler.size() + " Schüler und " + lernfelder.size() + " Lernfelder");
         lernfelder.add(0, "Name");
@@ -305,8 +320,10 @@ public class DokuServlet extends HttpServlet {
         for (int y = 0; y < schueler.size(); y++) {
             s = schueler.get(y);
             mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
+            System.out.println(" Noten f. Schüler "+s.getNNAME()+" ID="+s.getId());
             for (int x = 1; x < lernfelder.size(); x++) {
                 lf = lernfelder.get(x);
+                System.out.println("LF="+lf);
                 mo.setData(x, y, getNoteSchueler(s.getId(), lf, lno));
             }
         }
@@ -380,15 +397,15 @@ public class DokuServlet extends HttpServlet {
         return document;
     }
 
-    private Document createNotenliste(MyTableDataModel mo, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
+    private Document createNotenliste(MyTableDataModel mo, String kopf, OutputStream out, String schuljahrName) throws ParseException, IOException, DocumentException {
 
         Document document = new Document();
         /* Basic PDF Creation inside servlet */
         PdfWriter writer = PdfWriter.getInstance(document, out);
         StringBuilder htmlString = new StringBuilder();
         htmlString.append(kopf);
-
-        htmlString.append("<br></br><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
+        htmlString.append("<h3 align=\"center\">"+schuljahrName+"</h3>");
+        htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
         htmlString.append("<tr><td width='25%' style=\"padding:5px;font-size: 14;border: 1px solid black;\"><b>Name</b></td>");
 
         for (int x = 1; x < mo.getCols(); x++) {
@@ -855,21 +872,22 @@ public class DokuServlet extends HttpServlet {
         /* Basic PDF Creation inside servlet */
         PdfWriter writer = PdfWriter.getInstance(document, out);
         StringBuilder htmlString = new StringBuilder();
-document.open();
+        document.open();
+        
 
         Query q = em.createNamedQuery("findSchuelerEinerBenanntenKlasse");
         q.setParameter("paramNameKlasse", kl.getKNAME());
         List<Schueler> schueler = q.getResultList();
 
-        Query q2 = em.createNamedQuery("findPortfolioEinerKlasse");
-        q2.setParameter("paramKlassenID", kl.getId());
-        List<Portfolio> portfolio = q2.getResultList();
+        Query q2 = em.createNamedQuery("findPortfolio");
+        q2.setParameter("paramIdKlasse", kl.getId());
+        List<Noten_all> portfolio = q2.getResultList();
 
         Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
         List<Schuljahr> schuljahr = q3.getResultList();
         
         System.out.println("Schuljahr = "+schuljahr.get(0).getNAME()+" Zeugnisdatum="+schuljahr.get(0).getZEUGNISDATUM());
-        
+        System.out.println("Noten_all="+portfolio);
         for (Schueler s : schueler) {
 
             htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
@@ -882,14 +900,18 @@ document.open();
             htmlString.append("<hr></hr>");
             htmlString.append("<br></br>");
 
-            for (Portfolio p : portfolio) {
-                if (p.getID_Schueler() == s.getId()) {
-                    Schuljahr sj = em.find(Schuljahr.class, p.getSchuljahr());
+            for (Noten_all p : portfolio) {
+                System.out.println("Suche für Schüler ID="+s.getId()+" einen Portfolioeintrag, found ID="+p.getID_SCHUELER());
+                if (p.getID_SCHUELER().intValue()== s.getId().intValue()) {
+                    System.out.println("gefunden!");
+                    Schuljahr sj = em.find(Schuljahr.class, p.getID_SCHULJAHR());
+                    Klasse_all ka = em.find(Klasse_all.class, p.getID_KLASSEN_ALL());
+                    System.out.println(" Schüler gefunden sj="+sj.getNAME()+" ka="+ka.getTitel());
                     htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
                     htmlString.append("<table>");
                     htmlString.append("<tr>");
-                    htmlString.append("<td width=\"70%\"><b>" + p.getTitel() + "</b><p>" + p.getNotiz() + "</p></td>");
-                    htmlString.append("<td>" + NotenUtil.getNote(p.getWert()) + "</td>");
+                    htmlString.append("<td width=\"70%\"><b>" + ka.getTitel() + "</b><p>" + ka.getNotiz() + "</p></td>");
+                    htmlString.append("<td>" + NotenUtil.getNote(p.getWERT()) + "</td>");
                     htmlString.append("</tr>");
                     htmlString.append("</table>");                    
                     htmlString.append("<br></br>");
@@ -930,7 +952,7 @@ document.open();
             htmlString = new StringBuilder();
             document.newPage();
         }
-
+        
         document.close();
         return document;
     }
@@ -1099,9 +1121,10 @@ document.open();
     }
 
     private String getNoteSchueler(int sid, String lfid, List<NotenObjekt> lno) {
+        System.out.println("GetNotenSchueler sid="+sid+" lfid="+lfid+" lno="+lno);
         for (NotenObjekt no : lno) {
             if (no.getSchuelerID() == sid) {
-                for (Noten n : no.getNoten()) {
+                for (Noten_all n : no.getNoten()) {
                     if (n.getID_LERNFELD().compareTo(lfid) == 0) {
                         return n.getWERT();
                     }
@@ -1109,6 +1132,7 @@ document.open();
                 return "";
             }
         }
+        
         return "";
     }
 

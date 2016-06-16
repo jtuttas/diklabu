@@ -6,9 +6,12 @@
 package de.tuttas.restful;
 
 
-import de.tuttas.entities.Portfolio;
+import de.tuttas.entities.Klasse_all;
+import de.tuttas.entities.Noten_all;
+
 import de.tuttas.entities.Schuljahr;
 import de.tuttas.restful.Data.NotenObjekt;
+import de.tuttas.restful.Data.Portfolio;
 import de.tuttas.restful.Data.PortfolioEintrag;
 import de.tuttas.util.Log;
 import java.util.ArrayList;
@@ -45,36 +48,34 @@ public class Portfoliomanager {
     @Path("/{klassenID}")
     public List<PortfolioEintrag> getPortfolio(@PathParam("klassenID") int kid) {
         Log.d("Webservice Portfolio GET: KlassenID=" + kid);
-        Query query = em.createNamedQuery("findPortfolioEinerKlasse");
-        query.setParameter("paramKlassenID", kid);
-        List<Portfolio> portfolio = query.getResultList();
-        for (Portfolio p : portfolio) {
-            Schuljahr sj = em.find(Schuljahr.class, p.getSchuljahr());
-            p.setSchuljahrName(sj.getNAME());
-        }
-        Log.d("Result List:" + portfolio);
-
+        Query query = em.createNamedQuery("findPortfolio");
+        query.setParameter("paramIdKlasse", kid);
+        List<Noten_all> noten_all = query.getResultList();
+        Log.d("Results List="+noten_all);
+               
         List<PortfolioEintrag> plist = new ArrayList<>();
-        PortfolioEintrag pe = new PortfolioEintrag();
-        if (portfolio.size() > 0) {
-            int oldSchuelerid;
-            oldSchuelerid = portfolio.get(0).getID_Schueler();
-            for (Portfolio p : portfolio) {
-                if (p.getID_Schueler()==oldSchuelerid) {
-                    pe.getEintraege().add(p);
-                    Log.d("füge hinzu den Eintrag "+p);
-                }
-                else {
-                    plist.add(pe);
-                    pe = new PortfolioEintrag();
-                    pe.getEintraege().add(p);
-                    oldSchuelerid=p.getID_Schueler();
-                    Log.d("Neuer Eintrag für id"+oldSchuelerid);
-                }
+        PortfolioEintrag pe=null;        
+        int oldSchuelerid=-1;
+        
+        for (Noten_all na : noten_all) {                   
+            if (oldSchuelerid==-1) {
+                oldSchuelerid = na.getID_SCHUELER();
+                pe = new PortfolioEintrag();
+                
             }
+            if (oldSchuelerid!=na.getID_SCHUELER()) {
+                oldSchuelerid = na.getID_SCHUELER();
+                plist.add(pe);
+                pe = new PortfolioEintrag();
+                
+            }
+            Klasse_all ka = em.find(Klasse_all.class, na.getID_KLASSEN_ALL());
+            Schuljahr schuljahr = em.find(Schuljahr.class, ka.getID_Schuljahr());
+            Portfolio p = new Portfolio(na.getID_SCHULJAHR(),schuljahr.getNAME(), ka.getKNAME(), ka.getTitel(), na.getWERT(), ka.getNotiz(), na.getID_SCHUELER());
+            pe.getEintraege().add(p);
         }
-         plist.add(pe);
-        return plist;
+        plist.add(pe);
+        return plist;                
     }
 
 }

@@ -5,7 +5,7 @@
  */
 package de.tuttas.restful.Data;
 
-import de.tuttas.entities.Portfolio;
+
 import java.util.ArrayList;
 import java.util.List;
 

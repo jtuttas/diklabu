@@ -46,8 +46,7 @@ $(document).ajaxComplete(function (event, request, settings) {
     $('#loading-indicator').hide();
 });
 
-// Load the Visualization API and the corechart package.
-google.charts.load('current', {'packages': ['corechart']});
+
 
 getKlassenliste(function () {
     getLernfelder(function () {
@@ -553,7 +552,7 @@ function handelKeyEvents(e) {
 $("#notenlernfelder").change(function () {
     lfid = $('option:selected', this).attr("lfid");
     console.log("Noten Lernfelder changed to " + $("#notenlernfelder").val() + " id=" + lfid);
-    getNoten(nameKlasse,currentSchuljahr.ID, function (data) {
+    getNoten(nameKlasse, currentSchuljahr.ID, function (data) {
         for (k = 0; k < schueler.length; k++) {
             sch = schueler[k];
             note = findNote(sch.id, lfid);
@@ -2292,6 +2291,7 @@ function updateCurrentView() {
                         $("#schuljahre").append('<option sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
                     }
                     $("#schuljahre").val(data[i - 1].NAME);
+                     $("#idSchuljahr").val(data[i - 1].ID);
                     getNoten(nameKlasse, data[i - 1].ID, function (data) {
                         buildNotenliste(data);
                     });
@@ -2301,9 +2301,10 @@ function updateCurrentView() {
             $("#schuljahre").change(function () {
                 sid = $('option:selected', this).attr('sid');
                 console.log("Schuljahre changed sid=" + sid);
-                 getNoten(nameKlasse, sid, function (data) {
-                        buildNotenliste(data);
-                    });
+                $("#idSchuljahr").val(sid);
+                getNoten(nameKlasse, sid, function (data) {
+                    buildNotenliste(data);
+                });
             });
             $("#tabNoteneintrag").hide();
             $("#tabNotenliste").show();
@@ -2313,12 +2314,12 @@ function updateCurrentView() {
             break;
         case "Noteneintrag":
             refreshKlassenliste(nameKlasse, function (data) {
-                loadSchuljahr(function (data) {                    
-                   $("#schuljahr").text("Schuljahr " + data.NAME);
-                   currentSchuljahr=data;
-                   getNoten(nameKlasse,data.ID, function (data) {
-                        buildNoteneintrag(data);                    
-                   });
+                loadSchuljahr(function (data) {
+                    $("#schuljahr").text("Schuljahr " + data.NAME);
+                    currentSchuljahr = data;
+                    getNoten(nameKlasse, data.ID, function (data) {
+                        buildNoteneintrag(data);
+                    });
                 });
             });
             $("#tabNoteneintrag").show();
@@ -2981,3 +2982,5 @@ function buildeAnwesenheitstabelle(data) {
     });
 
 }
+// Load the Visualization API and the corechart package.
+google.charts.load('current', {'packages': ['corechart']});

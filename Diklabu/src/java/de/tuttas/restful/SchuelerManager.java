@@ -203,7 +203,7 @@ public class SchuelerManager {
             so.setKlassen(klassen);
             
             LoginSchueler ls= em.find(LoginSchueler.class,idschueler);
-            so.setEduplazaMail(ls.getLOGIN()+"@mmbbs.eduplaza.de");
+            if (ls!=null) so.setEduplazaMail(ls.getLOGIN()+"@mmbbs.eduplaza.de");
 
             if (s.getID_AUSBILDER() != null) {
                 Ausbilder a = em.find(Ausbilder.class, s.getID_AUSBILDER());

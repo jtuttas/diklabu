@@ -11,6 +11,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
@@ -22,23 +23,35 @@ import javax.persistence.NamedQuery;
 @NamedQueries({
    @NamedQuery(name = "findNoteneinerKlasse", query= "select n from Noten_all n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on s.ID=sk.ID_SCHUELER INNER JOIN Klasse k on sk.ID_KLASSE=k.ID where k.KNAME=:paramNameKlasse and n.ID_SCHULJAHR=:paramIDSchuljahr ORDER BY n.ID_SCHUELER,n.ID_LERNFELD"),
    @NamedQuery(name = "findNoteneinesSchuelers", query= "select n from Noten_all n where n.ID_SCHUELER=:paramNameSchuelerID and n.ID_SCHULJAHR = :paramIDSchuljahr ORDER BY n.ID_LERNFELD"),    
-    
+   //@NamedQuery(name = "findPortfolioeinerKlasse", query= "select n from Noten_all n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Klasse_all ka on n.ID_KLASSE_ALL=ka.ID inner join Schueler_Klasse sk on s.ID=sk.ID_SCHUELER where sk.ID_KLASSE =:paramIdKlasse and ka.ID_KATEGORIE=1 ORDER BY n.ID_SCHUELER,n.ID_LERNFELD"), 
+   @NamedQuery(name = "findPortfolio", query= "select n from Noten_all n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Klasse_all ka on n.ID_KLASSEN_ALL=ka.ID inner join Schueler_Klasse sk on s.ID=sk.ID_SCHUELER where sk.ID_KLASSE =:paramIdKlasse and ka.ID_KATEGORIE in (1,9) ORDER BY n.ID_SCHUELER,n.ID_LERNFELD"),  
 })
+@IdClass(Noten_all_Id.class)
 public class Noten_all implements Serializable {
     private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer ID;
-
+    private Integer ID; 
+    @Id    
     private Integer ID_SCHUELER;
+    @Id     
     private String ID_LERNFELD;
     private String ID_LK;
-    private String WERT;
+    private String WERT; 
     private Date Datum;
     private Integer ID_SCHUELER_ORG;
+    @Id    
     private Integer ID_SCHULJAHR;
     private String ID_LERNFELD_ORG;
+    private Integer ID_KLASSEN_ALL;
 
+    public void setID_KLASSEN_ALL(Integer ID_KLASSE_ALL) {
+        this.ID_KLASSEN_ALL = ID_KLASSE_ALL;
+    }
+
+    public Integer getID_KLASSEN_ALL() {
+        return ID_KLASSEN_ALL;
+    }
+        
+    
     public Integer getID_SCHUELER() {
         return ID_SCHUELER;
     }
@@ -135,7 +148,7 @@ public class Noten_all implements Serializable {
 
     @Override
     public String toString() {
-        return "de.tuttas.entities.Noten_all[ id=" + ID + " ]";
+        return "Noten_all[ ID_SCHUELR=" + ID_SCHUELER + " LF="+ID_LERNFELD+" LK="+ID_LK+" WERT="+WERT+" ]";
     }
     
 }
