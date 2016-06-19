@@ -351,11 +351,11 @@ $("#absendenEMailBetrieb").click(function () {
 
     }
     else if (!isValidEmailAddress($("#fromLehrerBetriebMail").val())) {
-        toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerBetriebMail").val(), "Mail Service");
+        toastr["warning"]("Keine gültige Absender EMail Adresse! (" + $("#fromLehrerBetriebMail").val()+")", "Mail Service");
         //event.preventDefault();
     }
     else if (!isValidEmailAddress($("#toBetriebMail").val())) {
-        toastr["warning"]("Keine gültige Adress EMail Adresse!" + $("#toBetriebMail").val(), "Mail Service");
+        toastr["warning"]("Keine gültige EMail Adresse! (" + $("#toBetriebMail").val()+")", "Mail Service");
         //event.preventDefault();
     }
 
@@ -372,6 +372,42 @@ $("#absendenEMailBetrieb").click(function () {
         $.post('../MailServlet', $('#emailFormBetriebe').serialize());
         $("#emailBetriebBetreff").val("");
         $("#emailBetriebInhalt").val("");
+    }
+
+});
+
+$("#absendenEMailKlasse").click(function () {
+    console.log("subject mail  length =" + $("#emailKlasseInhalt").val().length + " from " + $("#fromLehrerKlasseMail").val() + " to:" + $("#toKlasseMail").val());
+    mails = $("#emailsKlasse").val().split(";");
+    error = false;
+    for (i = 0; i < mails.length - 1; i++) {
+        console.log("Teste email:" + mails[i]);
+        if (!isValidEmailAddress(mails[i])) {
+            toastr["warning"]("Keine gültige EMail Adresse!" + mails[i], "Mail Service");
+            error = true;
+        }
+    }
+    if (error == true) {
+
+    }
+    else if (!isValidEmailAddress($("#fromLehrerKlasseMail").val())) {
+        toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerKlasseMail").val(), "Mail Service");
+        //event.preventDefault();
+    }
+
+    else if ($("#emailKlasseBetreff").val().length == 0) {
+        toastr["warning"]("Kein Betreff angegeben!", "Mail Service");
+        //event.preventDefault();
+    }
+    else if ($("#emailKlasseInhalt").val().length == 0) {
+        toastr["warning"]("Kein EMail Inhalt angegeben!", "Mail Service");
+        //event.preventDefault();
+    }
+    else {
+        toastr["success"]("EMail wird versendet via BCC an Klasse "+nameKlasse, "Mail Service");
+        $.post('../MailServlet', $('#emailFormKlasse').serialize());
+        $("#emailKlasseBetreff").val("");
+        $("#emailKlasseInhalt").val("");
     }
 
 });
@@ -2352,6 +2388,8 @@ function updateCurrentView() {
             $("#printContainer").hide();
             break;
         case "Betriebe anschreiben":
+            $("#fromLehrerBetriebMail").val(sessionStorage.myemail);
+            $("#toBetriebMail").val(sessionStorage.myemail);
             refreshKlassenliste(nameKlasse, function (data) {
                 getBetriebe(nameKlasse, function (data) {
                     updateBetriebeMails();
@@ -2360,6 +2398,15 @@ function updateCurrentView() {
             $("#dokumentationContainer").hide();
             $("#printContainer").show();
             break;
+        case "Klasse anschreiben":
+            $("#fromLehrerKlasseMail").val(sessionStorage.myemail);
+            $("#toKlasseMail").val(sessionStorage.myemail);
+            refreshKlassenliste(nameKlasse, function (data) {                
+                    updateKlasseMails();                
+            });
+            $("#dokumentationContainer").hide();
+            $("#printContainer").show();
+            break;            
         case "Pläne":
             loadStundenPlan();
             $("#dokumentationContainer").hide();
@@ -2783,6 +2830,18 @@ function updateBetriebeMails() {
         }
         $("#emailsBetrieb").val(adr);
     }
+}
+
+/**
+ * Mail Formular zum Anschreiben der Klasse aktualisieren
+ */
+function updateKlasseMails() {
+    var adr = "";
+        for (i = 0; i < schueler.length; i++) {
+            adr = adr + schueler[i].EMAIL + ";";
+        }
+        $("#emailsKlasse").val(adr);
+    
 }
 
 /**

@@ -922,7 +922,7 @@ public class DokuServlet extends HttpServlet {
                     htmlString.append("<td>" + NotenUtil.getNote(p.getWERT()) + "</td>");
                     htmlString.append("</tr>");
                     htmlString.append("</table>");                    
-                    htmlString.append("<br></br>");
+                    htmlString.append("<p>&nbsp;</p>");
                 }
             }
             htmlString.append("<br></br>");

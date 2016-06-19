@@ -116,12 +116,12 @@ public class MailServlet extends HttpServlet {
             String lehrerID = request.getParameter("lehrerId");
             String report = request.getParameter("report");
             String bcc = request.getParameter("bcc");
-            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" subject="+subject+" emailBody="+content+" report="+report);            
+            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" bcc="+bcc+"subject="+subject+" emailBody="+content+" report="+report);            
 
             //if (Config.debug) {
             // TODO Adresse entfernen
             recipient = "tuttas@mmbbs.de";
-            bcc="jtuttas@gmx.net";
+            bcc="tuttas@tinysolutions.net";
         //}
 
             boolean fromMailOk = false;
