@@ -626,6 +626,10 @@ $('body').on('focusout', ".notenTextfeld", function (e) {
     if ($(this).val() != "") {
         submitNote(lfid, $(this).attr("sid"), $(this).val());
     }
+    else {
+        deleteNote(lfid,$(this).attr("sid"));
+        console.log("Note löschen!");
+    }
 });
 
 
@@ -1041,6 +1045,42 @@ function submitNote(lf, ids, wert) {
         }
     });
 }
+
+/**
+ * Löschen einer Note
+ * @param {type} lf Lernfeld
+ * @param {type} ids Schüler ID 
+ */
+function deleteNote(lf, ids) {
+    console.log("--> deleteNote lf=" + lf + " ID_Schueler=" + ids);
+
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/noten/" + lf+"/"+ids,
+        type: "DELETE",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            if (data.success) {
+                toastr["info"](data.msg, "Info!");
+            }
+            else {
+                toastr["error"](data.msg, "Fehler!");
+            }
+            
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Note nicht löschen! Status Code=" + xhr.status, "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
+
 
 function getTermindaten(callback) {
     console.log("--> Get Termindaten Filter1 ID=" + $('option:selected', "#filter1").attr('filter_id') + " Filter2 ID=" + $('option:selected', "#filter2").attr('filter_id'));

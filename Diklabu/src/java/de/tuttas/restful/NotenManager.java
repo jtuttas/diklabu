@@ -11,6 +11,7 @@ import de.tuttas.entities.Klasse_all;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Lernfeld;
 import de.tuttas.entities.Noten;
+import de.tuttas.entities.Noten_Id;
 import de.tuttas.entities.Noten_all;
 import de.tuttas.entities.Noten_all_Id;
 
@@ -20,6 +21,7 @@ import de.tuttas.entities.Schueler_KlasseId;
 import de.tuttas.entities.Schuljahr;
 import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.NotenObjekt;
+import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.util.Log;
 import de.tuttas.util.NotenUtil;
 import java.sql.Date;
@@ -30,6 +32,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -105,6 +108,46 @@ public class NotenManager {
         return no;
     }
 
+    
+    @DELETE
+    @Path("/{lfid}/{sid}") 
+    public ResultObject setNote(@PathParam("lfid") String lfid, @PathParam("sid") int sid) {
+        ResultObject ro = new ResultObject();
+        Schueler s = em.find(Schueler.class, sid);
+        if (s!=null) {
+            Lernfeld lf = em.find(Lernfeld.class, lfid);
+            if (lf!=null) {
+                Noten n = em.find(Noten.class, new Noten_Id(sid, lfid));
+                if (n!=null) {
+                    em.remove(n);
+                    em.flush();
+                     Query query = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
+                     List<Schuljahr> jahre = query.getResultList();
+                    int jahrid = jahre.get(0).getID();
+                    
+                    Noten_all na = em.find(Noten_all.class, new Noten_all_Id(sid, lfid, jahrid));
+                    em.remove(na);
+                    em.flush();
+                    ro.setSuccess(true);
+                    ro.setMsg("Note für Schüler "+s.getVNAME()+" "+s.getNNAME()+" für Lernfeld "+lf.getBEZEICHNUNG()+" gelöscht!");
+                }
+                else {
+                    ro.setSuccess(false);
+                    ro.setMsg("Kann Note für Schüler "+s.getVNAME()+" "+s.getNNAME()+" für Lernfeld "+lf.getBEZEICHNUNG()+" nicht finden!");
+                }
+            }
+            else {
+                ro.setSuccess(false);
+                ro.setMsg("Kann Lernfeld mit ID="+lfid+" nicht finden!");
+            }
+        }
+        else {
+            ro.setSuccess(false);
+            ro.setMsg("Kann Schüler mit ID="+sid+" nicht finden!");
+        }
+        return ro;
+    }
+    
     /**
      * Noten eintragen
      *
