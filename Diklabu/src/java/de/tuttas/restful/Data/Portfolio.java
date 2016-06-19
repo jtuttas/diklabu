@@ -10,44 +10,65 @@ package de.tuttas.restful.Data;
  * @author Jörg
  */
 public class Portfolio {
-    private Integer Schuljahr;
-    private String schuljahrName;
     private String KName;
     private String Titel;
     private String Wert;
     private String Notiz;
-    private Integer ID_Schueler;
+    private Integer IDKlasse;
+    private Integer IDKategorie;
+    private int schuljahr;
+    private String schuljahrName;
+
 
     public Portfolio() {
     }
 
-    public Portfolio(Integer Schuljahr,String schuljahrName, String KName, String Titel, String Wert, String Notiz, Integer ID_Schueler) {
-        this.Schuljahr = Schuljahr;
+    public Portfolio(String KName, String Titel, String Wert, String Notiz,Integer ID_Klasse,Integer ID_Kategorie,Integer schuljahr, String schuljahrName) {
         this.KName = KName;
         this.Titel = Titel;
         this.Wert = Wert;
         this.Notiz = Notiz;
-        this.ID_Schueler = ID_Schueler;
+        this.IDKlasse=ID_Klasse;
+        this.IDKategorie=ID_Kategorie;
+        this.schuljahr=schuljahr;
         this.schuljahrName=schuljahrName;
+    }
+
+    public void setSchuljahr(int schuljahr) {
+        this.schuljahr = schuljahr;
     }
 
     public void setSchuljahrName(String schuljahrName) {
         this.schuljahrName = schuljahrName;
     }
 
+    public int getSchuljahr() {
+        return schuljahr;
+    }
+
     public String getSchuljahrName() {
         return schuljahrName;
     }
-    
-    
 
-    public Integer getSchuljahr() {
-        return Schuljahr;
+    
+    public void setIDKategorie(Integer IDKategorie) {
+        this.IDKategorie = IDKategorie;
     }
 
-    public void setSchuljahr(Integer Schuljahr) {
-        this.Schuljahr = Schuljahr;
+    public Integer getIDKategorie() {
+        return IDKategorie;
     }
+
+    
+    public void setIDKlasse(Integer IDKlasse) {
+        this.IDKlasse = IDKlasse;
+    }
+
+    public Integer getIDKlasse() {
+        return IDKlasse;
+    }
+
+    
 
     public String getKName() {
         return KName;
@@ -80,14 +101,5 @@ public class Portfolio {
     public void setNotiz(String Notiz) {
         this.Notiz = Notiz;
     }
-
-    public Integer getID_Schueler() {
-        return ID_Schueler;
-    }
-
-    public void setID_Schueler(Integer ID_Schueler) {
-        this.ID_Schueler = ID_Schueler;
-    }
-    
     
 }

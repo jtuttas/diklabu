@@ -21,6 +21,8 @@ var notenliste;
 var umfragen;
 // aktuelles Schuljahr
 var currentSchuljahr;
+// Liste der Lernfelder
+var lernfelder;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -661,6 +663,7 @@ function getLernfelder(callback) {
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
+            lernfelder = data;
             $("#lernfelder").empty();
             $("#lernfelderFilter").empty();
             $("#lernfelderFilter").append("<option lfid='-1'>alle</option>");
@@ -2291,7 +2294,7 @@ function updateCurrentView() {
                         $("#schuljahre").append('<option sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
                     }
                     $("#schuljahre").val(data[i - 1].NAME);
-                     $("#idSchuljahr").val(data[i - 1].ID);
+                    $("#idSchuljahr").val(data[i - 1].ID);
                     getNoten(nameKlasse, data[i - 1].ID, function (data) {
                         buildNotenliste(data);
                     });
@@ -2627,48 +2630,134 @@ function updateBeteiligung(data) {
 function updatePortfolio(data) {
 
     var years = {};
+
     for (i = 0; i < data.length; i++) {
-        var eintraege = data[i].eintraege;
+        eintraege = data[i].eintraege;
         for (j = 0; j < eintraege.length; j++) {
-            years[eintraege[j].schuljahr] = eintraege[j].schuljahrName;
+            if (years[eintraege[j].schuljahr] == undefined) {
+                var year = {
+                    "name": name,
+                    "spalten": 0,
+                    "courses": {}
+                }
+                year.name = eintraege[j].schuljahrName;
+                years[eintraege[j].schuljahr] = year;
+            }
         }
     }
-    console.log("years=" + JSON.stringify(years) + " size=" + years.length);
+
+    $.each(years, function (index, value) {
+        wpk = false;
+        //console.log("Bearbeite Schuljahr "+index);
+        for (j = 0; j < data.length; j++) {
+            eintrag = data[j].eintraege;
+            for (i = 0; i < eintrag.length; i++) {
+                if (eintrag[i].schuljahr == index) {
+                    //console.log("Schuljahr ist das zu bearbeitende");
+                    if (value.courses[eintrag[i].IDKlasse] == undefined) {
+                        console.log("Neuer Kurs im Jahr  " + index + " mit Namen " + eintrag[i].KName + " und ID=" + eintrag[i].IDKlasse);
+                        var course = {
+                            "kname": "",
+                            "kategorie": 0
+                        }
+                        course.kname = eintrag[i].KName;
+                        course.kategorie = eintrag[i].IDKategorie;
+                        value.courses[eintrag[i].IDKlasse] = course;
+                        if (course.kategorie == 1 && wpk == false) {
+                            value.spalten = value.spalten + 2;
+                            wpk = true;
+                        }
+                        else if (course.kategorie != 1) {
+                            value.spalten++;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    console.log("years=" + JSON.stringify(years));
+
+
 
     $("#headPortfolio").empty();
     $("#bodyPortfolio").empty();
     var head = '<tr><th width="25%" rowspan="2">Name</th>';
-    for (var i in years) {
-        head += '<th colspan="2">' + years[i] + '</th>';
-    }
+    $.each(years, function (index, value) {
+        console.log("Überschrift für Jahr =" + value.name);
+        head += '<th colspan="' + value.spalten + '">' + value.name + '</th>';
+    });
     head += "</tr><tr>";
-    for (var i in years) {
-        head += '<th>WPK</th><th width="5%" >Note</th>';
-    }
+
+    $.each(years, function (index, value) {
+        cs = value.courses;
+        console.log(" Bearbiete " + value.name);
+        wpk = false;
+        $.each(cs, function (index, value) {
+            console.log("Eintrag für " + value.kname + " Kategorie=" + value.kategorie);
+            if (value.kategorie == 1) {
+                if (wpk == false) {
+                    head += '<th>WPK</th><th>Note</th>';
+                    wpk = true;
+                }
+            }
+            else {
+                head += '<th>' + value.kname + ' (Note)';
+            }
+        });
+    });
+
     head += "</tr>";
     $("#headPortfolio").append(head);
+
+
     var body;
     for (i = 0; i < schueler.length; i++) {
         body += "<tr>";
         body += '<td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon">&nbsp;' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td>';
-        for (var j in years) {
-            body += '<td id="wpktitel' + j + '_' + schueler[i].id + '">&nbsp;</td><td id="wpkwert' + j + '_' + schueler[i].id + '">&nbsp;</td>';
-        }
+
+        $.each(years, function (indexYear, valueYear) {
+            cs = valueYear.courses;
+            //console.log(" Bearbiete " + valueYear.name);
+            wpk=false;
+            $.each(cs, function (index, value) {
+                
+                if (value.kategorie == 1 && wpk==false) {
+                    console.log('Setzte ID=NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id);
+                    body += '<td id="NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
+                    body += '<td id="WertYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
+                    wpk=true;
+                }
+                else if (value.kategorie != 1) {
+                    body += '<td id="WertYear' + indexYear + 'kursid' + index + '_' + schueler[i].id + '">&nbsp;</td>';
+                }
+            });
+        });
         body += "</tr>";
 
     }
     $("#bodyPortfolio").append(body);
 
     // Werte Eintragen
-
+    
     for (i = 0; i < data.length; i++) {
         eintraege = data[i].eintraege;
+
         for (j = 0; j < eintraege.length; j++) {
             eintrag = eintraege[j];
-            $("#wpktitel" + eintrag.schuljahr + "_" + eintrag.ID_Schueler).text(eintrag.titel);
-            $("#wpkwert" + eintrag.schuljahr + "_" + eintrag.ID_Schueler).text(eintrag.wert);
+            
+            if (eintrag.IDKategorie == 1) {
+                console.log("Suche ID=#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler);
+                $("#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler).text(eintrag.KName);
+                $("#WertYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler).text(eintrag.wert);
+            }
+            else {
+                //console.log("Suche ID=#WertYear" + eintrag.schuljahr + "kursid" + eintrag.IDKlasse + "_" + data[i].ID_Schueler);
+                $("#WertYear" + eintrag.schuljahr + "kursid" + eintrag.IDKlasse + "_" + data[i].ID_Schueler).text(eintrag.wert);
+            }
         }
     }
+    
 
     getSchuelerInfo();
 
@@ -2897,17 +2986,18 @@ function buildNotenliste(data) {
         for (k = 0; k < noten.length; k++) {
 
             if (!findKeyinMap(noten[k].ID_LERNFELD, lernfelder)) {
-                lernfelder[noten[k].ID_LERNFELD] = noten[k].ID_LERNFELD;
-                console.log("Neues Lernfeld:" + noten[k].ID_LERNFELD);
+                lernfelder[noten[k].ID_LERNFELD] = noten[k].nameLernfeld;
+                console.log("Neues Lernfeld:" + noten[k].nameLernfeld);
             }
         }
     }
     // Tabelle aufbauen
     $("#trNoten").empty();
     $("#trNoten").append('<th width="20%"><h3>Name</h3></th>');
-    for (lf in lernfelder) {
-        $("#trNoten").append('<th>' + lf + '</th>')
-    }
+    $.each(lernfelder, function (index, value) {
+        console.log("Index = " + index + " value = " + value);
+        $("#trNoten").append('<th>' + value + '</th>')
+    })
     $("#tbodyNotenliste").empty();
     var out = "";
     for (k = 0; k < schueler.length; k++) {

@@ -58,23 +58,24 @@ public class Portfoliomanager {
         int oldSchuelerid=-1;
         
         for (Noten_all na : noten_all) {                   
+            Klasse_all ka = em.find(Klasse_all.class, na.getID_KLASSEN_ALL());            
             if (oldSchuelerid==-1) {
                 oldSchuelerid = na.getID_SCHUELER();
-                pe = new PortfolioEintrag();
+                pe = new PortfolioEintrag(na.getID_SCHUELER());
                 
             }
             if (oldSchuelerid!=na.getID_SCHUELER()) {
                 oldSchuelerid = na.getID_SCHUELER();
                 plist.add(pe);
-                pe = new PortfolioEintrag();
+                pe = new PortfolioEintrag(na.getID_SCHUELER());
                 
             }
-            Klasse_all ka = em.find(Klasse_all.class, na.getID_KLASSEN_ALL());
+            
             Schuljahr schuljahr = em.find(Schuljahr.class, ka.getID_Schuljahr());
-            Portfolio p = new Portfolio(na.getID_SCHULJAHR(),schuljahr.getNAME(), ka.getKNAME(), ka.getTitel(), na.getWERT(), ka.getNotiz(), na.getID_SCHUELER());
+            Portfolio p = new Portfolio(ka.getKNAME(), ka.getTitel(), na.getWERT(), ka.getNotiz(),na.getID_KLASSEN_ALL(),ka.getID_KATEGORIE(),ka.getID_Schuljahr(),schuljahr.getNAME());
             pe.getEintraege().add(p);
         }
-        plist.add(pe);
+        if (pe!=null) plist.add(pe);
         return plist;                
     }
 

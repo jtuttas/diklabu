@@ -14,6 +14,7 @@ import com.itextpdf.tool.xml.XMLWorkerHelper;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Klasse_all;
+import de.tuttas.entities.Lernfeld;
 import de.tuttas.entities.Noten;
 import de.tuttas.entities.Noten_all;
 
@@ -292,12 +293,14 @@ public class DokuServlet extends HttpServlet {
 
         List<NotenObjekt> lno = new ArrayList<>();
         List<String> lernfelder = new ArrayList<>();
+        List<String> lernfelderNamen = new ArrayList<>();
         int sid = 0;
         NotenObjekt no = null;
         for (Noten_all n : noten) {
             if (!lernfelder.contains(n.getID_LERNFELD())) {
                 Log.d("Neues Lernfeld mit id=" + n.getID_LERNFELD());
                 lernfelder.add(n.getID_LERNFELD());
+                lernfelderNamen.add(em.find(Lernfeld.class, n.getID_LERNFELD()).getBEZEICHNUNG());
             }
             if (sid != n.getID_SCHUELER()) {
                 no = new NotenObjekt();
@@ -308,11 +311,12 @@ public class DokuServlet extends HttpServlet {
             }
             no.getNoten().add(n); 
         }
-        Log.d("Habe " + schueler.size() + " Schüler und " + lernfelder.size() + " Lernfelder");
+        Log.d("Habe " + schueler.size() + " Schüler und " + lernfelder.size() + " Lernfelder");        
+        lernfelderNamen.add(0, "Name");
         lernfelder.add(0, "Name");
-        String[] headlines = new String[lernfelder.size()];
+        String[] headlines = new String[lernfelderNamen.size()];
         for (int n = 0; n < headlines.length; n++) {
-            headlines[n] = lernfelder.get(n);
+            headlines[n] = lernfelderNamen.get(n);
         }
         MyTableDataModel mo = new MyTableDataModel(schueler.size(), headlines);
         Schueler s;
@@ -899,15 +903,19 @@ public class DokuServlet extends HttpServlet {
             htmlString.append("<br></br>");
             htmlString.append("<hr></hr>");
             htmlString.append("<br></br>");
-
+            int oldSchuljahr=-1;
             for (Noten_all p : portfolio) {
                 System.out.println("Suche für Schüler ID="+s.getId()+" einen Portfolioeintrag, found ID="+p.getID_SCHUELER());
                 if (p.getID_SCHUELER().intValue()== s.getId().intValue()) {
+                    
                     System.out.println("gefunden!");
                     Schuljahr sj = em.find(Schuljahr.class, p.getID_SCHULJAHR());
                     Klasse_all ka = em.find(Klasse_all.class, p.getID_KLASSEN_ALL());
                     System.out.println(" Schüler gefunden sj="+sj.getNAME()+" ka="+ka.getTitel());
-                    htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
+                    if (oldSchuljahr!=sj.getID()) {
+                        htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
+                        oldSchuljahr=sj.getID();
+                    }
                     htmlString.append("<table>");
                     htmlString.append("<tr>");
                     htmlString.append("<td width=\"70%\"><b>" + ka.getTitel() + "</b><p>" + ka.getNotiz() + "</p></td>");

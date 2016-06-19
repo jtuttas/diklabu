@@ -21,7 +21,7 @@ import javax.persistence.Transient;
  */
 @Entity
 @NamedQueries({
-   
+  
    @NamedQuery(name = "findNote", query= "select n from Noten n where n.ID_SCHUELER=:paramSchuelerID and n.ID_LERNFELD=:paramLernfeldID")
     
 })

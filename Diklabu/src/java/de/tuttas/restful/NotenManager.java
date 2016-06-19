@@ -21,6 +21,7 @@ import de.tuttas.entities.Schuljahr;
 import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.NotenObjekt;
 import de.tuttas.util.Log;
+import de.tuttas.util.NotenUtil;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
@@ -57,6 +58,7 @@ public class NotenManager {
     @GET
     @Path("/{klasse}/{IDSchuljahr}")
     public List<NotenObjekt> getNoten(@PathParam("klasse") String kl, @PathParam("IDSchuljahr") int ids) {
+        em.getEntityManagerFactory().getCache().evictAll();
         Log.d("Webservice noten GET: klasse=" + kl + " für Schuljahr ID=" + ids);
         Query query = em.createNamedQuery("findNoteneinerKlasse");
         query.setParameter("paramNameKlasse", kl);
@@ -74,6 +76,7 @@ public class NotenManager {
                 lno.add(no);
                 sid = n.getID_SCHUELER();
             }
+            n.setNameLernfeld(em.find(Lernfeld.class, n.getID_LERNFELD()).getBEZEICHNUNG());
             no.getNoten().add(n);
         }
         System.out.println("lno=" + lno);
@@ -118,11 +121,13 @@ public class NotenManager {
         if (k != null) {
             Kategorie ka = em.find(Kategorie.class, k.getID_KATEGORIE());
             Log.d("Kategorie = " + ka);
-            if (ka.getKATEGORIE().equals("IT-WPK") && n.getID_LERNFELD().equals("Kurs") || !ka.getKATEGORIE().equals("IT-WPK") && !n.getID_LERNFELD().equals("Kurs")) {
+            if (NotenUtil.gradeAllowed4Course(n,ka)) {
+                List<Noten> noten=null;
                 Query q = em.createNamedQuery("findNote");
                 q.setParameter("paramSchuelerID", n.getID_SCHUELER());
                 q.setParameter("paramLernfeldID", n.getID_LERNFELD());
-                List<Noten> noten = q.getResultList();
+                noten = q.getResultList();
+                
                 Log.d("Result List:" + noten);
                 if (noten.size() != 0) {
                     for (Noten no : noten) {
@@ -210,11 +215,11 @@ public class NotenManager {
                 }
             } else {
                 n.setSuccess(false);
-                n.setMsg("Kurseinträge können nur in IT-WPKs vorgenommen werden!");
+                n.setMsg("Notentyp kann nicht in einem Kurs der Kategorie "+ka.getKATEGORIE()+" eingetragen werden!");
             }
         } else {
             n.setSuccess(false);
-            n.setMsg("Kann Klasse mit id " + kid + " nicht finden!");
+            n.setMsg("Kann Klasse mit ID " + kid + " nicht finden!");
         }
         return n;
     }

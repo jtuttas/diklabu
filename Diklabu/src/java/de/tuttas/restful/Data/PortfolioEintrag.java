@@ -15,8 +15,28 @@ import java.util.List;
  */
 public class PortfolioEintrag {
     
+    private Integer ID_Schueler;
     private List<Portfolio> eintraege = new ArrayList<Portfolio>();
 
+    public PortfolioEintrag() {
+    }
+
+    public PortfolioEintrag(Integer ID_Schueler) {
+        this.ID_Schueler = ID_Schueler;
+    }
+    
+    
+
+    public void setID_Schueler(Integer ID_Schueler) {
+        this.ID_Schueler = ID_Schueler;
+    }
+
+    public Integer getID_Schueler() {
+        return ID_Schueler;
+    }
+
+       
+    
     public void setEintraege(List<Portfolio> eintraege) {
         this.eintraege = eintraege;
     }

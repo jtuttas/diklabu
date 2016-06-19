@@ -345,10 +345,12 @@
                                     <div class="col-md-4">
                                         <label for="schuljahre">Schuljahr</label>
 
-                                            <select class="form-control" id="schuljahre">
-                                            </select>
+                                        <select class="form-control" id="schuljahre">
+                                        </select>
                                     </div>
                                 </div>
+
+
                                 <table id="tableNotenliste" class="table table-striped table-hover">
                                     <thead id="tableNotenlisteHead">
                                         <tr id="trNoten">
@@ -358,34 +360,54 @@
                                     <tbody id="tbodyNotenliste">
 
                                     </tbody>
-                                </table>                                
+                                </table>         
+
                             </div>
                             <div id="tabNoteneintrag" class="tab-pane "  > 
                                 <br/>
                                 <div class="row">
+                                    <div class="col-md-4 ">
+                                        <h3 id="schuljahr">Schuljahr</h3>
+                                    </div>
                                     <div class="col-md-4">
                                         <label for="notenlernfelder">Lernfeld</label>
                                         <select class="form-control" name="notenlernfelder" id="notenlernfelder">
                                         </select>    
                                     </div>
-                                    <div class="col-md-4 col-md-offset-4">
-                                        <h3 id="schuljahr">Schuljahr</h3>
-                                    </div>
+
 
                                 </div>
-                                <table id="tableNoteneintrag" class="table table-striped table-hover">
-                                    <thead>                                        
-                                        <tr>
-                                            <td width="20%">
-                                                <h3>Name</h3>
-                                            </td>
-                                            <td><h3>Noten</h3></td>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tbodyNoteneintrag">
+                                <div class="row">
+                                   
+                                    <div class="col-md-8">
+                                        <table id="tableNoteneintrag" class="table table-striped table-hover">
+                                            <thead>                                        
+                                                <tr>
+                                                    <td width="20%">
+                                                        <h3>Name</h3>
+                                                    </td>
+                                                    <td><h3>Noten</h3></td>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbodyNoteneintrag">
 
-                                    </tbody>
-                                </table>   
+                                            </tbody>
+                                        </table>   
+                                    </div>
+                                     <div class="col-md-4">
+                                        <h3>Notenskala</h3>
+                                        <ul>
+                                            <li>1: sehr gut</li>
+                                            <li>2: gut</li>
+                                            <li>3: befriedigend</li>
+                                            <li>4: ausreichend</li>
+                                            <li>5: mangelhaft</li>
+                                            <li>6: ungenügend</li>
+                                            <li>7: teilgenommen</li>
+
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
@@ -394,6 +416,7 @@
                         <ul class="nav nav-tabs" id="klassenTabs" style="display: none;">
                             <li class="active"><a data-toggle="tab" href="#tabSchuelerbemerkungen">Schülerbemerkungen</a></li>
                             <li><a data-toggle="tab" href="#tabKlassenbemerkungen">Klassenbemerkung</a></li>
+                            <li><a data-toggle="tab" href="#tabEMailKlasse">Klasse anschreiben</a></li>
                             <li><a data-toggle="tab" href="#tabBetriebe">Betriebe</a></li>
                             <li><a data-toggle="tab" href="#tabEMailBetriebe">Betriebe anschreiben</a></li>
                         </ul>
@@ -422,6 +445,29 @@
                                         <textarea class="form-control" rows="5" id="klassenbem"></textarea>
                                     </div>
                                     <button id="updateKlassenBem" type="button" class="btn btn-primary col-md-offset-1">Aktualisieren</button>
+                                </div>
+                            </div>
+                            <div id="tabEMailKlasse" class="tab-pane " > 
+                                </br>
+                                <div id="emailKlasseContainer">
+                                    <form id="emailFormKlasse" >
+                                        <input type="hidden" class="form-control" name="toMail" id="toKlasseMail" />
+                                        <input type="hidden" class="form-control" name="fromMail" id="fromLehrerKlasseMail" />
+
+                                        <input type="hidden" class="form-control" name="report" value="false" />
+                                        <div class="form-group col-md-offset-1 col-md-10">
+                                            <label for="emailsKlasse">Klasse:</label>
+                                            <input type="text"  class="form-control" name="bcc" id="emailsKlasse"/>
+                                            </br>
+                                            <label for="emailKlasseBetreff">Betreff:</label>
+                                            <input name="subjectMail" type="text" class="form-control" id="emailKlasseBetreff"/>                                    
+                                            <div id="emailKlasseSubjectContainer">
+                                                <label for="emailKlasseInhalt">Nachricht:</label>
+                                                <textarea name="emailBody" class="form-control" rows="5" id="emailKlasseInhalt"></textarea>
+                                            </div>
+                                        </div>
+                                        <button id="absendenEMailKlasse" type="button" class="btn btn-primary col-md-offset-1">Absenden</button>                                
+                                    </form>
                                 </div>
                             </div>
                             <div id="tabBetriebe" class="tab-pane" > 
