@@ -17,6 +17,8 @@ public class MailObject {
     private String from;
     private ArrayList<InternetAddress> recipient = new ArrayList();
     private ArrayList<InternetAddress> bcc = new ArrayList();
+    private ArrayList<InternetAddress> cc = new ArrayList();
+    
     private String subject;
     private String content;
 
@@ -44,7 +46,11 @@ public class MailObject {
         return bcc.toArray(a);
     }
     
-    
+    public InternetAddress[] getCC() {
+        InternetAddress[] a = new InternetAddress[1];
+        return cc.toArray(a);
+    }
+     
 
     public void addRecipient(String recipient) throws AddressException {        
         // TODO immer an jtuttas@gmx.net senden
@@ -74,6 +80,10 @@ public class MailObject {
         for (int i=0;i<bcc.size();i++) {
             s+=bcc.get(i).toString()+";";
         }
+        s+=" CC=";
+        for (int i=0;i<cc.size();i++) {
+            s+=cc.get(i).toString()+";";
+        }
         return s;
     }
 
@@ -82,4 +92,10 @@ public class MailObject {
             bcc.add(new InternetAddress(bccMails[i]));
         }
     }           
+    
+    public void addCC(String[] ccMails) throws AddressException {
+        for (int i=0;i<ccMails.length;i++) {
+            cc.add(new InternetAddress(ccMails[i]));
+        }
+    }
 }

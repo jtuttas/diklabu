@@ -404,7 +404,7 @@ $("#absendenEMailKlasse").click(function () {
         //event.preventDefault();
     }
     else {
-        toastr["success"]("EMail wird versendet via BCC an Klasse "+nameKlasse, "Mail Service");
+        toastr["success"]("EMail wird versendet via CC an Klasse "+nameKlasse, "Mail Service");
         $.post('../MailServlet', $('#emailFormKlasse').serialize());
         $("#emailKlasseBetreff").val("");
         $("#emailKlasseInhalt").val("");

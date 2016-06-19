@@ -116,12 +116,14 @@ public class MailServlet extends HttpServlet {
             String lehrerID = request.getParameter("lehrerId");
             String report = request.getParameter("report");
             String bcc = request.getParameter("bcc");
-            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" bcc="+bcc+"subject="+subject+" emailBody="+content+" report="+report);            
+            String cc = request.getParameter("cc");
+            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" cc="+cc+" bcc="+bcc+"subject="+subject+" emailBody="+content+" report="+report);            
 
             //if (Config.debug) {
             // TODO Adresse entfernen
             recipient = "tuttas@mmbbs.de";
-            bcc="tuttas@tinysolutions.net";
+            bcc="joerg.tuttas@ifbe.uni-hannover.de";
+            cc="tuttas@tinysolutions.net;tuttas68@googlemail.com";
         //}
 
             boolean fromMailOk = false;
@@ -153,6 +155,7 @@ public class MailServlet extends HttpServlet {
                     MailObject mo = new MailObject(from, subject, content);
                     mo.addRecipient(recipient);
                     if (bcc!=null) mo.addBcc(bcc.split(";"));
+                    if (cc!=null) mo.addCC(cc.split(";"));
                     mailSender.sendMail(mo);
                     result.setSuccess(true);
                     result.setMsg("EMail erfolgreich versandt");
