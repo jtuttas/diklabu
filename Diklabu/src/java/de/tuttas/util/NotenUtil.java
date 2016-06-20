@@ -20,6 +20,9 @@ public class NotenUtil {
         try {
             return NOTENWERT[Integer.parseInt(Wert)];
         }
+        catch (ArrayIndexOutOfBoundsException aob) {
+            return Wert;
+        }
         catch (java.lang.NumberFormatException ne) {
             return Wert;
         }

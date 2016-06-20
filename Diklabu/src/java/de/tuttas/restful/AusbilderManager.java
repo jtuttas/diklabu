@@ -41,6 +41,14 @@ public class AusbilderManager {
     EntityManager em;
     
     @GET
+    @Produces({"application/json; charset=iso-8859-1"})    
+    public List<Ausbilder> getAusbilder() {
+        Query query = em.createNamedQuery("findAusbilder");
+        List<Ausbilder> ausbilder = query.getResultList();
+        return ausbilder;
+    }
+    
+    @GET
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("find/{name}")
     public List<Ausbilder> getAusbilder(@PathParam("name") String n) {

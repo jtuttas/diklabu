@@ -19,6 +19,8 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
+
+   @NamedQuery(name = "findAusbilder", query= "select a from Ausbilder a "),
    @NamedQuery(name = "findAusbilderByName", query= "select a from Ausbilder a where a.NNAME like :paramAusbildername"),
    @NamedQuery(name = "findAusbilderByBetriebId", query= "select a from Ausbilder a where a.ID_BETRIEB = :paramBetriebId"),
 })

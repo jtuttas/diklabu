@@ -80,6 +80,14 @@ public class SchuelerManager {
         return klassen;
     }
     
+    @GET    
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<Schueler> getSchueler() {
+        Query query = em.createNamedQuery("findSchueler");
+        List<Schueler> schueler = query.getResultList();        
+        return schueler;
+    }
+    
     @POST
     @Path("/{idschueler}")
     public SchuelerObject getPupil(@PathParam("idschueler") int idschueler, SchuelerObject so) {

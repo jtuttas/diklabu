@@ -20,6 +20,7 @@ import javax.persistence.OneToMany;
 @Entity
 @NamedQueries({
     @NamedQuery(name = "findSchuelerbyCredentials", query = "select s from Schueler s where s.NNAME like :paramName and s.VNAME like :paramVorname and S.GEBDAT = :paramGebDatum"),
+    @NamedQuery(name = "findSchueler", query = "select s from Schueler s"),
    // findSchuelerByNameAndKlasse
     @NamedQuery(name = "findSchuelerByNameAndKlasse", query = "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k on k.ID=sk.ID_KLASSE where s.NNAME = :paramNNAME and s.VNAME = :paramVNAME and k.KNAME = :paramKLASSE"),
     @NamedQuery(name = "findSchuelerbyNameKlasse", query = "select s from Schueler s JOIN Schueler_Klasse sk ON s.ID=sk.ID_SCHUELER JOIN Klasse k on k.ID=sk.ID_KLASSE where s.NNAME like :paramName and s.VNAME like :paramVorname and k.KNAME like :paramKlasse"),

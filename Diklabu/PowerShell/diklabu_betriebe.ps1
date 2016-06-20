@@ -172,6 +172,42 @@ function Get-Company
 
 <#
 .Synopsis
+   Alle Betriebe abfragen
+.DESCRIPTION
+   Fragt alle Betriebe ab
+.EXAMPLE
+   Get-Companies
+.EXAMPLE
+   Get-Companies -uri http://localhost:8080/Diklabu/api/v1/
+
+#>
+function Get-Companies
+{
+    Param
+    (
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+    }
+    Process
+    {
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"betriebe/") -Headers $headers 
+            return $r;
+        } catch {
+            Write-Host "Get-Companies: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+}
+
+<#
+.Synopsis
    Einen neuen oder mehrere neu Betrieb(e) anlegen
 .DESCRIPTION
    Erzeugt einen Neuen Betrieb. Bzw. importiert die Betriebe aus einer CSV Datei mit folgenden Einträgen

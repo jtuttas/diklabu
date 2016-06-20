@@ -117,6 +117,41 @@ function Get-Pupil
 
 <#
 .Synopsis
+   Alle Schüler abfragen 
+.DESCRIPTION
+   Fragt alle Schüler ab
+.EXAMPLE
+   Get-Pupils
+.EXAMPLE
+   Get-Pupils -uri http://localhost:8080/Diklabu/api/v1/
+#>
+function Get-Pupils
+{
+    Param
+    (       
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+    }
+    Process
+    {
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/") -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+            return $r;
+        } catch {
+            Write-Host "Get-Pupils: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+}
+
+<#
+.Synopsis
    Einen oder mehrere Schüler hinzufügen
 .DESCRIPTION
    Fügt einen Schüler zur Tabelle Schueler hinzu. Die Daten können dabei auch aus einer CSV Datei stammen, die folgendes Aussehen hat
