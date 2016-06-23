@@ -26,7 +26,7 @@ import javax.persistence.NamedQuery;
 public class Betrieb implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer ID;
     private String NAME;
     private String PLZ;

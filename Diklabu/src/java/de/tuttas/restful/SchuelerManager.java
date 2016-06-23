@@ -21,8 +21,10 @@ import de.tuttas.restful.Data.Credential;
 import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
+import de.tuttas.util.DatumUtil;
 import de.tuttas.util.ImageUtil;
 import de.tuttas.util.Log;
+import de.tuttas.util.StringUtil;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -31,6 +33,9 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import java.util.List;
 import java.util.logging.Level;
@@ -78,6 +83,35 @@ public class SchuelerManager {
         List<KlasseDetails> klassen = query.getResultList();
         Log.d("Result List:" + klassen);
         return klassen;
+    }
+    
+    @GET    
+    @Produces({"application/json; charset=iso-8859-1"})
+    @Path("{tofind}/{ldist}") 
+    public List<SchuelerObject> getSchueler(@PathParam("tofind") String toFind,@PathParam("ldist") int lDist) {
+        Query query = em.createNamedQuery("findSchueler");
+        List<Schueler> schueler = query.getResultList();        
+        
+        List <SchuelerObject> sol = new ArrayList<>();
+        for (Schueler s:schueler) {
+            String d ="";
+            if (s.getGEBDAT()!=null) {
+                d= s.getGEBDAT().toString();
+            }
+            int l=StringUtil.levenshteinDistance(toFind, s.getVNAME()+s.getNNAME()+d);
+            if (l<=lDist) {
+                //Log.d("l="+l);
+                SchuelerObject so=new SchuelerObject();
+                so.setLdist(l);
+                so.setId(s.getId());
+                so.setEmail(s.getEMAIL());
+                so.setName(s.getNNAME());
+                so.setVorname(s.getVNAME());
+                sol.add(so);
+            }
+        }
+        Collections.sort(sol);
+        return sol;
     }
     
     @GET    

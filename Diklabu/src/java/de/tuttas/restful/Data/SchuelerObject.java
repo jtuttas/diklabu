@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Jörg
  */
-public class SchuelerObject {
+public class SchuelerObject  implements Comparable<SchuelerObject> {
     
     private Auth auth;
     private List<Klasse>klassen;
@@ -29,10 +29,20 @@ public class SchuelerObject {
     private String email;
     private String info;
     private String eduplazaMail;
+    private Integer ldist;
 
     public SchuelerObject() {
     }
 
+    public void setLdist(Integer ldist) {
+        this.ldist = ldist;
+    }
+
+    public Integer getLdist() {
+        return ldist;
+    }
+
+    
     public void setEduplazaMail(String eduplazaMail) {
         this.eduplazaMail = eduplazaMail;
     }
@@ -129,6 +139,11 @@ public class SchuelerObject {
 
     public void setVorname(String Vorname) {
         this.vorname = Vorname;
+    }
+
+    @Override
+    public int compareTo(SchuelerObject o) {        
+        return this.ldist.compareTo(o.getLdist());
     }
 
     

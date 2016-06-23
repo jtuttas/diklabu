@@ -1,0 +1,22 @@
+{
+    "debug": false,
+    "auth": true,
+    "IMAGE_FILE_PATH": "c:\\ProgramData\\digitales Klassenbuch\\SchuelerBilder\\",
+    "adminusers":["TUTTAS"],
+    "AUTH_TOKE_TIMEOUT" : 432000000,
+        
+    "ldaphost": "ldap://172.31.0.1:389",
+    "binduser": "CN=ldap-user,OU=EDV,DC=mmbbs,DC=local",
+    "bindpassword":"gLSlOl0UtvXxL7wOvcUl",
+    "context": "DC=mmbbs,DC=local",
+    
+    "smtphost": "smtp.uni-hannover.de",
+    "port": "587",
+    "user": "joerg.tuttas@ifbe.uni-hannover.de",
+    "pass": "d0dd7426b45e",
+    "clientConfig" : {
+        "SERVER": "https://diklabu.mm-bbs.de:8080",        
+        "WEBSOCKET": "wss://",
+        "DIKLABUNAME":"DiKlaBu@MMBbS"
+    }
+}
