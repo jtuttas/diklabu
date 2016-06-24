@@ -22,7 +22,7 @@ import org.json.simple.parser.ParseException;
 
 /**
  *
- * @author Jörg
+ * @author  Jörg
  */
 public class Config {
     private static Config instance;
