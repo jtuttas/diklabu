@@ -1,6 +1,7 @@
 ﻿<#
     VERBEN:
         find ... findet einen oder mehrere Schüler nach Namen und Geburtsdatum. '%' ist WildCard
+        search . sucht einen oder mehrere Schüler
         get .... findet einen  Schüler durch Angabe des PK (Schueler ID)
         set .... ändert Attribute eines Schülers durch angabe des PK
         new .... erzeugt ein neuen Schüler Eintrag
@@ -71,6 +72,54 @@ function Find-Pupil
 
 <#
 .Synopsis
+   Einen Schüler anhand von Vorname, Nachname und Geb. Datum suchen (unter Angabe der Levensthein Distanz)
+.DESCRIPTION
+   Einen Schüler anhand von Vorname, Nachname und Geb. Datum suchen (unter Angabe der Levensthein Distanz)
+.EXAMPLE
+   Search-Pupil -VNAMENNAMEGEBDAT JörgTuttas1968-04-11 -LDist=4
+.EXAMPLE
+   Search-Pupil -VNAMENNAMEGEBDAT JörgTuttas1968-04-11 -LDist=4 -uri http://localhost:8080/Diklabu/api/v1/
+.EXAMPLE
+   "JörgTuttas1968-04-11" | Search-Pupil -LDist=4
+.EXAMPLE
+   Import-Csv schueler.csv | Search-Pupil -LDist=4
+#>
+function Search-Pupil
+{
+    Param
+    (    
+        # Suchstring gebildet aus VornameNachNameGebDatum des Schülers
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [String]$VNAMENNAMEGEBDAT,
+
+        # Levensthein Distanz
+        [Parameter(Mandatory=$true,Position=1)]
+        [String]$LDist,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+    }
+    Process
+    {
+        $Encode = [uri]::EscapeDataString($VNAMENNAMEGEBDAT)
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$Encode+"/"+$LDist) -Headers $headers -ContentType "application/json; charset=iso-8859-1"             
+            return $r;
+        } catch {
+            Write-Host "Search-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+}
+
+<#
+.Synopsis
    Einen oder mehrere Schüler abfragen und dateilierte Informationen ausgeben
 .DESCRIPTION
    Fragt einen oder mehrere Schüler ab und gibt detailierte Informationen, wie Klassenzugehörigkeit Ausbilder und Ausbildungsbetrieb aus. 
@@ -111,6 +160,41 @@ function Get-Pupil
             return $r;
         } catch {
             Write-Host "Get-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+}
+
+<#
+.Synopsis
+   Alle Schüler abfragen 
+.DESCRIPTION
+   Fragt alle Schüler ab
+.EXAMPLE
+   Get-Pupils
+.EXAMPLE
+   Get-Pupils -uri http://localhost:8080/Diklabu/api/v1/
+#>
+function Get-Pupils
+{
+    Param
+    (       
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+    }
+    Process
+    {
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/") -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+            return $r;
+        } catch {
+            Write-Host "Get-Pupils: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
         }
     }
 }

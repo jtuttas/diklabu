@@ -80,3 +80,10 @@ Export-ModuleMember -Function New-PollSubscriber
 Export-ModuleMember -Function Get-PollSubscribers
 Export-ModuleMember -Function Delete-PollSubscriber
 Export-ModuleMember -Function Invite-PollSubscriber
+Export-ModuleMember -Function Search-Pupil
+Export-ModuleMember -Function Get-Pupils
+Export-ModuleMember -Function Get-Companies
+Export-ModuleMember -Function Get-Instructor
+
+
+

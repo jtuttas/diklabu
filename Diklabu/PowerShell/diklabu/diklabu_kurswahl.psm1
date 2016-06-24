@@ -454,11 +454,11 @@ function Stop-Coursevoting
 .DESCRIPTION
    Zeigt alle Kurse an, die zur Wahl stehen
 .EXAMPLE
-   List-Coursevoting 
+   Get-Coursevotings 
 .EXAMPLE
-   List-Coursevoting  -uri http://localhost:8080/Diklabu/api/v1/
+   Get-Coursevotings  -uri http://localhost:8080/Diklabu/api/v1/
 #>
-function List-Coursevoting
+function Get-Coursevoting
 {
     Param
     (
@@ -477,7 +477,7 @@ function List-Coursevoting
               $r=Invoke-RestMethod -Method Get -Uri ($uri+"coursevoting/") -Headers $headers 
               return $r;
           } catch {
-            Write-Host "List-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Host "Get-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
         }
     }   
 }

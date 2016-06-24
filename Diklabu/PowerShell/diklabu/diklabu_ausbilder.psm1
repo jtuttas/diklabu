@@ -97,6 +97,43 @@ function Get-Instructor
    
 }
 
+<#
+.Synopsis
+   Alle Ausbilder abfragen
+.DESCRIPTION
+   Liefert alle Ausbilder
+.EXAMPLE
+   Get-Instructors
+.EXAMPLE
+   Get-Instructors -uri http://localhost:8080/Diklabu/api/v1/
+#>
+function Get-Instructors
+{
+    Param
+    (
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+
+    )
+
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+    }
+    Process
+    {
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"ausbilder/") -Headers $headers  
+            return $r;
+        } catch {
+            Write-Host "Get-Instructors: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+   
+}
 
 <#
 .Synopsis

@@ -20,9 +20,13 @@ function Importfrom-Csv
 
     Begin
     {
-        $c=Import-Csv $csv
-
-        
+        try {
+            $c=Import-Csv $csv -ErrorAction SilentlyContinue -ErrorVariable e
+        }
+        catch {
+            Write-Host "Kann CSV Datei $csv nicht finden" -BackgroundColor DarkRed
+            break;
+        }                 
 
         foreach ($line in $c) {
             #$line
@@ -101,7 +105,7 @@ function Importfrom-Csv
                 
             $course = Find-Course -KNAME $line.KL_NAME
             if ($course) {
-                Write-Host "Bekannter Klasse"$line.KL_NAME"aktualisiere Daten ID_LEHRER="$line.KL_LEHRER -BackgroundColor DarkGreen
+                Write-Host "Bekannte Klasse"$line.KL_NAME"aktualisiere Daten ID_LEHRER="$line.KL_LEHRER -BackgroundColor DarkGreen
                 if (-not $whatif) {
                     $course=Set-Course -id $course.id -ID_LEHRER $line.KL_LEHRER 
                 }

@@ -108,8 +108,8 @@ function Search-Pupil
     }
     Process
     {
+        $Encode = [uri]::EscapeDataString($VNAMENNAMEGEBDAT)
         try {
-            $Encode = [System.Web.HttpUtility]::UrlEncode($VNAMENNAMEGEBDAT)             
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$Encode+"/"+$LDist) -Headers $headers -ContentType "application/json; charset=iso-8859-1"             
             return $r;
         } catch {

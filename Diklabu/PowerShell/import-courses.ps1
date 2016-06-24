@@ -17,7 +17,8 @@ function Import-Courses
                    Position=0)]
         $csv,
 
-        [switch]$force
+        [switch]$force,
+        [switch]$whatif
 
     )
     BEGIN
@@ -48,7 +49,9 @@ function Import-Courses
                 Write-Host "Kurs mit dem Namen"$line.Kurs"existiert bereits" -BackgroundColor DarkGreen
               }
               else {
-                New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE $line.Kategorie -TITEL $line.Titel
+                if (-not $whatif) {
+                    New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE $line.Kategorie -TITEL $line.Titel
+                }
                 Write-Host "Kurs mit dem Namen"$line.Kurs"angelegt" -BackgroundColor DarkRed
               }
             }
@@ -59,16 +62,24 @@ function Import-Courses
                   if ($q -eq "j") {
                     $nn = Read-Host "Nachname von "$line.Dozent
                     $vn = Read-Host "Vorname von "$line.Dozent
-                    $r=New-Teacher -ID $line.Dozent -NNAME $nn -VNAME $vn
+                    if (-not $whatif) {
+                        $r=New-Teacher -ID $line.Dozent -NNAME $nn -VNAME $vn
+                    }
                     Write-Host "Neuer Lehrer "$line.Dozent"angelegt" -BackgroundColor DarkRed
-                    $r=New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE 1 -TITEL $line.Titel
+                    if (-not $whatif) {
+                        $r=New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE 1 -TITEL $line.Titel
+                    }
                     Write-Host "Kurs mit dem Namen"$line.Kurs"angelegt" -BackgroundColor DarkRed
                   }
               }
               else {
-                    $r=New-Teacher -ID $line.Dozent -NNAME "N.N." -VNAME "N.N."
+                    if (-not $whatif) {
+                        $r=New-Teacher -ID $line.Dozent -NNAME "N.N." -VNAME "N.N."
+                    }
                     Write-Host "Neuer Lehrer "$line.Dozent"angelegt" -BackgroundColor DarkRed
-                    $r=New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE 1 -TITEL $line.Titel
+                    if (-not $whatif) {
+                        $r=New-Course -KNAME $line.Kurs -ID_LEHRER $line.Dozent -ID_KATEGORIE 1 -TITEL $line.Titel
+                    }
                     Write-Host "Kurs mit dem Namen"$line.Kurs"angelegt" -BackgroundColor DarkRed
               }
             }
