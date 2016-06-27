@@ -351,11 +351,11 @@ $("#absendenEMailBetrieb").click(function () {
 
     }
     else if (!isValidEmailAddress($("#fromLehrerBetriebMail").val())) {
-        toastr["warning"]("Keine gültige Absender EMail Adresse! (" + $("#fromLehrerBetriebMail").val()+")", "Mail Service");
+        toastr["warning"]("Keine gültige Absender EMail Adresse! (" + $("#fromLehrerBetriebMail").val() + ")", "Mail Service");
         //event.preventDefault();
     }
     else if (!isValidEmailAddress($("#toBetriebMail").val())) {
-        toastr["warning"]("Keine gültige EMail Adresse! (" + $("#toBetriebMail").val()+")", "Mail Service");
+        toastr["warning"]("Keine gültige EMail Adresse! (" + $("#toBetriebMail").val() + ")", "Mail Service");
         //event.preventDefault();
     }
 
@@ -404,7 +404,7 @@ $("#absendenEMailKlasse").click(function () {
         //event.preventDefault();
     }
     else {
-        toastr["success"]("EMail wird versendet via CC an Klasse "+nameKlasse, "Mail Service");
+        toastr["success"]("EMail wird versendet via CC an Klasse " + nameKlasse, "Mail Service");
         $.post('../MailServlet', $('#emailFormKlasse').serialize());
         $("#emailKlasseBetreff").val("");
         $("#emailKlasseInhalt").val("");
@@ -627,7 +627,7 @@ $('body').on('focusout', ".notenTextfeld", function (e) {
         submitNote(lfid, $(this).attr("sid"), $(this).val());
     }
     else {
-        deleteNote(lfid,$(this).attr("sid"));
+        deleteNote(lfid, $(this).attr("sid"));
         console.log("Note löschen!");
     }
 });
@@ -823,30 +823,65 @@ function getLehrerData(id, callback) {
  * @param {type} success Callback für Success 
  */
 function submitAnwesenheit(eintr, success) {
-    console.log("--> Sende Anwesenheit zum Server:" + JSON.stringify(eintr));
-    $.ajax({
-        url: SERVER + "/Diklabu/api/v1/anwesenheit/",
-        type: "POST",
-        cache: false,
-        data: JSON.stringify(eintr),
-        headers: {
-            "service_key": sessionStorage.service_key,
-            "auth_token": sessionStorage.auth_token
-        },
-        contentType: "application/json; charset=UTF-8",
-        success: function (data) {
-            if (success != undefined) {
-                success(data);
-            }
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            toastr["error"]("kann Anwesenheitseintrag nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
-            if (xhr.status == 401) {
-                loggedOut();
-            }
-        }
-    });
+    console.log("-->! Sende Anwesenheit zum Server:" + JSON.stringify(eintr));
+    console.log("Vermekr = (" + eintr.VERMERK + ")");
+    ve=eintr.VERMERK.trim();
+    
+    if (ve == "") {
+        console.log("Lösche Eintrag!");
+        dat = eintr.DATUM;
+        dat = dat.substr(0, dat.indexOf("T"));
 
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/anwesenheit/" + eintr.ID_SCHUELER + "/" + dat,
+            type: "DELETE",
+            cache: false,
+            headers: {
+                "service_key": sessionStorage.service_key,
+                "auth_token": sessionStorage.auth_token
+            },
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                if (data != null) {
+                    toastr["info"]("Anwesenheitseintrag gelöscht!", "Info!");
+                }
+                else {
+                    toastr["error"]("Anwesenheitseintrag konnte nicht gelöscht werden!", "Fehler!");
+                }
+                success(data);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                toastr["error"]("kann Anwesenheitseintrag nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
+                if (xhr.status == 401) {
+                    loggedOut();
+                }
+            }
+        });
+    }
+    else {
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/anwesenheit/",
+            type: "POST",
+            cache: false,
+            data: JSON.stringify(eintr),
+            headers: {
+                "service_key": sessionStorage.service_key,
+                "auth_token": sessionStorage.auth_token
+            },
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                if (success != undefined) {
+                    success(data);
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                toastr["error"]("kann Anwesenheitseintrag nicht zum Server senden! Status Code=" + xhr.status, "Fehler!");
+                if (xhr.status == 401) {
+                    loggedOut();
+                }
+            }
+        });
+    }
 }
 
 /**
@@ -1055,7 +1090,7 @@ function deleteNote(lf, ids) {
     console.log("--> deleteNote lf=" + lf + " ID_Schueler=" + ids);
 
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/noten/" + lf+"/"+ids,
+        url: SERVER + "/Diklabu/api/v1/noten/" + lf + "/" + ids,
         type: "DELETE",
         cache: false,
         headers: {
@@ -1070,7 +1105,7 @@ function deleteNote(lf, ids) {
             else {
                 toastr["error"](data.msg, "Fehler!");
             }
-            
+
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kann Note nicht löschen! Status Code=" + xhr.status, "Fehler!");
@@ -2441,12 +2476,12 @@ function updateCurrentView() {
         case "Klasse anschreiben":
             $("#fromLehrerKlasseMail").val(sessionStorage.myemail);
             $("#toKlasseMail").val(sessionStorage.myemail);
-            refreshKlassenliste(nameKlasse, function (data) {                
-                    updateKlasseMails();                
+            refreshKlassenliste(nameKlasse, function (data) {
+                updateKlasseMails();
             });
             $("#dokumentationContainer").hide();
             $("#printContainer").show();
-            break;            
+            break;
         case "Pläne":
             loadStundenPlan();
             $("#dokumentationContainer").hide();
@@ -2806,14 +2841,14 @@ function updatePortfolio(data) {
         $.each(years, function (indexYear, valueYear) {
             cs = valueYear.courses;
             //console.log(" Bearbiete " + valueYear.name);
-            wpk=false;
+            wpk = false;
             $.each(cs, function (index, value) {
-                
-                if (value.kategorie == 1 && wpk==false) {
+
+                if (value.kategorie == 1 && wpk == false) {
                     console.log('Setzte ID=NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id);
                     body += '<td id="NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
                     body += '<td id="WertYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
-                    wpk=true;
+                    wpk = true;
                 }
                 else if (value.kategorie != 1) {
                     body += '<td id="WertYear' + indexYear + 'kursid' + index + '_' + schueler[i].id + '">&nbsp;</td>';
@@ -2826,13 +2861,13 @@ function updatePortfolio(data) {
     $("#bodyPortfolio").append(body);
 
     // Werte Eintragen
-    
+
     for (i = 0; i < data.length; i++) {
         eintraege = data[i].eintraege;
 
         for (j = 0; j < eintraege.length; j++) {
             eintrag = eintraege[j];
-            
+
             if (eintrag.IDKategorie == 1) {
                 console.log("Suche ID=#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler);
                 $("#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler).text(eintrag.KName);
@@ -2844,7 +2879,7 @@ function updatePortfolio(data) {
             }
         }
     }
-    
+
 
     getSchuelerInfo();
 
@@ -2877,11 +2912,11 @@ function updateBetriebeMails() {
  */
 function updateKlasseMails() {
     var adr = "";
-        for (i = 0; i < schueler.length; i++) {
-            adr = adr + schueler[i].EMAIL + ";";
-        }
-        $("#emailsKlasse").val(adr);
-    
+    for (i = 0; i < schueler.length; i++) {
+        adr = adr + schueler[i].EMAIL + ";";
+    }
+    $("#emailsKlasse").val(adr);
+
 }
 
 /**
