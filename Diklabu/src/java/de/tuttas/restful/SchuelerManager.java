@@ -262,6 +262,30 @@ public class SchuelerManager {
         return null;
     }
 
+    @DELETE
+    @Path("/bild/{idschueler}")
+    public ResultObject deteleFile(@PathParam("idschueler") int idschueler) {
+        ResultObject ro = new ResultObject();
+        String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
+        try{
+    		File file = new File(filename);
+    		if(file.delete()){
+                    ro.setSuccess(true);
+                    ro.setMsg("Bild gelöscht");
+                    System.out.println(file.getName() + " is deleted!");
+    		}else{
+                    ro.setSuccess(false);
+                    ro.setMsg("Bild konnte nicht gelöscht werden");
+                    System.out.println("Delete operation is failed.");
+    		}
+    	   
+    	}catch(Exception e){
+              ro.setSuccess(false);
+              ro.setMsg(e.getMessage());
+    	}
+        return ro;
+    }
+    
     @GET
     @Path("/bild/{idschueler}")
     @Produces("image/jpg")

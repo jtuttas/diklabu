@@ -103,25 +103,31 @@
                 <div data-role="popup" id="klassenDetails" class="ui-content" data-history="false">
                     <a href="#klassenliste"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
                     <strong id="klDetailsName">KNAME</strong>&nbsp;<img id="addRemoveFavorite" src="../img/favorite0.png">
-                    <fieldset class="ui-field-contain">
+                        <fieldset class="ui-field-contain">
 
-                        <div data-role="collapsible-set">
-                            <p id="pklDetailsTitel"><strong><span id="klDetailsTitel"></span></strong></p>
-                            <p><strong><span id="klDetailsKlassenlehrer">Tuttas </span><span id="klDetailsKlassenlehrerKurz">(TU)</span></strong></p>
+                            <div data-role="collapsible-set">
+                                <p id="pklDetailsTitel"><strong><span id="klDetailsTitel"></span></strong></p>
+                                <p><strong><span id="klDetailsKlassenlehrer">Tuttas </span><span id="klDetailsKlassenlehrerKurz">(TU)</span></strong></p>
 
-                            <a id="klDetailsKlassenlehrerMail" data-theme="a" href="mailto://tuttas@mmbbs.de" data-role="button" data-icon="mail">tuttas@mmbbs.de</a>
-                            <a id="klDetailsKlassenlehrerTel" data-theme="a" href="tel://12345" data-role="button" data-icon="phone">Tel: 12345</a>
+                                <a id="klDetailsKlassenlehrerMail" data-theme="a" href="mailto://tuttas@mmbbs.de" data-role="button" data-icon="mail">tuttas@mmbbs.de</a>
+                                <a id="klDetailsKlassenlehrerTel" data-theme="a" href="tel://12345" data-role="button" data-icon="phone">Tel: 12345</a>
 
-                            <div data-role="collapsible">
-                                <h4>Bemerkungen</h4>                                                
-                                <textarea id="klDetailsBemerklungen" maxlength="99" name="textarea" id="klasseBemerkungen"></textarea>
-                                <button id="klassenEintragAktualisieren" >Aktualisieren</button>
-                            </div>
-                            <a  target="plan" id="klDetailsStundenplan" data-theme="a" href="www" data-role="button" data-icon="tag">Stundenplan</a>
-                            <a  target="plan" id="klDetailsVertretungsplan" data-theme="a" href="www" data-role="button" data-icon="tag">Vertretungsplan</a>
+                                <div data-role="collapsible">
+                                    <h4>Bemerkungen</h4>                                                
+                                    <textarea id="klDetailsBemerklungen" maxlength="99" name="textarea" id="klasseBemerkungen"></textarea>
+                                    <button id="klassenEintragAktualisieren" >Aktualisieren</button>
+                                </div>
+                                <a  target="plan" id="klDetailsStundenplan" data-theme="a" href="www" data-role="button" data-icon="tag">Stundenplan</a>
+                                <a  target="plan" id="klDetailsVertretungsplan" data-theme="a" href="www" data-role="button" data-icon="tag">Vertretungsplan</a>
 
-                    </fieldset>                      
+                        </fieldset>                      
                 </div>
+                <div data-role="popup" id="klasseMenu" class="ui-content" data-history="false">
+                    <a href="#klassenMenuClose"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>                    
+                    <strong id="klasseMailName">KNAME</strong>
+                    <a href="#mailClass" data-role="button">Klasse anschreiben</a>
+                    <a href="#mailBetrieb" data-role="button">Betriebe anschreiben</a>
+                </div>                        
 
             </div>
             <div data-role="footer" data-position="fixed" data-theme="a">
@@ -202,7 +208,7 @@
                     <div style="width:20%;" class="ui-block-c"><a id="btnAnwesenheitDatumVor" href="#" class="ui-btn-right" data-iconpos="right" data-role="button" data-icon="arrow-r">&nbsp</a></div>       
                 </div>               
 
-                
+
                 <div data-role="navbar">
                     <ul>
                         <li><a  data-icon="user" href="#anwesenheit" class="ui-btn-active ui-state-persist">Anwesenheit</a></li>
@@ -323,7 +329,7 @@
                 </div>               
 
 
-                
+
                 <div data-role="navbar">
                     <ul>
                         <li><a  data-iconpos="top" data-icon="user"  href="#anwesenheit">Anwesenheit</a></li>
@@ -410,6 +416,12 @@
                     <a id="btnDetailsWeiter" class="ui-btn-right" data-theme="a" data-icon="arrow-r" href="#">weiter</a>
                 </div>
             </div>
+            
+            <div data-role="popup" id="detailsMenu" class="ui-content" data-history="false">
+                    <a href="#schuelerdetails"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>                                        
+                    <a href="#" id="bildLoschen" data-role="button">Bild löschen</a>
+                </div>  
+            
         </div>
         <div data-role="page" id="about" data-title="About">
             <div data-role="header">
@@ -430,12 +442,76 @@
                         <div data-role="collapsible">
                             <h4>Neuerungen</h4>                                                
                             <ul>
-                                <li>Mit Favoriten</li>
+                                <li>Mail Funktion zum Anschreiben von Klassen und Betriebe</li>
+                                <li>Löschen von Bildern</li>
+                                <li>Löschen von Anwensenheitseinträgen</li>
                             </ul>
                         </div>
                     </div>
 
 
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+            </div>
+        </div>
+        <div data-role="page" id="mailClass" data-title="Klasse anschreiben">
+            <div data-role="header">
+                <h1 id="KlasseAnschreiben">Klasse anschreiben</h1>
+                <a data-role="button" id="btnAbout" href="#klassenliste" data-icon="back">zurück</a>
+            </div>
+            <div data-role="content" data-theme="b">
+                <form id="emailFormKlasse" >
+                    <fieldset class="ui-field-contain">
+                        <div data-role="collapsible-set">                        
+                            <div data-role="collapsible">
+                                <h4>EMail Adressen</h4>                                                
+                                <textarea name="cc" id="KlassenEmails"></textarea>
+                            </div>        
+                            <div data-role="fieldcontain">
+                                <label for="KlasseBetreff">Betreff:</label>
+                                <input type="text" name="subjectMail"id="KlasseBetreff" value=""  />
+                                <label for="KlasseContent">Inhalt</label>
+                                <textarea name="emailBody" id="KlasseContent"></textarea>
+                            </div>	
+                            <input type="hidden" class="form-control" name="fromMail" id="fromLehrerKlasseMail" />
+                            <input type="hidden" class="form-control" name="toMail" id="toKlasseMail" />
+                            <input type="hidden" class="form-control" name="report" value="false" />
+                            <button id="absendenEMailKlasse" type="button" >Absenden</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+            <div data-role="footer" data-position="fixed">
+                <h1>Diklabu mobile</h1>
+            </div>
+        </div>
+        <div data-role="page" id="mailBetrieb" data-title="Betriebe anschreiben">
+            <div data-role="header">
+                <h1 id="BetriebeAnschreiben">Betriebe anschreiben</h1>
+                <a data-role="button" id="btnAbout" href="#klassenliste" data-icon="back">zurück</a>
+            </div>
+            <div data-role="content" data-theme="b">
+                <form id="emailFormBetriebe" >
+                    <fieldset class="ui-field-contain">
+                        <div data-role="collapsible-set">                        
+                            <div data-role="collapsible">
+                                <h4>EMail Adressen</h4>                                                
+                                <textarea name="bcc" id="BetriebEmails"></textarea>
+                            </div>        
+                            <div data-role="fieldcontain">
+                                <label for="BetriebBetreff">Betreff:</label>
+                                <input type="text" name="subjectMail" id="BetriebBetreff" value=""  />
+                                <label for="BetriebContent">Inhalt</label>
+                                <textarea name="emailBody" id="BetriebContent"></textarea>
+                            </div>	
+                            <input type="hidden" class="form-control" name="fromMail" id="fromLehrerBetriebMail" />
+                            <input type="hidden" class="form-control" name="toMail" id="toBetriebMail" />
+                            <input type="hidden" class="form-control" name="report" value="false" />
+                            <button id="absendenEMailBetrieb" type="button" >Absenden</button>
+                        </div>
+                    </fieldset>
+                </form>
             </div>
             <div data-role="footer" data-position="fixed">
                 <h1>Diklabu mobile</h1>

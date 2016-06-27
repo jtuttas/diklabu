@@ -6,12 +6,19 @@ var verlaufData;
 var verlaufDetailsIndex;
 var currentDate;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
-var favorite=false;
-var favorites={};
+var favorite = false;
+var favorites = {};
+
+window.oncontextmenu = function(event) {
+     event.preventDefault();
+     event.stopPropagation();
+     return false;
+};
+
 
 if (localStorage.favorites != undefined) {
-    favorites=JSON.parse(localStorage.favorites);
-    console.log("restore favorites:"+JSON.stringify(favorites));
+    favorites = JSON.parse(localStorage.favorites);
+    console.log("restore favorites:" + JSON.stringify(favorites));
 }
 
 currentDate = new Date(Date.now());
@@ -31,6 +38,8 @@ $(document).on({
     }
 });
 
+
+
 $(document).ready(function () {
 
     if (localStorage.myself != undefined) {
@@ -47,33 +56,123 @@ $(document).ready(function () {
         window.scrollTo(0, 1);
     }
     clickaddVerlauf();
+
+
+    $("#absendenEMailKlasse").click(function () {
+        $("#fromLehrerKlasseMail").val(localStorage.myMail);
+        $("#toKlasseMail").val(localStorage.myMail);
+        mails = $("#KlassenEmails").val().split(";");
+        error = false;
+        for (i = 0; i < mails.length; i++) {
+            console.log("Teste email:" + mails[i]);
+            if (!isValidEmailAddress(mails[i])) {
+                toast("Keine gültige EMail Adresse!" + mails[i]);
+                error = true;                
+                break;
+            }
+        }
+        if (error == true) {
+            //event.preventDefault();
+
+        }
+        else if (!isValidEmailAddress($("#fromLehrerKlasseMail").val())) {
+            toast("Keine gültige Absender EMail Adresse!" + $("#fromLehrerKlasseMail").val());
+            //event.preventDefault();
+        }
+
+        else if ($("#KlasseBetreff").val().length == 0) {
+            toast("Kein Betreff angegeben!");
+            //event.preventDefault();
+        }
+        else if ($("#KlasseContent").val().length == 0) {
+            toast("Kein EMail Inhalt angegeben!");
+            //event.preventDefault();
+        }
+        else {
+            toast("EMail wird versendet via CC an Klasse " + sessionStorage.nameKlasse);
+            $.post('../MailServlet', $('#emailFormKlasse').serialize());
+            $("#KlasseBetreff").val("");
+            $("#KlasseContent").val("");
+            $.mobile.changePage("#klassenliste", {transition: "fade"});
+        }
+    });
+    $("#absendenEMailBetrieb").click(function () {
+        $("#fromLehrerBetriebMail").val(localStorage.myMail);
+        $("#toBetriebMail").val(localStorage.myMail);
+        mails = $("#BetriebEmails").val().split(";");
+        error = false;
+        for (i = 0; i < mails.length; i++) {
+            console.log("Teste email:" + mails[i]);
+            if (!isValidEmailAddress(mails[i])) {
+                toast("Keine gültige EMail Adresse!" + mails[i]);
+                error = true;                
+                break;
+            }
+        }
+        if (error == true) {
+            //event.preventDefault();
+
+        }
+        else if (!isValidEmailAddress($("#fromLehrerBetriebMail").val())) {
+            toast("Keine gültige Absender EMail Adresse!" + $("#fromLehrerBetriebMail").val());
+            //event.preventDefault();
+        }
+
+        else if ($("#BetriebBetreff").val().length == 0) {
+            toast("Kein Betreff angegeben!");
+            //event.preventDefault();
+        }
+        else if ($("#BetriebContent").val().length == 0) {
+            toast("Kein EMail Inhalt angegeben!");
+            //event.preventDefault();
+        }
+        else {
+            toast("EMail wird versendet via BCC an Betriebe der Klasse " + sessionStorage.nameKlasse);
+            $.post('../MailServlet', $('#emailFormBetriebe').serialize());
+            $("#BetriebBetreff").val("");
+            $("#BetriebContent").val("");
+            $.mobile.changePage("#klassenliste", {transition: "fade"});
+        }
+    });
+    $("#bildLoschen").click(function () {        
+        deleteImage(sessionStorage.idSchueler);        
+    });
 });
 
+/**
+ * Überprüft ob die Email eine gültige email Adresse ist
+ * @param {type} emailAddress die Email Adresse
+ * @returns {Boolean} true=gültig
+ */
+function isValidEmailAddress(emailAddress) {
+    var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+    return pattern.test(emailAddress);
+}
 
 $("#favoriteIcon").click(function () {
-   console.log("Filter favorit");
-   if (favorite) {
-       favorite=false;
-       $("#favoriteIcon").attr("src","../img/favorite0.png");
-   }
-   else {
-       favorite=true;
-       $("#favoriteIcon").attr("src","../img/favorite.png");
-   }
-   //console.log("sessionstorage.klasse="+sessionStorage.klassen);
-   buildKlassenListeView(JSON.parse(sessionStorage.klassen));
+    console.log("Filter favorit");
+    if (favorite) {
+        favorite = false;
+        $("#favoriteIcon").attr("src", "../img/favorite0.png");
+    }
+    else {
+        favorite = true;
+        $("#favoriteIcon").attr("src", "../img/favorite.png");
+    }
+    //console.log("sessionstorage.klasse="+sessionStorage.klassen);
+    buildKlassenListeView(JSON.parse(sessionStorage.klassen));
 });
 
 $("#addRemoveFavorite").click(function () {
-    if (!isInCollection($("#addRemoveFavorite").attr("kname"),favorites)) {
-        console.log("Add to favorite:"+$("#addRemoveFavorite").attr("kname"));
-        $(this).attr("src","../img/favorite.png");
-        favorites[$("#addRemoveFavorite").attr("kname")]=true;
+    if (!isInCollection($("#addRemoveFavorite").attr("kname"), favorites)) {
+        console.log("Add to favorite:" + $("#addRemoveFavorite").attr("kname"));
+        $(this).attr("src", "../img/favorite.png");
+        favorites[$("#addRemoveFavorite").attr("kname")] = true;
         storeFavories();
     }
     else {
-        console.log("Remove from favorite:"+$("#addRemoveFavorite").attr("kname"));
-        $(this).attr("src","../img/favorite0.png");
+        console.log("Remove from favorite:" + $("#addRemoveFavorite").attr("kname"));
+        $(this).attr("src", "../img/favorite0.png");
         delete favorites[$("#addRemoveFavorite").attr("kname")];
         storeFavories();
     }
@@ -83,17 +182,17 @@ $("#addRemoveFavorite").click(function () {
 });
 
 function storeFavories() {
-    localStorage.favorites=JSON.stringify(favorites);
+    localStorage.favorites = JSON.stringify(favorites);
 }
 
-function isInCollection(key,col) {
+function isInCollection(key, col) {
     for (k in col) {
-        if (key==k) {
-            console.log("found "+key);
+        if (key == k) {
+            console.log("found " + key);
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -140,9 +239,9 @@ $("#btnVerlaufZurueck").click(function () {
         renderVerlaufDetails(--verlaufDetailsIndex);
     }
 });
-$("#verlaufDetail").on("swiperight",function(){
-  console.log("Swipe left detected!");
-  if (verlaufDetailsIndex <= 0) {
+$("#verlaufDetail").on("swiperight", function () {
+    console.log("Swipe left detected!");
+    if (verlaufDetailsIndex <= 0) {
         console.log("kein weiterer Verlaufseintrag");
         verlaufDetailsIndex = verlaufData.length - 1;
         renderVerlaufDetails(verlaufDetailsIndex);
@@ -150,11 +249,11 @@ $("#verlaufDetail").on("swiperight",function(){
     else {
         renderVerlaufDetails(--verlaufDetailsIndex);
     }
-   
-});  
-$("#verlaufDetail").on("swipeleft",function(){
-  console.log("Swipe left detected!");
-   if (verlaufDetailsIndex < verlaufData.length - 1) {
+
+});
+$("#verlaufDetail").on("swipeleft", function () {
+    console.log("Swipe left detected!");
+    if (verlaufDetailsIndex < verlaufData.length - 1) {
         renderVerlaufDetails(++verlaufDetailsIndex);
     }
     else {
@@ -162,8 +261,8 @@ $("#verlaufDetail").on("swipeleft",function(){
         verlaufDetailsIndex = 0;
         renderVerlaufDetails(verlaufDetailsIndex);
     }
-   
-});  
+
+});
 
 $("#btnChangeBemerkung").click(function () {
     submitBemerkung($("#textBemerkung").val());
@@ -257,7 +356,12 @@ $('body').on('keydown', "#anwesenheitText", function (e) {
         //$("#anwesenheitDetails").popup("close");
         sid = $("#anwName").attr("sid");
         console.log("Übertrage Anwesenheit f. " + sid);
-        commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
+        if ($("#anwesenheitText").val()=="") {            
+            deleteAnwesenheit(sid);
+        }
+        else {
+            commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
+        }
     }
 });
 
@@ -303,7 +407,7 @@ function getIdPlain(id) {
 }
 
 function performLogin() {
-    if (localStorage.auth_token == undefined ) {
+    if (localStorage.auth_token == undefined) {
         benutzer = $("#benutzer").val();
         benutzer = benutzer.toUpperCase();
         idplain = getIdPlain(benutzer);
@@ -377,7 +481,7 @@ function performLogout() {
 
         },
         error: function (xhr, textStatus, errorThrown) {
-            toast("Logout fehlgeschlagen! Status Code=" + xhr.status);
+            //toast("Logout fehlgeschlagen! Status Code=" + xhr.status);
             //sessionStorage.clear();
             delete localStorage.auth_token;
             $("#benutzer").val("");
@@ -438,6 +542,66 @@ function commitAnwesenheit(sid, txt, bem) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Anwesenheitseintrag nicht zum Server senden!");
+            if (xhr.status == 401) {
+                performLogout();
+            }
+        }
+    });
+}
+
+function deleteAnwesenheit(sid) {
+    dat = toSQLString(currentDate);
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/anwesenheit/"+sid+"/"+dat,
+        type: "DELETE",
+        cache: false,
+        headers: {
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            $("#anwesenheitDetails").popup("close");
+            $("#anwesenheitDetails").hide();
+            console.log("Anwesenheit wurde belöscht");
+            deleteAnwesenheitsEintrag(sid);            
+            toast("Eintrag gelöscht!");            
+            buildAnwesenheit(sessionStorage.nameKlasse);
+
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("kann Anwesenheitseintrag nicht löschen!");
+            if (xhr.status == 401) {
+                performLogout();
+            }
+        }
+    });
+}
+
+
+function deleteImage(sid) {
+    
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/schueler/bild/"+sid,
+        type: "DELETE",
+        cache: false,
+        headers: {
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            console.log("Bild wurde belöscht");
+            if (!data.success) {
+                toast(data.msg);                
+            }            
+            else {
+                $("#imgSchueler").attr("src","../img/anonym.gif");
+            }
+            $("#detailsMenu").popup("close");
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("kann Bild nicht löschen!");
             if (xhr.status == 401) {
                 performLogout();
             }
@@ -607,7 +771,7 @@ $(document).on("pagebeforecreate", "#anwesenheit", function () {
     }
     else {
         console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
-        lastAnnwesenheitUpdate=undefined;
+        lastAnnwesenheitUpdate = undefined;
         refreshKlassenliste(sessionStorage.nameKlasse);
     }
 });
@@ -618,20 +782,63 @@ $(document).on("pagebeforeshow", "#anwesenheit", function () {
     }
     else {
         $("#currentDate").val(getReadableDate(currentDate));
-        lastAnnwesenheitUpdate=undefined;
+        lastAnnwesenheitUpdate = undefined;
         buildAnwesenheit(sessionStorage.nameKlasse);
     }
 });
 
-$(document).on("pagebeforecreate", "#login", function () {
-    if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
-
-    }
-    else {
+$(document).on("pagebeforeshow", "#anwesenheit", function () {
+    console.log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
+    if (sessionStorage.nameKlasse == undefined || sessionStorage.idKlasse == undefined) {
         $.mobile.changePage("#klassenliste", {transition: "fade"});
     }
+    else {
+        $("#currentDate").val(getReadableDate(currentDate));
+        lastAnnwesenheitUpdate = undefined;
+        buildAnwesenheit(sessionStorage.nameKlasse);
+    }
 });
+
+$(document).on("pagebeforeshow", "#mailClass", function () {
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        $("#KlasseAnschreiben").text(sessionStorage.nameKlasse + " anschreiben");
+        getKlasse(sessionStorage.nameKlasse, function (data) {
+            console.log("--> empfange:" + JSON.stringify(data));
+            $cont = "";
+            for (i = 0; i < data.length; i++) {
+                $cont += data[i].EMAIL + ";";
+            }
+            $cont = $cont.substr(0, $cont.length - 1);
+            console.log("Cont=" + $cont);
+            $("#KlassenEmails").val($cont);
+        });
+    }
+});
+
+$(document).on("pagebeforeshow", "#mailBetrieb", function () {
+    if (localStorage.auth_token == undefined) {
+        console.log("Habe kein auth Token");
+        $.mobile.changePage("#login", {transition: "fade"});
+    }
+    else {
+        $("#BetriebeAnschreiben").text("An Betriebe "+sessionStorage.nameKlasse);
+        getBetriebe(sessionStorage.nameKlasse, function (data) {
+            console.log("--> empfange:" + JSON.stringify(data));
+            $cont = "";
+            for (i = 0; i < data.length; i++) {
+                $cont += data[i].email + ";";
+            }
+            $cont = $cont.substr(0, $cont.length - 1);
+            console.log("Cont=" + $cont);
+            $("#BetriebEmails").val($cont);
+        });
+    }
+});
+
 $(document).on("pagebeforeshow", "#schuelerdetails", function () {
     if (localStorage.auth_token == undefined) {
         console.log("Habe kein auth Token");
@@ -680,8 +887,8 @@ $(document).on("pagebeforeshow", "#verlaufDetail", function () {
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        if (verlaufDetailsIndex==undefined || verlaufData==undefined) {
-            $.mobile.changePage("#verlauf");    
+        if (verlaufDetailsIndex == undefined || verlaufData == undefined) {
+            $.mobile.changePage("#verlauf");
         }
         else {
             renderVerlaufDetails(verlaufDetailsIndex);
@@ -693,7 +900,7 @@ $(document).on("pagebeforeshow", "#verlaufDetail", function () {
 $("#btnRefresh").click(function () {
     console.log("Ansicht Klasse aktualisieren");
     currentDate = new Date(Date.now());
-    lastAnnwesenheitUpdate=undefined;
+    lastAnnwesenheitUpdate = undefined;
     refreshKlassenliste(sessionStorage.nameKlasse);
 });
 
@@ -715,14 +922,14 @@ $("#btnAnwesenheitDatumZurueck").click(function () {
     currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
 
-    lastAnnwesenheitUpdate=undefined;
+    lastAnnwesenheitUpdate = undefined;
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
 
 $("#btnAnwesenheitDatumVor").click(function () {
     currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
     console.log("Anwesenheit Datum zurück:" + currentDate);
-    lastAnnwesenheitUpdate=undefined;
+    lastAnnwesenheitUpdate = undefined;
 
     buildAnwesenheit(sessionStorage.nameKlasse);
 });
@@ -737,18 +944,18 @@ $("#btnDetailsWeiter").click(function () {
     sessionStorage.idSchueler = nextSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
 });
-$("#schuelerdetails").on("swipeleft",function(){
-  console.log("Swipe left detected!");
+$("#schuelerdetails").on("swipeleft", function () {
+    console.log("Swipe left detected!");
     $("#imgSchueler").attr("src", '../img/loading.gif');
     sessionStorage.idSchueler = nextSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
-});                       
-$("#schuelerdetails").on("swiperight",function(){
-  console.log("Swipe right detected!");
+});
+$("#schuelerdetails").on("swiperight", function () {
+    console.log("Swipe right detected!");
     $("#imgSchueler").attr("src", '../img/loading.gif');
     sessionStorage.idSchueler = prevSchueler();
     renderSchuelerDetails(sessionStorage.idSchueler);
-});                       
+});
 
 
 
@@ -833,7 +1040,9 @@ function getLehrerData(le) {
             },
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
+                console.log("Receive Lehere Data "+JSON.stringify(data));
                 $("#lehrerShort").text(le);
+                localStorage.myMail=data.EMAIL;
                 if (data.stdPlan != undefined) {
                     $("#btnStdPlanLehrer").attr("href", data.stdPlan);
                     $("#btnStdPlanLehrer").show();
@@ -851,9 +1060,9 @@ function getLehrerData(le) {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toast("kann Daten für " + le + " nicht vom Server laden");
-                 if (xhr.status == 401) {
-                performLogout();
-            }
+                if (xhr.status == 401) {
+                    performLogout();
+                }
             }
         });
     }
@@ -875,7 +1084,7 @@ else {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Klassenliste nicht vom Server laden");
-             if (xhr.status == 401) {
+            if (xhr.status == 401) {
                 performLogout();
             }
         }
@@ -883,14 +1092,14 @@ else {
 }
 
 function buildKlassenListeView(data) {
-    console.log("buildKlassenlisteview size="+data.length);
+    console.log("buildKlassenlisteview size=" + data.length);
     $("#klassenListView").empty();
     for (i = 0; i < data.length; i++) {
         //$("#klassenListView").append('<li><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a></li>');
         if (favorite) {
-            if (isInCollection(data[i].KNAME,favorites)) {
+            if (isInCollection(data[i].KNAME, favorites)) {
                 $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="' + data[i].id + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
-            }            
+            }
         }
         else {
             $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="' + data[i].id + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
@@ -900,15 +1109,22 @@ function buildKlassenListeView(data) {
     /*
      * Eine Klasse wird ausgewählt
      */
-    $(".selectKlasse").click(function () {        
+    $(".selectKlasse").click(function () {
         kl = $(this).attr("klname");
         klid = $(this).attr("klid");
         sessionStorage.idKlasse = klid;
         console.log("nameKlasse=" + kl + "idKlasse=" + klid);
-        $("#namensListView").empty();        
-        refreshKlassenliste(kl);        
+        $("#namensListView").empty();
+        refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
     });
+    $(".selectKlasse").on("taphold", function () {
+        sessionStorage.nameKlasse = $(this).attr("klname");
+        $("#klasseMailName").text(sessionStorage.nameKlasse);
+        $("#klasseMenu").popup("open");
+        //alert("Menu anzeigen für "+klname);
+    });
+
 
     /*
      * Details Einer Klasse wird ausgewählt
@@ -928,12 +1144,12 @@ function buildKlassenListeView(data) {
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
                 $("#klDetailsName").text(data.KNAME);
-                $("#addRemoveFavorite").attr("kname",data.KNAME);
-                if (isInCollection(data.KNAME,favorites)) {
-                    $("#addRemoveFavorite").attr("src","../img/favorite.png");
+                $("#addRemoveFavorite").attr("kname", data.KNAME);
+                if (isInCollection(data.KNAME, favorites)) {
+                    $("#addRemoveFavorite").attr("src", "../img/favorite.png");
                 }
                 else {
-                    $("#addRemoveFavorite").attr("src","../img/favorite0.png");
+                    $("#addRemoveFavorite").attr("src", "../img/favorite0.png");
                 }
                 console.log("Empfange:" + JSON.stringify(data));
                 if (data.TITEL != undefined) {
@@ -1019,7 +1235,7 @@ else {
         },
         error: function (xhr, textStatus, errorThrown) {
             toast("kann Lernfelder nicht vom Server laden");
- if (xhr.status == 401) {
+            if (xhr.status == 401) {
                 performLogout();
             }
 
@@ -1037,45 +1253,74 @@ function refreshKlassenliste(kl) {
     if (sessionStorage.nameKlasse == kl && sessionStorage.schueler != undefined) {
         console.log("Schülerdaten schon geladen !");
         data = JSON.parse(sessionStorage.schueler);
-        
+
         buildNamensliste(data);
         //$.mobile.loading('show');
-        
+
         refreshBilderKlasse(kl);
-        
+
         buildAnwesenheit(kl);
-        
+
     }
     else {
         console.log("Schülerdaten vom Server geladen !");
         console.log("service_key=" + localStorage.service_key);
         console.log("auth_token=" + localStorage.auth_token);
         sessionStorage.nameKlasse = kl;
-        $.ajax({
-            url: SERVER + "/Diklabu/api/v1/klasse/" + kl,
-            type: "GET",
-            cache: false,
-            headers: {
-                "service_key": localStorage.service_key,
-                "auth_token": localStorage.auth_token
-            },
-            contentType: "application/json; charset=UTF-8",
-            success: function (data) {
-                sessionStorage.schueler = JSON.stringify(data);
-                schueler = data;
-                buildNamensliste(data);
-                refreshBilderKlasse(kl);
-                buildAnwesenheit(kl);
-            },
-            error: function (xhr, textStatus, errorThrown) {
-                toast("kann Klassenliste f. Klasse " + kl + " nicht vom Server laden");
-
-                if (xhr.status == 401) {
-                    performLogout();
-                }
-            }
+        getKlasse(kl, function (data) {
+            buildNamensliste(data);
+            refreshBilderKlasse(kl);
+            buildAnwesenheit(kl);
         });
     }
+}
+
+function getKlasse(kl, callback) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/" + kl,
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            sessionStorage.schueler = JSON.stringify(data);
+            schueler = data;
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("kann Klassenliste f. Klasse " + kl + " nicht vom Server laden");
+
+            if (xhr.status == 401) {
+                performLogout();
+            }
+        }
+    });
+}
+
+function getBetriebe(kl, callback) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/klasse/betriebe/" + kl,
+        type: "GET",
+        cache: false,
+        headers: {
+            "service_key": localStorage.service_key,
+            "auth_token": localStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toast("kann Betriebsliste f. Klasse " + kl + " nicht vom Server laden");
+
+            if (xhr.status == 401) {
+                performLogout();
+            }
+        }
+    });
 }
 
 function loadVerlauf() {
@@ -1250,6 +1495,9 @@ function renderSchuelerDetails(sid) {
 
         $("#textBemerkung").val(data.info);
         getSchuelerBild(sid, "#imgSchueler");
+        $("#imgSchueler").on("taphold", function () {
+            $("#detailsMenu").popup("open");
+        });
     });
 }
 /**
@@ -1297,20 +1545,20 @@ function getSchuelerBild(id, elem) {
     });
 }
 
-function buildAnwesenheit(kl) {   
+function buildAnwesenheit(kl) {
     d = currentDate;
     if (anwKlasse != kl || anwesenheit == undefined || lastAnnwesenheitUpdate == undefined || currentDate.getTime() > lastAnnwesenheitUpdate + 1000 * 60 * 60) {
         //alert ("aktualisiere currentDate="+currentDate.getMonth());        
-        
+
         //console.log(" Aktualisierung der Anwesenheit ! currentDate=" + currentDate);
         //console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d=" + d.getFullYear());
-        
+
         lastAnnwesenheitUpdate = currentDate.getTime();
-        
+
         anwKlasse = kl;
         $("#currentDate").val(getReadableDate(currentDate));
 
-        
+
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + toSQLString(currentDate),
             type: "GET",
@@ -1320,7 +1568,7 @@ function buildAnwesenheit(kl) {
                 "auth_token": localStorage.auth_token
             },
             contentType: "application/json; charset=UTF-8",
-            success: function (data) {        
+            success: function (data) {
                 console.log("Anwesenheit geladen!");
                 anwesenheit = data;
                 renderAnwesenheit(data);
@@ -1335,7 +1583,7 @@ function buildAnwesenheit(kl) {
         });
     }
     else {
-        console.log("Anwesenheit ist wohl aktuell !" + lastAnnwesenheitUpdate + "anwesenheit=" + anwesenheit);        
+        console.log("Anwesenheit ist wohl aktuell !" + lastAnnwesenheitUpdate + "anwesenheit=" + anwesenheit);
         renderAnwesenheit(anwesenheit);
     }
 
@@ -1438,6 +1686,16 @@ function getAnwesenheitsEintrag(id) {
     return "unknown ID " + id;
 }
 
+function deleteAnwesenheitsEintrag(id) {
+    console.log("deleteAnwesenheit id=" + id );
+    for (var i = 0; i < anwesenheit.length; i++) {
+        if (anwesenheit[i].id_Schueler == id) {
+            anwesenheit.splice(i, 1);
+            return;
+        }
+    }
+}
+
 function setAnwesenheitsEintrag(id, txt, bem, err) {
     console.log("setAnwesenheit id=" + id + " txt=" + txt + " bem=" + bem);
     for (var i = 0; i < anwesenheit.length; i++) {
@@ -1521,7 +1779,7 @@ $('#currentDate').change(function () {
     console.log("Change:" + getValidDate($("#currentDate").val()));
     currentDate = new Date(getValidDate($("#currentDate").val()));
     console.log("Anwesenheit set Datum:" + currentDate);
-    lastAnnwesenheitUpdate=undefined;
+    lastAnnwesenheitUpdate = undefined;
 
     buildAnwesenheit(sessionStorage.nameKlasse);
 });

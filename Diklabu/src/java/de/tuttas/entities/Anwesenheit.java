@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
@@ -29,6 +30,7 @@ import javax.persistence.NamedQuery;
      @NamedQuery(name = "findAnwesenheitbyDatumAndSchuelerID", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID where a.DATUM=:paramDatum and a.ID_SCHUELER=:paramSchuelerID  ORDER BY s.NNAME")
     
 })
+@IdClass(AnwesenheitId.class)
 public class Anwesenheit implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id

@@ -6,6 +6,7 @@
 package de.tuttas.restful;
 
 import de.tuttas.entities.Anwesenheit;
+import de.tuttas.entities.AnwesenheitId;
 import de.tuttas.entities.Bemerkung;
 import de.tuttas.entities.BemerkungId;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
@@ -25,6 +26,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -56,6 +58,21 @@ public class AnwesenheitsManager {
         return ae;
     }
 
+    @DELETE
+    @Path("/{ids}/{datum}")
+    public Anwesenheit delAnwesenheit(@PathParam("ids") Integer ids,@PathParam("datum") Date dat) {
+        System.out.println("ids="+ids+" Datum="+dat);
+        Anwesenheit a = em.find(Anwesenheit.class, new AnwesenheitId(ids, new Timestamp(dat.getTime())));
+        if (a!=null) {
+            em.remove(a);
+        }
+        else {
+            Log.d("Kann Anwesenheit nicht finden!");
+        }
+        return a;
+    }
+
+    
     @POST
     public AnwesenheitEintrag setAnwesenheit(AnwesenheitEintrag ae) {
         Log.d("POST Anwesenheitseintrag = " + ae.toString());
@@ -104,6 +121,7 @@ public class AnwesenheitsManager {
         return ae;
     }
 
+    
     /**
      * Heutige Anwesenheit einer Klasse
      * @param kl Name der Klasse
