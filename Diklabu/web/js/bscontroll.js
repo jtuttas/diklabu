@@ -179,6 +179,8 @@ $("#btnWaehlen").click(function () {
                             $("#zweitWunschAbfragen").text(wuensche[1].TITEL + " (" + wuensche[1].ID_LEHRER + ")");
                             $("#drittWunschAbfragen").text(wuensche[2].TITEL + " (" + wuensche[2].ID_LEHRER + ")");
                             //window.location.href = "#results";
+                            $("#benutzername2").val($("#benutzername").val());
+                            $("#kennwort2").val($("#kennwort").val());
                             $("#lnkResults").trigger("click");
                         }
                         perfromLogout($("#benutzername").val(), $("#kennwort").val(), function (data) {
