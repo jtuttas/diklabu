@@ -97,27 +97,27 @@ public class UmfagenManager {
         }
         Log.d("Umfrage ist " + u.getNAME());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
-        System.out.println("Aktive Umfrage mit Titel" + u.getNAME());
-        System.out.println("Die Umfrage hat FRagen n=" + u.getFragen().size());
+        Log.d("Aktive Umfrage mit Titel" + u.getNAME());
+        Log.d("Die Umfrage hat FRagen n=" + u.getFragen().size());
         Collection<Fragen> fr = u.getFragen();
         for (Fragen f : fr) {
             FragenObjekt fo = new FragenObjekt(f.getTITEL());
             fo.setId(f.getID_FRAGE());
             Collection<Antwortskalen> aw = f.getAntwortskalen();
             for (Antwortskalen as : aw) {
-                System.out.println("size=" + fo.getIDantworten().size());
+                Log.d("size=" + fo.getIDantworten().size());
                 Integer key = new Integer(as.getID());
                 fo.getIDantworten().add(key);
                 if (antworten.get(key) == null) {
-                    System.out.println("Eine neue Antwort (" + as.getNAME() + ")");
+                    Log.d("Eine neue Antwort (" + as.getNAME() + ")");
                     antworten.put(key, new AntwortSkalaObjekt(as.getNAME(), key, as.getWERT()));
                     uo.getAntworten().add(new AntwortSkalaObjekt(as.getNAME(), key, as.getWERT()));
-                    System.out.println("Antworten size=" + uo.getAntworten().size());
+                    Log.d("Antworten size=" + uo.getAntworten().size());
                 }
 
             }
             uo.getFragen().add(fo);
-            System.out.println("size=" + uo.getFragen().size() + "Frage:" + f.getTITEL());
+            Log.d("size=" + uo.getFragen().size() + "Frage:" + f.getTITEL());
         }
         return uo;
     }
@@ -125,7 +125,7 @@ public class UmfagenManager {
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     public List<ActiveUmfrage> getUmfragen() {
-        System.out.println("Umfragen abfragen");
+        Log.d("Umfragen abfragen");
         Query query = em.createNamedQuery("findAllUmfragen");
         List<ActiveUmfrage> umfrage = query.getResultList();
         Log.d("Result List:" + umfrage);
@@ -135,7 +135,7 @@ public class UmfagenManager {
     @GET
     @Path("beteiligung/{uid}/{kname}")
     public List<Beteiligung> getBeteiligung(@PathParam("uid") int uid, @PathParam("kname") String kname) {
-        System.out.println("Get Beteiligung f. Umfrage " + uid + " und Klasse =" + kname);
+        Log.d("Get Beteiligung f. Umfrage " + uid + " und Klasse =" + kname);
         em.getEntityManagerFactory().getCache().evictAll();
         Umfrage u = em.find(Umfrage.class, uid);
         if (u == null) {
@@ -146,10 +146,10 @@ public class UmfagenManager {
         List<Object[]> r = q.getResultList();
         for (int i = 0; i < r.size(); i++) {
             Object[] ro = r.get(i);
-            System.out.println("Der Teilnehmer mit der ID " + ro[0] + " hat " + ro[1] + " Fragen beantwortet!");
+            Log.d("Der Teilnehmer mit der ID " + ro[0] + " hat " + ro[1] + " Fragen beantwortet!");
             Teilnehmer t = (Teilnehmer) ro[0];
             Long fragen = (Long) ro[1];
-            System.out.println("t="+t+" fragen="+fragen+" u="+u);
+            Log.d("t="+t+" fragen="+fragen+" u="+u);
             Beteiligung b = new Beteiligung(t.getKey(), fragen.intValue(), u.getFragen().size(), t.getSCHUELERID(), t.getBETRIEBID(), t.getLEHRERID());
             beteiligungen.add(b);
         }
@@ -160,7 +160,7 @@ public class UmfagenManager {
     @Path("auswertung/{uid}/{klassenname}")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<UmfrageResult> getAntwortenKlasse(@PathParam("uid") int uid, @PathParam("klassenname") String kname) {
-        System.out.println("Get Antworten f. Umfrage " + uid + " und Klasse(n) =" + kname);
+        Log.d("Get Antworten f. Umfrage " + uid + " und Klasse(n) =" + kname);
         String[] klassen = kname.split(";");
         
         String qString = "SELECT a.antwortskala,COUNT(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Teilnehmer t on a.teilnehmer = t inner join Schueler s on s.ID=t.SCHUELERID inner join Schueler_Klasse sk on t.SCHUELERID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE (";
@@ -172,7 +172,7 @@ public class UmfagenManager {
             
         }
         qString += ") and ";
-        System.out.println("qString="+qString);
+        Log.d("qString="+qString);
         
         em.getEntityManagerFactory().getCache().evictAll();
         List<UmfrageResult> resultList = new ArrayList<UmfrageResult>();
@@ -187,28 +187,28 @@ public class UmfagenManager {
                 antworten.put(skalen.getID(), new AntwortSkalaObjekt(skalen.getNAME(), skalen.getID(), 0));
             }
             //Query q = em.createQuery("select aska.NAME,count(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Schueler s on a.ID_SCHUELER=s.ID inner join Schueler_Klasse sk on s.id=sk.ID_SCHUELER inner join Klasse k on k.ID=sk.IK_KLASSE Group by a.fragenAntworten");
-            System.out.println("Frage=" + f);
+            Log.d("Frage=" + f);
             
             Query q = em.createQuery(qString+" t.umfrage.ID_UMFRAGE=" + uid + " and a.fragenAntworten.ID_FRAGE=" + f.getID_FRAGE() + " Group by a.antwortskala");
             List<Object[]> r = q.getResultList();
             for (int i = 0; i < r.size(); i++) {
                 Object[] ro = r.get(i);
                 Antwortskalen a = (Antwortskalen) ro[0];
-                System.out.println("Die Antwort " + ro[0] + " Wurde " + ro[1] + " mal gewählt!");
+                Log.d("Die Antwort " + ro[0] + " Wurde " + ro[1] + " mal gewählt!");
                 antworten.put(a.getID(), new AntwortSkalaObjekt(a.getNAME(), a.getID().intValue(), (long) ro[1]));
             }
 
             Iterator it = antworten.entrySet().iterator();
             while (it.hasNext()) {
                 Map.Entry pair = (Map.Entry) it.next();
-                System.out.println(pair.getKey() + " = " + pair.getValue());
+                Log.d(pair.getKey() + " = " + pair.getValue());
                 it.remove(); // avoids a ConcurrentModificationException
                 ur.getSkalen().add((AntwortSkalaObjekt) pair.getValue());
             }
 
             resultList.add(ur);
         }
-        System.out.println("resultList=" + resultList);
+        Log.d("resultList=" + resultList);
         return resultList;
     }
 
@@ -216,7 +216,7 @@ public class UmfagenManager {
     @Path("admin/frage/{fid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public FragenObjekt getFrage(@PathParam("fid") int fid) {
-        System.out.println("get Fragen:" + fid);
+        Log.d("get Fragen:" + fid);
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
 
@@ -235,7 +235,7 @@ public class UmfagenManager {
     @Path("admin/frage")
     @Produces({"application/json; charset=iso-8859-1"})
     public FragenObjekt newFrage(FragenObjekt fo) {
-        System.out.println("newFragenobjekt:" + fo);
+        Log.d("newFragenobjekt:" + fo);
         Fragen f = new Fragen(fo.getFrage());
         em.persist(f);
         em.flush();
@@ -248,7 +248,7 @@ public class UmfagenManager {
     @Path("admin/frage/")
     @Produces({"application/json; charset=iso-8859-1"})
     public FragenObjekt setFrage(FragenObjekt fo) {
-        System.out.println("setFragenobjekt:" + fo);
+        Log.d("setFragenobjekt:" + fo);
         Fragen f = em.find(Fragen.class, fo.getId());
         if (f != null) {
             f.setTITEL(fo.getFrage());
@@ -265,7 +265,7 @@ public class UmfagenManager {
     @Path("admin/frage/{fid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public FragenObjekt setFrage(@PathParam("fid") int fid) {
-        System.out.println("Detele Fragenobjekt id=:" + fid);
+        Log.d("Detele Fragenobjekt id=:" + fid);
         FragenObjekt fro = new FragenObjekt();
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
@@ -287,7 +287,7 @@ public class UmfagenManager {
     @Path("admin/antwort/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public AntwortSkalaObjekt getAntwort(@PathParam("aid") int aid) {
-        System.out.println("get Antwort:" + aid);
+        Log.d("get Antwort:" + aid);
         Antwortskalen a = em.find(Antwortskalen.class, aid);
         if (a != null) {
             AntwortSkalaObjekt aso = new AntwortSkalaObjekt();
@@ -303,7 +303,7 @@ public class UmfagenManager {
     @Produces({"application/json; charset=iso-8859-1"})
     public List<AntwortSkalaObjekt> listAntwort() {
 
-        System.out.println("list Antworten:");
+        Log.d("list Antworten:");
         Query query = em.createNamedQuery("getAntwortenSkalen");
         List<Antwortskalen> as = query.getResultList();
         List<AntwortSkalaObjekt> asol = new ArrayList<>();
@@ -323,7 +323,7 @@ public class UmfagenManager {
     @Produces({"application/json; charset=iso-8859-1"})
     public List<FragenObjekt> listFrage() {
 
-        System.out.println("list Fragen:");
+        Log.d("list Fragen:");
         Query query = em.createNamedQuery("getFragen");
         List<Fragen> fr = query.getResultList();
         List<FragenObjekt> frol = new ArrayList<>();
@@ -346,7 +346,7 @@ public class UmfagenManager {
     @Path("admin/antwort")
     @Produces({"application/json; charset=iso-8859-1"})
     public AntwortSkalaObjekt newAntwort(AntwortSkalaObjekt ao) {
-        System.out.println("newAntwortobjekt:" + ao);
+        Log.d("newAntwortobjekt:" + ao);
         Antwortskalen a = new Antwortskalen();
         a.setNAME(ao.getName());
         em.persist(a);
@@ -359,7 +359,7 @@ public class UmfagenManager {
     @Path("admin/antwort")
     @Produces({"application/json; charset=iso-8859-1"})
     public AntwortSkalaObjekt setAntwort(AntwortSkalaObjekt ao) {
-        System.out.println("setAntwortobjekt:" + ao);
+        Log.d("setAntwortobjekt:" + ao);
         Antwortskalen a = em.find(Antwortskalen.class, ao.getId());
         if (a != null) {
             a.setNAME(ao.getName());
@@ -374,7 +374,7 @@ public class UmfagenManager {
     @Path("admin/antwort/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public AntwortSkalaObjekt setAntwort(@PathParam("aid") int aid) {
-        System.out.println("Detele Antwortobjekt id=:" + aid);
+        Log.d("Detele Antwortobjekt id=:" + aid);
         Antwortskalen a = em.find(Antwortskalen.class, aid);
         if (a != null) {
             em.remove(a);
@@ -391,7 +391,7 @@ public class UmfagenManager {
     @Path("admin/add/{fid}/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject addAntwort(@PathParam("fid") int fid, @PathParam("aid") int aid) {
-        System.out.println("addAntwort: ID=" + aid + " to Frage ID=" + fid);
+        Log.d("addAntwort: ID=" + aid + " to Frage ID=" + fid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
@@ -421,7 +421,7 @@ public class UmfagenManager {
     @Path("admin/remove/{fid}/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject removeAntwort(@PathParam("fid") int fid, @PathParam("aid") int aid) {
-        System.out.println("removeAntwort: ID=" + aid + " from Frage ID=" + fid);
+        Log.d("removeAntwort: ID=" + aid + " from Frage ID=" + fid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
@@ -452,7 +452,7 @@ public class UmfagenManager {
     @Path("admin/")
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt newUmfrage(UmfrageObjekt uo) {
-        System.out.println("newUmfrage:" + uo);
+        Log.d("newUmfrage:" + uo);
         Umfrage u = new Umfrage(uo.getTitel());
         em.persist(u);
         em.flush();
@@ -464,7 +464,7 @@ public class UmfagenManager {
     @Path("admin/")
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt setUmfrage(UmfrageObjekt uo) {
-        System.out.println("setUmfragenobjekt:" + uo);
+        Log.d("setUmfragenobjekt:" + uo);
         Umfrage u = em.find(Umfrage.class, uo.getId());
         if (u != null) {
             if (uo.getTitel() != null) {
@@ -490,7 +490,7 @@ public class UmfagenManager {
     @Path("admin/{uid}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
     public UmfrageObjekt deleteUmfrage(@PathParam("uid") int uid,@PathParam("force") boolean force) {
-        System.out.println("Detele Umfrage id=:" + uid);
+        Log.d("Detele Umfrage id=:" + uid);
         Umfrage u = em.find(Umfrage.class, uid);
         UmfrageObjekt uo = new UmfrageObjekt();
         if (u != null) {
@@ -520,7 +520,7 @@ public class UmfagenManager {
     @Path("admin/addUmfrage/{fid}/{uid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject addUmfrage(@PathParam("fid") int fid, @PathParam("uid") int uid) {
-        System.out.println("addFrage: ID=" + fid + " to Umfrage ID=" + uid);
+        Log.d("addFrage: ID=" + fid + " to Umfrage ID=" + uid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
@@ -550,7 +550,7 @@ public class UmfagenManager {
     @Path("admin/removeUmfrage/{fid}/{uid}")
     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject removeUmfrage(@PathParam("fid") int fid, @PathParam("uid") int uid) {
-        System.out.println("removeFrage: ID=" + fid + " from Umfrage ID=" + uid);
+        Log.d("removeFrage: ID=" + fid + " from Umfrage ID=" + uid);
         ResultObject ro = new ResultObject();
         Fragen f = em.find(Fragen.class, fid);
         if (f != null) {
@@ -581,7 +581,7 @@ public class UmfagenManager {
     @Path("admin/subscriber")
     @Produces({"application/json; charset=iso-8859-1"})
     public TeilnehmerObjekt newTeilnehmer(TeilnehmerObjekt to) {
-        System.out.println("new Teilnehmerobjekt:" + to);
+        Log.d("new Teilnehmerobjekt:" + to);
 
         Umfrage u = em.find(Umfrage.class, to.getIdUmfrage());
         if (u == null) {
@@ -701,7 +701,7 @@ public class UmfagenManager {
     @Path("admin/subscriber/{key}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
     public TeilnehmerObjekt deleteTeilnehmer(@PathParam("key") String key,@PathParam("force") boolean force) {
-        System.out.println("Lösche Teilnehmer force="+force);
+        Log.d("Lösche Teilnehmer force="+force);
         Teilnehmer t = em.find(Teilnehmer.class, key);
         TeilnehmerObjekt to = new TeilnehmerObjekt();
         if (t == null) {
@@ -790,7 +790,7 @@ public class UmfagenManager {
                     sbn = sbn.replace("[[NNAME]]", s.getNNAME());
                     sbn = sbn.replace("[[TITEL]]", u.getNAME());
                     sbn = sbn.replace("[[LINK]]", Config.getInstance().clientConfig.get("SERVER") + "/Diklabu/dev/umfrage.html?ID=" + t.getKey());
-                    System.out.println("Nachricht = " + sbn);
+                    Log.d("Nachricht = " + sbn);
                     MailObject mo = new MailObject("tuttas@mmbbs.de", "Einladung zur Umfrage " + u.getNAME(), sbn);
                     try {
                         mo.addRecipient(s.getEMAIL());

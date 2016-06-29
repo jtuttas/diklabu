@@ -5,10 +5,10 @@ var verlauf;
 
 $("#deleteVerlauf").click(function () {
     if (!$("#deleteVerlauf").hasClass("disabled")) {
-        console.log(" Verlaufseintrag ID=" + idVerlauf + " löschen!");
+        log(" Verlaufseintrag ID=" + idVerlauf + " löschen!");
         if (idVerlauf != undefined) {
             bootbox.confirm("Sind Sie sicher, dass Sie den Entrag löschen wollen?", function (result) {
-                console.log(result);
+                log(result);
                 if (result) {
                     $.ajax({
                         url: SERVER + "/Diklabu/api/v1/verlauf/" + idVerlauf,
@@ -52,7 +52,7 @@ $("#addVerlauf").click(function () {
             "STUNDE": $("#stunde").val()
         };
 
-        console.log("sende:" + JSON.stringify(myData));
+        log("sende:" + JSON.stringify(myData));
 
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/verlauf",
@@ -98,7 +98,7 @@ $("#updateVerlauf").click(function () {
             "STUNDE": $("#stunde").val()
         };
 
-        console.log("sende:" + JSON.stringify(myData));
+        log("sende:" + JSON.stringify(myData));
 
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/verlauf",
@@ -119,4 +119,8 @@ $("#updateVerlauf").click(function () {
     }
 }
 });
-
+function log(msg) {
+    if (debug) {
+        console.log(msg);
+    }
+}

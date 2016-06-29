@@ -17,7 +17,7 @@ Disable-Coursevoting
 # Alte Kurswünsche löschen
 Clear-Coursevoting -force
 # Alte Kurse aus der Kurswahl löschen
-List-Coursevoting | Remove-Coursevoting
+Get-Coursevotings | Remove-Coursevoting
 # Alle WPK Kurse des lila Blocks zur WPK Wahl hinzufügen
 Find-Course -KNAME "WPK%lila" | Add-Coursevoting
 # Kurswahl freischalten
@@ -29,7 +29,7 @@ Read-Host "Diese Kurse stehen zur Wahl !Jetzt wird die Kurswahl duchgeführt (Re
 # Schüler der Klassen FISI14 wählen
 $schueler = Find-Coursemember -kname "FISI14%"
 # Das sind die zu wählenden Kurse
-$kurse = List-Coursevoting
+$kurse = Get-Coursevotings
 foreach ($s in $schueler) {
     $wunsch2= Get-Random -Maximum $kurse.length -Minimum 1
     do {
@@ -71,7 +71,7 @@ foreach ($k in $kurse) {
         # Schüler zu dem Kurs hinzufügen
         Add-Coursemember -id $schueler[$i].id -klassenid $k.id 
         # Kurswahl der Schülers entfernen
-        Reset-Coursevoting -id $schueler[$i].id
+        #Reset-Coursevoting -id $schueler[$i].id
         $name = $schueler[$i].VNAME+" "+$schueler[$i].NNAME
         Write-Host "Erstwunsch berücksichtigt für $name" -BackgroundColor Green
         $n1++;
@@ -88,7 +88,7 @@ foreach ($k in $kurse) {
     }
     for ($i=0;$i -lt $m;$i++) {
         Add-Coursemember -id $schueler[$i].id -klassenid $k.id 
-        Reset-Coursevoting -id $schueler[$i].id
+        #Reset-Coursevoting -id $schueler[$i].id
         $name = $schueler[$i].VNAME+" "+$schueler[$i].NNAME
         Write-Host "Zweiwunsch berücksichtigt für $name" -BackgroundColor Yellow
         $n2++;
@@ -105,7 +105,7 @@ foreach ($k in $kurse) {
     }
     for ($i=0;$i -lt $m;$i++) {
         $a=Add-Coursemember -id $schueler[$i].id -klassenid $k.id 
-        $r=Reset-Coursevoting -id $schueler[$i].id
+        #$r=Reset-Coursevoting -id $schueler[$i].id
         $name = $schueler[$i].VNAME+" "+$schueler[$i].NNAME
         Write-Host "Drittwunsch berücksichtigt für $name" -BackgroundColor Red
         $n3++;

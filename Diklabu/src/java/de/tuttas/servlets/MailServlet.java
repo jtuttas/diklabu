@@ -121,9 +121,15 @@ public class MailServlet extends HttpServlet {
 
             //if (Config.debug) {
             // TODO Adresse entfernen
-            recipient = "tuttas@mmbbs.de";
-            bcc="joerg.tuttas@ifbe.uni-hannover.de";
-            cc="tuttas@tinysolutions.net;tuttas68@googlemail.com";
+            if (Config.getInstance().debug) {
+                recipient = "tuttas@mmbbs.de";
+                if (bcc!=null) {
+                    bcc="joerg.tuttas@ifbe.uni-hannover.de";
+                }
+                if (cc!=null) {
+                    cc="tuttas@tinysolutions.net;tuttas68@googlemail.com";
+                }
+            }
         //}
 
             boolean fromMailOk = false;

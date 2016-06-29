@@ -18,7 +18,7 @@ window.oncontextmenu = function(event) {
 
 if (localStorage.favorites != undefined) {
     favorites = JSON.parse(localStorage.favorites);
-    console.log("restore favorites:" + JSON.stringify(favorites));
+    log("restore favorites:" + JSON.stringify(favorites));
 }
 
 currentDate = new Date(Date.now());
@@ -30,11 +30,11 @@ $.datepicker.setDefaults({
 $(document).on({
     ajaxStart: function () {
         $.mobile.loading('show');
-        console.log('getJSON starts...');
+        log('getJSON starts...');
     },
     ajaxStop: function () {
         $.mobile.loading('hide');
-        console.log('getJSON ends...');
+        log('getJSON ends...');
     }
 });
 
@@ -49,7 +49,7 @@ $(document).ready(function () {
         $("#kennwort").val(localStorage.kennwort);
     }
     if (localStorage.auth_token != undefined) {
-        console.log("Bin eingeloggt habe auth Toke, aktualisiere Lehrer Data");
+        log("Bin eingeloggt habe auth Toke, aktualisiere Lehrer Data");
         getLehrerData(localStorage.myself);
     }
     if (navigator.userAgent.match(/Android/i)) {
@@ -64,7 +64,7 @@ $(document).ready(function () {
         mails = $("#KlassenEmails").val().split(";");
         error = false;
         for (i = 0; i < mails.length; i++) {
-            console.log("Teste email:" + mails[i]);
+            log("Teste email:" + mails[i]);
             if (!isValidEmailAddress(mails[i])) {
                 toast("Keine gültige EMail Adresse!" + mails[i]);
                 error = true;                
@@ -102,7 +102,7 @@ $(document).ready(function () {
         mails = $("#BetriebEmails").val().split(";");
         error = false;
         for (i = 0; i < mails.length; i++) {
-            console.log("Teste email:" + mails[i]);
+            log("Teste email:" + mails[i]);
             if (!isValidEmailAddress(mails[i])) {
                 toast("Keine gültige EMail Adresse!" + mails[i]);
                 error = true;                
@@ -150,7 +150,7 @@ function isValidEmailAddress(emailAddress) {
 }
 
 $("#favoriteIcon").click(function () {
-    console.log("Filter favorit");
+    log("Filter favorit");
     if (favorite) {
         favorite = false;
         $("#favoriteIcon").attr("src", "../img/favorite0.png");
@@ -159,19 +159,19 @@ $("#favoriteIcon").click(function () {
         favorite = true;
         $("#favoriteIcon").attr("src", "../img/favorite.png");
     }
-    //console.log("sessionstorage.klasse="+localStorage.klassen);
+    //log("sessionstorage.klasse="+localStorage.klassen);
     buildKlassenListeView(JSON.parse(localStorage.klassen));
 });
 
 $("#addRemoveFavorite").click(function () {
     if (!isInCollection($("#addRemoveFavorite").attr("kname"), favorites)) {
-        console.log("Add to favorite:" + $("#addRemoveFavorite").attr("kname"));
+        log("Add to favorite:" + $("#addRemoveFavorite").attr("kname"));
         $(this).attr("src", "../img/favorite.png");
         favorites[$("#addRemoveFavorite").attr("kname")] = true;
         storeFavories();
     }
     else {
-        console.log("Remove from favorite:" + $("#addRemoveFavorite").attr("kname"));
+        log("Remove from favorite:" + $("#addRemoveFavorite").attr("kname"));
         $(this).attr("src", "../img/favorite0.png");
         delete favorites[$("#addRemoveFavorite").attr("kname")];
         storeFavories();
@@ -188,7 +188,7 @@ function storeFavories() {
 function isInCollection(key, col) {
     for (k in col) {
         if (key == k) {
-            console.log("found " + key);
+            log("found " + key);
             return true;
         }
     }
@@ -227,7 +227,7 @@ $("#btnVerlaufWeiter").click(function () {
         renderVerlaufDetails(++verlaufDetailsIndex);
     }
     else {
-        console.log("kein weiterer Verlaufseintrag");
+        log("kein weiterer Verlaufseintrag");
         verlaufDetailsIndex = 0;
         renderVerlaufDetails(verlaufDetailsIndex);
     }
@@ -235,7 +235,7 @@ $("#btnVerlaufWeiter").click(function () {
 
 $("#btnVerlaufZurueck").click(function () {
     if (verlaufDetailsIndex <= 0) {
-        console.log("kein weiterer Verlaufseintrag");
+        log("kein weiterer Verlaufseintrag");
         verlaufDetailsIndex = verlaufData.length - 1;
         renderVerlaufDetails(verlaufDetailsIndex);
     }
@@ -244,9 +244,9 @@ $("#btnVerlaufZurueck").click(function () {
     }
 });
 $("#verlaufDetail").on("swiperight", function () {
-    console.log("Swipe left detected!");
+    log("Swipe left detected!");
     if (verlaufDetailsIndex <= 0) {
-        console.log("kein weiterer Verlaufseintrag");
+        log("kein weiterer Verlaufseintrag");
         verlaufDetailsIndex = verlaufData.length - 1;
         renderVerlaufDetails(verlaufDetailsIndex);
     }
@@ -256,12 +256,12 @@ $("#verlaufDetail").on("swiperight", function () {
 
 });
 $("#verlaufDetail").on("swipeleft", function () {
-    console.log("Swipe left detected!");
+    log("Swipe left detected!");
     if (verlaufDetailsIndex < verlaufData.length - 1) {
         renderVerlaufDetails(++verlaufDetailsIndex);
     }
     else {
-        console.log("kein weiterer Verlaufseintrag");
+        log("kein weiterer Verlaufseintrag");
         verlaufDetailsIndex = 0;
         renderVerlaufDetails(verlaufDetailsIndex);
     }
@@ -281,7 +281,7 @@ function submitBemerkung(bem) {
         "info": bem
     };
 
-    console.log("Sende zum Server:" + JSON.stringify(eintr));
+    log("Sende zum Server:" + JSON.stringify(eintr));
 
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/schueler/" + localStorage.idSchueler,
@@ -325,21 +325,21 @@ $("#btnAnwesend").click(function () {
     $("#anwesenheitText").val("a");
     //$("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
-    console.log("Übertrage Anwesenheit f. " + sid);
+    log("Übertrage Anwesenheit f. " + sid);
     commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
 });
 $("#btnFehlend").click(function () {
     $("#anwesenheitText").val("f");
     //$("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
-    console.log("Übertrage Anwesenheit f. " + sid);
+    log("Übertrage Anwesenheit f. " + sid);
     commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
 });
 $("#btnEntschuldigt").click(function () {
     $("#anwesenheitText").val("e");
     //$("#anwesenheitDetails").popup("close");
     sid = $("#anwName").attr("sid");
-    console.log("Übertrage Anwesenheit f. " + sid);
+    log("Übertrage Anwesenheit f. " + sid);
     commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
 });
 $("#btnOkAnwesenheit").click(function () {
@@ -349,17 +349,17 @@ $("#btnOkAnwesenheit").click(function () {
     else {
         //$("#anwesenheitDetails").popup("close");
         sid = $("#anwName").attr("sid");
-        console.log("Übertrage Anwesenheit f. " + sid);
+        log("Übertrage Anwesenheit f. " + sid);
         commitAnwesenheit(sid, $("#anwesenheitText").val(), $("#anwBemerkung").val());
     }
 });
 $('body').on('keydown', "#anwesenheitText", function (e) {
     var keyCode = e.keyCode || e.which;
-    //console.log("key Pressed" + keyCode);
+    //log("key Pressed" + keyCode);
     if (keyCode == 13) {
         //$("#anwesenheitDetails").popup("close");
         sid = $("#anwName").attr("sid");
-        console.log("Übertrage Anwesenheit f. " + sid);
+        log("Übertrage Anwesenheit f. " + sid);
         if ($("#anwesenheitText").val()=="") {            
             deleteAnwesenheit(sid);
         }
@@ -433,12 +433,12 @@ function performLogin() {
             type: "POST",
             data: JSON.stringify(myData),
             success: function (jsonObj, textStatus, xhr) {
-                console.log("Login receive " + JSON.stringify(jsonObj));
+                log("Login receive " + JSON.stringify(jsonObj));
                 localStorage.auth_token = jsonObj.auth_token;
-                console.log("Thoken = " + jsonObj.auth_token);
-                console.log("idplain = " + jsonObj.idPlain);
+                log("Thoken = " + jsonObj.auth_token);
+                log("idplain = " + jsonObj.idPlain);
                 localStorage.service_key = jsonObj.idPlain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
-                console.log("Service key =" + localStorage.service_key);
+                log("Service key =" + localStorage.service_key);
                 localStorage.myself = jsonObj.ID;
                 getLehrerData(jsonObj.ID);
 
@@ -447,9 +447,9 @@ function performLogin() {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toast("Login fehlgeschlagen");
-                console.log("HTTP Status: " + xhr.status);
-                console.log("Error textStatus: " + textStatus);
-                console.log("Error thrown: " + errorThrown);
+                log("HTTP Status: " + xhr.status);
+                log("Error textStatus: " + textStatus);
+                log("Error thrown: " + errorThrown);
             }
         });
     }
@@ -522,7 +522,7 @@ function commitAnwesenheit(sid, txt, bem) {
     }
 
 
-    console.log("Sende zum Server:" + JSON.stringify(eintr));
+    log("Sende zum Server:" + JSON.stringify(eintr));
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/anwesenheit/",
         type: "POST",
@@ -536,7 +536,7 @@ function commitAnwesenheit(sid, txt, bem) {
         success: function (data) {
             $("#anwesenheitDetails").popup("close");
             $("#anwesenheitDetails").hide();
-            console.log("Anwesenheit wurde übertragen");
+            log("Anwesenheit wurde übertragen");
             setAnwesenheitsEintrag(sid, txt, bem, data.parseError);
             if (data.parseError) {
                 toast("Der Eintrag enthält Formatierungsfehler");
@@ -568,7 +568,7 @@ function deleteAnwesenheit(sid) {
         success: function (data) {
             $("#anwesenheitDetails").popup("close");
             $("#anwesenheitDetails").hide();
-            console.log("Anwesenheit wurde belöscht");
+            log("Anwesenheit wurde belöscht");
             deleteAnwesenheitsEintrag(sid);            
             toast("Eintrag gelöscht!");            
             buildAnwesenheit(localStorage.nameKlasse);
@@ -596,7 +596,7 @@ function deleteImage(sid) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Bild wurde belöscht");
+            log("Bild wurde belöscht");
             if (!data.success) {
                 toast(data.msg);                
             }            
@@ -615,7 +615,7 @@ function deleteImage(sid) {
 }
 
 $("#klassenEintragAktualisieren").click(function () {
-    console.log("Aktualisiere KlassenEintrag f. id =" + localStorage.idKlasse)
+    log("Aktualisiere KlassenEintrag f. id =" + localStorage.idKlasse)
     var eintr = {
         "NOTIZ": $("#klDetailsBemerklungen").val()
     }
@@ -623,7 +623,7 @@ $("#klassenEintragAktualisieren").click(function () {
 });
 
 function commitKlassenBemerkung(eintr, klid) {
-    console.log("Sende zum Server:" + JSON.stringify(eintr));
+    log("Sende zum Server:" + JSON.stringify(eintr));
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
         type: "POST",
@@ -650,7 +650,7 @@ function commitKlassenBemerkung(eintr, klid) {
 }
 
 $("#newVerlauf").click(function () {
-    console.log("new Verlauf");
+    log("new Verlauf");
     $("#std").prop('selectedIndex', 0);
     $("#std").change();
     $("#lf").prop('selectedIndex', 0);
@@ -666,7 +666,7 @@ $("#newVerlauf").click(function () {
 
 function clickaddVerlauf() {
     $("#btnAddVerlauf").click(function () {
-        console.log(" Add Verlauf!");
+        log(" Add Verlauf!");
         if ($("#inhalt").val() == "") {
             toast("Geben Sie eine Inhalt an!");
         }
@@ -688,7 +688,7 @@ function clickaddVerlauf() {
     });
 }
 $("#btnDeleteVerlauf").click(function () {
-    console.log("Delete Verlauf! id=" + verlaufId);
+    log("Delete Verlauf! id=" + verlaufId);
     if (verlaufId == -1) {
         // toast("Löschen nicht möglich!");
     }
@@ -698,7 +698,7 @@ $("#btnDeleteVerlauf").click(function () {
     $("#addVerlauf").popup("close");
 });
 $("#btnLogout").click(function () {
-    //console.log("Lösche localStorage!");
+    //log("Lösche localStorage!");
     //localStorage.clear();
 });
 
@@ -714,7 +714,7 @@ function deleteVerlauf(id) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Verlauf gelöscht success=" + data.success);
+            log("Verlauf gelöscht success=" + data.success);
             if (!data.success) {
                 toast(data.msg);
             }
@@ -731,7 +731,7 @@ function deleteVerlauf(id) {
 
 function submitVerlauf(verl) {
 
-    console.log("Sende zum Server:" + JSON.stringify(verl));
+    log("Sende zum Server:" + JSON.stringify(verl));
 
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/verlauf/",
@@ -744,13 +744,13 @@ function submitVerlauf(verl) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Verlauf eingetragedetails success=" + data.success);
+            log("Verlauf eingetragedetails success=" + data.success);
             if (!data.success) {
                 toast(data.msg);
             }
             loadVerlauf();
             idx = $("#std").prop('selectedIndex');
-            console.log("selected INdex =" + idx);
+            log("selected INdex =" + idx);
             idx++;
             $("#std").prop('selectedIndex', idx);
             $("#std").change();
@@ -767,21 +767,21 @@ function submitVerlauf(verl) {
     });
 }
 
-console.log("Load Klassenliste");
+log("Load Klassenliste");
 
 $(document).on("pagebeforecreate", "#anwesenheit", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        console.log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
+        log("Seite Anwesenheit wurde aktualisiert:pagebeforecreate");
         lastAnnwesenheitUpdate = undefined;
         refreshKlassenliste(localStorage.nameKlasse);
     }
 });
 $(document).on("pagebeforeshow", "#anwesenheit", function () {
-    console.log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
+    log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
     if (localStorage.nameKlasse == undefined || localStorage.idKlasse == undefined) {
         $.mobile.changePage("#klassenliste", {transition: "fade"});
     }
@@ -793,7 +793,7 @@ $(document).on("pagebeforeshow", "#anwesenheit", function () {
 });
 
 $(document).on("pagebeforeshow", "#anwesenheit", function () {
-    console.log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
+    log("Seite Anwesenheit wurde sichtbar:pagebeforeshow");
     if (localStorage.nameKlasse == undefined || localStorage.idKlasse == undefined) {
         $.mobile.changePage("#klassenliste", {transition: "fade"});
     }
@@ -806,19 +806,19 @@ $(document).on("pagebeforeshow", "#anwesenheit", function () {
 
 $(document).on("pagebeforeshow", "#mailClass", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
         $("#KlasseAnschreiben").text(localStorage.nameKlasse + " anschreiben");
         getKlasse(localStorage.nameKlasse, function (data) {
-            console.log("--> empfange:" + JSON.stringify(data));
+            log("--> empfange:" + JSON.stringify(data));
             $cont = "";
             for (i = 0; i < data.length; i++) {
                 $cont += data[i].EMAIL + ";";
             }
             $cont = $cont.substr(0, $cont.length - 1);
-            console.log("Cont=" + $cont);
+            log("Cont=" + $cont);
             $("#KlassenEmails").val($cont);
         });
     }
@@ -826,19 +826,19 @@ $(document).on("pagebeforeshow", "#mailClass", function () {
 
 $(document).on("pagebeforeshow", "#mailBetrieb", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
         $("#BetriebeAnschreiben").text("An Betriebe "+localStorage.nameKlasse);
         getBetriebe(localStorage.nameKlasse, function (data) {
-            console.log("--> empfange:" + JSON.stringify(data));
+            log("--> empfange:" + JSON.stringify(data));
             $cont = "";
             for (i = 0; i < data.length; i++) {
                 $cont += data[i].email + ";";
             }
             $cont = $cont.substr(0, $cont.length - 1);
-            console.log("Cont=" + $cont);
+            log("Cont=" + $cont);
             $("#BetriebEmails").val($cont);
         });
     }
@@ -846,11 +846,11 @@ $(document).on("pagebeforeshow", "#mailBetrieb", function () {
 
 $(document).on("pagebeforeshow", "#schuelerdetails", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        console.log("Seite schuelerdetails wurde aktualisiert");
+        log("Seite schuelerdetails wurde aktualisiert");
 
         $("#imgSchueler").attr("src", '../img/loading.gif');
         renderSchuelerDetails(localStorage.idSchueler);
@@ -858,18 +858,18 @@ $(document).on("pagebeforeshow", "#schuelerdetails", function () {
 });
 $(document).on("pagebeforeshow", "#verlauf", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        console.log("Seite verkauf wurde aktualisiert");
+        log("Seite verkauf wurde aktualisiert");
         $("#currentDateVerlauf").val(getReadableDate(currentDate));
         loadVerlauf();
     }
 });
 $(document).on("pagebeforeshow", "#about", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
@@ -878,17 +878,17 @@ $(document).on("pagebeforeshow", "#about", function () {
 });
 $(document).on("pagebeforeshow", "#klassenliste", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
-        console.log("Zeige Klassenliste aktualisieren Vertretungsplan");
+        log("Zeige Klassenliste aktualisieren Vertretungsplan");
         getLehrerData(localStorage.myself);
     }
 });
 $(document).on("pagebeforeshow", "#verlaufDetail", function () {
     if (localStorage.auth_token == undefined) {
-        console.log("Habe kein auth Token");
+        log("Habe kein auth Token");
         $.mobile.changePage("#login", {transition: "fade"});
     }
     else {
@@ -903,7 +903,7 @@ $(document).on("pagebeforeshow", "#verlaufDetail", function () {
 
 
 $("#btnRefresh").click(function () {
-    console.log("Ansicht Klasse aktualisieren");
+    log("Ansicht Klasse aktualisieren");
     currentDate = new Date(Date.now());
     lastAnnwesenheitUpdate = undefined;
     refreshKlassenliste(localStorage.nameKlasse);
@@ -913,19 +913,19 @@ $("#btnRefresh").click(function () {
 
 $("#btnVerlaufDatumZurueck").click(function () {
     currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
-    console.log("Verlauf Datum zurück:" + currentDate);
+    log("Verlauf Datum zurück:" + currentDate);
     loadVerlauf();
 });
 
 $("#btnVerlaufDatumVor").click(function () {
     currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
-    console.log("Verlauf Datum zurück:" + currentDate);
+    log("Verlauf Datum zurück:" + currentDate);
     loadVerlauf();
 });
 
 $("#btnAnwesenheitDatumZurueck").click(function () {
     currentDate = new Date(currentDate.getTime() - 1000 * 60 * 60 * 24);
-    console.log("Anwesenheit Datum zurück:" + currentDate);
+    log("Anwesenheit Datum zurück:" + currentDate);
 
     lastAnnwesenheitUpdate = undefined;
     buildAnwesenheit(localStorage.nameKlasse);
@@ -933,7 +933,7 @@ $("#btnAnwesenheitDatumZurueck").click(function () {
 
 $("#btnAnwesenheitDatumVor").click(function () {
     currentDate = new Date(currentDate.getTime() + 1000 * 60 * 60 * 24);
-    console.log("Anwesenheit Datum zurück:" + currentDate);
+    log("Anwesenheit Datum zurück:" + currentDate);
     lastAnnwesenheitUpdate = undefined;
 
     buildAnwesenheit(localStorage.nameKlasse);
@@ -950,13 +950,13 @@ $("#btnDetailsWeiter").click(function () {
     renderSchuelerDetails(localStorage.idSchueler);
 });
 $("#schuelerdetails").on("swipeleft", function () {
-    console.log("Swipe left detected!");
+    log("Swipe left detected!");
     $("#imgSchueler").attr("src", '../img/loading.gif');
     localStorage.idSchueler = nextSchueler();
     renderSchuelerDetails(localStorage.idSchueler);
 });
 $("#schuelerdetails").on("swiperight", function () {
-    console.log("Swipe right detected!");
+    log("Swipe right detected!");
     $("#imgSchueler").attr("src", '../img/loading.gif');
     localStorage.idSchueler = prevSchueler();
     renderSchuelerDetails(localStorage.idSchueler);
@@ -992,11 +992,11 @@ $('#bildUploadForm').on('submit', (function (e) {
     e.preventDefault();
     var formData = new FormData(this);
     if ($("#fileBild").val() == "") {
-        console.log("kein Bild gewählt");
+        log("kein Bild gewählt");
         toast("kein Bild gewählt!");
     }
     else {
-        console.log("Upload Bild f. Schüler " + localStorage.idSchueler);
+        log("Upload Bild f. Schüler " + localStorage.idSchueler);
         $("#uploadBildButton").hide();
         $.ajax({
             type: 'POST',
@@ -1010,7 +1010,7 @@ $('#bildUploadForm').on('submit', (function (e) {
             contentType: false,
             processData: false,
             success: function (data) {
-                console.log("success");
+                log("success");
                 if (data.success) {
                     getSchuelerBild(localStorage.idSchueler, "#imgSchueler");
                     $("#imgSchueler").replaceWith($("#imgSchueler").val('').clone(true));
@@ -1022,7 +1022,7 @@ $('#bildUploadForm').on('submit', (function (e) {
                 }
             },
             error: function (xhr, textStatus, errorThrown) {
-                console.log("error");
+                log("error");
                 toast("Fehler beim Hochladen des Bildes!");
                 if (xhr.status == 401) {
                     performLogout();
@@ -1035,7 +1035,7 @@ $('#bildUploadForm').on('submit', (function (e) {
 
 function getLehrerData(le) {
     if (le != undefined) {
-        console.log("Get Lehrer Data für " + le + "service Key=" + localStorage.service_key + " auth Token=" + localStorage.auth_token);
+        log("Get Lehrer Data für " + le + "service Key=" + localStorage.service_key + " auth Token=" + localStorage.auth_token);
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/lehrer/" + le,
             type: "GET",
@@ -1045,7 +1045,7 @@ function getLehrerData(le) {
             },
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
-                console.log("Receive Lehere Data "+JSON.stringify(data));
+                log("Receive Lehere Data "+JSON.stringify(data));
                 $("#lehrerShort").text(le);
                 localStorage.myMail=data.EMAIL;
                 if (data.stdPlan != undefined) {
@@ -1074,7 +1074,7 @@ function getLehrerData(le) {
 }
 
 if (localStorage.klassen != undefined) {
-    console.log("Liste der Klassen bereits geladen!");
+    log("Liste der Klassen bereits geladen!");
     data = JSON.parse(localStorage.klassen);
     buildKlassenListeView(data);
 }
@@ -1097,7 +1097,7 @@ else {
 }
 
 function buildKlassenListeView(data) {
-    console.log("buildKlassenlisteview size=" + data.length);
+    log("buildKlassenlisteview size=" + data.length);
     $("#klassenListView").empty();
     for (i = 0; i < data.length; i++) {
         //$("#klassenListView").append('<li><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a></li>');
@@ -1109,7 +1109,7 @@ function buildKlassenListeView(data) {
         else {
             $("#klassenListView").append('<li class="ui-li-has-alt"><a href="#" klname="' + data[i].KNAME + '"  klid="' + data[i].id + '" class="selectKlasse ui-btn ui-btn-icon-right ui-icon-carat-r"><p class="ui-li-aside">' + data[i].ID_LEHRER + '</p>' + data[i].KNAME + '</a><a href="#" klid="' + data[i].id + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="klassenDetails" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a klassendetails" title="Info"></a></li>');
         }
-        //console.log("append " + data[i].KNAME);
+        //log("append " + data[i].KNAME);
     }
     /*
      * Eine Klasse wird ausgewählt
@@ -1118,7 +1118,7 @@ function buildKlassenListeView(data) {
         kl = $(this).attr("klname");
         klid = $(this).attr("klid");
         localStorage.idKlasse = klid;
-        console.log("nameKlasse=" + kl + "idKlasse=" + klid);
+        log("nameKlasse=" + kl + "idKlasse=" + klid);
         $("#namensListView").empty();
         refreshKlassenliste(kl);
         $.mobile.changePage("#anwesenheit", {transition: "fade"});
@@ -1137,7 +1137,7 @@ function buildKlassenListeView(data) {
     $(".klassendetails").click(function () {
         klid = $(this).attr("klid");
         localStorage.idKlasse = klid;
-        console.log("Details der Klasse id=" + klid);
+        log("Details der Klasse id=" + klid);
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
             type: "GET",
@@ -1156,7 +1156,7 @@ function buildKlassenListeView(data) {
                 else {
                     $("#addRemoveFavorite").attr("src", "../img/favorite0.png");
                 }
-                console.log("Empfange:" + JSON.stringify(data));
+                log("Empfange:" + JSON.stringify(data));
                 if (data.TITEL != undefined) {
                     $("#klDetailsTitel").text(data.TITEL)
                     $("#pklDetailsTitel").show();
@@ -1218,7 +1218,7 @@ function buildKlassenListeView(data) {
 }
 
 if (localStorage.lernfelder != undefined) {
-    console.log("Liste der Lernfelder bereits geladen!");
+    log("Liste der Lernfelder bereits geladen!");
     data = JSON.parse(localStorage.lernfelder);
     $("#lernfelder").empty();
     for (i = 0; i < data.length; i++) {
@@ -1253,10 +1253,10 @@ function refreshKlassenliste(kl) {
     $("#anwContainer").hide();
     $(".loadingContainer").show();
     //alert("RF kl="+kl+" nk="+localStorage.nameKlasse+" s="+localStorage.schueler);
-    console.log("Refresh Klassenliste f. Klasse " + kl + " alte Klassenbezeichnung==" + localStorage.nameKlasse);
+    log("Refresh Klassenliste f. Klasse " + kl + " alte Klassenbezeichnung==" + localStorage.nameKlasse);
     $("#anwesenheitKlassenName").text(kl);
     if (localStorage.nameKlasse == kl && localStorage.schueler != undefined) {
-        console.log("Schülerdaten schon geladen !");
+        log("Schülerdaten schon geladen !");
         data = JSON.parse(localStorage.schueler);
 
         buildNamensliste(data);
@@ -1268,9 +1268,9 @@ function refreshKlassenliste(kl) {
 
     }
     else {
-        console.log("Schülerdaten vom Server geladen !");
-        console.log("service_key=" + localStorage.service_key);
-        console.log("auth_token=" + localStorage.auth_token);
+        log("Schülerdaten vom Server geladen !");
+        log("service_key=" + localStorage.service_key);
+        log("auth_token=" + localStorage.auth_token);
         localStorage.nameKlasse = kl;
         getKlasse(kl, function (data) {
             buildNamensliste(data);
@@ -1333,7 +1333,7 @@ function loadVerlauf() {
     d = currentDate;
     $("#currentDateVerlauf").val(getReadableDate(d));
     $("#verlaufNameKlasse").text(localStorage.nameKlasse);
-    console.log("Lade Verlauf für Klasse " + localStorage.nameKlasse);
+    log("Lade Verlauf für Klasse " + localStorage.nameKlasse);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/verlauf/" + localStorage.nameKlasse + "/" + toSQLString(currentDate),
         type: "GET",
@@ -1344,7 +1344,7 @@ function loadVerlauf() {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Verlauf Empfangen");
+            log("Verlauf Empfangen");
             verlaufData = data;
             renderVerlauf(data);
             $("#addVerlauf").popup("close");
@@ -1359,26 +1359,26 @@ function loadVerlauf() {
 }
 
 function renderVerlauf(data) {
-    console.log("renderVerlauf eintäge=" + data.length);
+    log("renderVerlauf eintäge=" + data.length);
     $("#datumAddVerlauf").text(getReadableDate(currentDate));
 
     for (i = 0; i < data.length; i++) {
         verlauf = data[i];
-        console.log("appen " + verlauf.INHALT);
+        log("appen " + verlauf.INHALT);
         $("#verlaufList").append('<li class="ui-li-has-alt"><a href="#" index="' + i + '" class="ui-btn detailVerlauf"><h1>Std. ' + verlauf.STUNDE + '</h1><small>' + verlauf.INHALT + '</small><p class="ui-li-aside"><span class="lehrer">' + verlauf.ID_LERNFELD + '</span><strong>' + verlauf.ID_LEHRER + '</strong></p></a><a href="#" index="' + i + '" verlaufId="' + data[i].ID + '" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="addVerlauf" aria-expanded="false" class="ui-btn ui-btn-icon-notext ui-icon-gear ui-btn-a editVerlauf" title="Edit"></a></li>');
     }
     $(".detailVerlauf").click(function () {
         index = $(this).attr("index");
         verlaufDetailsIndex = index;
         renderVerlaufDetails(index);
-        console.log("Detail Verlauf index = " + index);
+        log("Detail Verlauf index = " + index);
         $.mobile.changePage("#verlaufDetail", {transition: "fade"});
     });
 
     $(".editVerlauf").click(function () {
         index = $(this).attr("index");
         verlaufId = $(this).attr("verlaufId");
-        console.log("Edit Verlauf index = " + index + " verlaufId=" + verlaufId);
+        log("Edit Verlauf index = " + index + " verlaufId=" + verlaufId);
         if (data[index].ID_LEHRER != localStorage.myself) {
             toast("Sie können nur eigene Einträge editieren!");
         }
@@ -1409,18 +1409,18 @@ function renderVerlaufDetails(index) {
 function buildNamensliste(data) {
     $("#namensListView").empty();
     for (i = 0; i < data.length; i++) {
-        //console.log("Füge Listview " + data[i].NNAME + " an");
+        //log("Füge Listview " + data[i].NNAME + " an");
         $("#namensListView").append('<li class="ui-li-has-alt ui-li-has-thumb "> <a sid="' + data[i].id + '" href="#anwesenheitDetails" data-rel="popup" data-position-to="window" data-transition="popup" aria-haspopup="true" aria-owns="anwesenheitDetails" aria-expanded="false" class="setAnwesenheit ui-btn" ><img id="bild' + data[i].id + '" src="../img/anonym.gif" ><p id="anwLehrer' + data[i].id + '" class="ui-li-aside anwClear"></p><h3>' + data[i].VNAME + " " + data[i].NNAME + '</h3><small id="anw' + data[i].id + '" class="anwClear"></small><span ><img id="flag' + data[i].id + '" class="flag" src="../img/flag.png"></span></a><a sid="' + data[i].id + '" href="#schuelerdetails"  class="ui-btn ui-btn-icon-notext ui-icon-info ui-btn-a schueler" title="Edit"></a></li>')
     }
 
     $(".setAnwesenheit").click(function () {
 
         sid = $(this).attr("sid");
-        console.log("klick Anwesenheitsetails id=" + sid);
+        log("klick Anwesenheitsetails id=" + sid);
         $("#anwName").text(getNameSchuler(sid));
         $("#anwName").attr("sid", sid);
         eintrag = getAnwesenheitsEintrag(sid);
-        console.log("Vermekr=" + eintrag.VERMERK);
+        log("Vermekr=" + eintrag.VERMERK);
         $("#anwesenheitText").val(eintrag.VERMERK);
         $("#anwBemerkung").val(eintrag.BEMERKUNG);
         $("#anwesenheitDetails").show();
@@ -1431,7 +1431,7 @@ function buildNamensliste(data) {
 
     $(".schueler").click(function () {
         sid = $(this).attr("sid");
-        console.log("klick auf Schueler mit id =" + sid);
+        log("klick auf Schueler mit id =" + sid);
         localStorage.idSchueler = sid;
         //renderSchuelerDetails(sid);
     });
@@ -1493,7 +1493,7 @@ function renderSchuelerDetails(sid) {
         $(".detailsKlasse").click(function () {
             var kname = $(this).attr("kname");
             localStorage.idKlasse = $(this).attr("kid");
-            console.log("Wechsel zu Klasse " + kname + "mit ID=" + localStorage.idKlasse);
+            log("Wechsel zu Klasse " + kname + "mit ID=" + localStorage.idKlasse);
             refreshKlassenliste(kname);
             $.mobile.changePage("#anwesenheit", {transition: "fade"});
         });
@@ -1533,7 +1533,7 @@ function getSchuelerBild(id, elem) {
                             "auth_token": localStorage.auth_token
                         },
                         success: function (data) {
-                            console.log("Bild Daten geladen:" + data.id + " elem=" + elem);
+                            log("Bild Daten geladen:" + data.id + " elem=" + elem);
                             data = data.base64.replace(/(?:\r\n|\r|\n)/g, '');
                             $(elem).attr('src', "data:image/png;base64," + data);
 
@@ -1555,8 +1555,8 @@ function buildAnwesenheit(kl) {
     if (anwKlasse != kl || anwesenheit == undefined || lastAnnwesenheitUpdate == undefined || currentDate.getTime() > lastAnnwesenheitUpdate + 1000 * 60 * 60) {
         //alert ("aktualisiere currentDate="+currentDate.getMonth());        
 
-        //console.log(" Aktualisierung der Anwesenheit ! currentDate=" + currentDate);
-        //console.log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d=" + d.getFullYear());
+        //log(" Aktualisierung der Anwesenheit ! currentDate=" + currentDate);
+        //log("Abfrage Anwesenheit f. Klasse " + kl + " vom Server! d=" + d.getFullYear());
 
         lastAnnwesenheitUpdate = currentDate.getTime();
 
@@ -1574,7 +1574,7 @@ function buildAnwesenheit(kl) {
             },
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
-                console.log("Anwesenheit geladen!");
+                log("Anwesenheit geladen!");
                 anwesenheit = data;
                 renderAnwesenheit(data);
 
@@ -1588,7 +1588,7 @@ function buildAnwesenheit(kl) {
         });
     }
     else {
-        console.log("Anwesenheit ist wohl aktuell !" + lastAnnwesenheitUpdate + "anwesenheit=" + anwesenheit);
+        log("Anwesenheit ist wohl aktuell !" + lastAnnwesenheitUpdate + "anwesenheit=" + anwesenheit);
         renderAnwesenheit(anwesenheit);
     }
 
@@ -1609,7 +1609,7 @@ function renderAnwesenheit(data) {
         $("#anw" + data[i].id_Schueler).removeClass("parseError");
         var v = data[i].eintraege[0].VERMERK;
         v = v.trim();
-        console.log("VERMERK = (" + v + ") id=" + data[i].id_Schueler);
+        log("VERMERK = (" + v + ") id=" + data[i].id_Schueler);
         $("#anw" + data[i].id_Schueler).text(v);
         $("#anwLehrer" + data[i].id_Schueler).text(data[i].eintraege[0].ID_LEHRER);
 
@@ -1627,14 +1627,14 @@ function renderAnwesenheit(data) {
         }
         var b = data[i].eintraege[0].BEMERKUNG;
         if (b != undefined && b != "") {
-            console.log("Habe eine Bemerkung gefunden und zeige Fahne an!");
+            log("Habe eine Bemerkung gefunden und zeige Fahne an!");
             $("#flag" + data[i].id_Schueler).show();
         }
 
     }
 }
 function refreshBilderKlasse(kl) {
-    console.log("lade Bilder f. Klasse " + kl + " vom Server!");
+    log("lade Bilder f. Klasse " + kl + " vom Server!");
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/klasse/" + kl + "/bilder64/80",
         type: "GET",
@@ -1645,7 +1645,7 @@ function refreshBilderKlasse(kl) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("bilder geladee!");
+            log("bilder geladee!");
             localStorage.schuelerBilder = data;
 
             for (i = 0; i < data.length; i++) {
@@ -1674,7 +1674,7 @@ function getNameSchuler(id) {
     var schueler = JSON.parse(localStorage.schueler);
     for (var i = 0; i < schueler.length; i++) {
         if (schueler[i].id == id) {
-            console.log("Found Name for ID " + id + " " + schueler[i].VNAME + " " + schueler[i].NNAME);
+            log("Found Name for ID " + id + " " + schueler[i].VNAME + " " + schueler[i].NNAME);
             return schueler[i].VNAME + " " + schueler[i].NNAME;
         }
     }
@@ -1684,7 +1684,7 @@ function getAnwesenheitsEintrag(id) {
 
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].id_Schueler == id) {
-            console.log("Found Eintrag for ID " + id + " Vermekr ist " + anwesenheit[i].eintraege[0].VERMERK);
+            log("Found Eintrag for ID " + id + " Vermekr ist " + anwesenheit[i].eintraege[0].VERMERK);
             return anwesenheit[i].eintraege[0];
         }
     }
@@ -1692,7 +1692,7 @@ function getAnwesenheitsEintrag(id) {
 }
 
 function deleteAnwesenheitsEintrag(id) {
-    console.log("deleteAnwesenheit id=" + id );
+    log("deleteAnwesenheit id=" + id );
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].id_Schueler == id) {
             anwesenheit.splice(i, 1);
@@ -1702,7 +1702,7 @@ function deleteAnwesenheitsEintrag(id) {
 }
 
 function setAnwesenheitsEintrag(id, txt, bem, err) {
-    console.log("setAnwesenheit id=" + id + " txt=" + txt + " bem=" + bem);
+    log("setAnwesenheit id=" + id + " txt=" + txt + " bem=" + bem);
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].id_Schueler == id) {
             anwesenheit[i].eintraege[0].parseError = err;
@@ -1713,7 +1713,7 @@ function setAnwesenheitsEintrag(id, txt, bem, err) {
             return;
         }
     }
-    console.log("Ein neuer Eintrag!");
+    log("Ein neuer Eintrag!");
     var anw = {
         "id_Schueler": id,
         "eintraege": [{
@@ -1727,7 +1727,7 @@ function setAnwesenheitsEintrag(id, txt, bem, err) {
     };
     i = anwesenheit.length;
     anwesenheit.push(anw);
-    console.log("Neuen Eintrag erzeugt:" + JSON.stringify(anwesenheit[i]));
+    log("Neuen Eintrag erzeugt:" + JSON.stringify(anwesenheit[i]));
 }
 
 
@@ -1781,22 +1781,27 @@ function toSQLString(d) {
 
 
 $('#currentDate').change(function () {
-    console.log("Change:" + getValidDate($("#currentDate").val()));
+    log("Change:" + getValidDate($("#currentDate").val()));
     currentDate = new Date(getValidDate($("#currentDate").val()));
-    console.log("Anwesenheit set Datum:" + currentDate);
+    log("Anwesenheit set Datum:" + currentDate);
     lastAnnwesenheitUpdate = undefined;
 
     buildAnwesenheit(localStorage.nameKlasse);
 });
 
 $('#currentDateVerlauf').change(function () {
-    console.log("Change:" + getValidDate($("#currentDateVerlauf").val()));
+    log("Change:" + getValidDate($("#currentDateVerlauf").val()));
     currentDate = new Date(getValidDate($("#currentDateVerlauf").val()));
-    console.log("Verlauf set Datum:" + currentDate);
+    log("Verlauf set Datum:" + currentDate);
     loadVerlauf();
 });
 
 function getValidDate(s) {
     var r = s.split(".");
     return r[2] + "-" + r[1] + "-" + r[0];
+}
+function log(msg) {
+    if (debug) {
+        console.log(msg);
+    }
 }

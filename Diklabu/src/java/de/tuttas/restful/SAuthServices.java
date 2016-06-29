@@ -241,7 +241,7 @@ public class SAuthServices {
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("/umfrage")
     public List<ActiveUmfrage> getActiveUmfrage() {
-        System.out.println("Aktive Umfrage abfragen");
+        Log.d("Aktive Umfrage abfragen");
         TypedQuery<ActiveUmfrage> query = em.createNamedQuery("findActiveUmfrage", ActiveUmfrage.class
         );
         List<ActiveUmfrage> umfrage = query.getResultList();

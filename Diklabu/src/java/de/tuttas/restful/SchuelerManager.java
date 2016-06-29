@@ -272,11 +272,11 @@ public class SchuelerManager {
     		if(file.delete()){
                     ro.setSuccess(true);
                     ro.setMsg("Bild gelöscht");
-                    System.out.println(file.getName() + " is deleted!");
+                    Log.d(file.getName() + " is deleted!");
     		}else{
                     ro.setSuccess(false);
                     ro.setMsg("Bild konnte nicht gelöscht werden");
-                    System.out.println("Delete operation is failed.");
+                    Log.d("Delete operation is failed.");
     		}
     	   
     	}catch(Exception e){

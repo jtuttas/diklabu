@@ -458,7 +458,7 @@ function Stop-Coursevoting
 .EXAMPLE
    Get-Coursevotings  -uri http://localhost:8080/Diklabu/api/v1/
 #>
-function Get-Coursevoting
+function Get-Coursevotings
 {
     Param
     (

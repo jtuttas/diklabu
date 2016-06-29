@@ -324,10 +324,10 @@ public class DokuServlet extends HttpServlet {
         for (int y = 0; y < schueler.size(); y++) {
             s = schueler.get(y);
             mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
-            System.out.println(" Noten f. Schüler "+s.getNNAME()+" ID="+s.getId());
+            Log.d(" Noten f. Schüler "+s.getNNAME()+" ID="+s.getId());
             for (int x = 1; x < lernfelder.size(); x++) {
                 lf = lernfelder.get(x);
-                System.out.println("LF="+lf);
+                Log.d("LF="+lf);
                 mo.setData(x, y, getNoteSchueler(s.getId(), lf, lno));
             }
         }
@@ -343,9 +343,9 @@ public class DokuServlet extends HttpServlet {
         query.setParameter("paramNameKlasse", kl.getKNAME());
         List<AusbilderObject> ausbilder = query.getResultList();
 
-        System.out.println("schuler = " + schueler.size());
+        Log.d("schuler = " + schueler.size());
         MyTableDataModel mo = new MyTableDataModel(schueler.size(), new String[]{"Name", "Betrieb", "Ausbilder", "Email", "Tel", "Fax"});
-        System.out.println("mo=" + mo.toCsv());
+        Log.d("mo=" + mo.toCsv());
         for (int y = 0; y < schueler.size(); y++) {
             Schueler s = schueler.get(y);
             mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
@@ -640,7 +640,7 @@ public class DokuServlet extends HttpServlet {
             c.setTime(new Date(t.getDate().getTime()));
             sb.add("" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
         }
-        System.out.println("Es werden " + sb.size() + " Tage dargestellt");
+        Log.d("Es werden " + sb.size() + " Tage dargestellt");
         sb.add(0, "Name");
         String[] cols = new String[sb.size()];
         for (int i = 0; i < cols.length; i++) {
@@ -890,8 +890,8 @@ public class DokuServlet extends HttpServlet {
         Query q3 = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);
         List<Schuljahr> schuljahr = q3.getResultList();
         
-        System.out.println("Schuljahr = "+schuljahr.get(0).getNAME()+" Zeugnisdatum="+schuljahr.get(0).getZEUGNISDATUM());
-        System.out.println("Noten_all="+portfolio);
+        Log.d("Schuljahr = "+schuljahr.get(0).getNAME()+" Zeugnisdatum="+schuljahr.get(0).getZEUGNISDATUM());
+        Log.d("Noten_all="+portfolio);
         for (Schueler s : schueler) {
 
             htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
@@ -905,13 +905,13 @@ public class DokuServlet extends HttpServlet {
             htmlString.append("<br></br>");
             int oldSchuljahr=-1;
             for (Noten_all p : portfolio) {
-                System.out.println("Suche für Schüler ID="+s.getId()+" einen Portfolioeintrag, found ID="+p.getID_SCHUELER());
+                Log.d("Suche für Schüler ID="+s.getId()+" einen Portfolioeintrag, found ID="+p.getID_SCHUELER());
                 if (p.getID_SCHUELER().intValue()== s.getId().intValue()) {
                     
-                    System.out.println("gefunden!");
+                    Log.d("gefunden!");
                     Schuljahr sj = em.find(Schuljahr.class, p.getID_SCHULJAHR());
                     Klasse_all ka = em.find(Klasse_all.class, p.getID_KLASSEN_ALL());
-                    System.out.println(" Schüler gefunden sj="+sj.getNAME()+" ka="+ka.getTitel());
+                    Log.d(" Schüler gefunden sj="+sj.getNAME()+" ka="+ka.getTitel());
                     if (oldSchuljahr!=sj.getID()) {
                         htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
                         oldSchuljahr=sj.getID();
@@ -954,7 +954,7 @@ public class DokuServlet extends HttpServlet {
                     Image image = Image.getInstance(url);
                     image.setAbsolutePosition(480f, 730f);
                     image.scalePercent(40f);
-                    System.out.println("Image="+image);
+                    Log.d("Image="+image);
                     document.add(image);
             XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
             htmlString = new StringBuilder();
@@ -1129,7 +1129,7 @@ public class DokuServlet extends HttpServlet {
     }
 
     private String getNoteSchueler(int sid, String lfid, List<NotenObjekt> lno) {
-        System.out.println("GetNotenSchueler sid="+sid+" lfid="+lfid+" lno="+lno);
+        Log.d("GetNotenSchueler sid="+sid+" lfid="+lfid+" lno="+lno);
         for (NotenObjekt no : lno) {
             if (no.getSchuelerID() == sid) {
                 for (Noten_all n : no.getNoten()) {

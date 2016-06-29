@@ -88,7 +88,7 @@ public class NoAuthServices {
     @GET
     @Path("/umfrage/antworten/{key}")
     public List<AntwortUmfrage> getAntworten(@Context HttpHeaders httpHeaders, @PathParam("key") String key) {
-        System.out.println("Get Antworten f. key (" + key + ")");
+        Log.d("Get Antworten f. key (" + key + ")");
         /*
          String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
          Authenticator aut = Authenticator.getInstance();
@@ -108,7 +108,7 @@ public class NoAuthServices {
         List<Antworten> anw = q.getResultList();
 
         List<AntwortUmfrage> au = new ArrayList<>();
-        System.out.println("Result=" + anw);
+        Log.d("Result=" + anw);
         for (Antworten a : anw) {
             AntwortUmfrage antU = new AntwortUmfrage();
             antU.setFrage(a.getFragenAntworten().getTITEL());
@@ -209,27 +209,27 @@ public class NoAuthServices {
         Log.d("Umfrage ist " + u.getNAME()+" aktive="+u.getACTIVE());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
         uo.setActive(u.getACTIVE());
-        System.out.println("Aktive Umfrage mit Titel" + u.getNAME());
-        System.out.println("Die Umfrage hat FRagen n=" + u.getFragen().size());
+        Log.d("Aktive Umfrage mit Titel" + u.getNAME());
+        Log.d("Die Umfrage hat FRagen n=" + u.getFragen().size());
         Collection<Fragen> fr = u.getFragen();
         for (Fragen f : fr) {
             FragenObjekt fo = new FragenObjekt(f.getTITEL());
             fo.setId(f.getID_FRAGE());
             Collection<Antwortskalen> aw = f.getAntwortskalen();
             for (Antwortskalen as : aw) {
-                System.out.println("size=" + fo.getIDantworten().size());
+                Log.d("size=" + fo.getIDantworten().size());
                 Integer k = new Integer(as.getID());
                 fo.getIDantworten().add(k);
                 if (antworten.get(k) == null) {
-                    System.out.println("Eine neue Antwort (" + as.getNAME() + ")");
+                    Log.d("Eine neue Antwort (" + as.getNAME() + ")");
                     antworten.put(k, new AntwortSkalaObjekt(as.getNAME(), k, as.getWERT()));
                     uo.getAntworten().add(new AntwortSkalaObjekt(as.getNAME(), k, as.getWERT()));
-                    System.out.println("Antworten size=" + uo.getAntworten().size());
+                    Log.d("Antworten size=" + uo.getAntworten().size());
                 }
 
             }
             uo.getFragen().add(fo);
-            System.out.println("size=" + uo.getFragen().size() + "Frage:" + f.getTITEL());
+            Log.d("size=" + uo.getFragen().size() + "Frage:" + f.getTITEL());
         }
         return uo;
     }
@@ -279,14 +279,14 @@ public class NoAuthServices {
         Termine t1 = em.find(Termine.class, f1_id);
         Termine t2 = em.find(Termine.class, f2_id);
         if (t1!=null) {
-            System.out.println("t1="+t1.getNAME());
+            Log.d("t1="+t1.getNAME());
             if (t2!=null) {
-                System.out.println("t2="+t2.getNAME());                
+                Log.d("t2="+t2.getNAME());                
             }
         }
         else {
             if (t2!=null) {
-                System.out.println("t2="+t2.getNAME());                
+                Log.d("t2="+t2.getNAME());                
                 t1=t2;
             }
         }

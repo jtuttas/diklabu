@@ -61,7 +61,7 @@ public class AnwesenheitsManager {
     @DELETE
     @Path("/{ids}/{datum}")
     public Anwesenheit delAnwesenheit(@PathParam("ids") Integer ids,@PathParam("datum") Date dat) {
-        System.out.println("ids="+ids+" Datum="+dat);
+        Log.d("ids="+ids+" Datum="+dat);
         Anwesenheit a = em.find(Anwesenheit.class, new AnwesenheitId(ids, new Timestamp(dat.getTime())));
         if (a!=null) {
             em.remove(a);

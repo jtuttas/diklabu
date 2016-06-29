@@ -120,11 +120,11 @@ public class LDAPUtil {
         String dName=result.getAttributes().get("distinguishedName").getAll().next().toString();
         Log.d("dName="+dName);
         if (dName.contains("OU=Lehrer")) {
-            System.out.println("Ich bin ein Lehrer");
+            Log.d("Ich bin ein Lehrer");
             u.setRole(Roles.toString(Roles.LEHRER));
         }
         else {
-            System.out.println("Ich bin ein Schüler");
+            Log.d("Ich bin ein Schüler");
             u.setRole(Roles.toString(Roles.SCHUELER));
         }
         

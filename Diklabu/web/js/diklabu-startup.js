@@ -35,10 +35,10 @@ $('[data-toggle="tooltip"]').tooltip();
 $("#uploadBildButton").hide();
 $(".infoIcon").unbind();
 $("#template").load(SERVER + "/Diklabu/template.txt", function () {
-    console.log("Load Template")
+    log("Load Template")
 });
 $("#diklabuname").text(DIKLABUNAME);
-console.log("found token:" + sessionStorage.auth_token);
+log("found token:" + sessionStorage.auth_token);
 
 $(document).ajaxSend(function (event, request, settings) {
     $('#loading-indicator').show();
@@ -53,7 +53,7 @@ $(document).ajaxComplete(function (event, request, settings) {
 getKlassenliste(function () {
     getLernfelder(function () {
         if (sessionStorage.auth_token != undefined) {
-            console.log("Build gui for logged in user");
+            log("Build gui for logged in user");
             $("#dokumentationContainer").show();
             getLehrerData(sessionStorage.myself);
             loggedIn();
@@ -184,7 +184,7 @@ $("#print").click(function () {
 });
 
 $("#eigeneEintraege").click(function () {
-    console.log("Eigene Einträge Click");
+    log("Eigene Einträge Click");
     if ($("#eigeneEintraege").is(':checked')) {
         $("#dokufilter1").val("eigeneEintraege")
     }
@@ -195,24 +195,24 @@ $("#eigeneEintraege").click(function () {
 });
 
 $("#lernfelderFilter").change(function () {
-    console.log("Filter Lernfelder =" + $(this).val());
+    log("Filter Lernfelder =" + $(this).val());
     $("#dokufilter2").val($("#lernfelderFilter").val());
     refreshVerlauf(nameKlasse);
 });
 
 $("#emailZurueck").click(function () {
     var found = false;
-    console.log("email zurück index=" + indexFehlzeiten);
+    log("email zurück index=" + indexFehlzeiten);
     for (var i = indexFehlzeiten - 1; i >= 0 && !found; i--) {
         var anwesenheitEintrag = anwesenheit[i];
         if (anwesenheitEintrag.summeFehltage != undefined && anwesenheitEintrag.summeFehltage != 0) {
-            console.log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltag);
+            log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltag);
             generateMailForm(anwesenheitEintrag);
             indexFehlzeiten = i;
             found = true;
         }
     }
-    console.log("Found a Item:" + found);
+    log("Found a Item:" + found);
 
     if (!found) {
         toastr["warning"]("kein weiterer Fehlzeiteneintrag gefunden!", "Warnung!");
@@ -221,17 +221,17 @@ $("#emailZurueck").click(function () {
 })
 $("#emailWeiter").click(function () {
     var found = false;
-    console.log("email weiter index=" + indexFehlzeiten);
+    log("email weiter index=" + indexFehlzeiten);
     for (var i = indexFehlzeiten + 1; i < anwesenheit.length && !found; i++) {
         var anwesenheitEintrag = anwesenheit[i];
         if (anwesenheitEintrag.summeFehltage != undefined && anwesenheitEintrag.summeFehltage != 0) {
-            console.log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltag);
+            log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltag);
             generateMailForm(anwesenheitEintrag);
             indexFehlzeiten = i;
             found = true;
         }
     }
-    console.log("Found a Item:" + found);
+    log("Found a Item:" + found);
 
     if (!found) {
         toastr["warning"]("kein weiterer Fehlzeiteneintrag gefunden!", "Warnung!");
@@ -245,7 +245,7 @@ $(document).on('change', '.btn-file :file', function () {
     var input = $(this),
             numFiles = input.get(0).files ? input.get(0).files.length : 1,
             label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
-    console.log("Ausgewählt wurde " + label);
+    log("Ausgewählt wurde " + label);
     input.trigger('fileselect', [numFiles, label]);
     $("#bildWahl").text(label);
     $("#uploadBildButton").show();
@@ -256,7 +256,7 @@ $('#bildUploadForm').on('submit', (function (e) {
     e.preventDefault();
     var formData = new FormData(this);
     $("#uploadBildButton").hide();
-    console.log("--> Hochladen des Bildes für Schüler id=" + idSchueler);
+    log("--> Hochladen des Bildes für Schüler id=" + idSchueler);
     $.ajax({
         type: 'POST',
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + idSchueler,
@@ -265,7 +265,7 @@ $('#bildUploadForm').on('submit', (function (e) {
         contentType: false,
         processData: false,
         success: function (data) {
-            console.log("success");
+            log("success");
             if (data.success) {
                 toastr["success"](data.msg, "Info!");
                 getSchuelerBild(idSchueler, "#infoBild");
@@ -278,7 +278,7 @@ $('#bildUploadForm').on('submit', (function (e) {
             }
         },
         error: function (xhr, textStatus, errorThrown) {
-            console.log("error");
+            log("error");
             toastr["error"]("Fehler beim Hochladen des Bildes!", "Fehler!");
             $("#uploadBildButton").show();
             if (xhr.status == 401) {
@@ -289,32 +289,32 @@ $('#bildUploadForm').on('submit', (function (e) {
 }));
 
 $("#filter1").change(function () {
-    console.log("Filter change ID=" + $('option:selected', this).attr('filter_id'));
+    log("Filter change ID=" + $('option:selected', this).attr('filter_id'));
     $("#anwfilter1").val($('option:selected', this).attr('filter_id'));
     refreshAnwesenheit(nameKlasse);
 });
 
 $("#filter2").change(function () {
-    console.log("Filter change ID=" + $('option:selected', this).attr('filter_id'));
+    log("Filter change ID=" + $('option:selected', this).attr('filter_id'));
     $("#anwfilter2").val($('option:selected', this).attr('filter_id'));
     refreshAnwesenheit(nameKlasse);
 });
 
 
 $('#anwesenheitTabs').on('shown.bs.tab', function (e) {
-    console.log("anwesenheitsTab shown " + $(e.target).text());
+    log("anwesenheitsTab shown " + $(e.target).text());
     updateCurrentView();
 });
 $('#fehlzeitenTab').on('shown.bs.tab', function (e) {
-    console.log("fehlzeitenTab shown " + $(e.target).text());
+    log("fehlzeitenTab shown " + $(e.target).text());
     updateCurrentView();
 });
 $('#plaene').on('shown.bs.tab', function (e) {
-    console.log("plaene shown " + $(e.target).text());
+    log("plaene shown " + $(e.target).text());
     updateCurrentView();
 });
 $('#klassenTabs').on('shown.bs.tab', function (e) {
-    console.log("KlassenTab shown " + $(e.target).text());
+    log("KlassenTab shown " + $(e.target).text());
     updateCurrentView();
 });
 $("#updateKlassenBem").click(function () {
@@ -322,26 +322,26 @@ $("#updateKlassenBem").click(function () {
 });
 
 $('#notenTabs').on('shown.bs.tab', function (e) {
-    console.log("New NavNoten Target =" + $(e.target).text());
+    log("New NavNoten Target =" + $(e.target).text());
     updateCurrentView();
 });
 $('#umfrageTabs').on('shown.bs.tab', function (e) {
-    console.log("New Navumfrage Target =" + $(e.target).text());
+    log("New Navumfrage Target =" + $(e.target).text());
     updateCurrentView();
 });
 
 $('#navTabs').on('shown.bs.tab', function (e) {
-    console.log("New Nav Target =" + $(e.target).text());
+    log("New Nav Target =" + $(e.target).text());
     updateCurrentView();
 });
 
 
 $("#absendenEMailBetrieb").click(function () {
-    console.log("subject mail  length =" + $("#emailBetriebInhalt").val().length + " from " + $("#fromLehrerBetriebMail").val() + " to:" + $("#toBetriebMail").val());
+    log("subject mail  length =" + $("#emailBetriebInhalt").val().length + " from " + $("#fromLehrerBetriebMail").val() + " to:" + $("#toBetriebMail").val());
     mails = $("#emailsBetrieb").val().split(";");
     error = false;
     for (i = 0; i < mails.length - 1; i++) {
-        console.log("Teste email:" + mails[i]);
+        log("Teste email:" + mails[i]);
         if (!isValidEmailAddress(mails[i])) {
             toastr["warning"]("Keine gültige EMail Adresse!" + mails[i], "Mail Service");
             error = true;
@@ -377,11 +377,11 @@ $("#absendenEMailBetrieb").click(function () {
 });
 
 $("#absendenEMailKlasse").click(function () {
-    console.log("subject mail  length =" + $("#emailKlasseInhalt").val().length + " from " + $("#fromLehrerKlasseMail").val() + " to:" + $("#toKlasseMail").val());
+    log("subject mail  length =" + $("#emailKlasseInhalt").val().length + " from " + $("#fromLehrerKlasseMail").val() + " to:" + $("#toKlasseMail").val());
     mails = $("#emailsKlasse").val().split(";");
     error = false;
     for (i = 0; i < mails.length - 1; i++) {
-        console.log("Teste email:" + mails[i]);
+        log("Teste email:" + mails[i]);
         if (!isValidEmailAddress(mails[i])) {
             toastr["warning"]("Keine gültige EMail Adresse!" + mails[i], "Mail Service");
             error = true;
@@ -413,7 +413,7 @@ $("#absendenEMailKlasse").click(function () {
 });
 
 $("#absendenEMailSchueler").click(function (event) {
-    console.log("subject mail  length =" + $("#emailSchuelerInhalt").val().length + " from " + $("#fromLehrerMail").val() + " to:" + $("#toSchuelerMail").val());
+    log("subject mail  length =" + $("#emailSchuelerInhalt").val().length + " from " + $("#fromLehrerMail").val() + " to:" + $("#toSchuelerMail").val());
     if (!isValidEmailAddress($("#fromLehrerMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerMail").val(), "Mail Service");
         //event.preventDefault();
@@ -439,7 +439,7 @@ $("#absendenEMailSchueler").click(function (event) {
 });
 
 $("#emailForm").submit(function (event) {
-    console.log("subject mail length =" + $("#subjectMail").val().length);
+    log("subject mail length =" + $("#subjectMail").val().length);
 
     if (!isValidEmailAddress($("#fromMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!", "Mail Service");
@@ -467,9 +467,9 @@ $("#emailForm").submit(function (event) {
 
 $('body').on('keydown', "#kennwort", function (e) {
     var keyCode = e.keyCode || e.which;
-    //console.log("key Pressed" + keyCode);
+    //log("key Pressed" + keyCode);
     if (keyCode == 13) {
-        console.log("key Down Kennwort");
+        log("key Down Kennwort");
         performLogin();
     }
 });
@@ -490,7 +490,7 @@ $("body").on('keydown', ".bemerkung", function (e) {
             "id": parseInt(sid),
             "info": $(this).val()
         };
-        console.log("Sende Bemerkung " + JSON.stringify(eintr));
+        log("Sende Bemerkung " + JSON.stringify(eintr));
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/schueler/" + sid,
             type: "POST",
@@ -502,7 +502,7 @@ $("body").on('keydown', ".bemerkung", function (e) {
             },
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
-                console.log("Empfange " + JSON.stringify(data));
+                log("Empfange " + JSON.stringify(data));
                 $("#bem" + data.id).val(data.info);
             },
             error: function (xhr, textStatus, errorThrown) {
@@ -527,10 +527,10 @@ var oldText = "";
  */
 function handelKeyEvents(e) {
     var keyCode = e.keyCode || e.which;
-    //console.log("key Pressed" + keyCode);
+    //log("key Pressed" + keyCode);
     if (keyCode == 13 || keyCode == 9 || keyCode == 27) {
         var txt = $(this).val();
-        console.log("eingegeben wurde " + txt);
+        log("eingegeben wurde " + txt);
         $(this).remove();
         if (keyCode != 27) {
             //inputTd.text(txt);  
@@ -555,11 +555,11 @@ function handelKeyEvents(e) {
         var tr = inputTd.parent();
 
         /*
-         console.log("index=" + index);
-         console.log("Nachbar-Element hat Text " + $(inputTd).next().text());
-         console.log("Vorheriges-Element hat Text " + $(inputTd).prev().text());
-         console.log("Oberhalb hat den Wert " + tr.prev().find('td').eq(index).text());
-         console.log("Unterhalb hat den Wert " + tr.next().find('td').eq(index).text());
+         log("index=" + index);
+         log("Nachbar-Element hat Text " + $(inputTd).next().text());
+         log("Vorheriges-Element hat Text " + $(inputTd).prev().text());
+         log("Oberhalb hat den Wert " + tr.prev().find('td').eq(index).text());
+         log("Unterhalb hat den Wert " + tr.next().find('td').eq(index).text());
          */
         // unteres Element auswählen
         if (keyCode == 13) {
@@ -589,7 +589,7 @@ function handelKeyEvents(e) {
 // Neues Lernfeld für Noteneintrag
 $("#notenlernfelder").change(function () {
     lfid = $('option:selected', this).attr("lfid");
-    console.log("Noten Lernfelder changed to " + $("#notenlernfelder").val() + " id=" + lfid);
+    log("Noten Lernfelder changed to " + $("#notenlernfelder").val() + " id=" + lfid);
     getNoten(nameKlasse, currentSchuljahr.ID, function (data) {
         for (k = 0; k < schueler.length; k++) {
             sch = schueler[k];
@@ -616,19 +616,19 @@ $("#notenlernfelder").change(function () {
 // Neue Note Eintragen
 $('body').on('keydown', ".notenTextfeld", function (e) {
     var keyCode = e.keyCode || e.which;
-    console.log("keycode=" + keyCode);
+    log("keycode=" + keyCode);
     if (keyCode == 13 || keyCode == 9) {
         $(this).blur();
     }
 });
 $('body').on('focusout', ".notenTextfeld", function (e) {
-    console.log("focus out");
+    log("focus out");
     if ($(this).val() != "") {
         submitNote(lfid, $(this).attr("sid"), $(this).val());
     }
     else {
         deleteNote(lfid, $(this).attr("sid"));
-        console.log("Note löschen!");
+        log("Note löschen!");
     }
 });
 
@@ -753,7 +753,7 @@ function getSchuljahre(callback) {
  * @returns {undefined}
  */
 function getNoten(kl, ids, callback) {
-    console.log("--> Noten der Klasse kl=" + kl + " für Schuljahr ID=" + ids + "laden!");
+    log("--> Noten der Klasse kl=" + kl + " für Schuljahr ID=" + ids + "laden!");
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/noten/" + kl + "/" + ids,
         type: "GET",
@@ -764,7 +764,7 @@ function getNoten(kl, ids, callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Noten empfangen!");
+            log("Noten empfangen!");
             notenliste = data;
 
             if (callback != undefined) {
@@ -787,7 +787,7 @@ function getNoten(kl, ids, callback) {
  * @param {type} id die Lehrer ID
  */
 function getLehrerData(id, callback) {
-    console.log("Get LehrerData " + id);
+    log("Get LehrerData " + id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/lehrer/" + id + "/",
         type: "GET",
@@ -823,12 +823,12 @@ function getLehrerData(id, callback) {
  * @param {type} success Callback für Success 
  */
 function submitAnwesenheit(eintr, success) {
-    console.log("-->! Sende Anwesenheit zum Server:" + JSON.stringify(eintr));
-    console.log("Vermekr = (" + eintr.VERMERK + ")");
+    log("-->! Sende Anwesenheit zum Server:" + JSON.stringify(eintr));
+    log("Vermekr = (" + eintr.VERMERK + ")");
     ve=eintr.VERMERK.trim();
     
     if (ve == "") {
-        console.log("Lösche Eintrag!");
+        log("Lösche Eintrag!");
         dat = eintr.DATUM;
         dat = dat.substr(0, dat.indexOf("T"));
 
@@ -889,7 +889,7 @@ function submitAnwesenheit(eintr, success) {
  * @param {type} kl die Klassenbezeichnung
  */
 function refreshVerlauf(kl) {
-    console.log("--> Refresh Verlauf f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
+    log("--> Refresh Verlauf f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/verlauf/" + kl + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
         type: "GET",
@@ -902,7 +902,7 @@ function refreshVerlauf(kl) {
         success: function (data) {
             verlauf = data;
             $("#tabelleVerlauf").empty();
-            console.log("Filter eigene Einträege=" + $("#eigeneEintraege").is(':checked'));
+            log("Filter eigene Einträege=" + $("#eigeneEintraege").is(':checked'));
             for (i = 0; i < data.length; i++) {
                 var datum = data[i].wochentag + " " + data[i].DATUM;
                 datum = datum.substring(0, datum.indexOf('T'));
@@ -923,7 +923,7 @@ function refreshVerlauf(kl) {
                 }
             }
             $(".success").click(function () {
-                console.log("Auswahl Verlaufseintrag ID=" + $(this).attr("dbid"));
+                log("Auswahl Verlaufseintrag ID=" + $(this).attr("dbid"));
                 idVerlauf = $(this).attr("dbid");
                 index = $(this).attr("index");
                 $("#lernsituationVerlauf").val(verlauf[index].AUFGABE);
@@ -934,7 +934,7 @@ function refreshVerlauf(kl) {
                 $("#eintragDatum").val(dat);
                 var lf = verlauf[index].ID_LERNFELD;
                 lf = lf.trim();
-                console.log("Setze Lernfeld auf (" + lf + ")");
+                log("Setze Lernfeld auf (" + lf + ")");
                 $("#lernfelder").val(lf);
                 $("#stunde").val(verlauf[index].STUNDE);
                 $("#updateVerlauf").removeClass("disabled");
@@ -956,7 +956,7 @@ function refreshVerlauf(kl) {
  * @param {type} klid Die id der Klasse
  */
 function getKlassenBemerkungen(klid) {
-    console.log("--> get Klassenbemerkungen f. Klasse " + klid);
+    log("--> get Klassenbemerkungen f. Klasse " + klid);
 
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/klasse/details/" + klid,
@@ -984,7 +984,7 @@ function getKlassenBemerkungen(klid) {
  * @param {type} klid die ID der Klasse
  */
 function setKlassenBemerkungen(klid) {
-    console.log("--> set Klassenbemerkungen f. Klasse " + klid);
+    log("--> set Klassenbemerkungen f. Klasse " + klid);
 
     var eintr = {
         "NOTIZ": $("#klassenbem").val()
@@ -1017,7 +1017,7 @@ function setKlassenBemerkungen(klid) {
  * @param {type} kl Der Name der Klasse
  */
 function refreshBemerkungen(kl) {
-    console.log("-->  Bemerkungen f. Klasse " + kl);
+    log("-->  Bemerkungen f. Klasse " + kl);
 
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/klasse/" + kl,
@@ -1049,7 +1049,7 @@ function refreshBemerkungen(kl) {
  * @param {type} wert Wert des Eintrages (z.B. Note)
  */
 function submitNote(lf, ids, wert) {
-    console.log("--> SubmitNote lf=" + lf + " ID_Schueler=" + ids + " Wert=" + wert);
+    log("--> SubmitNote lf=" + lf + " ID_Schueler=" + ids + " Wert=" + wert);
     var eintr = {
         "ID_LERNFELD": lf,
         "ID_LK": sessionStorage.myself,
@@ -1087,7 +1087,7 @@ function submitNote(lf, ids, wert) {
  * @param {type} ids Schüler ID 
  */
 function deleteNote(lf, ids) {
-    console.log("--> deleteNote lf=" + lf + " ID_Schueler=" + ids);
+    log("--> deleteNote lf=" + lf + " ID_Schueler=" + ids);
 
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/noten/" + lf + "/" + ids,
@@ -1118,7 +1118,7 @@ function deleteNote(lf, ids) {
 
 
 function getTermindaten(callback) {
-    console.log("--> Get Termindaten Filter1 ID=" + $('option:selected', "#filter1").attr('filter_id') + " Filter2 ID=" + $('option:selected', "#filter2").attr('filter_id'));
+    log("--> Get Termindaten Filter1 ID=" + $('option:selected', "#filter1").attr('filter_id') + " Filter2 ID=" + $('option:selected', "#filter2").attr('filter_id'));
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/noauth/termine/" + $("#startDate").val() + "/" + $("#endDate").val() + "/" + $('option:selected', "#filter1").attr('filter_id') + "/" + $('option:selected', "#filter2").attr('filter_id'),
         type: "GET",
@@ -1149,9 +1149,9 @@ function getTermindaten(callback) {
  */
 function refreshAnwesenheit(kl, callback) {
 
-    console.log("--> Refresh Anwesenheit f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
+    log("--> Refresh Anwesenheit f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
     var url = SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + $("#startDate").val() + "/" + $("#endDate").val();
-    console.log("URL=" + url);
+    log("URL=" + url);
     $.ajax({
         // anwesenheit/FISI13A/2015-09-08/2015-09-15
         url: SERVER + "/Diklabu/api/v1/anwesenheit/" + kl + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
@@ -1164,7 +1164,7 @@ function refreshAnwesenheit(kl, callback) {
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
             anwesenheit = data;
-            console.log("anwesenheit empfangen!");
+            log("anwesenheit empfangen!");
             buildeAnwesenheitstabelle(data);
             // Eventhandler auf einen anwesenheitseintrag
             $(".anwesenheitsPopup").hover(function () {
@@ -1193,7 +1193,7 @@ function refreshAnwesenheit(kl, callback) {
  * @param {type} elem Element im dem das Bild angezeigt werden soll (als attr 'src')
  */
 function getSchuelerBild(id, elem) {
-    console.log("--> Lade Schülerbild vom Schüler mit der id=" + id);
+    log("--> Lade Schülerbild vom Schüler mit der id=" + id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + id,
         cache: false,
@@ -1216,7 +1216,7 @@ function getSchuelerBild(id, elem) {
                             "auth_token": sessionStorage.auth_token
                         },
                         success: function (data) {
-                            console.log("Bild Daten geladen:" + data.id + " elem=" + elem);
+                            log("Bild Daten geladen:" + data.id + " elem=" + elem);
                             data = data.base64.replace(/(?:\r\n|\r|\n)/g, '');
                             $(elem).attr('src', "data:image/png;base64," + data);
 
@@ -1239,7 +1239,7 @@ function getSchuelerBild(id, elem) {
  * @param {type} callback optionales Callback
  */
 function getBetriebe(kl, callback) {
-    console.log("--> Get Betriebe f. Klasse " + kl);
+    log("--> Get Betriebe f. Klasse " + kl);
     nameKlasse = kl;
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/klasse/betriebe/" + kl,
@@ -1253,7 +1253,7 @@ function getBetriebe(kl, callback) {
         success: function (data) {
             $("#tabelleBetriebe").empty();
             betriebe = data;
-            console.log("<--- empfangen: Betriebe!");
+            log("<--- empfangen: Betriebe!");
             for (k = 0; k < data.length; k++) {
                 var s = findSchueler(data[k].id_schueler);
                 $("#tabelleBetriebe").append('<tr><td><img src="../img/Info.png" ids="' + data[k].id_schueler + '" class="infoIcon"> ' + s.VNAME + " " + s.NNAME + '</td><td>' + data[k].name + '</td><td>' + data[k].nName + '</td><td><a href="mailto:"' + data[k].email + '>' + data[k].email + '</a>&nbsp;<img aemail="' + data[k].email + '" aname="' + data[k].nName + '" src="../img/mail.png" class="mailBetrieb"></td><td>' + data[k].telefon + '</td><td>' + data[k].fax + '</td></tr>');
@@ -1280,7 +1280,7 @@ function getBetriebe(kl, callback) {
  * @param {type} callback Callback
  */
 function loadSchulerDaten(id, callback) {
-    console.log("--> loadSchuelerData id=" + id);
+    log("--> loadSchuelerData id=" + id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/schueler/" + id,
         type: "GET",
@@ -1316,7 +1316,7 @@ function loadSchuljahr(callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Load Schuljahr empfangen:" + JSON.stringify(data));
+            log("Load Schuljahr empfangen:" + JSON.stringify(data));
             callback(data);
         },
         error: function (xhr, textStatus, errorThrown) {
@@ -1333,7 +1333,7 @@ function loadSchuljahr(callback) {
  * @param {type} callback Callback
  */
 function loadUmfrage(callback) {
-    console.log("--> getUmfrage");
+    log("--> getUmfrage");
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/sauth/umfrage",
         type: "GET",
@@ -1356,7 +1356,7 @@ function loadUmfrage(callback) {
  * @param {type} callback Callback
  */
 function loadUmfragen(callback) {
-    console.log("--> getUmfragen");
+    log("--> getUmfragen");
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/umfrage",
         type: "GET",
@@ -1382,7 +1382,7 @@ function loadUmfragen(callback) {
  * @returns {undefined}
  */
 function loadResults(id, klassefilter, callback) {
-    console.log("--> getAuswertung");
+    log("--> getAuswertung");
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/umfrage/auswertung/" + id + "/" + encodeURIComponent(klassefilter),
         type: "GET",
@@ -1403,7 +1403,7 @@ function loadResults(id, klassefilter, callback) {
 
 
 function loadBeteiligung(uid, kname, callback) {
-    console.log("--> load Beteiligung Klasse=" + kname + " uid=" + uid);
+    log("--> load Beteiligung Klasse=" + kname + " uid=" + uid);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/umfrage/beteiligung/" + uid + "/" + kname,
         type: "GET",
@@ -1413,7 +1413,7 @@ function loadBeteiligung(uid, kname, callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Load Beteiligung data=" + JSON.stringify(data));
+            log("Load Beteiligung data=" + JSON.stringify(data));
             if (callback != undefined) {
                 callback(data);
             }
@@ -1428,7 +1428,7 @@ function loadBeteiligung(uid, kname, callback) {
 }
 
 function loadPortfolio(id, callback) {
-    console.log("--> loadPortfiol Klassen id=" + id);
+    log("--> loadPortfiol Klassen id=" + id);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/portfolio/" + id,
         type: "GET",
@@ -1438,7 +1438,7 @@ function loadPortfolio(id, callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            console.log("Load Portfolio data=" + JSON.stringify(data));
+            log("Load Portfolio data=" + JSON.stringify(data));
             if (callback != undefined) {
                 callback(data);
             }
@@ -1458,7 +1458,7 @@ function loadPortfolio(id, callback) {
  * @param {type} kl der Klassenname
  */
 function getBildKlasse(kl) {
-    console.log("--> Lade Bider der Klasse " + kl);
+    log("--> Lade Bider der Klasse " + kl);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/klasse/" + kl + "/bilder64/150",
         cache: false,
@@ -1475,7 +1475,7 @@ function getBildKlasse(kl) {
         },
         success:
                 function (data) {
-                    console.log("Bilder der Klasse " + kl + " geladen");
+                    log("Bilder der Klasse " + kl + " geladen");
 
                     for (i = 0; i < data.length; i++) {
                         b64 = data[i].base64;
@@ -1496,7 +1496,7 @@ function getBildKlasse(kl) {
  */
 function getCurrentView() {
     target = $("ul#navTabs li.active").text();
-    console.log("get Current View Base target=(" + target + ")");
+    log("get Current View Base target=(" + target + ")");
     if (target == "Anwesenheit") {
         sub = $("ul#anwesenheitTabs li.active").text();
         return sub;
@@ -1551,11 +1551,11 @@ function findNote(ids, idlf) {
  * Stundenplan (HTML) der Klasse Abfragen und anzeigen
  */
 function loadStundenPlan() {
-    console.log("Lade Stundenplan der Klasse " + nameKlasse);
+    log("Lade Stundenplan der Klasse " + nameKlasse);
     $("#stundenplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/stundenplan/" + nameKlasse, function (response, status, xhr) {
-        console.log("Stundenplan Status=" + status);
+        log("Stundenplan Status=" + status);
         if (status == "nocontent") {
-            console.log("Kann Stundenplan der Klasse " + nameKlasse + " nicht laden!")
+            log("Kann Stundenplan der Klasse " + nameKlasse + " nicht laden!")
             $("#stundenplan").empty();
             $("#stundenplan").append('<div><center><h1>Kann Stundenplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
         }
@@ -1566,11 +1566,11 @@ function loadStundenPlan() {
  * Vertretungsplan (HTML) der Klasse Abfragen und anzeigen
  */
 function loadVertertungsPlan() {
-    console.log("Lade Vertretungsplan der Klasse " + nameKlasse);
+    log("Lade Vertretungsplan der Klasse " + nameKlasse);
     $("#vertertungsplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/vertertungsplan/" + nameKlasse, function (response, status, xhr) {
-        console.log("Vertretungsplan Status=" + status);
+        log("Vertretungsplan Status=" + status);
         if (status == "nocontent") {
-            console.log("Kann Vertertungsplan der Klasse " + nameKlasse + " nicht laden!")
+            log("Kann Vertertungsplan der Klasse " + nameKlasse + " nicht laden!")
             $("#vertertungsplan").empty();
             $("#vertertungsplan").append('<div><center><h1>Kann Vertertungsplan der Klasse ' + nameKlasse + ' nicht finden</h1></center></div>');
         }
@@ -1581,12 +1581,12 @@ function loadVertertungsPlan() {
  * Stundenplan des Lehrers anzeigen
  */
 function loadStundenPlanLehrer() {
-    console.log("Lade Stundenplan für " + sessionStorage.lehrerNNAME);
+    log("Lade Stundenplan für " + sessionStorage.lehrerNNAME);
     getLehrerData(sessionStorage.myself, function (data) {
         $("#lstundenplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/stundenplanlehrer/" + sessionStorage.lehrerNNAME, function (response, status, xhr) {
-            console.log("Stundenplan Lehere Status=" + status);
+            log("Stundenplan Lehere Status=" + status);
             if (status == "nocontent") {
-                console.log("Kann Stundenplan für Lehrer nicht laden");
+                log("Kann Stundenplan für Lehrer nicht laden");
                 $("#lstundenplan").empty();
                 $("#lstundenplan").append('<div><center><h1>Kann Stundenplan für ' + sessionStorage.lehrerNNAME + ' nicht finden</h1></center></div>');
             }
@@ -1599,12 +1599,12 @@ function loadStundenPlanLehrer() {
  * Vertretungsplan des Lehrers anzeigen
  */
 function loadVertretungsPlanLehrer() {
-    console.log("Lade Vertretungsplan für " + sessionStorage.lehrerNNAME);
+    log("Lade Vertretungsplan für " + sessionStorage.lehrerNNAME);
     getLehrerData(sessionStorage.myself, function (data) {
         $("#lvertertungsplan").load(SERVER + "/Diklabu/api/v1/noauth/plan/vertretungsplanlehrer/" + sessionStorage.lehrerNNAME, function (response, status, xhr) {
-            console.log("Vertretungsplan Lehrer Status=" + status);
+            log("Vertretungsplan Lehrer Status=" + status);
             if (status == "nocontent") {
-                console.log("Kann Stundenplan für Lehrer nicht laden");
+                log("Kann Stundenplan für Lehrer nicht laden");
                 $("#lvertertungsplan").empty();
                 $("#lvertertungsplan").append('<div><center><h1>Kann Vertretungsplan für ' + sessionStorage.lehrerNNAME + ' nicht finden</h1></center></div>');
             }
@@ -1738,8 +1738,8 @@ function loggedIn() {
         updateCurrentView();
     });
     $("#klassen").change(function () {
-        console.log("Klassen change ID=" + $('option:selected', this).attr('dbid') + " KNAME=" + $("#klassen").val());
-        console.log("Current View =" + getCurrentView());
+        log("Klassen change ID=" + $('option:selected', this).attr('dbid') + " KNAME=" + $("#klassen").val());
+        log("Current View =" + getCurrentView());
         idKlasse = $('option:selected', this).attr('dbid');
         nameKlasse = $("#klassen").val();
         $("#idklasse").val(idKlasse);
@@ -1815,11 +1815,11 @@ function generateAnwesenheitsTable(termine) {
     }
     $("#tabelleAnwesenheit").append(tab);
     $(".anwesenheit").click(function () {
-        console.log("input Visible=" + inputVisible);
+        log("input Visible=" + inputVisible);
         oldText = $(this).text();
         if (!inputVisible) {
             inputTd = $(this);
-            console.log("Bemerkung = " + inputTd.attr("bem"));
+            log("Bemerkung = " + inputTd.attr("bem"));
             inputVisible = true;
             $('body').off('keydown', "#anwesenheitsInput");
             var t = $(this).text();
@@ -1833,7 +1833,7 @@ function generateAnwesenheitsTable(termine) {
             inputVisible = true;
             $('body').off('keydown', "#anwesenheitsInput");
             var txt = $("#anwesenheitsInput").val();
-            console.log("eingegeben wurde (" + txt + ")");
+            log("eingegeben wurde (" + txt + ")");
             $("#anwesenheitsInput").remove();
             //inputTd.text(txt);
             inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + txt + '</a>');
@@ -1855,7 +1855,7 @@ function generateAnwesenheitsTable(termine) {
  * Erzeugen der Fehlzeitentabelle 
  */
 function generateVerspaetungen() {
-    console.log("Generate Verspaetungen");
+    log("Generate Verspaetungen");
     $("#verspaetungenTabelle").empty();
     for (var i = 0; i < anwesenheit.length; i++) {
         if (anwesenheit[i].summeFehltage != 0 || anwesenheit[i].anzahlVerspaetungen != 0 || anwesenheit[i].parseErrors.length != 0) {
@@ -1865,14 +1865,14 @@ function generateVerspaetungen() {
             tr += "<span class=\"fehltagEntschuldigt\">" + anwesenheit[i].summeFehltageEntschuldigt + "</span></td>";
             tr += "<td>";
             var entschuldigt = anwesenheit[i].fehltageEntschuldigt;
-            console.log("Fehltage Entschuldigt size=" + entschuldigt.length);
+            log("Fehltage Entschuldigt size=" + entschuldigt.length);
             for (var j = 0; j < entschuldigt.length; j++) {
                 var dat = entschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
                 tr += "<span class=\"fehltagEntschuldigt\">" + '<a href="#" data-toggle="tooltip" title="' + entschuldigt[j].ID_LEHRER + '">' + dat + "</a></span> &nbsp;";
             }
             var unentschuldigt = anwesenheit[i].fehltageUnentschuldigt;
-            console.log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
+            log("Fehltage UnEntschuldigt size=" + unentschuldigt.length);
             for (var j = 0; j < unentschuldigt.length; j++) {
                 var dat = unentschuldigt[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
@@ -1885,7 +1885,7 @@ function generateVerspaetungen() {
             tr += "<td>" + anwesenheit[i].summeMinutenVerspaetungenEntschuldigt + " min</td>";
             var fehler = anwesenheit[i].parseErrors;
             tr += "<td>";
-            console.log("Fehler size=" + fehler.length);
+            log("Fehler size=" + fehler.length);
             for (var j = 0; j < fehler.length; j++) {
                 var dat = fehler[j].DATUM;
                 dat = dat.substr(0, dat.indexOf("T"));
@@ -1905,18 +1905,18 @@ function generateVerspaetungen() {
 
 function createMailForm() {
     // Mail Form f. Fehltage aktualisieren
-    console.log("Create Mail Form anwesenheit.length=" + anwesenheit.length);
+    log("Create Mail Form anwesenheit.length=" + anwesenheit.length);
     var found = false;
     for (var i = 0; i < anwesenheit.length && !found; i++) {
         var anwesenheitEintrag = anwesenheit[i];
         if (anwesenheitEintrag.summeFehltage != undefined && anwesenheitEintrag.summeFehltage != 0) {
-            console.log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltage);
+            log("Summe Fehltage = " + anwesenheitEintrag.summmeFehltage);
             generateMailForm(anwesenheitEintrag);
             indexFehlzeiten = i;
             found = true;
         }
     }
-    console.log("Found a Item:" + found);
+    log("Found a Item:" + found);
 
     if (!found)
         emptyMailForm();
@@ -1931,7 +1931,7 @@ function createMailForm() {
 function getNameSchuler(id) {
     for (var i = 0; i < schueler.length; i++) {
         if (schueler[i].id == id) {
-            console.log("Found Name for ID " + id + " " + schueler[i].VNAME + " " + schueler[i].NNAME)
+            log("Found Name for ID " + id + " " + schueler[i].VNAME + " " + schueler[i].NNAME)
             return schueler[i].VNAME + " " + schueler[i].NNAME;
         }
     }
@@ -2013,7 +2013,7 @@ function getSchuelerInfo() {
     $(".infoIcon").unbind();
     $(".infoIcon").click(function () {
         idSchueler = $(this).attr("ids");
-        console.log("lade Schuler ID=" + idSchueler);
+        log("lade Schuler ID=" + idSchueler);
         loadSchulerDaten(idSchueler, function (data) {
             $("#infoName").text(data.vorname + " " + data.name);
             $("#infoGeb").text("Geburtsdatum " + data.gebDatum);
@@ -2043,7 +2043,7 @@ function getSchuelerInfo() {
     });
     $(".mailIcon").unbind();
     $(".mailIcon").click(function () {
-        console.log("mail to Schüler with id=" + $(this).attr("ids") + "abs=" + sessionStorage.myemail);
+        log("mail to Schüler with id=" + $(this).attr("ids") + "abs=" + sessionStorage.myemail);
         var s = findSchueler($(this).attr("ids"));
         $("#mailName").text(s.VNAME + " " + s.NNAME);
         $("#mailSAdr").text(s.EMAIL);
@@ -2056,7 +2056,7 @@ function getSchuelerInfo() {
     });
     $(".mailBetrieb").unbind();
     $(".mailBetrieb").click(function () {
-        console.log("mail to Betrieb to=" + $(this).attr("aemail"));
+        log("mail to Betrieb to=" + $(this).attr("aemail"));
         $("#mailName").text($(this).attr("aname"));
         $("#mailSAdr").text($(this).attr("aemail"));
         $("#fromLehrerMail").val(sessionStorage.myemail)
@@ -2072,10 +2072,10 @@ function getSchuelerInfo() {
  * @param {type} data NotenObjekt
  */
 function buildNoteneintrag(data) {
-    console.log("Build Noteneintrag schueler.length=" + schueler.length);
+    log("Build Noteneintrag schueler.length=" + schueler.length);
     $("#tbodyNoteneintrag").empty();
     lfid = $('option:selected', "#notenlernfelder").attr("lfid");
-    console.log("lfid=" + lfid);
+    log("lfid=" + lfid);
     for (i = 0; i < schueler.length; i++) {
         $("#tbodyNoteneintrag").append('<tr><td><img src="../img/Info.png" ids="' + schueler[i].id + '" class="infoIcon"> ' + schueler[i].VNAME + " " + schueler[i].NNAME + '</td><td><input type="text" name="No' + schueler[i].id + '" id="No' + schueler[i].id + '" sid="' + schueler[i].id + '" class="form-control notenTextfeld" disabled="disabled"/></td></tr>')
     }
@@ -2111,9 +2111,9 @@ function performLogin() {
             "benutzer": idplain,
             "kennwort": $("#kennwort").val()
         };
-        console.log("idplain = " + idplain + " send data=" + JSON.stringify(myData));
+        log("idplain = " + idplain + " send data=" + JSON.stringify(myData));
         sessionStorage.service_key = idplain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
-        console.log("Service key =" + sessionStorage.service_key);
+        log("Service key =" + sessionStorage.service_key);
 
         $.ajax({
             cache: false,
@@ -2133,7 +2133,7 @@ function performLogin() {
                 else {
 
                     sessionStorage.auth_token = jsonObj.auth_token;
-                    console.log("Thoken = " + jsonObj.auth_token);
+                    log("Thoken = " + jsonObj.auth_token);
 
                     toastr["success"]("Login erfolgreich", "Info!");
                     sessionStorage.myselfplain = idplain;
@@ -2148,9 +2148,9 @@ function performLogin() {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Login fehlgeschlagen", "Fehler!");
-                console.log("HTTP Status: " + xhr.status);
-                console.log("Error textStatus: " + textStatus);
-                console.log("Error thrown: " + errorThrown);
+                log("HTTP Status: " + xhr.status);
+                log("Error textStatus: " + textStatus);
+                log("Error thrown: " + errorThrown);
                 if (xhr.status == 401) {
                     loggedOut();
                 }
@@ -2182,9 +2182,9 @@ function performLogin() {
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
-                console.log("HTTP Status: " + xhr.status);
-                console.log("Error textStatus: " + textStatus);
-                console.log("Error thrown: " + errorThrown);
+                log("HTTP Status: " + xhr.status);
+                log("Error textStatus: " + textStatus);
+                log("Error thrown: " + errorThrown);
                 if (xhr.status = 401) {
                     loggedOut();
                 }
@@ -2222,7 +2222,7 @@ function emptyMailForm() {
  * @param {type} ae Anwesenheitsobjekt 
  */
 function generateMailForm(ae) {
-    console.log("Generate MAIL FORM");
+    log("Generate MAIL FORM");
     $("#emailZurueck").show();
     $("#emailWeiter").show();
     $("#emailAbsenden").show();
@@ -2234,7 +2234,7 @@ function generateMailForm(ae) {
     $("#subjectMail").val("MMBbS Fehlzeitenmeldung");
 
     template = $("#template").text();
-    //console.log("Template="+template);
+    //log("Template="+template);
     template = template.replace("[[LEHRER_NNAME]]", sessionStorage.lehrerNNAME);
     template = template.replace("[[LEHRER_EMAIL]]", sessionStorage.lehrerEMAIL);
     template = template.replace("[[ANZAHL_FEHLTAGE]]", ae.summeFehltage);
@@ -2276,9 +2276,9 @@ function generateMailForm(ae) {
  * @param {type} callback Callbackfunktion
  */
 function refreshKlassenliste(kl, callback) {
-    console.log("--> Refresh Schüler Liste f. Klasse " + kl);
+    log("--> Refresh Schüler Liste f. Klasse " + kl);
     if (schueler != undefined && schueler.klasse == kl) {
-        console.log("Daten bereits vorhanden, kein erneutes Laden!")
+        log("Daten bereits vorhanden, kein erneutes Laden!")
         if (callback != undefined) {
             callback(schueler);
         }
@@ -2345,7 +2345,7 @@ function updateCurrentView() {
         return;
 
     view = getCurrentView();
-    console.log("Update Current View = " + view);
+    log("Update Current View = " + view);
     switch (view) {
         case "Verlauf":
             refreshVerlauf(nameKlasse);
@@ -2414,7 +2414,7 @@ function updateCurrentView() {
             $("#schuljahre").unbind("change");
             $("#schuljahre").change(function () {
                 sid = $('option:selected', this).attr('sid');
-                console.log("Schuljahre changed sid=" + sid);
+                log("Schuljahre changed sid=" + sid);
                 $("#idSchuljahr").val(sid);
                 getNoten(nameKlasse, sid, function (data) {
                     buildNotenliste(data);
@@ -2534,9 +2534,9 @@ function updateCurrentView() {
                         toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
                     }
 
-                    console.log("empfange:" + JSON.stringify(data));
+                    log("empfange:" + JSON.stringify(data));
                     loadBeteiligung(data[0].id, nameKlasse, function (data) {
-                        console.log("empfange:" + JSON.stringify(data));
+                        log("empfange:" + JSON.stringify(data));
                         updateBeteiligung(data);
                     });
                 });
@@ -2549,9 +2549,9 @@ function updateCurrentView() {
                 if (active == 1) {
                     toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
                 }
-                console.log("Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
+                log("Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
                 loadBeteiligung(uid, nameKlasse, function (data) {
-                    console.log("empfange:" + JSON.stringify(data));
+                    log("empfange:" + JSON.stringify(data));
                     updateBeteiligung(data);
                 });
             });
@@ -2561,9 +2561,9 @@ function updateCurrentView() {
             $("#printContainer").show();
             loadUmfragen(function (data) {
                 umfragen = data;
-                console.log("empfange:" + JSON.stringify(data));
+                log("empfange:" + JSON.stringify(data));
                 umfrage = data[data.length - 1];
-                console.log("Umfrage=" + umfrage.id);
+                log("Umfrage=" + umfrage.id);
                 updateAuswertungsFilter(data);
 
 
@@ -2572,7 +2572,7 @@ function updateCurrentView() {
                 }
 
                 loadResults(umfrage.id, nameKlasse, function (data) {
-                    console.log("empfange Results:" + JSON.stringify(data));
+                    log("empfange Results:" + JSON.stringify(data));
                     $('#loading-indicator').show();
                     updateAuswertung(data);
                     drawResults(data, 1);
@@ -2601,7 +2601,7 @@ function drawResults(results, col) {
         for (j = 0; j < antworten.length; j++) {
             antwort = antworten[j];
             var row = [antwort.name, antwort.anzahl];
-            // console.log("drawResults antwort=" + antwort.name + " Anzahl=" + antwort.anzahl);
+            // log("drawResults antwort=" + antwort.name + " Anzahl=" + antwort.anzahl);
             rows.push(row);
         }
         data.addRows(rows);
@@ -2628,7 +2628,7 @@ function drawResults(results, col) {
             chart.draw(data, options);
         }
         else {
-            console.log("Container existiert nicht!");
+            log("Container existiert nicht!");
         }
     }
     $('#loading-indicator').hide();
@@ -2642,7 +2642,7 @@ function updateAuswertungsFilter(data) {
     $("#gruppe2Umfrage").empty();
     for (i = 0; i < data.length; i++) {
         u = data[i];
-        console.log("Füge gruppe1Umfrage hinzu id" + u.id);
+        log("Füge gruppe1Umfrage hinzu id" + u.id);
         $("#gruppe1Umfrage").append('<option uid="' + u.id + '">' + u.titel + '</option>')
         $("#gruppe2Umfrage").append('<option uid="' + u.id + '">' + u.titel + '</option>')
     }
@@ -2651,10 +2651,10 @@ function updateAuswertungsFilter(data) {
     $('#gruppe1Filter').off('keypress');
     $('#gruppe1Filter').on('keypress', function (e) {
         var keyCode = e.keyCode || e.which;
-        console.log("key Pressed gruppe1Filer" + keyCode);
+        log("key Pressed gruppe1Filer" + keyCode);
         if (keyCode == 13) {
             loadResults(umfrage.id, $("#gruppe1Filter").val(), function (data) {
-                console.log("empfange:" + JSON.stringify(data));
+                log("empfange:" + JSON.stringify(data));
 
                 drawResults(data, 1);
             });
@@ -2663,10 +2663,10 @@ function updateAuswertungsFilter(data) {
     $('#gruppe2Filter').off('keypress');
     $('#gruppe2Filter').on('keypress', function (e) {
         var keyCode = e.keyCode || e.which;
-        console.log("key Pressed gruppe2Filer" + keyCode);
+        log("key Pressed gruppe2Filer" + keyCode);
         if (keyCode == 13) {
             loadResults(umfrage.id, $("#gruppe2Filter").val(), function (data) {
-                console.log("empfange:" + JSON.stringify(data));
+                log("empfange:" + JSON.stringify(data));
                 drawResults(data, 2);
             });
 
@@ -2675,21 +2675,21 @@ function updateAuswertungsFilter(data) {
     $("#gruppe1Umfrage").unbind("change");
     $("#gruppe1Umfrage").change(function () {
         uid = $('option:selected', this).attr('uid');
-        console.log("gruppe1Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
+        log("gruppe1Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
         umfrage = getUmfrage(uid);
-        console.log("Umfrage=" + umfrage.id);
+        log("Umfrage=" + umfrage.id);
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
 
         loadResults(uid, $('#gruppe1Filter').val(), function (data) {
             updateAuswertung(data);
-            console.log("empfange 1:" + JSON.stringify(data));
+            log("empfange 1:" + JSON.stringify(data));
             drawResults(data, 1);
-            console.log("Rechte Seite id=" + $('option:selected', "#gruppe2Umfrage").attr('uid'));
+            log("Rechte Seite id=" + $('option:selected', "#gruppe2Umfrage").attr('uid'));
             loadResults($('option:selected', "#gruppe2Umfrage").attr('uid'), $('#gruppe2Filter').val(), function (data) {
                 //updateAuswertung(data);
-                console.log("empfange 2:" + JSON.stringify(data));
+                log("empfange 2:" + JSON.stringify(data));
                 drawResults(data, 2);
             });
 
@@ -2698,16 +2698,16 @@ function updateAuswertungsFilter(data) {
     $("#gruppe2Umfrage").unbind("change");
     $("#gruppe2Umfrage").change(function () {
         uid = $('option:selected', this).attr('uid');
-        console.log("gruppe2Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
+        log("gruppe2Umfrage changed id=" + $('option:selected', this).attr('uid') + " name=" + $(this).val());
         umfrage = getUmfrage(uid);
-        console.log("Umfrage=" + umfrage.id);
+        log("Umfrage=" + umfrage.id);
         $("[id^='chart2']").empty();
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
 
         loadResults(uid, $('#gruppe2Filter').val(), function (data) {
-            console.log("empfange :" + JSON.stringify(data));
+            log("empfange :" + JSON.stringify(data));
             drawResults(data, 2);
         });
     });
@@ -2716,20 +2716,20 @@ function updateAuswertungsFilter(data) {
 function getUmfrage(id) {
     for (m = 0; m < umfragen.length; m++) {
         u = umfragen[m];
-        console.log("Teste Umfrage " + u.titel);
+        log("Teste Umfrage " + u.titel);
         if (u.id == id) {
-            console.log("Umfrage mit der id=" + id + " gefunden");
+            log("Umfrage mit der id=" + id + " gefunden");
             return u;
         }
     }
-    console.log("Keine Umfrage mit der id=" + id + " gefunden");
+    log("Keine Umfrage mit der id=" + id + " gefunden");
 }
 
 function updateAuswertung(data) {
     $("#tabelleUmfrageAuswertung").empty();
-    console.log("upodate Auswertung data=" + JSON.stringify(data));
+    log("upodate Auswertung data=" + JSON.stringify(data));
     for (i = 0; i < data.length; i++) {
-        console.log("Update Auswertung frage=" + data[i].frage + " id=" + data[i].id);
+        log("Update Auswertung frage=" + data[i].frage + " id=" + data[i].id);
         $("#tabelleUmfrageAuswertung").append('<tr><td>' + data[i].frage + '</td><td><div id="chart1' + data[i].id + '"></div></td><td><div id="chart2' + data[i].id + '"></div></td></tr>')
     }
 }
@@ -2770,14 +2770,14 @@ function updatePortfolio(data) {
 
     $.each(years, function (index, value) {
         wpk = false;
-        //console.log("Bearbeite Schuljahr "+index);
+        //log("Bearbeite Schuljahr "+index);
         for (j = 0; j < data.length; j++) {
             eintrag = data[j].eintraege;
             for (i = 0; i < eintrag.length; i++) {
                 if (eintrag[i].schuljahr == index) {
-                    //console.log("Schuljahr ist das zu bearbeitende");
+                    //log("Schuljahr ist das zu bearbeitende");
                     if (value.courses[eintrag[i].IDKlasse] == undefined) {
-                        console.log("Neuer Kurs im Jahr  " + index + " mit Namen " + eintrag[i].KName + " und ID=" + eintrag[i].IDKlasse);
+                        log("Neuer Kurs im Jahr  " + index + " mit Namen " + eintrag[i].KName + " und ID=" + eintrag[i].IDKlasse);
                         var course = {
                             "kname": "",
                             "kategorie": 0
@@ -2798,7 +2798,7 @@ function updatePortfolio(data) {
         }
     });
 
-    console.log("years=" + JSON.stringify(years));
+    log("years=" + JSON.stringify(years));
 
 
 
@@ -2806,17 +2806,17 @@ function updatePortfolio(data) {
     $("#bodyPortfolio").empty();
     var head = '<tr><th width="25%" rowspan="2">Name</th>';
     $.each(years, function (index, value) {
-        console.log("Überschrift für Jahr =" + value.name);
+        log("Überschrift für Jahr =" + value.name);
         head += '<th colspan="' + value.spalten + '">' + value.name + '</th>';
     });
     head += "</tr><tr>";
 
     $.each(years, function (index, value) {
         cs = value.courses;
-        console.log(" Bearbiete " + value.name);
+        log(" Bearbiete " + value.name);
         wpk = false;
         $.each(cs, function (index, value) {
-            console.log("Eintrag für " + value.kname + " Kategorie=" + value.kategorie);
+            log("Eintrag für " + value.kname + " Kategorie=" + value.kategorie);
             if (value.kategorie == 1) {
                 if (wpk == false) {
                     head += '<th>WPK</th><th>Note</th>';
@@ -2840,12 +2840,12 @@ function updatePortfolio(data) {
 
         $.each(years, function (indexYear, valueYear) {
             cs = valueYear.courses;
-            //console.log(" Bearbiete " + valueYear.name);
+            //log(" Bearbiete " + valueYear.name);
             wpk = false;
             $.each(cs, function (index, value) {
 
                 if (value.kategorie == 1 && wpk == false) {
-                    console.log('Setzte ID=NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id);
+                    log('Setzte ID=NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id);
                     body += '<td id="NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
                     body += '<td id="WertYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
                     wpk = true;
@@ -2869,12 +2869,12 @@ function updatePortfolio(data) {
             eintrag = eintraege[j];
 
             if (eintrag.IDKategorie == 1) {
-                console.log("Suche ID=#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler);
+                log("Suche ID=#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler);
                 $("#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler).text(eintrag.KName);
                 $("#WertYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler).text(eintrag.wert);
             }
             else {
-                //console.log("Suche ID=#WertYear" + eintrag.schuljahr + "kursid" + eintrag.IDKlasse + "_" + data[i].ID_Schueler);
+                //log("Suche ID=#WertYear" + eintrag.schuljahr + "kursid" + eintrag.IDKlasse + "_" + data[i].ID_Schueler);
                 $("#WertYear" + eintrag.schuljahr + "kursid" + eintrag.IDKlasse + "_" + data[i].ID_Schueler).text(eintrag.wert);
             }
         }
@@ -2899,7 +2899,7 @@ function updateBetriebeMails() {
         });
     }
     else {
-        //console.log("Betriebe=" + betriebe)
+        //log("Betriebe=" + betriebe)
         for (i = 0; i < betriebe.length; i++) {
             adr = adr + betriebe[i].email + ";";
         }
@@ -2925,7 +2925,7 @@ function updateKlasseMails() {
 function renderBilder() {
     // refreshAnwesenheit(nameKlasse, function () {
     $("#klassenBilder").empty();
-    console.log("lade Bilder:");
+    log("lade Bilder:");
     var tr = "<tr>";
     for (i = 1; i <= schueler.length; i++) {
         var status = anwesenheitHeute(schueler[i - 1].id);
@@ -2956,13 +2956,13 @@ function renderBilder() {
     $('body').off('keydown', ".bemerkungTextFeld");
     $('body').on('keydown', ".bemerkungTextFeld", function (e) {
         var keyCode = e.keyCode || e.which;
-        //console.log("key Code="+keyCode);
+        //log("key Code="+keyCode);
         if (keyCode == 13 || keyCode == 9) {
             $(this).blur()
             sid = $(this).attr("id");
             sid = sid.substring(3);
             txt = $("#ex1" + sid).val();
-            console.log("key Pressed bemerkungTextFeld keyCode=" + keyCode + " Schüler ID=" + sid + " txt=" + txt + " bem=" + $(this).val());
+            log("key Pressed bemerkungTextFeld keyCode=" + keyCode + " Schüler ID=" + sid + " txt=" + txt + " bem=" + $(this).val());
             var eintr = {
                 "DATUM": $("#endDate").val() + "T00:00:00",
                 "ID_LEHRER": sessionStorage.myself,
@@ -2991,7 +2991,7 @@ function renderBilder() {
             sid = $(this).attr("id");
             sid = sid.substring(3);
             txt = $("#ex2" + sid).val();
-            console.log("key Pressed AnwesenheitTextFeld keyCode=" + keyCode + " Schüler ID=" + sid);
+            log("key Pressed AnwesenheitTextFeld keyCode=" + keyCode + " Schüler ID=" + sid);
             if (txt != "") {
                 var eintr = {
                     "DATUM": $("#endDate").val() + "T00:00:00",
@@ -3026,7 +3026,7 @@ function renderBilder() {
 
     $('body').on('keydown', ".bemerkungTextFeld", function (e) {
         var keyCode = e.keyCode || e.which;
-        console.log("key Pressed bemerkungTextFeld" + keyCode);
+        log("key Pressed bemerkungTextFeld" + keyCode);
     });
 
 }
@@ -3035,7 +3035,7 @@ function renderBilder() {
  * Update der Bilderansicht beim Führen der Anwesenheit über Bilder
  */
 function updateRenderBilder() {
-    console.log("Update Render Bilder !");
+    log("Update Render Bilder !");
     for (i = 1; i <= schueler.length; i++) {
         var status = anwesenheitHeute(schueler[i - 1].id);
         var bemerkung = bemerkungHeute(schueler[i - 1].id);
@@ -3094,7 +3094,7 @@ function bemerkungHeute(id) {
                 var datum = eintraege[j].DATUM;
                 datum = datum.substring(0, datum.indexOf('T'));
                 if (datum == ds) {
-                    //console.log("bemerkung Heute Schüler gefunden mit ID="+id+" einträge="+JSON.stringify(eintraege))
+                    //log("bemerkung Heute Schüler gefunden mit ID="+id+" einträge="+JSON.stringify(eintraege))
                     if (eintraege[j].BEMERKUNG == undefined) {
                         return "";
                     }
@@ -3113,15 +3113,15 @@ function bemerkungHeute(id) {
  */
 function buildNotenliste(data) {
     var lernfelder = {};
-    console.log("buildNotenliste() schueler.length=" + schueler.length);
+    log("buildNotenliste() schueler.length=" + schueler.length);
     for (j = 0; j < data.length; j++) {
         noten = data[j].noten;
-        //console.log("Teste Lernfelder in "+JSON.stringify(noten));
+        //log("Teste Lernfelder in "+JSON.stringify(noten));
         for (k = 0; k < noten.length; k++) {
 
             if (!findKeyinMap(noten[k].ID_LERNFELD, lernfelder)) {
                 lernfelder[noten[k].ID_LERNFELD] = noten[k].nameLernfeld;
-                console.log("Neues Lernfeld:" + noten[k].nameLernfeld);
+                log("Neues Lernfeld:" + noten[k].nameLernfeld);
             }
         }
     }
@@ -3129,7 +3129,7 @@ function buildNotenliste(data) {
     $("#trNoten").empty();
     $("#trNoten").append('<th width="20%"><h3>Name</h3></th>');
     $.each(lernfelder, function (index, value) {
-        console.log("Index = " + index + " value = " + value);
+        log("Index = " + index + " value = " + value);
         $("#trNoten").append('<th>' + value + '</th>')
     })
     $("#tbodyNotenliste").empty();
@@ -3158,11 +3158,11 @@ function buildeAnwesenheitstabelle(data) {
     getTermindaten(function (termine) {
         $("#tabelleAnwesenheit").empty();
         // Leere Anwesenheitstabelle erzeugen
-        console.log("Termine = " + JSON.stringify(termine));
+        log("Termine = " + JSON.stringify(termine));
         var tab = "";
         tab += '<thead><tr>';
         for (i = 0; i < termine.length; i++) {
-            console.log("Add Termin: i=" + i);
+            log("Add Termin: i=" + i);
             current = new Date(termine[i].milliseconds);
             if (current.getDay() == 0 || current.getDay() == 6) {
                 tab += '<th class="wochenende">&nbsp; ' + days[current.getDay()] + "<br>" + current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
@@ -3183,7 +3183,7 @@ function buildeAnwesenheitstabelle(data) {
                 var dat = eintraege[j].DATUM;
                 dat = dat.substring(0, dat.indexOf("T"));
                 var id = eintraege[j].ID_SCHUELER + "_" + dat;
-                //console.log("suche html id " + id);
+                //log("suche html id " + id);
                 //$("#" + id).text(eintraege[j].VERMERK);
                 if (eintraege[j].BEMERKUNG != undefined) {
                     $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + ' - ' + eintraege[j].BEMERKUNG + '">' + eintraege[j].VERMERK + '&nbsp;<img src="../img/flag.png"></a>');
@@ -3205,6 +3205,11 @@ function buildeAnwesenheitstabelle(data) {
         }
     });
 
+}
+function log(msg) {
+    if (debug) {
+        console.log(msg);
+    }
 }
 // Load the Visualization API and the corechart package.
 google.charts.load('current', {'packages': ['corechart']});

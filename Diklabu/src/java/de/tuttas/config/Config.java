@@ -61,7 +61,6 @@ public class Config {
         BufferedReader br = null;
         try { 
             String pathConfig=System.getProperty("catalina.base")+File.separator+"config.json";
-            Log.d("Config Path="+pathConfig);  
             
             br = new BufferedReader(new FileReader(pathConfig));
             StringBuilder sb = new StringBuilder();
@@ -71,7 +70,6 @@ public class Config {
                 sb.append(System.lineSeparator());
                 line = br.readLine();
             }
-            Log.d("Habe gelesen:"+sb);
             String conf = sb.toString();
                 JSONParser parser = new JSONParser();
                 JSONObject jo = (JSONObject) parser.parse(conf);
@@ -103,17 +101,19 @@ public class Config {
                 // Client Configuration
                 clientConfig = (JSONObject) jo.get("clientConfig");
                 clientConfig.put("VERSION",Config.VERSION);
-                System.out.println("!ClientConfig="+clientConfig.toJSONString());
                                 
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
         } catch (IOException ex) {
+            ex.printStackTrace();
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ParseException ex) {
+            ex.printStackTrace();
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                br.close();
+                if (br!=null) br.close();
             } catch (IOException ex) {
                 Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -128,7 +128,7 @@ public class Config {
     }
     
     
-    public boolean debug=true;
+    public static boolean debug=true;
     
     public String IMAGE_FILE_PATH = "c:\\Temp\\";
     //public static final String IMAGE_FILE_PATH = "/home/pi/diklabuimages/";    

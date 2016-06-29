@@ -5,6 +5,7 @@
  */
 package de.tuttas.servlets;
 
+import de.tuttas.config.Config;
 import java.util.ArrayList;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -53,9 +54,13 @@ public class MailObject {
      
 
     public void addRecipient(String recipient) throws AddressException {        
-        // TODO immer an jtuttas@gmx.net senden
-        //this.recipient.add(new InternetAddress(recipient));               
-        this.recipient.add(new InternetAddress("jtuttas@gmx.net"));               
+        if (Config.getInstance().debug) {
+            this.recipient.add(new InternetAddress("jtuttas@gmx.net"));                   
+        }
+        else {
+            this.recipient.add(new InternetAddress(recipient));               
+        }
+        
     }
 
     public String getSubject() {

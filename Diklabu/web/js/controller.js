@@ -6,7 +6,7 @@ var wuensche = new Array(3);
 var courseList;
 $(document).ready(function () {
     $("#btnzurueck").click(function () {
-        console.log("btnzurueck Click");
+        log("btnzurueck Click");
         performLogout(sessionStorage.benutzer,sessionStorage.kennwort, function() {
             sessionStorage.clear();
             $("#benutzername").val("");
@@ -59,11 +59,11 @@ $(document).ready(function () {
             toast("Bitte drei Kurse wählen!");
         }
         else {
-            console.log("Wunsche ==" + JSON.stringify(wuensche));
+            log("Wunsche ==" + JSON.stringify(wuensche));
             var ticketing = {
                 courseList: wuensche
             };
-            console.log("ticketing=" + JSON.stringify(ticketing));
+            log("ticketing=" + JSON.stringify(ticketing));
             $.ajax({
                 url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/"+sessionStorage.myself,
                 type: "POST",
@@ -71,7 +71,7 @@ $(document).ready(function () {
                 dataType: "json",
                 data: JSON.stringify(ticketing),
                 success: function (data) {
-                    console.log("buchen finished" + JSON.stringify(data));
+                    log("buchen finished" + JSON.stringify(data));
                     toast(data.msg);
                     if (data.success) {
                         $("#benutzername").val("");
@@ -88,16 +88,16 @@ $(document).ready(function () {
    
 
     $("#btnWaehlen").click(function () {
-        console.log("btnWaehnlen click");
+        log("btnWaehnlen click");
         var count = 0;
         $("input[name*=slot]:checked").each(function () {
             count = 1;
             var id = $(this).attr('id');
-            console.log("Gewählt wurde ID=" + id);
+            log("Gewählt wurde ID=" + id);
             var course = courseList[id];
-            console.log("Gewählt wurde:" + course.TITEL);
+            log("Gewählt wurde:" + course.TITEL);
             wuensche[wunsch] = course;
-            console.log("Wuensche=" + JSON.stringify(wuensche));
+            log("Wuensche=" + JSON.stringify(wuensche));
 
         });
         if (count == 0) {
@@ -113,7 +113,7 @@ $(document).ready(function () {
     });
 
     $("#results").on("pagebeforeshow", function (event) {
-        console.log("Anzeige der Wünsche:");
+        log("Anzeige der Wünsche:");
         $("#erstwunschresult").text("1. Wunsch: " + courseList.courseList[0].TITEL + " (" + courseList.courseList[0].ID_LEHRER + ")");
         $("#zweitwunschresult").text("2. Wunsch: " + courseList.courseList[1].TITEL + " (" + courseList.courseList[1].ID_LEHRER + ")");
         $("#drittwunschresult").text("3. Wunsch: " + courseList.courseList[2].TITEL + " (" + courseList.courseList[2].ID_LEHRER + ")");
@@ -132,7 +132,7 @@ $(document).ready(function () {
         if (courseList == undefined)
             $.mobile.changePage('#login');
         else {
-            console.log("wuensche show");
+            log("wuensche show");
             if (wuensche[0] != null) {
                 $("#erstwunsch").text(wuensche[0].TITEL + " (" + wuensche[0].ID_LEHRER + ")");
             }
@@ -157,10 +157,10 @@ $(document).ready(function () {
         if (courseList == undefined)
             $.mobile.changePage('#login');
         else {
-            console.log("wpks show");
+            log("wpks show");
             $("#wpklist").empty();
             $('#wpklist').append('<fieldset data-role="controlgroup" id="cgrp">');
-            console.log("Wuensche sind:" + JSON.stringify(wuensche));
+            log("Wuensche sind:" + JSON.stringify(wuensche));
             for (i = 0; i < courseList.length; i++) {
                 $('#wpklist').append('<input type="radio" name="slot" id="' + i + '" value="' + courseList[i].TITEL + '" /><label for="' + i + '">' + courseList[i].TITEL + '  (' + courseList[i].ID_LEHRER + ')</label>');
                 for (j = 0; j <= 2; j++) {
@@ -185,7 +185,7 @@ function getCourseList() {
         contentType: "application/json; charset=UTF-8",
         dataType: "json",
         success: function (data) {
-            console.log("receive Course List" + JSON.stringify(data));
+            log("receive Course List" + JSON.stringify(data));
             courseList = data;
             wuensche = new Array(3);
             $.mobile.changePage('#wuensche');
@@ -210,7 +210,7 @@ var toast = function (msg) {
 };
 
 function performLogout(benutzer, kennwort, callback) {
-     console.log("perform Logout benutzer=" + benutzer + " kennwort=" + kennwort);
+     log("perform Logout benutzer=" + benutzer + " kennwort=" + kennwort);
     var myData = {
         "benutzer": benutzer,
         "kennwort": kennwort
@@ -228,22 +228,22 @@ function performLogout(benutzer, kennwort, callback) {
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
             sessionStorage.clear();
-            console.log("--> Logout: " + JSON.stringify(jsonObj));
+            log("--> Logout: " + JSON.stringify(jsonObj));
             if (callback != undefined) {
                 callback(jsonObj);
             }
         },
         error: function (xhr, textStatus, errorThrown) {
             
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
         }
     });
 }
 
 function performLogin(benutzer, kennwort, callback, error) {
-    console.log("perform Login benutzer=" + benutzer + " kennwort=" + kennwort);
+    log("perform Login benutzer=" + benutzer + " kennwort=" + kennwort);
 
     var myData = {
         "benutzer": benutzer,
@@ -262,11 +262,11 @@ function performLogin(benutzer, kennwort, callback, error) {
         },
         error: function (xhr, textStatus, errorThrown) {
             
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
             if (error != undefined) {
-                console.log("call error Handler!");
+                log("call error Handler!");
                 error();
             }
         }
@@ -274,12 +274,12 @@ function performLogin(benutzer, kennwort, callback, error) {
 }
 
 function submitKurswunsch(callback) {
-    console.log("Wunsche=" + JSON.stringify(wuensche));
+    log("Wunsche=" + JSON.stringify(wuensche));
 
     var ticketing = {
         courseList: wuensche
     };
-    console.log("ticketing=" + JSON.stringify(ticketing));
+    log("ticketing=" + JSON.stringify(ticketing));
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/" + sessionStorage.myself,
         type: "POST",
@@ -291,9 +291,9 @@ function submitKurswunsch(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kursbuchung fehlgeschlagen", "Fehler!");
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
         }
     });
 
@@ -310,11 +310,17 @@ function getKurswunsch(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kursbuchungsabfrage fehlgeschlagen", "Fehler!");
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
         }
     });
+}
+
+function log(msg) {
+    if (debug) {
+        console.log(msg);
+    }
 }
 
 

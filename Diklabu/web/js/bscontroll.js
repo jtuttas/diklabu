@@ -11,7 +11,7 @@ $("#btnAbfragen").click(function () {
     else {
 
         performLogin($("#benutzername2").val(), $("#kennwort2").val(), function (data) {
-            console.log("--> Empfange:" + JSON.stringify(data));
+            log("--> Empfange:" + JSON.stringify(data));
             sessionStorage.auth_token = data.auth_token;
             sessionStorage.myself = data.ID;
             sessionStorage.myemail = data.email;
@@ -23,7 +23,7 @@ $("#btnAbfragen").click(function () {
             else {
                 sessionStorage.kname = data.nameKlasse;
                 sessionStorage.idKlasse = data.idKlasse;
-                console.log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
+                log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
                 getKurswunsch(function (data) {
                     if (data.courseList != undefined && data.courseList.length != 0) {
                         $("#erstWunschAbfragen").text(data.courseList[0].TITEL + " (" + data.courseList[0].ID_LEHRER + ")");
@@ -81,22 +81,22 @@ function perfromLogout(benutzer, kennwort, callback) {
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
             sessionStorage.clear();
-            console.log("--> Logout: " + JSON.stringify(jsonObj));
+            log("--> Logout: " + JSON.stringify(jsonObj));
             if (callback != undefined) {
                 callback(jsonObj);
             }
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
         }
     });
 }
 
 function performLogin(benutzer, kennwort, callback, error) {
-    console.log("perform Login benutzer=" + benutzer + " kennwort=" + kennwort);
+    log("perform Login benutzer=" + benutzer + " kennwort=" + kennwort);
 
     var myData = {
         "benutzer": benutzer,
@@ -114,11 +114,11 @@ function performLogin(benutzer, kennwort, callback, error) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Login fehlgeschlagen", "Fehler!");
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
             if (error != undefined) {
-                console.log("call error Handler!");
+                log("call error Handler!");
                 error();
             }
         }
@@ -136,7 +136,7 @@ $("#btnWaehlen").click(function () {
         }
         else {
             performLogin($("#benutzername").val(), $("#kennwort").val(), function (data) {
-                console.log("--> Empfange:" + JSON.stringify(data));
+                log("--> Empfange:" + JSON.stringify(data));
                 sessionStorage.auth_token = data.auth_token;
                 sessionStorage.myself = data.ID;
                 sessionStorage.myemail = data.email;
@@ -148,9 +148,9 @@ $("#btnWaehlen").click(function () {
                 else {
                     sessionStorage.kname = data.nameKlasse;
                     sessionStorage.idKlasse = data.idKlasse;
-                    console.log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
+                    log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
                     submitKurswunsch(function (data) {
-                        console.log("buchen finished" + JSON.stringify(data));
+                        log("buchen finished" + JSON.stringify(data));
                         if (data.success == false) {
                             toastr["error"](data.msg, "Fehler!");
                             $("#erstWunschAbfragen").text(data.courseList[0].TITEL + " (" + data.courseList[0].ID_LEHRER + ")");
@@ -193,12 +193,12 @@ $("#btnWaehlen").click(function () {
 });
 
 function submitKurswunsch(callback) {
-    console.log("Wunsche=" + JSON.stringify(wuensche));
+    log("Wunsche=" + JSON.stringify(wuensche));
 
     var ticketing = {
         courseList: wuensche
     };
-    console.log("ticketing=" + JSON.stringify(ticketing));
+    log("ticketing=" + JSON.stringify(ticketing));
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/" + sessionStorage.myself,
         type: "POST",
@@ -210,9 +210,9 @@ function submitKurswunsch(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kursbuchung fehlgeschlagen", "Fehler!");
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
         }
     });
 
@@ -229,9 +229,9 @@ function getKurswunsch(callback) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kursbuchungsabfrage fehlgeschlagen", "Fehler!");
-            console.log("HTTP Status: " + xhr.status);
-            console.log("Error textStatus: " + textStatus);
-            console.log("Error thrown: " + errorThrown);
+            log("HTTP Status: " + xhr.status);
+            log("Error textStatus: " + textStatus);
+            log("Error thrown: " + errorThrown);
         }
     });
 }
@@ -246,7 +246,7 @@ function getCourseList() {
             toastr["error"]("Kann Kursliste nicht vom Server laden!", "Fehler!");
         },
         success: function (data) {
-            console.log("receive Course List" + JSON.stringify(data));
+            log("receive Course List" + JSON.stringify(data));
             courseList = data;
             wuensche = new Array(3);
             $("#erstWunschDropdown").empty();
@@ -259,19 +259,19 @@ function getCourseList() {
             }
             $('#erstWunschDropdown li > a').click(function (e) {
                 var index = $(this).attr('kursid');
-                console.log("index = " + index + " class=" + $("#w1" + index).attr("class"));
+                log("index = " + index + " class=" + $("#w1" + index).attr("class"));
                 if ($("#w1" + index).attr("class") != "disabled") {
                     $('#erstWunsch').text(this.innerHTML);
                     if (wuensche[0] != undefined) {
-                        console.log("Es existierte bereits ein Erstwunsch mit id=" + wuensche[0].id);
+                        log("Es existierte bereits ein Erstwunsch mit id=" + wuensche[0].id);
                         var i = findWunschbyId(wuensche[0].id);
-                        console.log("Dieser hat den index " + i);
+                        log("Dieser hat den index " + i);
                         $("#w1" + i).removeClass("disabled");
                         $("#w2" + i).removeClass("disabled");
                         $("#w3" + i).removeClass("disabled");
                     }
                     var course = courseList[index];
-                    console.log("Gewählt wurde:" + course.TITEL);
+                    log("Gewählt wurde:" + course.TITEL);
                     wuensche[0] = course;
                     $("#w1" + index).addClass("disabled");
                     $("#w2" + index).addClass("disabled");
@@ -283,15 +283,15 @@ function getCourseList() {
                 if ($("#w2" + id).attr("class") != "disabled") {
                     $('#zweitWunsch').text(this.innerHTML);
                     if (wuensche[1] != undefined) {
-                        console.log("Es existierte bereits ein Zweitwunsch mit id=" + wuensche[1].id);
+                        log("Es existierte bereits ein Zweitwunsch mit id=" + wuensche[1].id);
                         var i = findWunschbyId(wuensche[1].id);
-                        console.log("Dieser hat den index " + i);
+                        log("Dieser hat den index " + i);
                         $("#w1" + i).removeClass("disabled");
                         $("#w2" + i).removeClass("disabled");
                         $("#w3" + i).removeClass("disabled");
                     }
                     var course = courseList[id];
-                    console.log("Gewählt wurde:" + course.TITEL);
+                    log("Gewählt wurde:" + course.TITEL);
                     wuensche[1] = course;
                     $("#w1" + id).addClass("disabled");
                     $("#w2" + id).addClass("disabled");
@@ -303,15 +303,15 @@ function getCourseList() {
                 if ($("#w3" + id).attr("class") != "disabled") {
                     $('#drittWunsch').text(this.innerHTML);
                     if (wuensche[2] != undefined) {
-                        console.log("Es existierte bereits ein Drittwunsch mit id=" + wuensche[2].id);
+                        log("Es existierte bereits ein Drittwunsch mit id=" + wuensche[2].id);
                         var i = findWunschbyId(wuensche[2].id);
-                        console.log("Dieser hat den index " + i);
+                        log("Dieser hat den index " + i);
                         $("#w1" + i).removeClass("disabled");
                         $("#w2" + i).removeClass("disabled");
                         $("#w3" + i).removeClass("disabled");
                     }
                     var course = courseList[id];
-                    console.log("Gewählt wurde:" + course.TITEL);
+                    log("Gewählt wurde:" + course.TITEL);
                     wuensche[2] = course;
                     $("#w1" + id).addClass("disabled");
                     $("#w2" + id).addClass("disabled");
@@ -355,4 +355,10 @@ toastr.options = {
     "hideEasing": "linear",
     "showMethod": "fadeIn",
     "hideMethod": "fadeOut"
+}
+
+function log(msg) {
+    if (debug) {
+        console.log(msg);
+    }
 }

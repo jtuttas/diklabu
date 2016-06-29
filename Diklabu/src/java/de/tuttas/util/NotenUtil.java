@@ -36,7 +36,7 @@ public class NotenUtil {
      */
     public static boolean gradeAllowed4Course(Noten n, Kategorie ka) {
         if (ka==null || n==null) return false;
-        System.out.println("Teste Noteneintrag "+n.getID_LERNFELD()+" für Klasse "+ka.getKATEGORIE());
+        Log.d("Teste Noteneintrag "+n.getID_LERNFELD()+" für Klasse "+ka.getKATEGORIE());
         if (n.getID_LERNFELD().equals("Kurs") && ka.getKATEGORIE().equals("IT-WPK")) return true;
         if (n.getID_LERNFELD().startsWith("OPT") && ka.getKATEGORIE().equals("IT-CCNA")) return true;
         if (!ka.getKATEGORIE().equals("IT-WPK") && 

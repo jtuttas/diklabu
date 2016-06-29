@@ -82,7 +82,7 @@ public class NotenManager {
             n.setNameLernfeld(em.find(Lernfeld.class, n.getID_LERNFELD()).getBEZEICHNUNG());
             no.getNoten().add(n);
         }
-        System.out.println("lno=" + lno);
+        Log.d("lno=" + lno);
         return lno;
     }
 
@@ -191,13 +191,13 @@ public class NotenManager {
                             List<Schuljahr> schuljahr = q3.getResultList();
                             Log.d("Schuljahr = " + schuljahr);
 
-                            System.out.println(" Finde Note mit ID_Schueler=" + s.getId() + " LF_ID=" + lf.getId() + " Schuljahr=" + schuljahr.get(0).getID());
+                            Log.d(" Finde Note mit ID_Schueler=" + s.getId() + " LF_ID=" + lf.getId() + " Schuljahr=" + schuljahr.get(0).getID());
                             Noten_all na = em.find(Noten_all.class, new Noten_all_Id(s.getId(), lf.getId(), schuljahr.get(0).getID()));
                             if (na == null) {
-                                System.out.println("Kein Eintrag gefunden!");
+                                Log.d("Kein Eintrag gefunden!");
 
                             } else {
-                                System.out.println("Eintrag gefunden!");
+                                Log.d("Eintrag gefunden!");
                                 // findKlasseEinesJahrgangs
                                 na.setID_LK(n.getID_LK());
                                 na.setWERT(n.getWERT());
@@ -225,13 +225,13 @@ public class NotenManager {
                         List<Schuljahr> schuljahr = q3.getResultList();
                         Log.d("Schuljahr = " + schuljahr);
 
-                        System.out.println(" Finde Note mit ID_Schueler=" + s.getId() + " LF_ID=" + lf.getId() + " Schuljahr=" + schuljahr.get(0).getID());
+                        Log.d(" Finde Note mit ID_Schueler=" + s.getId() + " LF_ID=" + lf.getId() + " Schuljahr=" + schuljahr.get(0).getID());
                         Noten_all na = em.find(Noten_all.class, new Noten_all_Id(s.getId(), lf.getId(), schuljahr.get(0).getID()));
                         if (na == null) {
-                            System.out.println("Kein Eintrag gefunden!");
+                            Log.d("Kein Eintrag gefunden!");
 
                         } else {
-                            System.out.println("Eintrag gefunden!");
+                            Log.d("Eintrag gefunden!");
                             // findKlasseEinesJahrgangs
                             Query q4 = em.createNamedQuery("findKlasseEinesJahrgangs");
                             q4.setParameter("paramIdSchuljahr", schuljahr.get(0).getID());
@@ -243,7 +243,7 @@ public class NotenManager {
                                 em.merge(na);
                             }
                             else {
-                                System.out.println("Kann Klasse ID="+kid+" nicht im Schuljahr "+schuljahr.get(0).getNAME()+" finden!");
+                                Log.d("Kann Klasse ID="+kid+" nicht im Schuljahr "+schuljahr.get(0).getNAME()+" finden!");
                             }
                         }
 

@@ -1,4 +1,4 @@
-console.log("found token:" + sessionStorage.auth_token);
+log("found token:" + sessionStorage.auth_token);
 $("#login").click(function () {
     performLogin();
 });
@@ -63,16 +63,16 @@ function removeGerman(name) {
  * Login durchführen
  */
 function performLogin() {
-    console.log("perform Login");
+    log("perform Login");
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {
         idplain = removeGerman($("#benutzername").val());
         var myData = {
             "benutzer": idplain,
             "kennwort": $("#kennwort").val()
         };
-        console.log("idplain = " + idplain + " send data=" + JSON.stringify(myData));
+        log("idplain = " + idplain + " send data=" + JSON.stringify(myData));
         sessionStorage.service_key = idplain + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
-        console.log("Service key =" + sessionStorage.service_key);
+        log("Service key =" + sessionStorage.service_key);
 
         $.ajax({
             cache: false,
@@ -87,8 +87,8 @@ function performLogin() {
             success: function (jsonObj, textStatus, xhr) {
 
                 sessionStorage.auth_token = jsonObj.auth_token;
-                console.log("Thoken = " + jsonObj.auth_token);
-                console.log("Recieve " + JSON.stringify(jsonObj));
+                log("Thoken = " + jsonObj.auth_token);
+                log("Recieve " + JSON.stringify(jsonObj));
                 toastr["success"]("Login erfolgreich", "Info!");
                 sessionStorage.myselfplain = idplain;
                 sessionStorage.myself = jsonObj.ID;
@@ -102,20 +102,26 @@ function performLogin() {
                     sessionStorage.kname=jsonObj.nameKlasse;
                     sessionStorage.idKlasse=jsonObj.idKlasse;
                     window.location.replace("sbuch.html");
-                    console.log("kname="+sessionStorage.kname+" idKlasse="+sessionStorage.idKlasse);
+                    log("kname="+sessionStorage.kname+" idKlasse="+sessionStorage.idKlasse);
                 }
             },
             error: function (xhr, textStatus, errorThrown) {
                 toastr["error"]("Login fehlgeschlagen", "Fehler!");
-                console.log("HTTP Status: " + xhr.status);
-                console.log("Error textStatus: " + textStatus);
-                console.log("Error thrown: " + errorThrown);
+                log("HTTP Status: " + xhr.status);
+                log("Error textStatus: " + textStatus);
+                log("Error thrown: " + errorThrown);
             }
         });
     }
     else {
         sessionStorage.clear();
 
+    }
+}
+
+function log(msg) {
+    if (debug) {
+        console.log(msg);
     }
 }
 
