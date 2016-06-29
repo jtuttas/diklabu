@@ -8,6 +8,7 @@ package de.tuttas.restful;
 import de.tuttas.entities.Antworten;
 import de.tuttas.entities.Antwortskalen;
 import de.tuttas.entities.Fragen;
+import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Lernfeld;
 import de.tuttas.entities.Teilnehmer;
@@ -34,6 +35,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -41,6 +43,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 
 /**
@@ -58,6 +61,23 @@ public class NoAuthServices {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    
+      /**
+         * Abfrage der Kuirsliste der Buchbaren Kurse
+         * @return Die Liste mit Kursen (Klassen)
+         */
+     @GET  
+     @Path("/getcourses")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public List<Klasse> getCourses() {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Log.d ("Webservice courseselect/booking GET:");
+        
+        Query  query = em.createNamedQuery("getSelectedKlassen");
+        List<Klasse> courses = query.getResultList();
+        Log.d("Result List:"+courses);
+        return courses;                
+    }   
       /**
      * Antworten eines Teilnehmers abfragen
      *

@@ -11,13 +11,11 @@ import java.util.List;
 public class Ticketing {
 
     /**
-     * Anmeldeinformationen
-     */
-    private Credential credential;
-    /**
      * Liste der Kurswünsche
      */
     private List<Klasse> courseList;
+    
+    private Klasse selectedCourse;
     /**
      * Buchung erfolgreich
      */
@@ -27,6 +25,16 @@ public class Ticketing {
      */
     private String msg;
 
+    public void setSelectedCourse(Klasse selectedCourse) {
+        this.selectedCourse = selectedCourse;
+    }
+
+    public Klasse getSelectedCourse() {
+        return selectedCourse;
+    }
+
+    
+    
     /**
      * Nachricht für den Buchungsvorgang z.B. "Sie haben bereits gewählt"
      * @param msg Die Nachricht
@@ -59,21 +67,7 @@ public class Ticketing {
         return success;
     }
     
-    /**
-     * Abfrage der Anmeldeinformationen des Benutzers
-     * @return Anmeldeinformationen des Benutzers mit Name, Vorname und Geburtsdatum etc.
-     */
-    public Credential getCredential() {
-        return credential;
-    }
-
-    /**
-     * Setzen der Anmeldeinformatioen des Benutezrs
-     * @param c Anmeldeinformationen des Benutzers mit Name, Vorname und Geburtsdatum etc.
-     */
-    public void setCredential(Credential c) {
-        this.credential = c;
-    }
+    
 
     /**
      * Setzen der Kursliste (Wunschliste) der WPK's
@@ -116,10 +110,8 @@ public class Ticketing {
 
     @Override
     public String toString() {
-        return "Ticketing: credentials="+this.getCredential().toString()+" CourseLIst="+this.getCourseList();
+        return "Ticketing:  CourseLIst="+this.getCourseList();
     }
-    
-    
     
     
     

@@ -783,8 +783,8 @@ public class UmfagenManager {
             ro = new ResultObject();
             Schueler s = em.find(Schueler.class, t.getSCHUELERID());
             if (s != null) {
-                LoginSchueler lo = em.find(LoginSchueler.class, s.getId());
-                if (lo != null) {
+                
+                if (s.getEMAIL() != null) {
                     String sbn = new String(sb.toString());
                     sbn = sbn.replace("[[VNAME]]", s.getVNAME());
                     sbn = sbn.replace("[[NNAME]]", s.getNNAME());
@@ -793,10 +793,10 @@ public class UmfagenManager {
                     System.out.println("Nachricht = " + sbn);
                     MailObject mo = new MailObject("tuttas@mmbbs.de", "Einladung zur Umfrage " + u.getNAME(), sbn);
                     try {
-                        mo.addRecipient(lo.getLOGIN() + "@mmbbs.eduplaza.de");
+                        mo.addRecipient(s.getEMAIL());
                         mailSender.sendMail(mo);
                         ro.setSuccess(true);
-                        ro.setMsg("Habe " + s.getVNAME() + " " + s.getNNAME() + " (" + lo.getLOGIN() + "@mmbbs.eduplaza.de) Zur Umfrage '" + u.getNAME() + "' eingeladen!");
+                        ro.setMsg("Habe " + s.getVNAME() + " " + s.getNNAME() + " (" + s.getEMAIL()+") Zur Umfrage '" + u.getNAME() + "' eingeladen!");
                         t.setINVITED(1);
                         em.persist(t);
                         em.flush();

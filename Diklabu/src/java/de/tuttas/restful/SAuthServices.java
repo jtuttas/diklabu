@@ -13,6 +13,8 @@ import de.tuttas.entities.Bemerkung;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Fragen;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.Konfig;
+import de.tuttas.entities.Kurswunsch;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Teilnehmer;
 import de.tuttas.entities.Umfrage;
@@ -24,6 +26,7 @@ import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.Data.BildObject;
 import de.tuttas.restful.Data.FragenObjekt;
 import de.tuttas.restful.Data.SchuelerObject;
+import de.tuttas.restful.Data.Ticketing;
 import de.tuttas.restful.Data.UmfrageObjekt;
 import de.tuttas.restful.auth.Authenticator;
 import de.tuttas.restful.auth.HTTPHeaderNames;
@@ -49,6 +52,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -57,6 +61,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 /**
@@ -74,7 +79,163 @@ public class SAuthServices {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
-  
+    /**
+     * Buchen eines Kurses
+     *
+     * @param t Das Ticketing Objekt mit Credentials und Kurslist
+     * @return Das Ticketing Objekt ergänzt im msg und success Attribute
+     */
+    @POST
+    @Path("/kursbuchung/{sid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Ticketing book(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid, Ticketing t) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Log.d("Webservice kursbuchung POST:" + t.toString());
+        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+        Authenticator a = Authenticator.getInstance();
+        String user = a.getUser(authToken);
+        Log.d("Kursbuchug auth_token=" + authToken + " User=" + user);
+
+        if (Config.getInstance().auth == true && (user == null || Integer.parseInt(user) != sid)) {
+            t.setSuccess(false);
+            t.setMsg("Sie sind nicht berechtigt!");
+            return t;
+        }
+        if (t.getCourseList() == null) {
+            t.setSuccess(false);
+            t.setMsg("Keine Kurse angegeben!!");
+            return t;
+        }
+        if (t.getCourseList().size() != 3) {
+            t.setSuccess(false);
+            t.setMsg("Bitte drei Kurswünsche angeben!");
+            return t;
+        }
+
+        if (t.getCourseList().get(0).getId().intValue() == t.getCourseList().get(1).getId().intValue()
+                || t.getCourseList().get(1).getId().intValue() == t.getCourseList().get(2).getId().intValue()
+                || t.getCourseList().get(0).getId().intValue() == t.getCourseList().get(2).getId().intValue()) {
+            t.setSuccess(false);
+            t.setMsg("Bitte drei unterschiedliche Kurswünsche angeben!");
+            return t;
+        }
+        for (int i = 0; i < 3; i++) {
+            Klasse k = em.find(Klasse.class, t.getCourseList().get(i).getId().intValue());
+            if (k == null) {
+                t.setSuccess(false);
+                t.setMsg("Kann Kurs mit ID=" + t.getCourseList().get(i).getId().intValue() + " nicht finden!");
+                return t;
+            } else {
+                t.getCourseList().set(i, k);
+            }
+        }
+        Schueler s = em.find(Schueler.class, sid);
+        if (s == null) {
+            t.setSuccess(false);
+            t.setMsg("Schüler mit der ID " + sid + " unbekannt!");
+            return t;
+        }
+        // Schauen ob Kursbuchung aktiv
+        Query qk = em.createNamedQuery("findTitel");
+        qk.setParameter("paramTitel", "kursbuchung");
+        List<Konfig> konfig = qk.getResultList();
+        Log.d("Konfig=" + konfig);
+        if (konfig.get(0).getSTATUS() == 0) {
+            t.setSuccess(false);
+            t.setMsg("Wahl ist noch nicht freigeschaltet!");
+        } else {
+
+            //  Schauen ob der Pupil schon gewählt hat
+            Query q = em.createNamedQuery("findKlasseByUserId");
+            q.setParameter("paramId", sid);
+            List<Klasse> courses = q.getResultList();
+            Log.d("Result List Courses:" + courses);
+            if (courses.size() == 0) {
+                // Die drei Wünsche
+                Kurswunsch rel1 = new Kurswunsch(sid, t.getCourseList().get(0).getId().intValue(), "1", "0");
+                Kurswunsch rel2 = new Kurswunsch(sid, t.getCourseList().get(1).getId().intValue(), "2", "0");
+                Kurswunsch rel3 = new Kurswunsch(sid, t.getCourseList().get(2).getId().intValue(), "3", "0");
+                // Validierung erfolgreich, jetzt Daten in DB eintragen
+                em.persist(rel1); //em.merge(u); for updates
+                em.persist(rel2); //em.merge(u); for updates
+                em.persist(rel3); //em.merge(u); for updates
+                t.setSuccess(true);
+                t.setMsg("Buchung erfolgreich!");
+            } else {
+                // Abfrage des zugeteilten Kurses
+                Query query = em.createNamedQuery("findKlassebyKurswunsch");
+                query.setParameter("paramWunsch1ID", courses.get(0).getId());
+                query.setParameter("paramWunsch2ID", courses.get(1).getId());
+                query.setParameter("paramWunsch3ID", courses.get(2).getId());
+                query.setParameter("paramIDSchueler", sid);
+                List<Klasse> selectCourses = query.getResultList();
+                Log.d("Liste der zugeteilten Kurses:" + selectCourses);
+                if (selectCourses.size() != 0) {
+                    t.setSelectedCourse(selectCourses.get(0));
+                }
+                t.setSuccess(false);
+                t.setCourseList(courses);
+                t.setMsg("Sie haben bereits gewählt!");
+            }
+
+        }
+        return t;
+    }
+
+    /**
+     * Kursbuchung abfrageb
+     */
+    @GET
+    @Path("/kursbuchung/{sid}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Ticketing askbook(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid) {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Log.d("Webservice kursbuchung GET:" + sid);
+        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+        Authenticator a = Authenticator.getInstance();
+        String user = a.getUser(authToken);
+        Log.d("Kursbuchug auth_token=" + authToken + " User=" + user);
+        Ticketing t = new Ticketing();
+
+        if (Config.getInstance().auth == true && (user == null || Integer.parseInt(user) != sid)) {
+            t.setSuccess(false);
+            t.setMsg("Sie sind nicht berechtigt!");
+            return t;
+        }
+        Schueler s = em.find(Schueler.class, sid);
+        if (s == null) {
+            t.setSuccess(false);
+            t.setMsg("Schüler mit der ID " + sid + " unbekannt!");
+            return t;
+        }
+
+        //  Schauen ob der Pupil schon gewählt hat
+        Query q = em.createNamedQuery("findKlasseByUserId");
+        q.setParameter("paramId", sid);
+        List<Klasse> courses = q.getResultList();
+        Log.d("Result List Courses:" + courses);
+        if (courses.size() != 0) {
+            t.setCourseList(courses);
+        
+            // Abfrage des zugeteilten Kurses
+            Query query = em.createNamedQuery("findKlassebyKurswunsch");
+            query.setParameter("paramWunsch1ID", courses.get(0).getId());
+            query.setParameter("paramWunsch2ID", courses.get(1).getId());
+            query.setParameter("paramWunsch3ID", courses.get(2).getId());
+            query.setParameter("paramIDSchueler", sid);
+            List<Klasse> selectCourses = query.getResultList();
+            Log.d("Liste der zugeteilten Kurses:" + selectCourses);
+            if (selectCourses.size() != 0) {
+                t.setSelectedCourse(selectCourses.get(0));
+            }
+            t.setSuccess(true);
+        }
+        else {
+            t.setSuccess(false);
+            t.setMsg("Sie haben noch nicht gewählt!");
+        }
+        return t;
+    }
 
     @GET
     @Produces({"application/json; charset=iso-8859-1"})

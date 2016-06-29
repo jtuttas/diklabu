@@ -40,7 +40,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         Authenticator demoAuthenticator = Authenticator.getInstance();
         String serviceKey = requestCtx.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
         Log.d("path=(" + path + ")");
-        if (path.startsWith("/noauth") || path.startsWith("/kurswahl") || !Config.getInstance().auth) {
+        if (path.startsWith("/noauth") || !Config.getInstance().auth) {
             Log.d("path start with noauth auth State=" + Config.getInstance().auth);
         } else {
             /*

@@ -122,11 +122,14 @@
 
                         </fieldset>                      
                 </div>
-                <div data-role="popup" id="klasseMenu" class="ui-content" data-history="false">
+                <div  data-role="popup" id="klasseMenu" data-history="false">
                     <a href="#klassenMenuClose"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>                    
-                    <strong id="klasseMailName">KNAME</strong>
+                    <div data-role="header" data-theme="a"><h1 id="klasseMailName">Klasse</h1></div>
+                    <div data-role="main" class="ui-content">
+                    
                     <a href="#mailClass" data-role="button">Klasse anschreiben</a>
                     <a href="#mailBetrieb" data-role="button">Betriebe anschreiben</a>
+                    </div>
                 </div>                        
 
             </div>
@@ -417,9 +420,12 @@
                 </div>
             </div>
             
-            <div data-role="popup" id="detailsMenu" class="ui-content" data-history="false">
+            <div data-role="popup" id="detailsMenu"  data-history="false">
                     <a href="#schuelerdetails"  data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>                                        
-                    <a href="#" id="bildLoschen" data-role="button">Bild löschen</a>
+                    <div data-role="header" data-theme="a"><h1>Bild</h1></div>
+                    <div data-role="main"  class="ui-content">
+                    <a href="#" id="bildLoschen" data-role="button" data-theme="b">Bild löschen</a>
+                    </div>
                 </div>  
             
         </div>

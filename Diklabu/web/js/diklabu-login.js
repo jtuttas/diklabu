@@ -4,7 +4,13 @@ $("#login").click(function () {
 });
 
 $("#diklabuname").text(DIKLABUNAME);
-$("#version").text(VERSION);
+if (debug) {
+       $("#version").text(VERSION+ " (DEBUG)");
+}
+else {
+    $("#version").text(VERSION);
+}
+
 /**
  * 
  * -------------------------------------------------------------------------

@@ -2,71 +2,132 @@
 var courseList;
 var wuensche = new Array(3);
 
-$("#version").text(VERSION);
 getCourseList();
 
 $("#btnAbfragen").click(function () {
-    if ($("#nameAbfragen").val() == "" || $("#vorNameAbfragen").val() == "" || $("#gebDatumAbfragen").val() == "") {
+    if ($("#benutzername2").val() == "" || $("#kennwort2").val() == "") {
         toastr["info"]("Bitte die Anmeldedaten vollständig ausfüllen!", "Information");
     }
     else {
 
-        var credentials = {
-            name: $("#nameAbfragen").val(),
-            vorName: $("#vorNameAbfragen").val(),
-            gebDatum: $("#gebDatumAbfragen").val()
-        };
-        $.ajax({
-            url: SERVER + "/Diklabu/api/v1/kurswahl/login",
-            type: "POST",
-            contentType: "application/json; charset=UTF-8",
-            dataType: "json",
-            data: JSON.stringify(credentials),
-            success: function (data) {
-                console.log("login finished" + JSON.stringify(data));
-                if (data.login == false) {
-                    toastr["error"](data.msg, "Fehler!");
-                        $("#erstWunschAbfragen").text("?");
-                        $("#zweitWunschAbfragen").text("?");
-                        $("#drittWunschAbfragen").text("?");
-                        $("#zuteilung").text("?");
-                }
-                else {
-                    toastr["success"](data.msg, "OK!");
-                    $("#name").val($("#nameAbfragen").val());
-                    $("#vorName").val($("#vorNameAbfragen").val());
-                    $("#gebDatum").val($("#gebDatumAbfragen").val());
-                    console.log("Wahlen: "+data.courses);
-                    if (data.courses!=undefined && data.courses.length!=0) {
-                        $("#erstWunschAbfragen").text(data.courses[0].TITEL+" ("+data.courses[0].ID_LEHRER+")");
-                        $("#zweitWunschAbfragen").text(data.courses[1].TITEL+" ("+data.courses[1].ID_LEHRER+")");
-                        $("#drittWunschAbfragen").text(data.courses[2].TITEL+" ("+data.courses[2].ID_LEHRER+")");
-                        if (data.selectedCourse!=undefined) {
-                            $("#zuteilung").text(data.selectedCourse.TITEL+" ("+data.selectedCourse.ID_LEHRER+")");
+        performLogin($("#benutzername2").val(), $("#kennwort2").val(), function (data) {
+            console.log("--> Empfange:" + JSON.stringify(data));
+            sessionStorage.auth_token = data.auth_token;
+            sessionStorage.myself = data.ID;
+            sessionStorage.myemail = data.email;
+            sessionStorage.VNAME = data.VNAME;
+            sessionStorage.NNAME = data.NNAME;
+            if (data.role == "Admin" || data.role == "Lehrer") {
+
+            }
+            else {
+                sessionStorage.kname = data.nameKlasse;
+                sessionStorage.idKlasse = data.idKlasse;
+                console.log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
+                getKurswunsch(function (data) {
+                    if (data.courseList != undefined && data.courseList.length != 0) {
+                        $("#erstWunschAbfragen").text(data.courseList[0].TITEL + " (" + data.courseList[0].ID_LEHRER + ")");
+                        $("#zweitWunschAbfragen").text(data.courseList[1].TITEL + " (" + data.courseList[1].ID_LEHRER + ")");
+                        $("#drittWunschAbfragen").text(data.courseList[2].TITEL + " (" + data.courseList[2].ID_LEHRER + ")");
+                        if (data.selectedCourse != undefined) {
+                            $("#zuteilung").text(data.selectedCourse.TITEL + " (" + data.selectedCourse.ID_LEHRER + ")");
+                            toastr["success"]("Kurs zugeteilt!", "Information");
                         }
                         else {
                             $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
+                            toastr["info"]("Ihnen wurde noch kein Kurs zugeteilt!", "Information");
 
                         }
                     }
                     else {
                         $("#erstWunschAbfragen").text("kein Kurs gewählt");
                         $("#zweitWunschAbfragen").text("kein Kurs gewählt");
-                        $("#drittWunschAbfragen").text("kein Kurs gewählt");                        
+                        $("#drittWunschAbfragen").text("kein Kurs gewählt");
                         $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
                         //window.location.href = "#kurswahl";
+                        toastr["warning"]("Sie haben noch keinen Kurs gewählt!", "Information");
+                        $("#benutzername").val($("#benutzername2").val());
+                        $("#kennwort").val($("#kennwort2").val());
                         $("#lnkKurswahl").trigger("click");
                     }
-                    credentials=undefined;
-                }
+                    perfromLogout($("#benutzername2").val(), $("#kennwort2").val());
+                });
             }
+        }, function () {
+            $("#erstWunschAbfragen").text("?");
+            $("#zweitWunschAbfragen").text("?");
+            $("#drittWunschAbfragen").text("?");
+            $("#zuteilung").text("?");
         });
-
     }
 });
 
+function perfromLogout(benutzer, kennwort, callback) {
+    var myData = {
+        "benutzer": benutzer,
+        "kennwort": kennwort
+    };
+
+    $.ajax({
+        cache: false,
+        contentType: "application/json; charset=UTF-8",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        dataType: "json",
+        url: "/Diklabu/api/v1/auth/logout/",
+        type: "POST",
+        data: JSON.stringify(myData),
+        success: function (jsonObj, textStatus, xhr) {
+            sessionStorage.clear();
+            console.log("--> Logout: " + JSON.stringify(jsonObj));
+            if (callback != undefined) {
+                callback(jsonObj);
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Logout fehlgeschlagen!Status Code=" + xhr.status, "Fehler!");
+            console.log("HTTP Status: " + xhr.status);
+            console.log("Error textStatus: " + textStatus);
+            console.log("Error thrown: " + errorThrown);
+        }
+    });
+}
+
+function performLogin(benutzer, kennwort, callback, error) {
+    console.log("perform Login benutzer=" + benutzer + " kennwort=" + kennwort);
+
+    var myData = {
+        "benutzer": benutzer,
+        "kennwort": kennwort
+    };
+    $.ajax({
+        cache: false,
+        contentType: "application/json; charset=UTF-8",
+        dataType: "json",
+        url: "/Diklabu/api/v1/auth/login/",
+        type: "POST",
+        data: JSON.stringify(myData),
+        success: function (jsonObj, textStatus, xhr) {
+            callback(jsonObj);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Login fehlgeschlagen", "Fehler!");
+            console.log("HTTP Status: " + xhr.status);
+            console.log("Error textStatus: " + textStatus);
+            console.log("Error thrown: " + errorThrown);
+            if (error != undefined) {
+                console.log("call error Handler!");
+                error();
+            }
+        }
+    });
+}
+
+
 $("#btnWaehlen").click(function () {
-    if ($("#name").val() == "" || $("#vorName").val() == "" || $("#gebDatum").val() == "") {
+    if ($("#benutzername").val() == "" || $("#kennwort").val() == "") {
         toastr["info"]("Bitte die Anmeldedaten vollständig ausfüllen!", "Information");
     }
     else {
@@ -74,74 +135,110 @@ $("#btnWaehlen").click(function () {
             toastr["info"]("Bitte drei Kurse Wünschen!", "Information");
         }
         else {
-            console.log("Wunsche=" + JSON.stringify(wuensche));
-            $("#nameAbfragen").val($("#name").val());
-            $("#vorNameAbfragen").val($("#vorName").val());
-            $("#gebDatumAbfragen").val($("#gebDatum").val());
-            var credentials = {
-                name: $("#name").val(),
-                vorName: $("#vorName").val(),
-                gebDatum: $("#gebDatum").val()
-            };
-            var ticketing = {
-                credential: credentials,
-                courseList: wuensche
-            };
-            console.log("ticketing=" + JSON.stringify(ticketing));
-            $.ajax({
-                url: SERVER + "/Diklabu/api/v1/kurswahl/buchen",
-                type: "POST",
-                contentType: "application/json; charset=UTF-8",
-                dataType: "json",
-                data: JSON.stringify(ticketing),
-                success: function (data) {
-                    console.log("buchen finished" + JSON.stringify(data));
-                    if (data.credential.login == false) {
-                        toastr["error"](data.msg, "Fehler!");
-                    }
-                    else {
-                        if (data.success == true) {
+            performLogin($("#benutzername").val(), $("#kennwort").val(), function (data) {
+                console.log("--> Empfange:" + JSON.stringify(data));
+                sessionStorage.auth_token = data.auth_token;
+                sessionStorage.myself = data.ID;
+                sessionStorage.myemail = data.email;
+                sessionStorage.VNAME = data.VNAME;
+                sessionStorage.NNAME = data.NNAME;
+                if (data.role == "Admin" || data.role == "Lehrer") {
+
+                }
+                else {
+                    sessionStorage.kname = data.nameKlasse;
+                    sessionStorage.idKlasse = data.idKlasse;
+                    console.log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
+                    submitKurswunsch(function (data) {
+                        console.log("buchen finished" + JSON.stringify(data));
+                        if (data.success == false) {
+                            toastr["error"](data.msg, "Fehler!");
+                            $("#erstWunschAbfragen").text(data.courseList[0].TITEL + " (" + data.courseList[0].ID_LEHRER + ")");
+                            $("#zweitWunschAbfragen").text(data.courseList[1].TITEL + " (" + data.courseList[1].ID_LEHRER + ")");
+                            $("#drittWunschAbfragen").text(data.courseList[2].TITEL + " (" + data.courseList[2].ID_LEHRER + ")");
+                            if (data.selectedCourse != undefined) {
+                                $("#zuteilung").text(data.selectedCourse.TITEL + " (" + data.selectedCourse.ID_LEHRER + ")");
+                            }
+                            else {
+                                $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
+
+                            }
+                            //window.location.href = "#results";
+                            $("#benutzername2").val($("#benutzername").val());
+                            $("#kennwort2").val($("#kennwort").val());
+                            $("#lnkResults").trigger("click");
+                        }
+                        else {
                             toastr["success"](data.msg, "OK!");
-                            $("#name").val("");
-                            $("#vorName").val("");
-                            $("#gebDatum").val("");
+
                             $("li").removeClass("disabled");
                             $("#erstWunsch").text("kein Kurs gewählt");
                             $("#zweitWunsch").text("kein Kurs gewählt");
                             $("#drittWunsch").text("kein Kurs gewählt");
-                            $("#erstWunschAbfragen").text(wuensche[0].TITEL+" ("+wuensche[0].ID_LEHRER+")");
-                            $("#zweitWunschAbfragen").text(wuensche[1].TITEL+" ("+wuensche[1].ID_LEHRER+")");
-                            $("#drittWunschAbfragen").text(wuensche[2].TITEL+" ("+wuensche[2].ID_LEHRER+")");
+                            $("#erstWunschAbfragen").text(wuensche[0].TITEL + " (" + wuensche[0].ID_LEHRER + ")");
+                            $("#zweitWunschAbfragen").text(wuensche[1].TITEL + " (" + wuensche[1].ID_LEHRER + ")");
+                            $("#drittWunschAbfragen").text(wuensche[2].TITEL + " (" + wuensche[2].ID_LEHRER + ")");
                             //window.location.href = "#results";
                             $("#lnkResults").trigger("click");
                         }
-                        else {
-                            toastr["error"](data.msg, "Fehler!");
-                            $("#erstWunschAbfragen").text(data.credential.courses[0].TITEL+" ("+data.credential.courses[0].ID_LEHRER+")");
-                            $("#zweitWunschAbfragen").text(data.credential.courses[1].TITEL+" ("+data.credential.courses[1].ID_LEHRER+")");
-                            $("#drittWunschAbfragen").text(data.credential.courses[2].TITEL+" ("+data.credential.courses[2].ID_LEHRER+")");
-                            if (data.credential.selectedCourse!=undefined) {
-                                $("#zuteilung").text(data.credential.selectedCourse.TITEL+" ("+data.credential.selectedCourse.ID_LEHRER+")");
-                            }
-                            else {
-                                $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
-                                
-                            }
-                            //window.location.href = "#results";
-                            $("#lnkResults").trigger("click");
-                            
-                        }
-                    }
+                        perfromLogout($("#benutzername").val(), $("#kennwort").val(), function (data) {
+                            $("#benutzername").val("");
+                            $("#kennwort").val("");
+                        });
+                    });
                 }
             });
         }
     }
 });
 
+function submitKurswunsch(callback) {
+    console.log("Wunsche=" + JSON.stringify(wuensche));
+
+    var ticketing = {
+        courseList: wuensche
+    };
+    console.log("ticketing=" + JSON.stringify(ticketing));
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/" + sessionStorage.myself,
+        type: "POST",
+        contentType: "application/json; charset=UTF-8",
+        dataType: "json",
+        data: JSON.stringify(ticketing),
+        success: function (data) {
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kursbuchung fehlgeschlagen", "Fehler!");
+            console.log("HTTP Status: " + xhr.status);
+            console.log("Error textStatus: " + textStatus);
+            console.log("Error thrown: " + errorThrown);
+        }
+    });
+
+}
+
+function getKurswunsch(callback) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/" + sessionStorage.myself,
+        type: "GET",
+        contentType: "application/json; charset=UTF-8",
+        dataType: "json",
+        success: function (data) {
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kursbuchungsabfrage fehlgeschlagen", "Fehler!");
+            console.log("HTTP Status: " + xhr.status);
+            console.log("Error textStatus: " + textStatus);
+            console.log("Error thrown: " + errorThrown);
+        }
+    });
+}
 
 function getCourseList() {
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/kurswahl/getcourses",
+        url: SERVER + "/Diklabu/api/v1/noauth/getcourses",
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         dataType: "json",

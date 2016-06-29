@@ -17,7 +17,7 @@ import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
 import de.tuttas.restful.Data.BildObject;
-import de.tuttas.restful.Data.Credential;
+
 import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
