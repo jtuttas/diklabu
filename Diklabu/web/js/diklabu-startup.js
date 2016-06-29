@@ -2402,8 +2402,11 @@ function updateCurrentView() {
                 getSchuljahre(function (data) {
                     $("#schuljahre").empty();
                     for (i = 0; i < data.length; i++) {
-                        $("#schuljahre").append('<option sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
+                        $("#schuljahre").append('<option value="'+data[i].NAME+'" sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
                     }
+                    console.log("Setzte aktuelles Schuljahr auf "+data[i - 1].NAME);
+                    
+                    
                     $("#schuljahre").val(data[i - 1].NAME);
                     $("#idSchuljahr").val(data[i - 1].ID);
                     getNoten(nameKlasse, data[i - 1].ID, function (data) {
