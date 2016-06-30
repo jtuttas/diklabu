@@ -47,5 +47,32 @@ public class Noten_all_Id {
         this.ID_SCHULJAHR = ID_SCHULJAHR;
     }
     
-    
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        hash += (ID_SCHUELER != null ? ID_SCHUELER.hashCode() : 0);
+        hash += (ID_LERNFELD != null ? ID_LERNFELD.hashCode() : 0);
+        hash += (ID_SCHULJAHR != null ? ID_SCHULJAHR.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        // TODO: Warning - this method won't work in the case the id fields are not set
+        if (!(object instanceof Noten_all)) {
+            return false;
+        }
+        Noten_all other = (Noten_all) object;
+        if ((this.ID_LERNFELD == null && other.getID_LERNFELD() != null) || (this.ID_LERNFELD != null && !this.ID_LERNFELD.equals(other.getID_LERNFELD()))) {
+            return false;
+        }
+        if ((this.ID_SCHUELER == null && other.getID_SCHUELER()!= null) || (this.ID_SCHUELER != null && !this.ID_SCHUELER.equals(other.getID_SCHUELER()))) {
+            return false;
+        }
+        if ((this.ID_SCHULJAHR == null && other.getID_SCHULJAHR()!= null) || (this.ID_SCHULJAHR != null && !this.ID_SCHULJAHR.equals(other.getID_SCHULJAHR()))) {
+            return false;
+        }
+
+        return true;
+    }
 }

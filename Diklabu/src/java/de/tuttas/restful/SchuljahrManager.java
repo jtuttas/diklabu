@@ -43,6 +43,7 @@ public class SchuljahrManager {
     public List<Schuljahr> getSchuljahre() {
         Query query = em.createNamedQuery("getSchuljahre");        
         List<Schuljahr> jahre = query.getResultList();
+        Log.d("Schuljahr All Result List="+jahre);
         return jahre;
     }
 }

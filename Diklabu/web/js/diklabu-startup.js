@@ -3210,9 +3210,9 @@ function buildeAnwesenheitstabelle(data) {
 
 }
 function log(msg) {
-    if (debug) {
+    //if (debug) {
         console.log(msg);
-    }
+    //}
 }
 // Load the Visualization API and the corechart package.
 google.charts.load('current', {'packages': ['corechart']});

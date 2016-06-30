@@ -32,8 +32,7 @@ import javax.persistence.Transient;
 @IdClass(Noten_all_Id.class)
 public class Noten_all implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer ID; 
-    @Id    
+    @Id     
     private Integer ID_SCHUELER;
     @Id     
     private String ID_LERNFELD;
@@ -133,19 +132,13 @@ public class Noten_all implements Serializable {
     }
     
     
-    
-    public Integer getID() {
-        return ID;
-    }
-
-    public void setID(Integer id) {
-        this.ID = id;
-    }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (ID != null ? ID.hashCode() : 0);
+        hash += (ID_SCHUELER != null ? ID_SCHUELER.hashCode() : 0);
+        hash += (ID_LERNFELD != null ? ID_LERNFELD.hashCode() : 0);
+        hash += (ID_SCHULJAHR != null ? ID_SCHULJAHR.hashCode() : 0);
         return hash;
     }
 
@@ -156,9 +149,16 @@ public class Noten_all implements Serializable {
             return false;
         }
         Noten_all other = (Noten_all) object;
-        if ((this.ID == null && other.ID != null) || (this.ID != null && !this.ID.equals(other.ID))) {
+        if ((this.ID_LERNFELD == null && other.getID_LERNFELD() != null) || (this.ID_LERNFELD != null && !this.ID_LERNFELD.equals(other.getID_LERNFELD()))) {
             return false;
         }
+        if ((this.ID_SCHUELER == null && other.getID_SCHUELER()!= null) || (this.ID_SCHUELER != null && !this.ID_SCHUELER.equals(other.getID_SCHUELER()))) {
+            return false;
+        }
+        if ((this.ID_SCHULJAHR == null && other.getID_SCHULJAHR()!= null) || (this.ID_SCHULJAHR != null && !this.ID_SCHULJAHR.equals(other.getID_SCHULJAHR()))) {
+            return false;
+        }
+
         return true;
     }
 
