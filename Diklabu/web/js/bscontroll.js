@@ -1,7 +1,12 @@
 
 var courseList;
 var wuensche = new Array(3);
-
+if (debug) {
+    $("#version").text(VERSION+" (Debug)");
+    }
+    else {
+        $("#version").text(VERSION);
+    }
 getCourseList();
 
 $("#btnAbfragen").click(function () {

@@ -7,6 +7,7 @@ package de.tuttas.restful;
 
 import de.tuttas.config.Config;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.Lehrer;
 import de.tuttas.entities.Schueler;
 import de.tuttas.restful.AuthRESTResourceProxy;
 import de.tuttas.restful.Data.Auth;
@@ -73,6 +74,12 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                    u.setShortName(""+schueler.get(0).getId()); 
                    demoAuthenticator.setUser(u.getAuthToken(), schueler.get(0).getId().toString());
                    demoAuthenticator.setRole(schueler.get(0).getId().toString(), Roles.toString(Roles.SCHUELER));
+                   
+                   Schueler s = schueler.get(0);
+                   if (u.getEMail()!=null) {
+                       s.setEMAIL(u.getEMail());
+                       em.merge(s);
+                   }
                 }
                 String kname=username.substring(0,username.indexOf("."));
                 jsonObjBuilder.add("nameKlasse",kname.toUpperCase());
@@ -85,6 +92,13 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                 }
                  jsonObjBuilder.add("VNAME",u.getVName());
                  jsonObjBuilder.add("NNAME",u.getNName());
+            }
+            else if (u.getRole().equals(Roles.toString(Roles.LEHRER)) || u.getRole().equals(Roles.toString(Roles.ADMIN))) {
+                Lehrer l = em.find(Lehrer.class, u.getShortName());
+                if (l!=null && u.getEMail()!=null) {
+                    l.setEMAIL(u.getEMail());
+                    em.merge(l);
+                }
             }
             
             jsonObjBuilder.add("auth_token", u.getAuthToken());
