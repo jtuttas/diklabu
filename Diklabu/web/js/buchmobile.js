@@ -344,7 +344,9 @@ $("#btnEntschuldigt").click(function () {
 });
 $("#btnOkAnwesenheit").click(function () {
     if ($("#anwesenheitText").val() == "") {
-        toast("Kein Vermerk angeben!");
+        sid = $("#anwName").attr("sid");
+        log("Lösche Anwesenheit f. "+sid);
+        deleteAnwesenheit(sid);
     }
     else {
         //$("#anwesenheitDetails").popup("close");
@@ -1801,7 +1803,7 @@ function getValidDate(s) {
     return r[2] + "-" + r[1] + "-" + r[0];
 }
 function log(msg) {
-    if (debug) {
+    //if (debug) {
         console.log(msg);
-    }
+    //}
 }
