@@ -76,7 +76,8 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                    demoAuthenticator.setRole(schueler.get(0).getId().toString(), Roles.toString(Roles.SCHUELER));
                    
                    Schueler s = schueler.get(0);
-                   if (u.getEMail()!=null) {
+                   if (s!=null && u.getEMail()!=null && !u.getEMail().equals(s.getEMAIL())) {
+                       Log.d("Aktualisiere EMails für Schüler aus der AD auf "+u.getEMail());
                        s.setEMAIL(u.getEMail());
                        em.merge(s);
                    }
@@ -95,7 +96,8 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
             }
             else if (u.getRole().equals(Roles.toString(Roles.LEHRER)) || u.getRole().equals(Roles.toString(Roles.ADMIN))) {
                 Lehrer l = em.find(Lehrer.class, u.getShortName());
-                if (l!=null && u.getEMail()!=null) {
+                if (l!=null && u.getEMail()!=null && !l.getEMAIL().equals(u.getEMail())) {
+                    Log.d("Aktualisiere EMails für Lehrer aus der AD auf "+u.getEMail());
                     l.setEMAIL(u.getEMail());
                     em.merge(l);
                 }
