@@ -732,6 +732,10 @@ function getSchuljahre(callback) {
         url: SERVER + "/Diklabu/api/v1/schuljahr/all",
         type: "GET",
         contentType: "application/json; charset=UTF-8",
+         headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
         success: function (data) {
             callback(data);
         },
