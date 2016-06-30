@@ -67,7 +67,7 @@ function performLogin() {
     if (sessionStorage.auth_token == undefined || sessionStorage.auth_token == "undefined") {
         idplain = removeGerman($("#benutzername").val());
         var myData = {
-            "benutzer": idplain,
+            "benutzer": $("#benutzername").val(),
             "kennwort": $("#kennwort").val()
         };
         log("idplain = " + idplain + " send data=" + JSON.stringify(myData));
@@ -120,8 +120,8 @@ function performLogin() {
 }
 
 function log(msg) {
-    if (debug) {
+    //if (debug) {
         console.log(msg);
-    }
+   // }
 }
 

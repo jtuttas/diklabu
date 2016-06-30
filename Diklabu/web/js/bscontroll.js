@@ -210,6 +210,10 @@ function submitKurswunsch(callback) {
         url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/" + sessionStorage.myself,
         type: "POST",
         contentType: "application/json; charset=UTF-8",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
         dataType: "json",
         data: JSON.stringify(ticketing),
         success: function (data) {
@@ -229,6 +233,10 @@ function getKurswunsch(callback) {
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/" + sessionStorage.myself,
         type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
         contentType: "application/json; charset=UTF-8",
         dataType: "json",
         success: function (data) {
@@ -365,7 +373,7 @@ toastr.options = {
 }
 
 function log(msg) {
-    if (debug) {
+    //if (debug) {
         console.log(msg);
-    }
+    //}
 }
