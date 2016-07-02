@@ -1,4 +1,12 @@
 ﻿<#
+    ToDo:
+    1.) GEBDAT in yyyy-mm-tt wandeln
+    2.) Format UTF8 speichern mit " als Texttrenner
+
+#>
+
+
+<#
 .Synopsis
    Aufbau des Klassenbuches via CSV Datei
 .DESCRIPTION
@@ -27,29 +35,46 @@ function Importfrom-Csv
             Write-Host "Kann CSV Datei $csv nicht finden" -BackgroundColor DarkRed
             break;
         }                 
-
+        $zeile=0;
+        $klasseMap=@{}
         foreach ($line in $c) {
             #$line
-            if ($line.BETRNAM1) {
-                Write-Host "Suche Betrieb "$line.BETRNAM1
-                $comp=Find-Company -NAME $line.BETRNAM1 
+            $bname=$line.BETRNAM1+$line.BETRNAM2
+            $bname=$bname.Trim()
+            if ($bname.length -gt 0) {
+                
+                Write-Host "Suche Betrieb ($bname)"
+                $comp=Find-Company -NAME ($bname)
+                if ($comp.length -gt 1) {
+                    Write-Host "Mehr als einen Betrieb mit dem Namen gefunden, wähle den ersten!" -BackgroundColor DarkYellow
+                    $comp=$comp[0]
+                }
                 if ($comp) {
-                    Write-Host "Bekannter Betrieb"$line.BETRNAM1" (ID="$comp.ID") aktualisiere Daten PLZ="$line.BETRPLZ"ORT="$line.BETRORT"Strasse="$line.BETRSTR  -BackgroundColor DarkGreen
+                    Write-Host "Bekannter Betrieb $bname (ID="$comp.ID") aktualisiere Daten PLZ="$line.BETRPLZ"ORT="$line.BETRORT"Strasse="$line.BETRSTR  -BackgroundColor DarkGreen
                     if (-not $whatif) {
                         $comp=Set-Company -ID $comp.id -PLZ $line.BETRPLZ -ORT $line.BETRORT -STRASSE $line.BETRSTR 
                     }
                 }
                 else {
                     if (-not $whatif) {
-                        $comp=New-Company -NAME $line.BETRNAM1  -PLZ $line.BETRPLZ -ORT $line.BETRORT -STRASSE $line.BETRSTR 
+                        $comp=New-Company -NAME $bname  -PLZ $line.BETRPLZ -ORT $line.BETRORT -STRASSE $line.BETRSTR 
                     }
                     else {
                         $comp="" | Select-Object "ID"
                         $comp.ID=0
                     }
-                    Write-Host "Neuer Betrieb"$line.BETRNAM1"PLZ="$line.BETRPLZ"ORT="$line.BETRORT"Strasse="$line.BETRSTR"ID="$comp.ID -BackgroundColor DarkRed
+                    Write-Host "Neuer Betrieb $bname PLZ="$line.BETRPLZ"ORT="$line.BETRORT"Strasse="$line.BETRSTR"ID="$comp.ID -BackgroundColor DarkRed
                 }
                  Write-Host "Suche Ausbilder "$line.BETRANSPR
+                 if (-not $line.BETRANSPR) {
+                    Write-Host "Kein Ausbilder angegeben, ersetze durch Betrieb!" -BackgroundColor DarkYellow
+                    if ($bname.length -gt 49) {
+                        $bname = $bname.SubString(0,49)
+                    }
+                    $line.BETRANSPR=$bname
+
+                 }
+                 
                  $ausb=Find-Instructor -NNAME $line.BETRANSPR
                  $found=$false;
                  foreach ($aus in $ausb) {
@@ -59,7 +84,7 @@ function Importfrom-Csv
                         $email=$email.Replace(" ",";")
                         #Write-Host "Asubilder EMail=$email"
                         if (-not $whatif) {   
-                            $ins=Set-Instructor -NNAME $line.BETRANSPR -EMAIL $email -FAX $line.FAX -TELEFON $line.TELEFON -ID $comp.ID
+                            $ins=Set-Instructor -NNAME $line.BETRANSPR -EMAIL $email -FAX $line.FAX -TELEFON $line.TELEFON -ID $aus.ID
                         }
                         $found=$true
                         Write-Host "Bekannter Ausbilder"$line.BETRANSPR"($email) aktualisiere Daten EMAIL=$email FAX="$line.FAX"Telefon="$line.TELEFON" ID_Betrieb="$comp.ID -BackgroundColor DarkGreen
@@ -82,7 +107,11 @@ function Importfrom-Csv
                    
                 }
             }
-
+            else {
+                Write-Host "Kein Betrieb angegeben!" -BackgroundColor DarkYellow
+                $comp=$null;
+                $ins=$null;
+            }
             Write-Host "Suche Lehrer "$line.KL_LEHRER
             $teacher = Get-Teacher -ID $line.KL_LEHRER
             if ($teacher) {
@@ -101,13 +130,17 @@ function Importfrom-Csv
                     $teacher.ID=$line.KL_LEHRER
                 }
             }
-            Write-Host "Suche Klasse "$line.KL_NAME
+            Write-Host "Suche Klasse ("$line.KL_NAME")"
                 
-            $course = Find-Course -KNAME $line.KL_NAME
+            $course = Find-Course -KNAME ($line.KL_NAME)
+            if ($course.length -gt 1) {
+                Write-Host "Mehr als eine Klasse mit dem Namen gefunden, wähle die erste!" -BackgroundColor DarkYellow
+                $course=$course[0]
+            }
             if ($course) {
                 Write-Host "Bekannte Klasse"$line.KL_NAME"aktualisiere Daten ID_LEHRER="$line.KL_LEHRER -BackgroundColor DarkGreen
                 if (-not $whatif) {
-                    $course=Set-Course -id $course.id -ID_LEHRER $line.KL_LEHRER 
+                    $course=Set-Course -id $course.id -ID_LEHRER $line.KL_LEHRER -KNAME $line.KL_NAME
                 }
             }
             else {
@@ -116,26 +149,64 @@ function Importfrom-Csv
                     $course=New-Course -KNAME $line.KL_NAME -ID_LEHRER $line.KL_LEHRER -ID_KATEGORIE 0 
                 }
                 else {
-                    $course="" | Select-Object "ID"
+                    $course="" | Select-Object "ID","KNAME"
                     $course.ID=0
+                    $course.KNAME=$line.KL_NAME
                 }
+                
                 Write-Host "Neue Klasse"$line.KL_NAME" ID_LEHRER="$line.KL_LEHRER"ID="$course.ID -BackgroundColor DarkRed
             }      
-            #$line    
+            #$line  
+            
             $gdat = Get-Date -Date $line.GEBDAT -Format "yyyy-MM-dd"      
             Write-Host "Suche Schüler "$line.'SIL.VNAME'$line.'SIL.NNAME'" Geb."$gdat
             $searchString = $line.'SIL.VNAME'+$line.'SIL.NNAME'+$gdat
-            $schueler=Search-Pupil -VNAMENNAMEGEBDAT $searchString -LDist 4            
+            $schueler=Search-Pupil -VNAMENNAMEGEBDAT $searchString -LDist 3
+            if ($schueler.Length -gt 1) {
+                Write-Host "Mehr als einen Schüler gefunden, wähle den mit der geringsten Levenshtein Distanz!" -BackgroundColor DarkYellow
+                $schueler = $schueler[0];
+                $p=Get-Pupil -id $schueler.id
+                Write-Host "Wähle "$schueler.name" "$schueler.vorname" "$p.gebDatum
+            }        
+            if ($schueler.ldist -eq 3) {
+                if (-not $force) {
+                     $p=Get-Pupil -id $schueler.id  
+                     $p                   
+                     Write-Host "Gefunden Wurde "$schueler.vorname" "$schueler.name" "$p.gebDatum -BackgroundColor DarkMagenta                    
+                    $i=Read-Host "Achtung Levenshtein Distanz ist am Maximum! (Return = bekannter Schüler (weiter), e=break, n=neuer Schueler)" 
+                    if ($i -eq "e") {
+                        break;
+                    }
+                    elseif ($i -eq "n") {
+                        $schueler=$null
+                    }
+
+                }
+                else {
+                    Write-Host "Achtung Levenshtein Distanz ist am Maximum!" -BackgroundColor DarkMagenta                    
+                   
+                }
+            }
             if ($schueler) {
-                Write-Host "Bekannter Schueler"$line.'SIL.VNAME'$line.'SIL.NNAME'" Geb."$line.GEBDAT"aktualisiere Daten" -BackgroundColor DarkGreen
+                Write-Host "Bekannter Schueler"$schueler.vorname$schueler.name" Geb."$line.GEBDAT"("$schueler.id") aktualisiere Daten" -BackgroundColor DarkGreen
                 if (-not $whatif) {
-                    $schueler=Set-Pupil -id $schueler.id -VNAME $line.'SIL.VNAME' -NNAME $line.'SIL.NNAME' -GEBDAT $gdat -EMAIL $line.EMAIL -ID_AUSBILDER $ins.ID -ABGANG "N" 
+                    if ($ins) {
+                        $schueler=Set-Pupil -id $schueler.id -VNAME $line.'SIL.VNAME' -NNAME $line.'SIL.NNAME' -GEBDAT $gdat -EMAIL $line.EMAIL -ID_AUSBILDER $ins.ID -ABGANG "N" 
+                    }
+                    else {                        
+                        $schueler=Set-Pupil -id $schueler.id -VNAME $line.'SIL.VNAME' -NNAME $line.'SIL.NNAME' -GEBDAT $gdat -EMAIL $line.EMAIL -ABGANG "N" 
+                    }
                 }
             }
             else {
                 Write-Host "Neuer Schueler"$line.'SIL.VNAME'$line.'SIL.NNAME'" Geb."$line.GEBDAT -BackgroundColor DarkRed
                 if (-not $whatif) {
-                    $schueler=New-Pupil -VNAME $line.'SIL.VNAME' -NNAME $line.'SIL.NNAME' -GEBDAT $gdat -EMAIL $line.EMAIL -ID_AUSBILDER $ins.ID -ABGANG "N" 
+                    if ($ins) {
+                        $schueler=New-Pupil -VNAME $line.'SIL.VNAME' -NNAME $line.'SIL.NNAME' -GEBDAT $gdat -EMAIL $line.EMAIL -ID_AUSBILDER $ins.ID -ABGANG "N" 
+                    }
+                    else {
+                        $schueler=New-Pupil -VNAME $line.'SIL.VNAME' -NNAME $line.'SIL.NNAME' -GEBDAT $gdat -EMAIL $line.EMAIL  -ABGANG "N" 
+                    }
                 }
             }
             $pupil = Get-Pupil  -id $schueler.ID
@@ -145,7 +216,7 @@ function Importfrom-Csv
                 if ($klasse.ID_KATEGORIE -eq 0) {
                     if ($klasse.KNAME -notlike $course.KNAME) {
                         if (-not $force) {
-                            $q=Read-Host "Der Schüler befindet sich in der Klasse "$klasse.KNAME", Schüler aus der Klasse entfernen? (j/n)" 
+                            $q=Read-Host "Der Schüler ("$schueler.id")befindet sich in der Klasse "$klasse.KNAME" ("$klasse.ID"), Schüler aus der Klasse entfernen? (j/n)" 
                             if ($q -eq "j") {
                                 if (-not $whatif) {
                                     $r=Remove-Coursemember -id $schueler.id -klassenid $klasse.ID
@@ -156,7 +227,7 @@ function Importfrom-Csv
                         else {
                              if (-not $whatif) {
                                 $r=Remove-Coursemember -id $schueler.id -klassenid $klasse.ID                         
-                                Write-Host $r.msg -BackgroundColor DarkYellow
+                                 Write-Host "Schüler aus "$klasse.KNAME" entfernt!" -BackgroundColor DarkYellow
                              }
                              else {
                                 Write-Host "Schüler aus "$klasse.KNAME" entfernt!" -BackgroundColor DarkYellow
@@ -178,8 +249,79 @@ function Importfrom-Csv
             else {
                 Write-Host "Schüler "$line.'SIL.VNAME'$line.'SIL.NNAME'"ist bereits in der Klasse "$course.KNAME -BackgroundColor DarkGreen
             }
-
-            Write-Host "-----------------"
+            if ($klasseMap[$course.id]) {
+                Write-Host "Klasseobjekt existiert mit "$course.id
+                $klasseMap[$course.id].schueler[$schueler.id]=$line.'SIL.VNAME'+$line.'SIL.NNAME'
+            }
+            else {
+                Write-Host "Klasseobjekt anlegen mit mit "$course.id
+                $klasseMap[$course.id]=$course.KNAME | Select-Object "schueler","kname"
+                $klasseMap[$course.id].kname=$course.KNAME
+                $klasseMap[$course.id].schueler=@{}
+                $klasseMap[$course.id].schueler[$schueler.id]=$line.'SIL.VNAME'+$line.'SIL.NNAME'
+            }
+            #$klasseMap
+            $zeile++;
+            Write-Host "------ Zeile:$zeile -----------"
+            
+        }
+        
+        if (-not $force) {
+            $ask=Read-Host "Klassen (löschen) und Schüler auf Abgang setzten die nicht im csv enthalten sind (j/n)"
+            if ($ask -eq "n") {
+                break;
+            }
+        }
+        $courses = Get-Courses -id_kategorie 0
+        foreach ($course in $courses) {
+            Write-Host "Bearbeite Klasse "$course.KNAME
+            if ($klasseMap[$course.id]) {
+                Write-Host "Klasse "$course.KNAME"gefunden, überprüfe Schüler!" -BackgroundColor DarkGreen
+                $pupil = Get-Coursemember -id $course.id
+                foreach ($p in $pupil) {
+                    if ($klasseMap[$course.id].schueler[$p.id]) {
+                        Write-Host "Schüler "$p.VNAME$p.NNAME"gefunden!" -BackgroundColor DarkGreen   
+                    }
+                    else {
+                        Write-Host "Schüler "$p.VNAME$p.NNAME"nicht gefunden!" -BackgroundColor DarkRed
+                        if (-not $force) {
+                            $ask = Read-Host "Schüler "$p.VNAME$p.NNAME"auf Abgang setzten? (j/n)"
+                            if ($ask -eq "j") {
+                                if (-not $whatif) {
+                                    $r=Set-Pupil -id $p.id -ABGANG "J"
+                                }
+                                Write-Host "Schüler "$p.VNAME$p.NNAME" auf Abgang gesetzt!"
+                            }
+                        }
+                        else {
+                            if (-not $whatif) {
+                                $r=Set-Pupil -id $p.id -ABGANG "J"
+                            }
+                            Write-Host "Schüler "$p.VNAME$p.NNAME" auf Abgang gesetzt!"
+                        }
+                    }
+                }
+            }
+            else {
+                Write-Host "Klasse "$course.KNAME"nicht gefunden!" -BackgroundColor DarkRed
+                if (-not $force) {
+                    $ask=Read-Host "Klasse löschen? (j/n)";
+                    if ($ask -eq "j") {
+                        if (-not $whatif) {
+                            $r=Get-Coursemember -id $course.id | ForEach-Object {$_.id} | Remove-Coursemember -klassenid $course.id
+                            $r=Delete-Course -id $course.id 
+                        }
+                        Write-Host "Klasse "$course.KNAME"gelöscht!"
+                    }
+                }
+                else {
+                    if (-not $whatif) {
+                        $r=Get-Coursemember -id $course.id | ForEach-Object {$_.id} | Remove-Coursemember -klassenid $course.id
+                        $r=Delete-Course -id $course.id 
+                    }
+                    Write-Host "Klasse "$course.KNAME"gelöscht!"
+                }
+            }
         }
     }
 }

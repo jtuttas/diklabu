@@ -355,7 +355,7 @@ function Set-Pupil
 
         # ID Des Ausbilders
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [int]$ID_AUSBILDER,
+        [int]$ID_AUSBILDER=0,
 
         # Abgang
         [Parameter(ValueFromPipelineByPropertyName=$true)]

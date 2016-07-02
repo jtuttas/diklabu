@@ -732,7 +732,7 @@ function getSchuljahre(callback) {
         url: SERVER + "/Diklabu/api/v1/schuljahr/all",
         type: "GET",
         contentType: "application/json; charset=UTF-8",
-         headers: {
+        headers: {
             "service_key": sessionStorage.service_key,
             "auth_token": sessionStorage.auth_token
         },
@@ -829,8 +829,8 @@ function getLehrerData(id, callback) {
 function submitAnwesenheit(eintr, success) {
     log("-->! Sende Anwesenheit zum Server:" + JSON.stringify(eintr));
     log("Vermekr = (" + eintr.VERMERK + ")");
-    ve=eintr.VERMERK.trim();
-    
+    ve = eintr.VERMERK.trim();
+
     if (ve == "") {
         log("Lösche Eintrag!");
         dat = eintr.DATUM;
@@ -2298,6 +2298,7 @@ function refreshKlassenliste(kl, callback) {
             },
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
+
                 schueler = data;
                 schueler.klasse = kl;
                 $("#tabelleKlasse").empty();
@@ -2406,11 +2407,11 @@ function updateCurrentView() {
                 getSchuljahre(function (data) {
                     $("#schuljahre").empty();
                     for (i = 0; i < data.length; i++) {
-                        $("#schuljahre").append('<option value="'+data[i].NAME+'" sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
+                        $("#schuljahre").append('<option value="' + data[i].NAME + '" sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
                     }
-                    console.log("Setzte aktuelles Schuljahr auf "+data[i - 1].NAME);
-                    
-                    
+                    console.log("Setzte aktuelles Schuljahr auf " + data[i - 1].NAME);
+
+
                     $("#schuljahre").val(data[i - 1].NAME);
                     $("#idSchuljahr").val(data[i - 1].ID);
                     getNoten(nameKlasse, data[i - 1].ID, function (data) {
@@ -3215,7 +3216,7 @@ function buildeAnwesenheitstabelle(data) {
 }
 function log(msg) {
     //if (debug) {
-        console.log(msg);
+    console.log(msg);
     //}
 }
 // Load the Visualization API and the corechart package.

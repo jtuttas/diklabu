@@ -88,10 +88,10 @@ public class KlassenManager {
     @Path("/member/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<Schueler> getPupil(@PathParam("id") int klid) {
-        Log.d("Webservice klasse GET: klasse=" + klid);
+        Log.d("Webservice klasse GET: klasse= (" + klid+")");
 
-        Query query = em.createNamedQuery("findSchuelerEinerKlasse");
-        query.setParameter("paramKlasseId", klid);
+        Query query = em.createNamedQuery("findSchulerEinerKlasse");
+        query.setParameter("paramidKlasse", klid);
         List<Schueler> schueler = query.getResultList();
         Log.d("Result List:" + schueler);
         return schueler;

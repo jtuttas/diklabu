@@ -28,6 +28,7 @@ function Find-Company
     Param
     (
         # Name des Betriebes
+        
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
         [String]$NAME,
 
@@ -44,7 +45,8 @@ function Find-Company
     Process
     {
         try {
-          $r=Invoke-RestMethod -Method Get -Uri ($uri+"betriebe/"+$NAME) -Headers $headers  
+          $tofind=[uri]::EscapeDataString($NAME)
+          $r=Invoke-RestMethod -Method Get -Uri ($uri+"betriebe/"+$tofind) -Headers $headers  
           return $r;
          } catch {
             Write-Host "Find-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red

@@ -42,7 +42,8 @@ function Find-Instructor
     Process
     {
         try {
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"ausbilder/find/"+$NNAME) -Headers $headers  
+            $tofind=[uri]::EscapeDataString($NNAME)
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"ausbilder/find/"+$tofind) -Headers $headers  
             return $r;
          } catch {
             Write-Host "Find-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
