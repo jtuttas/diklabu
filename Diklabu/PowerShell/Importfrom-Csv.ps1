@@ -150,7 +150,7 @@ function Importfrom-Csv
                 }
                 else {
                     $course="" | Select-Object "ID","KNAME"
-                    $course.ID=0
+                    $course.ID=Get-Random -Maximum 10000
                     $course.KNAME=$line.KL_NAME
                 }
                 
@@ -207,6 +207,10 @@ function Importfrom-Csv
                     else {
                         $schueler=New-Pupil -VNAME $line.'SIL.VNAME' -NNAME $line.'SIL.NNAME' -GEBDAT $gdat -EMAIL $line.EMAIL  -ABGANG "N" 
                     }
+                }
+                else {
+                    $schueler = "" | Select-Object "id"
+                    $schueler.id=Get-Random -Maximum 10000
                 }
             }
             $pupil = Get-Pupil  -id $schueler.ID
