@@ -54,14 +54,14 @@ public final class Authenticator {
             }
 
             // Lehrer Testzugang
-            usersStorage.put("zzz", "mmbbs");
-            rolesStorage.put("zzz", Roles.toString(Roles.LEHRER));
+            usersStorage.put("ZZZ", "mmbbs");
+            rolesStorage.put("ZZZ", Roles.toString(Roles.LEHRER));
             // Schüler Testzugang
-            usersStorage.put("fisi14a.aue", "mmbbs");
-            rolesStorage.put("fisi14a.aue", Roles.toString(Roles.SCHUELER));
+            usersStorage.put("FISI14A.AUE", "mmbbs"); 
+            rolesStorage.put("FISI14A.AUE", Roles.toString(Roles.SCHUELER));
             // Schüler Testzugang
-            usersStorage.put("fisi14a.zzz", "mmbbs");
-            rolesStorage.put("fisi14a.zzz", Roles.toString(Roles.SCHUELER));
+            usersStorage.put("FISI14A.ZZZ", "mmbbs");
+            rolesStorage.put("FISI14A.ZZZ", Roles.toString(Roles.SCHUELER));
         }
 
     }
@@ -99,21 +99,23 @@ public final class Authenticator {
                     rolesStorage.put(username, u.getRole());
                     return u;
                 }
+                Log.d("u ist NULL");
                 throw new LoginException("Don't Come Here Again!");
             } catch (Exception ex) {
+                Log.d("Exception "+ex.getMessage());
                 Logger.getLogger(Authenticator.class.getName()).log(Level.SEVERE, null, ex);
             }
             throw new LoginException("Don't Come Here Again!");
         } else {
             Log.d("Login im Debug Mode serviceKey=" + serviceKey);
-
-            if (usersStorage.containsKey(username)) {
-                String passwordMatch = usersStorage.get(username);
-                Log.d("Benuter "+username+" im userStorage enthalten!");
-                if (passwordMatch.equals(password)) {
+            
+            if (usersStorage.containsKey(username.toUpperCase())) {
+                String passwordMatch = usersStorage.get(username.toUpperCase());
+                Log.d("Benuter "+username+" im userStorage enthalten! Teste Password "+password);
+                if (passwordMatch!=null && passwordMatch.equals(password)) {
                     
                     String authToken = UUID.randomUUID().toString();
-                    authorizationTokensStorage.put(authToken, username);
+                    authorizationTokensStorage.put(authToken, username.toUpperCase());
                     liveTimeStorage.put(authToken, System.currentTimeMillis());
                     LDAPUser u = new LDAPUser();
                     u.setShortName(username);
@@ -121,7 +123,7 @@ public final class Authenticator {
                     // Diese Daten kommen eigentlich über LDAP
                     u.setVName("Marcel");
                     u.setNName(username.substring(username.indexOf(".")+1));
-                    u.setRole(rolesStorage.get(username));
+                    u.setRole(rolesStorage.get(username.toUpperCase()));
                     for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
                         if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {
                             u.setRole(Roles.toString(Roles.ADMIN));
