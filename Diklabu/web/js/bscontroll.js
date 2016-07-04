@@ -115,7 +115,12 @@ function performLogin(benutzer, kennwort, callback, error) {
         type: "POST",
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
-            callback(jsonObj);
+            if (jsonObj.success) {
+                callback(jsonObj);
+            }
+            else {
+                toastr["error"](jsonObj.msg, "Fehler!");
+            }
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Login fehlgeschlagen", "Fehler!");

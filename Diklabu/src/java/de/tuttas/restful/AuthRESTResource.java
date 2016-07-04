@@ -19,6 +19,8 @@ import de.tuttas.util.LDAPUser;
 import de.tuttas.util.Log;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.json.Json;
 import javax.json.JsonObject;
@@ -60,56 +62,76 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
 
         try {
             LDAPUser u = demoAuthenticator.login(serviceKey, username, password);
-            Log.d("Rest Login u=" + u);
+            Log.d("Rest Login u=(" + u+")");
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
             if (u.getRole().equals(Roles.toString(Roles.SCHUELER))) {
                 Query query = em.createNamedQuery("findSchuelerByNameAndKlasse");
                 query.setParameter("paramVNAME", u.getVName());
                 query.setParameter("paramNNAME", u.getNName());
-                Log.d("Klasse=("+username.substring(0, username.indexOf(".")).toUpperCase()+")");
+                Log.d("Klasse=(" + username.substring(0, username.indexOf(".")).toUpperCase() + ")");
                 query.setParameter("paramKLASSE", username.substring(0, username.indexOf(".")).toUpperCase());
                 List<Schueler> schueler = query.getResultList();
                 Log.d("Result List:" + schueler);
-                if (schueler.size()!=0) {
-                   u.setShortName(""+schueler.get(0).getId()); 
-                   demoAuthenticator.setUser(u.getAuthToken(), schueler.get(0).getId().toString());
-                   demoAuthenticator.setRole(schueler.get(0).getId().toString(), Roles.toString(Roles.SCHUELER));
-                   
-                   Schueler s = schueler.get(0);
-                   if (s!=null && u.getEMail()!=null && !u.getEMail().equals(s.getEMAIL())) {
-                       Log.d("Aktualisiere EMails für Schüler aus der AD auf "+u.getEMail());
-                       s.setEMAIL(u.getEMail());
-                       em.merge(s);
-                   }
+                if (schueler.size() != 0) {
+                    u.setShortName("" + schueler.get(0).getId());
+                    demoAuthenticator.setUser(u.getAuthToken(), schueler.get(0).getId().toString());
+                    demoAuthenticator.setRole(schueler.get(0).getId().toString(), Roles.toString(Roles.SCHUELER));
+
+                    Schueler s = schueler.get(0);
+                    if (s != null && u.getEMail() != null && !u.getEMail().equals(s.getEMAIL())) {
+                        Log.d("Aktualisiere EMails für Schüler aus der AD auf " + u.getEMail());
+                        s.setEMAIL(u.getEMail());
+                        em.merge(s);
+                    }
+                    String kname = username.substring(0, username.indexOf("."));
+                    jsonObjBuilder.add("nameKlasse", kname.toUpperCase());
+                    query = em.createNamedQuery("findKlassebyName");
+                    query.setParameter("paramKName", kname.toUpperCase());
+                    List<Klasse> klasse = query.getResultList();
+                    if (klasse.size() != 0) {
+                        jsonObjBuilder.add("idKlasse", klasse.get(0).getId());
+                    }
+                    jsonObjBuilder.add("VNAME", u.getVName());
+                    jsonObjBuilder.add("NNAME", u.getNName());
+                    jsonObjBuilder.add("msg", "Login erfolgreich!");
+                    jsonObjBuilder.add("success", true);
+                } else {
+                    jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" in Klasse "+username.substring(0, username.indexOf(".")).toUpperCase()+" finden!");
+                    jsonObjBuilder.add("success", false);
+                    try {
+                        demoAuthenticator.logout("", u.getAuthToken());
+                    } catch (GeneralSecurityException ex) {
+                        Logger.getLogger(AuthRESTResource.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-                String kname=username.substring(0,username.indexOf("."));
-                jsonObjBuilder.add("nameKlasse",kname.toUpperCase());
-                
-                query = em.createNamedQuery("findKlassebyName");
-                query.setParameter("paramKName",kname.toUpperCase());
-                List<Klasse> klasse = query.getResultList();
-                if (klasse.size()!=0) {
-                   jsonObjBuilder.add("idKlasse",klasse.get(0).getId());
-                }
-                 jsonObjBuilder.add("VNAME",u.getVName());
-                 jsonObjBuilder.add("NNAME",u.getNName());
-            }
-            else if (u.getRole().equals(Roles.toString(Roles.LEHRER)) || u.getRole().equals(Roles.toString(Roles.ADMIN))) {
+            } else if (u.getRole().equals(Roles.toString(Roles.LEHRER)) || u.getRole().equals(Roles.toString(Roles.ADMIN))) {
                 Lehrer l = em.find(Lehrer.class, u.getShortName());
-                if (l!=null && u.getEMail()!=null && !l.getEMAIL().equals(u.getEMail())) {
-                    Log.d("Aktualisiere EMails für Lehrer aus der AD auf "+u.getEMail());
+                if (l != null && u.getEMail() != null && !l.getEMAIL().equals(u.getEMail())) {
+                    Log.d("Aktualisiere EMails für Lehrer aus der AD auf " + u.getEMail());
                     l.setEMAIL(u.getEMail());
                     em.merge(l);
                 }
+                if (l==null) {
+                    jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Lehrer mit Kürzel "+u.getShortName()+" in Klassenbuch DB finden!");
+                    jsonObjBuilder.add("success", false);
+                    try {
+                        demoAuthenticator.logout("", u.getAuthToken());
+                    } catch (GeneralSecurityException ex) {
+                        Logger.getLogger(AuthRESTResource.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+                else {
+                    jsonObjBuilder.add("msg", "Login erfolgreich!");
+                    jsonObjBuilder.add("success", true);                    
+                }
             }
-            
+
             jsonObjBuilder.add("auth_token", u.getAuthToken());
-            jsonObjBuilder.add("ID", u.getShortName());    
+            jsonObjBuilder.add("ID", u.getShortName());
             jsonObjBuilder.add("idPlain", u.getIdPlain());
-            
-            
+
             jsonObjBuilder.add("role", u.getRole());
-            Log.d("User zurück:"+u);
+            Log.d("User zurück:" + u);
             JsonObject jsonObj = jsonObjBuilder.build();
             return getNoCacheResponseBuilder(Response.Status.OK).entity(jsonObj.toString()).build();
 

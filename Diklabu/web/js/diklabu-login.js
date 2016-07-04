@@ -85,24 +85,28 @@ function performLogin() {
             type: "POST",
             data: JSON.stringify(myData),
             success: function (jsonObj, textStatus, xhr) {
-
-                sessionStorage.auth_token = jsonObj.auth_token;
-                log("Thoken = " + jsonObj.auth_token);
-                log("Recieve " + JSON.stringify(jsonObj));
-                toastr["success"]("Login erfolgreich", "Info!");
-                sessionStorage.myselfplain = idplain;
-                sessionStorage.myself = jsonObj.ID;
-                sessionStorage.myemail = jsonObj.email;
-                sessionStorage.VNAME=jsonObj.VNAME;
-                sessionStorage.NNAME=jsonObj.NNAME;
-                if (jsonObj.role == "Admin" || jsonObj.role == "Lehrer") {
-                    window.location.replace("buch.html");
+                if (jsonObj.success) {
+                    sessionStorage.auth_token = jsonObj.auth_token;
+                    log("Thoken = " + jsonObj.auth_token);
+                    log("Recieve " + JSON.stringify(jsonObj));
+                    toastr["success"](jsonObj.msg, "Info!");
+                    sessionStorage.myselfplain = idplain;
+                    sessionStorage.myself = jsonObj.ID;
+                    sessionStorage.myemail = jsonObj.email;
+                    sessionStorage.VNAME=jsonObj.VNAME;
+                    sessionStorage.NNAME=jsonObj.NNAME;
+                    if (jsonObj.role == "Admin" || jsonObj.role == "Lehrer") {
+                        window.location.replace("buch.html");
+                    }
+                    else {
+                        sessionStorage.kname=jsonObj.nameKlasse;
+                        sessionStorage.idKlasse=jsonObj.idKlasse;
+                        window.location.replace("sbuch.html");
+                        log("kname="+sessionStorage.kname+" idKlasse="+sessionStorage.idKlasse);
+                    }
                 }
                 else {
-                    sessionStorage.kname=jsonObj.nameKlasse;
-                    sessionStorage.idKlasse=jsonObj.idKlasse;
-                    window.location.replace("sbuch.html");
-                    log("kname="+sessionStorage.kname+" idKlasse="+sessionStorage.idKlasse);
+                    toastr["error"](jsonObj.msg, "Fehler!");
                 }
             },
             error: function (xhr, textStatus, errorThrown) {

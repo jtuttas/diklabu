@@ -53,9 +53,15 @@ public final class Authenticator {
                 rolesStorage.put(l.getIdplain(), Roles.toString(Roles.LEHRER));
             }
 
+            // Lehrer Testzugang
+            usersStorage.put("zzz", "mmbbs");
+            rolesStorage.put("zzz", Roles.toString(Roles.LEHRER));
             // Schüler Testzugang
             usersStorage.put("fisi14a.aue", "mmbbs");
             rolesStorage.put("fisi14a.aue", Roles.toString(Roles.SCHUELER));
+            // Schüler Testzugang
+            usersStorage.put("fisi14a.zzz", "mmbbs");
+            rolesStorage.put("fisi14a.zzz", Roles.toString(Roles.SCHUELER));
         }
 
     }
@@ -103,9 +109,9 @@ public final class Authenticator {
 
             if (usersStorage.containsKey(username)) {
                 String passwordMatch = usersStorage.get(username);
-
+                Log.d("Benuter "+username+" im userStorage enthalten!");
                 if (passwordMatch.equals(password)) {
-
+                    
                     String authToken = UUID.randomUUID().toString();
                     authorizationTokensStorage.put(authToken, username);
                     liveTimeStorage.put(authToken, System.currentTimeMillis());
@@ -114,7 +120,7 @@ public final class Authenticator {
                     u.setAuthToken(authToken);
                     // Diese Daten kommen eigentlich über LDAP
                     u.setVName("Marcel");
-                    u.setNName("Aue");
+                    u.setNName(username.substring(username.indexOf(".")+1));
                     u.setRole(rolesStorage.get(username));
                     for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
                         if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {

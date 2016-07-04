@@ -257,11 +257,17 @@ function performLogin(benutzer, kennwort, callback, error) {
         type: "POST",
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
-            sessionStorage.auth_token=jsonObj.auth_token;
-            callback(jsonObj);
-        },
-        error: function (xhr, textStatus, errorThrown) {
             
+             if (jsonObj.success) {
+                sessionStorage.auth_token=jsonObj.auth_token;
+                callback(jsonObj);
+            }
+            else {
+                toast(jsonObj.msg);                
+            }
+            
+        },
+        error: function (xhr, textStatus, errorThrown) {            
             log("HTTP Status: " + xhr.status);
             log("Error textStatus: " + textStatus);
             log("Error thrown: " + errorThrown);
@@ -290,7 +296,7 @@ function submitKurswunsch(callback) {
             callback(data);
         },
         error: function (xhr, textStatus, errorThrown) {
-            toastr["error"]("Kursbuchung fehlgeschlagen", "Fehler!");
+            toast("Kursbuchung fehlgeschlagen");
             log("HTTP Status: " + xhr.status);
             log("Error textStatus: " + textStatus);
             log("Error thrown: " + errorThrown);
@@ -309,7 +315,7 @@ function getKurswunsch(callback) {
             callback(data);
         },
         error: function (xhr, textStatus, errorThrown) {
-            toastr["error"]("Kursbuchungsabfrage fehlgeschlagen", "Fehler!");
+            toast("Kursbuchungsabfrage fehlgeschlagen");
             log("HTTP Status: " + xhr.status);
             log("Error textStatus: " + textStatus);
             log("Error thrown: " + errorThrown);
