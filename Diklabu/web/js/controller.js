@@ -67,6 +67,9 @@ $(document).ready(function () {
             $.ajax({
                 url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/"+sessionStorage.myself,
                 type: "POST",
+                 headers: {
+            "auth_token": sessionStorage.auth_token
+        },
                 contentType: "application/json; charset=UTF-8",
                 dataType: "json",
                 data: JSON.stringify(ticketing),
@@ -257,7 +260,7 @@ function performLogin(benutzer, kennwort, callback, error) {
         type: "POST",
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
-            
+            log("empfange:"+JSON.stringify(jsonObj));
              if (jsonObj.success) {
                 sessionStorage.auth_token=jsonObj.auth_token;
                 callback(jsonObj);
@@ -311,6 +314,9 @@ function getKurswunsch(callback) {
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         dataType: "json",
+          headers: {
+            "auth_token": sessionStorage.auth_token
+        },
         success: function (data) {
             callback(data);
         },
@@ -324,9 +330,9 @@ function getKurswunsch(callback) {
 }
 
 function log(msg) {
-    if (debug) {
+    //if (debug) {
         console.log(msg);
-    }
+    //}
 }
 
 
