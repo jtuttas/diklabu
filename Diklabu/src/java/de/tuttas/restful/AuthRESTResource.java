@@ -93,8 +93,10 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     }
                     jsonObjBuilder.add("VNAME", u.getVName());
                     jsonObjBuilder.add("NNAME", u.getNName());
-                    jsonObjBuilder.add("msg", "Login erfolgreich!");
+                    jsonObjBuilder.add("msg", "Login erfolgreich! Rolle ist "+u.getRole());
                     jsonObjBuilder.add("success", true);
+                    jsonObjBuilder.add("auth_token", u.getAuthToken());
+
                 } else {
                     jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" in Klasse "+username.substring(0, username.indexOf(".")).toUpperCase()+" finden!");
                     jsonObjBuilder.add("success", false);
@@ -121,12 +123,12 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     }
                 }
                 else {
-                    jsonObjBuilder.add("msg", "Login erfolgreich!");
+                    jsonObjBuilder.add("msg", "Login erfolgreich! Rolle ist "+u.getRole());
                     jsonObjBuilder.add("success", true);                    
+                    jsonObjBuilder.add("auth_token", u.getAuthToken());
                 }
             }
 
-            jsonObjBuilder.add("auth_token", u.getAuthToken());
             jsonObjBuilder.add("ID", u.getShortName());
             jsonObjBuilder.add("idPlain", u.getIdPlain());
 
