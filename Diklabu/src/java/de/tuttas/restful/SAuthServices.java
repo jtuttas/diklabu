@@ -317,13 +317,10 @@ public class SAuthServices {
 
         Log.d(
                 "get Anwesenheit auth_token=" + authToken + " User=" + user);
-        if (user
-                == null || Integer.parseInt(user)
-                != idschueler) {
+        if (user== null || Integer.parseInt(user) != idschueler) {
             return null;
         }
-        if (s
-                != null) {
+        if (s!= null) {
             SchuelerObject so = new SchuelerObject();
             so.setId(idschueler);
             so.setGebDatum(s.getGEBDAT());
