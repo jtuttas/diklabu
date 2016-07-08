@@ -50,7 +50,7 @@ public class MailServlet extends HttpServlet {
 
     public void init() {
         pattern = Pattern.compile(EMAIL_PATTERN);
-        mailSender = new MailSender();
+        mailSender = MailSender.getInstance();
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -37,8 +37,9 @@ public class MailSender implements Runnable {
     private Properties properties = new Properties();
     private Thread runner;
     private ArrayList<MailObject> mails = new ArrayList();
+    private static MailSender instance;
 
-    public MailSender() {
+    private MailSender() {
 
         // sets SMTP server properties
         properties.put("mail.smtp.host", Config.getInstance().smtphost);
@@ -48,6 +49,13 @@ public class MailSender implements Runnable {
         runner = new Thread(this);
         runner.start();
 
+    }
+    
+    public static MailSender getInstance() {
+        if (instance==null) {
+            instance= new MailSender();
+        }
+        return instance;
     }
 
     private void transmitMail(MailObject mo) throws MessagingException {
@@ -60,7 +68,8 @@ public class MailSender implements Runnable {
         };
         Session session = Session.getInstance(properties, auth);
         // creates a new e-mail message
-        Message msg = new MimeMessage(session);
+        MimeMessage msg = new MimeMessage(session);
+        
         msg.setFrom(new InternetAddress(mo.getFrom()));
         InternetAddress[] toAddresses =  mo.getRecipient();
         msg.setRecipients(Message.RecipientType.TO, toAddresses);
@@ -69,9 +78,11 @@ public class MailSender implements Runnable {
         
         if (bccAdresses[0]!=null) msg.setRecipients(Message.RecipientType.BCC, bccAdresses);
         if (ccAdresses[0]!=null) msg.setRecipients(Message.RecipientType.CC, ccAdresses);
-        msg.setSubject(mo.getSubject());
+        msg.setSubject(mo.getSubject(),"UTF-8");
+        
+        
         msg.setSentDate(new Date());
-        msg.setText(mo.getContent());
+        msg.setContent(mo.getContent(), "text/plain; charset=UTF-8");
         // sends the e-mail
         // TODO Kommentar entfernen
         Transport.send(msg);        

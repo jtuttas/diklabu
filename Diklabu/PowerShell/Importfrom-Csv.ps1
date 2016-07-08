@@ -306,7 +306,7 @@ function Importfrom-Csv
                     }
                 }
             }
-            else {
+            else {                
                 Write-Host "Klasse "$course.KNAME"nicht gefunden!" -BackgroundColor DarkRed
                 if (-not $force) {
                     $ask=Read-Host "Klasse löschen? (j/n)";

@@ -23,6 +23,10 @@ var umfragen;
 var currentSchuljahr;
 // Liste der Lernfelder
 var lernfelder;
+// Liste der Klassen
+var klassen;
+// Liste der Vertretungen
+var vertretungen;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -47,6 +51,129 @@ $(document).ajaxSend(function (event, request, settings) {
 $(document).ajaxComplete(function (event, request, settings) {
     $('#loading-indicator').hide();
 });
+
+$("#btnAddVertretung").click(function () {
+    log("add Vertretung");
+    c=$("#vertrFirstRow").clone();
+    c.find(".vertrKommentar").val("");
+    $("#vertrBody").append(c);
+            
+    $(".btnDeleteRow").unbind();
+    $(".btnDeleteRow").click(function () {
+        log("delete Vertretung, Zeilen=" + $('#vertrBody >tr').length);
+        if ($('#vertrBody >tr').length > 1) {
+            $(this).parent("td").parent("tr").remove();
+        }
+    });
+});
+
+$("#btnSubmitVertretung").click(function () {
+    if ($("#absLehrer").val() == "") {
+        toastr["warning"]("Keinen absenten Lehrer ausgewählt!", "Warnung!");
+    }
+    else {
+        error = false;
+        $('.absStunde').each(function (i, obj) {
+            if (obj.value == "") {
+                toastr["warning"]("Zeile " + (i + 1) + ": keine Stunde ausgewählt!", "Warnung!");
+                error = true;
+                return;
+            }
+        });
+        if (error) {
+            return;
+        }
+        $('.vertKlassen').each(function (i, obj) {
+            if (obj.value == "") {
+                toastr["warning"]("Zeile " + (i + 1) + ": keine Vertretungsklasse ausgewählt ausgewählt!", "Warnung!");
+                error = true;
+                return;
+            }
+        });
+        if (error) {
+            return;
+        }
+        $('.vertAktion').each(function (i, obj) {
+            if (obj.value == "") {
+                toastr["warning"]("Zeile " + (i + 1) + ": Keine Vertretungsaktion ausgewählt ausgewählt!", "Warnung!");
+                error = true;
+                return;
+            }
+            else if (obj.value == "Vertretung") {
+                if ($("#vertrBody").find("tr").eq(i).find(".vertLehrer").val() == "") {
+                    toastr["warning"]("Zeile " + (i + 1) + ": Aktion Vertretung gewählt aber kein Vertretungslehrer angegeben!", "Warnung!");
+                    error = true;
+                    return;
+                }
+            }
+        });
+        if (error) {
+            return;
+        }
+        if ($("#absDate").val()=="") {
+            toastr["warning"]("Kein Absenz Datum eingetragen!", "Warnung!");
+            return;
+            
+        }
+        var eintr = {
+            "eingereichtVon": sessionStorage.myself,
+            "absenzLehrer": $("#absLehrer").val(),
+            "absenzAm": $("#absDate").val(),
+            "eintraege": new Array(),
+            "kommentar": $("#absKommentar").val()
+        };
+
+        $('#vertrBody > tr').each(function () {
+            log("baue Eintrag:" + $(this).find(".absStunde").val());
+            var row = {
+                "stunde": $(this).find(".absStunde").val(),
+                "klasse": $(this).find(".vertKlassen").val(),                
+                "idKlasse": $(this).find(".vertKlassen option:selected").attr("kid"),
+                "aktion": $(this).find(".vertAktion").val(),
+                "vertreter": $(this).find(".vertLehrer").val(),
+                "kommentar": $(this).find(".vertrKommentar").val(),
+            };
+            eintr.eintraege.push(row);
+
+        });
+        log("sende -> " + JSON.stringify(eintr));
+         $.ajax({
+            url: SERVER + "/Diklabu/api/v1/vertretung/",
+            type: "POST",
+            cache: false,
+            data: JSON.stringify(eintr),
+            headers: {
+                "service_key": sessionStorage.service_key,
+                "auth_token": sessionStorage.auth_token
+            },
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                log("Empfange " + JSON.stringify(data));
+                if (data.success) {
+                    toastr["success"](data.msg, "Info!");
+                    $("#absLehrer").val("");
+                    $("#absDate").val("");
+                    $("#absKommentar").val("");
+                    r=$("#vertrFirstRow").clone();
+                    $("#vertrBody").empty();
+                    $("#vertrBody").append(r);
+                    $(".vertrKommentar").val("");
+                }
+                else {
+                    toastr["error"](data.msg, "Fehler!");
+                }
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                toastr["error"]("kann Vertretung nicht Eintragen! Status Code=" + xhr.status, "Fehler!");
+                if (xhr.status == 401) {
+                    loggedOut();
+                }
+            }
+        });
+
+    }
+});
+
 
 
 
@@ -164,7 +291,18 @@ $("#print").click(function () {
             printContainer: true,
             importCSS: true,
             loadCSS: SERVER + "/Diklabu/css/bootstrap.min.css",
-            pageTitle: "nachricht an Betribe der Klasse " + nameKlasse,
+            pageTitle: "nachricht an Betriebe der Klasse " + nameKlasse,
+            formValues: true
+        });
+
+    }
+    else if (currentView == "Einreichen") {
+        $("#vertrContainer").printThis({
+            debug: false,
+            printContainer: true,
+            importCSS: true,
+            loadCSS: SERVER + "/Diklabu/css/bootstrap.min.css",
+            pageTitle: "Einreichen Vertertung " + nameKlasse,
             formValues: true
         });
 
@@ -303,6 +441,10 @@ $("#filter2").change(function () {
 
 $('#anwesenheitTabs').on('shown.bs.tab', function (e) {
     log("anwesenheitsTab shown " + $(e.target).text());
+    updateCurrentView();
+});
+$('#vertretungsTabs').on('shown.bs.tab', function (e) {
+    log("vertretungsTabs shown " + $(e.target).text());
     updateCurrentView();
 });
 $('#fehlzeitenTab').on('shown.bs.tab', function (e) {
@@ -650,6 +792,7 @@ function getKlassenliste(callback) {
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
+            klassen = data;
             $("#klassen").empty();
             for (i = 0; i < data.length; i++) {
                 $("#klassen").append("<option dbid='" + data[i].id + "'>" + data[i].KNAME + "</option>");
@@ -748,6 +891,29 @@ function getSchuljahre(callback) {
     });
 }
 
+function getVertretung(callback) {
+    log("get Vertertung");
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/vertretung/"+$("#startDate").val()+"/"+$("#endDate").val(),
+        type: "GET",
+        contentType: "application/json; charset=UTF-8",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        success: function (data) {
+            log("empfange getVertretung -> "+JSON.stringify(data));
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Vertretungsliste nicht vom Server laden", "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
+
 
 /**
  * Noten einer Klasse vom Server Laden
@@ -785,6 +951,28 @@ function getNoten(kl, ids, callback) {
     });
 }
 
+function getLehrer(callback) {
+    log("--> Lehrer laden!");
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/noauth/lehrer/",
+        type: "GET",
+        cache: false,
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            log("Lehrer empfangen!");
+
+            if (callback != undefined) {
+                callback(data);
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Lehrer nicht vom Server laden!", "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
 
 /**
  * Details zu einem Lehrer abfragen
@@ -1523,6 +1711,10 @@ function getCurrentView() {
     }
     if (target == "Umfrage") {
         sub = $("ul#umfrageTabs li.active").text();
+        return sub;
+    }
+    if (target == "Vertretung") {
+        sub = $("ul#vertretungsTabs li.active").text();
         return sub;
     }
 
@@ -2402,6 +2594,52 @@ function updateCurrentView() {
             $("#printContainer").show();
             break;
             // Noten
+        case "Einreichen":
+            getLehrer(function (data) {
+                $("#absLehrer").empty();
+                $(".vertLehrer").empty();
+                for (i = 0; i < data.length; i++) {
+                    l = data[i];
+                    $("#absLehrer").append("<option>" + l.id + "</option>");
+                    $(".vertLehrer").append("<option>" + l.id + "</option>");
+                }
+                $(".vertKlassen").empty();
+                $(".vertKlassen").append("<option></option>");
+                for (i = 0; i < klassen.length; i++) {
+                    k = klassen[i];
+                    
+                    $(".vertKlassen").append("<option kid=\""+k.id+"\">" + k.KNAME + "</option>");
+                }
+            });
+            $("#dokumentationContainer").hide();
+            $("#printContainer").hide();
+            break;
+        case "Vertretungsliste":
+            $("#dokumentationType").val("Vertretungsliste");
+            getVertretung(function (data) {
+                vertretungen=data;
+                $("#vertrUbersichtBody").empty();
+                for (i=0;i<data.length;i++) {
+                    v=data[i];
+                    $("#vertrUbersichtBody").append('<tr><td>'+v.absenzVon+'</td><td>'+getReadableDate(v.absenzAm)+'</td><td>'+v.eingereichtVon+'</td><td>'+getReadableDate(v.eingereichtAm)+'</td><td><img  index="'+i+'" class="vdetails" src="../img/Info.png"></td></tr>');
+                }
+                $(".vdetails").click(function () {
+                    index = $(this).attr("index");
+                    v = vertretungen[index];
+                    $("#dvHead").text("Absenz von "+v.absenzVon+" am "+getReadableDate(v.absenzAm)+" eingetragen von "+v.eingereichtVon+" am "+getReadableDate(v.eingereichtAm));
+                    $("#veKommentar").text(v.kommentar);
+                    regelungen = JSON.parse(v.jsonString);
+                    $("#vertrBodyDetails").empty();
+                    for (i=0;i<regelungen.length;i++) {
+                        r = regelungen[i];
+                        $("#vertrBodyDetails").append('<tr><td>'+r.stunde+'</td><td>'+r.Klasse+'</td><td>'+r.Aktion+'</td><td>'+r.Vertreter+'</td><td>'+r.Kommentar+'</td></tr>');
+                    }
+                    $('#detailsVertretung').modal('show');
+                });
+            });
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
+            break;
         case "Notenliste":
             refreshKlassenliste(nameKlasse, function (data) {
                 getSchuljahre(function (data) {

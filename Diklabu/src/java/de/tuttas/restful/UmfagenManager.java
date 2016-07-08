@@ -778,7 +778,7 @@ public class UmfagenManager {
         } catch (IOException ex) {
             Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);
         }
-        MailSender mailSender = new MailSender();
+        MailSender mailSender = MailSender.getInstance();
         if (t.getSCHUELERID() != null) {
             ro = new ResultObject();
             Schueler s = em.find(Schueler.class, t.getSCHUELERID());

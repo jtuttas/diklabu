@@ -15,15 +15,16 @@ import javax.mail.internet.InternetAddress;
  * @author Jörg
  */
 public class MailObject {
+
     private String from;
     private ArrayList<InternetAddress> recipient = new ArrayList();
     private ArrayList<InternetAddress> bcc = new ArrayList();
     private ArrayList<InternetAddress> cc = new ArrayList();
-    
+
     private String subject;
     private String content;
 
-    public MailObject(String from,  String subject, String content) {
+    public MailObject(String from, String subject, String content) {
         this.from = from;
         this.subject = subject;
         this.content = content;
@@ -41,26 +42,24 @@ public class MailObject {
         InternetAddress[] a = new InternetAddress[1];
         return recipient.toArray(a);
     }
-    
+
     public InternetAddress[] getBcc() {
         InternetAddress[] a = new InternetAddress[1];
         return bcc.toArray(a);
     }
-    
+
     public InternetAddress[] getCC() {
         InternetAddress[] a = new InternetAddress[1];
         return cc.toArray(a);
     }
-     
 
-    public void addRecipient(String recipient) throws AddressException {        
+    public void addRecipient(String recipient) throws AddressException {
         if (Config.getInstance().debug) {
-            this.recipient.add(new InternetAddress("jtuttas@gmx.net"));                   
+            this.recipient.add(new InternetAddress("jtuttas@gmx.net"));
+        } else {
+            this.recipient.add(new InternetAddress(recipient));
         }
-        else {
-            this.recipient.add(new InternetAddress(recipient));               
-        }
-        
+
     }
 
     public String getSubject() {
@@ -81,26 +80,42 @@ public class MailObject {
 
     @Override
     public String toString() {
-        String s="Mail Objekt from="+from+" to="+recipient.toString()+" bcc=";
-        for (int i=0;i<bcc.size();i++) {
-            s+=bcc.get(i).toString()+";";
+        String s = "Mail Objekt from=" + from + " to=" + recipient.toString() + " bcc=";
+        for (int i = 0; i < bcc.size(); i++) {
+            s += bcc.get(i).toString() + ";";
         }
-        s+=" CC=";
-        for (int i=0;i<cc.size();i++) {
-            s+=cc.get(i).toString()+";";
+        s += " CC=";
+        for (int i = 0; i < cc.size(); i++) {
+            s += cc.get(i).toString() + ";";
         }
         return s;
     }
 
     public void addBcc(String[] bccMails) throws AddressException {
-        for (int i=0;i<bccMails.length;i++) {
-            bcc.add(new InternetAddress(bccMails[i]));
+        for (int i = 0; i < bccMails.length; i++) {
+            if (Config.getInstance().debug) {
+                bcc.add(new InternetAddress("jtuttas@gmx.net"));
+            } else {
+                bcc.add(new InternetAddress(bccMails[i]));
+            }
         }
-    }           
-    
+    }
+
     public void addCC(String[] ccMails) throws AddressException {
-        for (int i=0;i<ccMails.length;i++) {
-            cc.add(new InternetAddress(ccMails[i]));
+        for (int i = 0; i < ccMails.length; i++) {
+            if (Config.getInstance().debug) {
+                cc.add(new InternetAddress("jtuttas@gmx.net"));
+            } else {
+                cc.add(new InternetAddress(ccMails[i]));
+            }            
+        }
+    }
+
+    public void addCC(String ccMail) throws AddressException {
+        if (Config.getInstance().debug) {
+            cc.add(new InternetAddress("jtuttas@gmx.net"));
+        } else {
+            cc.add(new InternetAddress(ccMail));
         }
     }
 }

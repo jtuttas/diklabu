@@ -37,6 +37,10 @@ color: #ffffff;
 .infoIcon {
     cursor: pointer;
 }
+
+.vdetails {
+    cursor: pointer;
+}
 .mailIcon {
     cursor: pointer;
 }
