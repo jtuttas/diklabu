@@ -480,7 +480,10 @@ function performLogout() {
         data: JSON.stringify(myData),
         success: function (jsonObj, textStatus, xhr) {
             //localStorage.clear();
-            localStorage.clear();
+            //localStorage.clear();
+            delete localStorage.auth_token;
+            delete localStorage.kennwort;            
+            delete localStorage.myself;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
@@ -490,7 +493,10 @@ function performLogout() {
             //toast("Logout fehlgeschlagen! Status Code=" + xhr.status);
             //localStorage.clear();
             //delete localStorage.auth_token;
-            localStorage.clear();
+            //localStorage.clear();
+            delete localStorage.auth_token;
+            delete localStorage.kennwort;            
+            delete localStorage.myself;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
