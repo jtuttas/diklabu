@@ -99,9 +99,9 @@ $("#btnSubmitVertretung").click(function () {
                 error = true;
                 return;
             }
-            else if (obj.value == "Vertretung") {
+            else if (obj.value != "entfällt") {
                 if ($("#vertrBody").find("tr").eq(i).find(".vertLehrer").val() == "") {
-                    toastr["warning"]("Zeile " + (i + 1) + ": Aktion Vertretung gewählt aber kein Vertretungslehrer angegeben!", "Warnung!");
+                    toastr["warning"]("Zeile " + (i + 1) + ": Aktion Vertretung/Betreuung gewählt aber kein Vertretungslehrer angegeben!", "Warnung!");
                     error = true;
                     return;
                 }
@@ -161,6 +161,11 @@ $("#btnSubmitVertretung").click(function () {
                 }
                 else {
                     toastr["error"](data.msg, "Fehler!");
+                }
+                if (data.warning) {
+                    for (i=0;i<data.warningMsg.length;i++) {
+                        toastr["warning"](data.warningMsg[i], "Warnung!");
+                    }
                 }
             },
             error: function (xhr, textStatus, errorThrown) {

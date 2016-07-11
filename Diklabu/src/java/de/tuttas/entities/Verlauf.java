@@ -56,6 +56,19 @@ public class Verlauf implements Serializable {
     @Transient
     private int kw;
 
+    public Verlauf(int ID_KLASSE, Timestamp DATUM, String STUNDE, String ID_LEHRER, String ID_LERNFELD, String INHALT, String BEMERKUNG, String AUFGABE) {
+        this.ID_KLASSE = ID_KLASSE;
+        this.DATUM = DATUM;
+        this.STUNDE = STUNDE;
+        this.ID_LEHRER = ID_LEHRER;
+        this.ID_LERNFELD = ID_LERNFELD;
+        this.INHALT = INHALT;
+        this.BEMERKUNG = BEMERKUNG;
+        this.AUFGABE = AUFGABE;
+    }
+    
+    
+
     public void setMsg(String msg) {
         this.msg = msg;
     }
@@ -96,16 +109,6 @@ public class Verlauf implements Serializable {
     public Verlauf() {
     }
 
-    public Verlauf(int ID_KLASSE, Timestamp DATUM, String STUNDE, String ID_LEHRER, String ID_LERNFELD, String INHALT, String BEMERKUNG, String AUFGABE) {
-        this.ID_KLASSE = ID_KLASSE;
-        this.DATUM = DATUM;
-        this.STUNDE = STUNDE;
-        this.ID_LEHRER = ID_LEHRER;
-        this.ID_LERNFELD = ID_LERNFELD;
-        this.INHALT = INHALT;
-        this.BEMERKUNG = BEMERKUNG;
-        this.AUFGABE = AUFGABE;
-    }
 
     public Integer getID() {
         return ID;

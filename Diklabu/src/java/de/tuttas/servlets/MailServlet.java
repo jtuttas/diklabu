@@ -41,15 +41,11 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "MailServlet", urlPatterns = {"/MailServlet"})
 public class MailServlet extends HttpServlet {
 
-    private static final String EMAIL_PATTERN
-            = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
-            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-    private Pattern pattern;
-    private Matcher matcher;
+   
     private MailSender mailSender;
 
     public void init() {
-        pattern = Pattern.compile(EMAIL_PATTERN);
+        
         mailSender = MailSender.getInstance();
     }
 
@@ -119,30 +115,6 @@ public class MailServlet extends HttpServlet {
             String cc = request.getParameter("cc");
             Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" cc="+cc+" bcc="+bcc+"subject="+subject+" emailBody="+content+" report="+report);            
 
-            //if (Config.debug) {
-            // TODO Adresse entfernen
-            if (Config.getInstance().debug) {
-                recipient = "tuttas@mmbbs.de";
-                if (bcc!=null) {
-                    bcc="joerg.tuttas@ifbe.uni-hannover.de";
-                }
-                if (cc!=null) {
-                    cc="tuttas@tinysolutions.net;tuttas68@googlemail.com";
-                }
-            }
-        //}
-
-            boolean fromMailOk = false;
-            if (from != null && from.length() != 0) {
-                matcher = pattern.matcher(from);
-                fromMailOk = matcher.matches();
-            }
-            boolean toMailOk = false;
-            if (recipient != null && recipient.length() != 0) {
-                matcher = pattern.matcher(recipient);
-                toMailOk = matcher.matches();
-            }
-
             if (subject == null || subject.length() == 0) {
                 Log.d("subject = null");
                 result.setSuccess(false);
@@ -150,12 +122,6 @@ public class MailServlet extends HttpServlet {
             } else if (content == null || content.length() == 0) {
                 result.setSuccess(false);
                 result.setMsg("Fehler beim EMail Versand: kein Inhalt angegeben!");
-            } else if (!fromMailOk) {
-                result.setSuccess(false);
-                result.setMsg("Fehler beim EMail Versand: Falsche Absender EMail Adresse!");
-            } else if (!toMailOk) {
-                result.setSuccess(false);
-                result.setMsg("Fehler beim EMail Versand: Falsche Adresse EMail Adresse!");
             } else {
                 try {
                     MailObject mo = new MailObject(from, subject, content);
@@ -176,6 +142,9 @@ public class MailServlet extends HttpServlet {
                     try (PrintWriter out = response.getWriter()) {
                         out.println("Adress Exception:"+ex.getMessage());
                     }
+                } catch (MailFormatException ex) {
+                    result.setSuccess(false);
+                    result.setMsg(ex.getMessage());
                 }
             }
             if (!result.isSuccess()) {

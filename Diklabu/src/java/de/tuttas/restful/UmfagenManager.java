@@ -28,6 +28,7 @@ import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.restful.Data.TeilnehmerObjekt;
 import de.tuttas.restful.Data.UmfrageObjekt;
 import de.tuttas.restful.Data.UmfrageResult;
+import de.tuttas.servlets.MailFormatException;
 import de.tuttas.servlets.MailObject;
 import de.tuttas.servlets.MailSender;
 import de.tuttas.util.Log;
@@ -791,8 +792,8 @@ public class UmfagenManager {
                     sbn = sbn.replace("[[TITEL]]", u.getNAME());
                     sbn = sbn.replace("[[LINK]]", Config.getInstance().clientConfig.get("SERVER") + "/Diklabu/dev/umfrage.html?ID=" + t.getKey());
                     Log.d("Nachricht = " + sbn);
-                    MailObject mo = new MailObject("tuttas@mmbbs.de", "Einladung zur Umfrage " + u.getNAME(), sbn);
                     try {
+                        MailObject mo = new MailObject("tuttas@mmbbs.de", "Einladung zur Umfrage " + u.getNAME(), sbn);
                         mo.addRecipient(s.getEMAIL());
                         mailSender.sendMail(mo);
                         ro.setSuccess(true);
@@ -801,6 +802,10 @@ public class UmfagenManager {
                         em.persist(t);
                         em.flush();
                     } catch (AddressException ex) {
+                        ro.setSuccess(false);
+                        ro.setMsg(ex.getMessage());
+                        Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (MailFormatException ex) {
                         ro.setSuccess(false);
                         ro.setMsg(ex.getMessage());
                         Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);

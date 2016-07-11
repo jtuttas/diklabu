@@ -5,6 +5,8 @@
  */
 package de.tuttas.restful.Data;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Jörg
@@ -12,6 +14,24 @@ package de.tuttas.restful.Data;
 public class ResultObject {
     private boolean success=false;
     private String msg="";
+    private boolean warning=false;
+    private ArrayList<String> warningMsg= new ArrayList<>();
+
+    public void setWarning(boolean warning) {
+        this.warning = warning;
+    }
+
+    public void setWarningMsg(ArrayList<String> warningMsg) {
+        this.warningMsg = warningMsg;
+    }
+
+    public ArrayList<String> getWarningMsg() {
+        return warningMsg;
+    }
+    
+    public boolean isWarning() {
+        return warning;
+    }
 
     public boolean isSuccess() {
         return success;

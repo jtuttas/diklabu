@@ -7,6 +7,8 @@ package de.tuttas.servlets;
 
 import de.tuttas.config.Config;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -16,6 +18,11 @@ import javax.mail.internet.InternetAddress;
  */
 public class MailObject {
 
+    private static final String EMAIL_PATTERN
+            = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
+            + "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+    private Pattern pattern;
+    private Matcher matcher;
     private String from;
     private ArrayList<InternetAddress> recipient = new ArrayList();
     private ArrayList<InternetAddress> bcc = new ArrayList();
@@ -24,18 +31,29 @@ public class MailObject {
     private String subject;
     private String content;
 
-    public MailObject(String from, String subject, String content) {
-        this.from = from;
+    public MailObject(String from, String subject, String content) throws MailFormatException {
+        pattern = Pattern.compile(EMAIL_PATTERN);
+        this.setFrom(from);        
         this.subject = subject;
         this.content = content;
+    }
+
+    public boolean mailOk(String mailAdress) {
+        if (mailAdress==null) return false;
+        matcher = pattern.matcher(mailAdress);
+        return matcher.matches();
     }
 
     public String getFrom() {
         return from;
     }
 
-    public void setFrom(String from) {
-        this.from = from;
+    public void setFrom(String from) throws MailFormatException {
+        if (!mailOk(from)) {
+            throw new MailFormatException("Absender EMail Adresse ungültig:" + from);
+        } else {
+            this.from = from;
+        }
     }
 
     public InternetAddress[] getRecipient() {
@@ -53,11 +71,15 @@ public class MailObject {
         return cc.toArray(a);
     }
 
-    public void addRecipient(String recipient) throws AddressException {
-        if (Config.getInstance().debug) {
-            this.recipient.add(new InternetAddress("jtuttas@gmx.net"));
+    public void addRecipient(String recipient) throws AddressException, MailFormatException {
+        if (!mailOk(recipient)) {
+            throw new MailFormatException("An EMail Adresse ist ungültig:" + recipient);
         } else {
-            this.recipient.add(new InternetAddress(recipient));
+            if (Config.getInstance().debug) {
+                this.recipient.add(new InternetAddress("jtuttas@gmx.net"));
+            } else {
+                this.recipient.add(new InternetAddress(recipient));
+            }
         }
 
     }
@@ -91,31 +113,44 @@ public class MailObject {
         return s;
     }
 
-    public void addBcc(String[] bccMails) throws AddressException {
+    public void addBcc(String[] bccMails) throws AddressException, MailFormatException {
         for (int i = 0; i < bccMails.length; i++) {
-            if (Config.getInstance().debug) {
-                bcc.add(new InternetAddress("jtuttas@gmx.net"));
+
+            if (!mailOk(bccMails[i])) {
+                throw new MailFormatException("BCC Mail Adresse ist ungülltig:" + bccMails[i]);
             } else {
-                bcc.add(new InternetAddress(bccMails[i]));
+                if (Config.getInstance().debug) {
+                    bcc.add(new InternetAddress("jtuttas@gmx.net"));
+                } else {
+                    bcc.add(new InternetAddress(bccMails[i]));
+                }
             }
         }
     }
 
-    public void addCC(String[] ccMails) throws AddressException {
+    public void addCC(String[] ccMails) throws AddressException, MailFormatException {
         for (int i = 0; i < ccMails.length; i++) {
-            if (Config.getInstance().debug) {
-                cc.add(new InternetAddress("jtuttas@gmx.net"));
+            if (!mailOk(ccMails[i])) {
+                throw new MailFormatException("CC Mail Adresse ist ungülltig:" + ccMails[i]);
             } else {
-                cc.add(new InternetAddress(ccMails[i]));
-            }            
+                if (Config.getInstance().debug) {
+                    cc.add(new InternetAddress("jtuttas@gmx.net"));
+                } else {
+                    cc.add(new InternetAddress(ccMails[i]));
+                }
+            }
         }
     }
 
-    public void addCC(String ccMail) throws AddressException {
-        if (Config.getInstance().debug) {
-            cc.add(new InternetAddress("jtuttas@gmx.net"));
+    public void addCC(String ccMail) throws AddressException, MailFormatException {
+        if (!mailOk(ccMail)) {
+            throw new MailFormatException("CC Mail Adresse ist ungülltig:" + ccMail);
         } else {
-            cc.add(new InternetAddress(ccMail));
+            if (Config.getInstance().debug) {
+                cc.add(new InternetAddress("jtuttas@gmx.net"));
+            } else {
+                cc.add(new InternetAddress(ccMail));
+            }
         }
     }
 }
