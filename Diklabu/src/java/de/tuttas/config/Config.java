@@ -21,39 +21,46 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- * Konfigurationsklasse 
+ * Konfigurationsklasse <br>
+ *  Beispielhaftes JSON File<br>
+ *   {<br>
+ *   "debug": true,<br>
+ *   "auth": true,<br>
+ *   "IMAGE_FILE_PATH": "c:\\Temp\\",<br>
+ *   "adminusers":["TU","TUTTAS","KEMMRIES"],<br>
+ *   "AUTH_TOKE_TIMEOUT" : 432000000,<br>
+ *       <br>
+ *   "ldaphost": "ldap://192.168.178.147:389",<br>
+ *   "binduser": "CN=Administrator,CN=Users,DC=tuttas,DC=de",<br>
+ *   "bindpassword":"geheim",<br>
+ *   "context": "OU=mmbbs,DC=tuttas,DC=de",<br>
+ *   <br>
+ *   "smtphost": "smtp.uni-hannover.de",<br>
+ *   "port": "587",<br>
+ *   "user": "joerg.tuttas@ifbe.uni-hannover.de",<br>
+ *   "pass": "geheim"<br>
+ *   "clientConfig" : {<br>
+ *       "SERVER": "http://localhost:8080",<br>
+ *       "WEBSOCKET": "ws://",<br>
+ *       "DIKLABUNAME":"DiKlaBu@MMBbS"<br>
+ *    }<br>
+ *   }<br>
+ * <br>
  * @author  Jörg
  */
 public class Config {
     private static Config instance;
+    /**
+     * Version Nummer
+     */
     public final static String VERSION="V 1.98";
     
+    /**
+     * JSON Objekt für die Client Seite
+     */
     public JSONObject clientConfig;
     
     /**
-     * Beispielhaftes JSON File
-    {
-    "debug": true,
-    "auth": true,
-    "IMAGE_FILE_PATH": "c:\\Temp\\",
-    "adminusers":["TU","TUTTAS","KEMMRIES"],
-    "AUTH_TOKE_TIMEOUT" : 432000000,
-        
-    "ldaphost": "ldap://192.168.178.147:389",
-    "binduser": "CN=Administrator,CN=Users,DC=tuttas,DC=de",
-    "bindpassword":"geheim",
-    "context": "OU=mmbbs,DC=tuttas,DC=de",
-    
-    "smtphost": "smtp.uni-hannover.de",
-    "port": "587",
-    "user": "joerg.tuttas@ifbe.uni-hannover.de",
-    "pass": "geheim"
-    "clientConfig" : {
-        "SERVER": "http://localhost:8080",
-        "WEBSOCKET": "ws://",
-        "DIKLABUNAME":"DiKlaBu@MMBbS"
-    }
-    }
 
      */
 
@@ -132,35 +139,67 @@ public class Config {
     }
     
     
+    /**
+     * Debug Modus
+     */
     public static boolean debug=true;
-    
+
+    /**
+     * Pfad an dem die Bilder gespeichert werden
+     */
     public String IMAGE_FILE_PATH = "c:\\Temp\\";
-    //public static final String IMAGE_FILE_PATH = "/home/pi/diklabuimages/";    
-    //public static final String IMAGE_FILE_PATH = "C:\\ProgramData\\digitales Klassenbuch\\SchuelerBilder\\";
-    
-    //public String LDAP_CONF_PATH="c:\\Temp\\ldapconfig.json";
-    //public static final String LDAP_CONF_PATH = "/home/pi/ldapconfig.json";    
-    //public static final String LDAP_CONF_PATH="c:\\ProgramData\\digitales Klassenbuch\\ldapconfig.json";
-    
     // Nutzer mit Admin Rechten 
+    /**
+     * Liste der ADMIN Benutzer
+     */
     public  String[] adminusers = new String[]{"TU","TUTTAS"};
     
     // Authentifizierung für die RestFul Services notwenig (im debug mode ist das Kennwort mmbbs und der Benutzername das Lehrerkürzel
+    /**
+     * Authentifizierung bei den Restful Services notwendig
+     */
     public boolean auth=true; 
     
     // Zeitspanne in ms, bis zu der ein auth_token verworfen wird 
+    /**
+     * Lebenszeit des AUTH Tokens in ms
+     */
     public long AUTH_TOKE_TIMEOUT=5*24*60*60*1000;
     
     // LDAP Konfiguration
+    /**
+     * LDAP Bind Benutzer
+     */
     public String bindUser;
+    /**
+     * LDAP BIND KENNWORT
+     */
     public String bindPassword;
+    /**
+     * LDAP Server Adresse
+     */
     public String ldaphost;
+    /**
+     * Context in der der Bind Unser zu finden ist
+     */
     public String userContext;
     
     // SMTP Server Konfiguration
+    /**
+     * SMTP Server
+     */
     public String smtphost;
+    /**
+     * SMTP Port
+     */
     public String port;
+    /**
+     * SMTP Benutzer
+     */
     public String user;
+    /**
+     * SMTP Kennwort
+     */
     public String pass;
     
      
