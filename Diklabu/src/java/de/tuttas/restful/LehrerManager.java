@@ -57,6 +57,7 @@ public class LehrerManager {
      */
     @GET
     @Path("/{idLehrer}")
+    @Produces({"application/json; charset=iso-8859-1"})
     public Lehrer getLehrer(@PathParam("idLehrer") String idLehrer) {
         Log.d("Webservice Lehrer Get:" + idLehrer);
         Lehrer lehrer = em.find(Lehrer.class, idLehrer);
