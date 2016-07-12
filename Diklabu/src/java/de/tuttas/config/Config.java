@@ -22,7 +22,8 @@ import org.json.simple.parser.ParseException;
 
 /**
  * Konfigurationsklasse <br>
- *  Beispielhaftes JSON File<br>
+ *  <h3>Beispielhaftes JSON File</h3>
+ * <hr>
  *   {<br>
  *   "debug": true,<br>
  *   "auth": true,<br>
@@ -46,6 +47,7 @@ import org.json.simple.parser.ParseException;
  *    }<br>
  *   }<br>
  * <br>
+ * <hr>
  * @author  Jörg
  */
 public class Config {
