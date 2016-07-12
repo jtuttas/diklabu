@@ -16,7 +16,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Entität Vertertung
  * @author Jörg
  */
 @Entity
@@ -40,6 +40,14 @@ public class Vertretung implements Serializable {
     public Vertretung() {
     }
 
+    /**
+     * Vertertungsentität erzeugen
+     * @param eingereichtVon Kürzel des Einreichenden
+     * @param eingereichtAm Datum der Einreichung
+     * @param absenzVon Absenter Kollege (Kürzel)
+     * @param absenzAm Absent am.
+     * @param jsonString JSON der Vertertungsregelung
+     */
     public Vertretung(String eingereichtVon, Timestamp eingereichtAm, String absenzVon, Timestamp absenzAm, String jsonString) {
         this.eingereichtVon = eingereichtVon;
         this.eingereichtAm = eingereichtAm;

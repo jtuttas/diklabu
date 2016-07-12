@@ -29,7 +29,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- *
+ * Manager zum Verwalten der Kursbuchung
  * @author Jörg
  */
 @Path("coursevoting")
@@ -42,6 +42,11 @@ public class CourseVotingManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
     
+    /**
+     * Einen Kurs zur Kurswahl hinzufügen
+     * @param kid die ID des Kurses
+     * @return Antwort Objekt mit Nachrichten
+     */
     @POST
     @Path("admin/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -67,6 +72,11 @@ public class CourseVotingManager {
         return ro;
     }
     
+    /**
+     * Einen Kurs aus der Kurswahl entfernen
+     * @param kid ID des Kurses
+     * @return Antwort Objekt mit Nachrichten
+     */
     @DELETE
     @Path("admin/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -105,6 +115,11 @@ public class CourseVotingManager {
         return ro;
     }
     
+    /**
+     * Kurswahl freischalten (1) oder sperren (0)
+     * @param v v=1 Kurswahl freigeschlatet, v=0 Kurswahl gesperrt
+     * @return ResultObjekt mit Nachrichten
+     */
     @POST
     @Path("admin/voting/{state}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -123,6 +138,11 @@ public class CourseVotingManager {
         return ro;
     }
     
+    /**
+     * Kurswahl eines Schülers löschen
+     * @param sid ID des Schülers
+     * @return Egebnis Objekt mit Meldungen
+     */
     @DELETE
     @Path("admin/schueler/{idschueler}") 
     @Produces({"application/json; charset=iso-8859-1"})
@@ -140,10 +160,14 @@ public class CourseVotingManager {
         return ro;
     }
     
+    /**
+     * Alle Kurswünsche löschen
+     * @return Ergebnisobjekt mit Meldungen
+     */
      @DELETE
     @Path("admin/")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject deleteCourseVoting() {
+    public ResultObject deleteCourseVotings() {
         Log.d("Alle Kurswünsch zurück setzten");
         ResultObject ro = new ResultObject();
         Query q3 = em.createNativeQuery("DELETE FROM Kurswunsch");
@@ -154,6 +178,13 @@ public class CourseVotingManager {
         return ro;
     }
     
+    /**
+     * Abfrage der Kurswahl
+     * @param kid ID des Kurses
+     * @param prio Priorität des Wunsches
+     * @param gebucht Filter gebucht=true, es werden nur gebuchte Kurse gelistet, sonst alle Kurse
+     * @return Liste der Schüler die den Kurs gewählt haben
+     */
     @GET
     @Path("{klassenid}/{prio}/{gebucht}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -167,6 +198,11 @@ public class CourseVotingManager {
         List<Schueler> schueler = query.getResultList();
         return schueler;
     }
+    
+    /**
+     * Liste alle Kurse die zur Wahl stehen
+     * @return Liste mit Klassen die zur Kurswahl stehen
+     */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     public List<Klasse> listVotings() {        
@@ -175,6 +211,11 @@ public class CourseVotingManager {
         return klassen;
     }
     
+    /**
+     * Kurswunsch eines Schülers setzen
+     * @param kw Das Kurswunsch Objekt
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @POST
     @Path("admin/schueler/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -211,6 +252,11 @@ public class CourseVotingManager {
         return ro;
     }
     
+    /**
+     * Kurswünsche als gebucht vermerken
+     * @param sid ID des Schülers
+     * @return Ergebnisobjekt mit Medlungen
+     */
     @PUT
     @Path("admin/schueler/{idschueler}")
     @Produces({"application/json; charset=iso-8859-1"})

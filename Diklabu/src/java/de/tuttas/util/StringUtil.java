@@ -6,11 +6,16 @@
 package de.tuttas.util;
 
 /**
- *
+ * Methoden zur Zeichenketten bearbeitung
  * @author Jörg
  */
 public class StringUtil {
 
+    /**
+     * Deutsche Umlaute entfernen
+     * @param id Der Text mit deutschen Umlauten
+     * @return Der Text ohne deutsche Umlaute
+     */
     public static String removeGermanCharacters(String id) {
         String out = "";
         if (id == null) {
@@ -48,6 +53,12 @@ public class StringUtil {
         return out;
     }
 
+    /**
+     * Ermittelt die Levenshtein Distanz zweier Zeichenketten
+     * @param lhs erste zeichenkette
+     * @param rhs zweite Zeichenkette
+     * @return die Lehvenshteindistanz zwischen den beiden Zeichenketten
+     */
     public static int levenshteinDistance(CharSequence lhs, CharSequence rhs) {
         //Log.d("LDist ("+lhs+") ("+rhs+")");
         int len0 = lhs.length() + 1;
@@ -92,6 +103,11 @@ public class StringUtil {
         return cost[len0 - 1];
     }
 
+    /**
+     * HTML Escape Zeichen
+     * @param string Der Text ohne HTML Escape Zeichen
+     * @return der Text mit Escape Zeichen
+     */
     public static String escapeHtml(String string) {
         String escapedTxt = "";
         char tmp = ' ';
@@ -123,6 +139,11 @@ public class StringUtil {
         return escapedTxt;
     }
 
+    /**
+     * <br> Tag hinzufügen
+     * @param content der Text mit CR
+     * @return der Text mit <br>
+     */
     public static String addBR(String content) {
         String txt = "";
         char tmp = ' ';

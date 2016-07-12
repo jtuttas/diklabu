@@ -11,7 +11,7 @@ import java.sql.Timestamp;
 import javax.persistence.Id;
 
 /**
- *
+ * Zusammengesetzter Primärschlüssel für eine Bemerkung zu einem Anwesenheitseintrag
  * @author Jörg
  */
 public class BemerkungId implements Serializable {
@@ -24,6 +24,11 @@ public class BemerkungId implements Serializable {
     public BemerkungId() {
     }
 
+    /**
+     * Primärschlüssel erzeugen
+     * @param Datum Datum des Eintrages
+     * @param ID_SCHUELER ID des Schülers
+     */
     public BemerkungId(Timestamp Datum,int ID_SCHUELER) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.DATUM=Datum;

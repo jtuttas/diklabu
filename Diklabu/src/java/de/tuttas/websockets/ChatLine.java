@@ -8,7 +8,7 @@ package de.tuttas.websockets;
 import java.util.Date;
 
 /**
- *
+ * Chat Zeile
  * @author Jörg
  */
 public class ChatLine {
@@ -16,6 +16,11 @@ public class ChatLine {
     private String msg;
     private Date time;
 
+    /**
+     * Chat Zeile erzeugen
+     * @param from Absender (Kürzel)
+     * @param msg die Nachricht
+     */
     public ChatLine(String from, String msg) {
         this.from = from;
         this.msg = msg;

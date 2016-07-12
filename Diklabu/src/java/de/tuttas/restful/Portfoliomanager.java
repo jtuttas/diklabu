@@ -25,7 +25,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 /**
- *
+ * Webservice zum Verwalten des Portfolios
  * @author Jörg
  */
 @Path("portfolio")
@@ -40,9 +40,8 @@ public class Portfoliomanager {
 
     /**
      * Portfolio für eine Klasse anzeigen
-     *
-     * @param kid
-     * @return Portfolio
+     * @param kid ID der Klasse
+     * @return Liste von PortfolioEinträgen
      */
     @GET
     @Path("/{klassenID}")

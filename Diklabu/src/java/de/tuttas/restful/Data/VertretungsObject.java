@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 
 /**
- *
+ * Klasse zur Vertretungsmeldung
  * @author Jörg
  */
 public class VertretungsObject extends ResultObject {
@@ -27,6 +27,13 @@ public class VertretungsObject extends ResultObject {
     public VertretungsObject() {
     }
 
+    /**
+     * Vertertungsobjekt erzeugen
+     * @param eingereichtVon Kürzel des Meldenden
+     * @param eingereichtAm Datum der Meldung
+     * @param absenzLehrer Absenter Lehrer (Kürzel)
+     * @param absenzAm  Absent Datum
+     */
     public VertretungsObject(String eingereichtVon, Date eingereichtAm, String absenzLehrer, Date absenzAm) {
         this.eingereichtVon = eingereichtVon;
         this.eingereichtAm = eingereichtAm;

@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Kurse Klasse Kurs Details
  * @author Jörg
  */
 public class KlasseShort {
@@ -18,6 +18,13 @@ public class KlasseShort {
     public KlasseShort() {
     }
 
+    /**
+     * Kurse Klassen / Kurs Details erzeugen
+     * @param id ID der Klasse
+     * @param ID_LEHRER Kürzel des Klassenlehrers
+     * @param KNAME Name der Klasse
+     * @param ID_KATEGORIE Kategorie der Klasse
+     */
     public KlasseShort(Integer id, String ID_LEHRER, String KNAME, Integer ID_KATEGORIE) {
         this.ID_LEHRER = ID_LEHRER;
         this.KNAME = KNAME;

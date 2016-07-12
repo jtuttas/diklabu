@@ -14,6 +14,12 @@ public class AntwortSkalaObjekt {
     private int id;
     private long anzahl;
 
+    /**
+     * Antwortskalen Objekt erzeugen
+     * @param name Name der Antwortmöglichkeit
+     * @param id ID der Antwortmöglichkeit
+     * @param anzahl ??
+     */
     public AntwortSkalaObjekt(String name, int id, long anzahl) {
         this.name = name;
         this.id = id;

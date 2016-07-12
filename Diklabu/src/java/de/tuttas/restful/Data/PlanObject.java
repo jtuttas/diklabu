@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Plan URL
  * @author Jörg
  */
 public class PlanObject extends ResultObject{

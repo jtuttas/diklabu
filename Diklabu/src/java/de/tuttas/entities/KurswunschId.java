@@ -6,7 +6,7 @@
 package de.tuttas.entities;
 
 /**
- *
+ * Zusammengesetzter Primärschlüssel für einen Kurswunsch
  * @author Jörg
  */
 public class KurswunschId {
@@ -16,6 +16,11 @@ public class KurswunschId {
     public KurswunschId() {
     }
 
+    /**
+     * Kurswunsch Primärschlüssel erzeugen
+     * @param ID_SCHUELER ID des Schülers
+     * @param ID_KURS  ID des Kurses
+     */
     public KurswunschId(Integer ID_SCHUELER, Integer ID_KURS) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.ID_KURS = ID_KURS;

@@ -39,7 +39,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 /**
- *
+ * Werbservice zum Verwalten der Noten
  * @author Jörg
  */
 @Path("noten")
@@ -54,9 +54,9 @@ public class NotenManager {
 
     /**
      * Noten einer Klasse abfragen, sortiert nach Schüler ID und LF
-     *
-     * @param kl Bezeichnung der Klasse
-     * @return Liste der Noten
+     * @param kl Name der Klasse
+     * @param ids ID des Schuljahres
+     * @return Liste von Notenobjekten
      */
     @GET
     @Path("/{klasse}/{IDSchuljahr}")
@@ -88,8 +88,8 @@ public class NotenManager {
 
     /**
      * Noten eines Schülers abfragen
-     *
      * @param sid ID des Schülers
+     * @param ids ID des Schuljahres
      * @return Notenobjekt
      */
     @GET
@@ -109,9 +109,15 @@ public class NotenManager {
     }
 
     
+    /**
+     * Einen Noteneintrag löschen
+     * @param lfid ID der Lernfeldes
+     * @param sid ID des Schülers
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @DELETE
     @Path("/{lfid}/{sid}") 
-    public ResultObject setNote(@PathParam("lfid") String lfid, @PathParam("sid") int sid) {
+    public ResultObject deleteNote(@PathParam("lfid") String lfid, @PathParam("sid") int sid) {
         ResultObject ro = new ResultObject();
         Schueler s = em.find(Schueler.class, sid);
         if (s!=null) {
@@ -150,13 +156,13 @@ public class NotenManager {
     
     /**
      * Noten eintragen
-     *
-     * @param n Noten-Entitie Objekt
-     * @return Noten Entitie Objekt
+     * @param kid ID der Klasse
+     * @param n Notenobjekt
+     * @return  Notenobjekt 
      */
     @POST
     @Path("/{id}")
-    public Noten setNote(@PathParam("id") int kid, Noten n) {
+    public Noten addNote(@PathParam("id") int kid, Noten n) {
         em.getEntityManagerFactory().getCache().evictAll();
 
         Klasse k = em.find(Klasse.class, kid);

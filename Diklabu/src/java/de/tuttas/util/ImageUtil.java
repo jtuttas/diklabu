@@ -34,7 +34,7 @@ import javax.imageio.ImageIO;
 import sun.misc.BASE64Encoder;
 
 /**
- *
+ * Hilfsmethoden zur Bildbearbeitung
  * @author Jörg
  */
 public class ImageUtil {
@@ -77,6 +77,14 @@ public class ImageUtil {
         return imageString;
     }
 
+    /**
+     * Image resize
+     * @param originalImage Orininal Image
+     * @param type Type
+     * @param w Breite
+     * @param h Höhe
+     * @return  Das rezized Image
+     */
     public static BufferedImage resizeImage(BufferedImage originalImage, int type, int w, int h) {
         BufferedImage resizedImage = new BufferedImage(w, h, type);
         Graphics2D g = resizedImage.createGraphics();
@@ -86,6 +94,13 @@ public class ImageUtil {
         return resizedImage;
     }
 
+    /**
+     * Ein Bild beschneiden
+     * @param originalImage das Original
+     * @param type der Type
+     * @param h die Höhe
+     * @return das Beschnittene Bild
+     */
     public static BufferedImage cropImage(BufferedImage originalImage, int type, int h) {
         BufferedImage resizedImage = new BufferedImage(h, h, type);
         Graphics2D g = resizedImage.createGraphics();
@@ -99,6 +114,14 @@ public class ImageUtil {
         return resizedImage;
     }
 
+    /**
+     * Abfrage der Bild Orientierung
+     * @param is Input Stream
+     * @return Orientierung
+     * @throws IOException
+     * @throws MetadataException
+     * @throws ImageProcessingException 
+     */
     public static int getImageOrientation(InputStream is) throws IOException, MetadataException, ImageProcessingException {
         int orientation = 1;
         try {
@@ -123,6 +146,13 @@ public class ImageUtil {
 
     }
 
+    /**
+     * Ein Bild drehen
+     * @param image Das Orinignal Bild
+     * @param transform Die Art der Drehung
+     * @return das gedrehte Bild
+     * @throws Exception 
+     */
     public static BufferedImage transformImage(BufferedImage image, AffineTransform transform) throws Exception {
 
         AffineTransformOp op = new AffineTransformOp(transform, AffineTransformOp.TYPE_BICUBIC);

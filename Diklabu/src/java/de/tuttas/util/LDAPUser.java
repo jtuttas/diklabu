@@ -9,7 +9,7 @@ import de.tuttas.restful.auth.Roles;
 import javax.json.JsonValue;
 
 /**
- *
+ * Benutzer aus der LDAP
  * @author Jörg
  */
 public class LDAPUser {
@@ -25,6 +25,13 @@ public class LDAPUser {
     public LDAPUser() {
     }
 
+    /**
+     * Benutzer Anlegen
+     * @param NName Der Nachname
+     * @param VName Der Vorname
+     * @param EMail die Email Adresse
+     * @param ShortName Kürzel (oder ID)
+     */
     public LDAPUser(String NName, String VName, String EMail, String ShortName) {
         this.NName = NName;
         this.VName = VName;

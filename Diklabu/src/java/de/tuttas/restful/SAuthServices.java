@@ -81,14 +81,15 @@ public class SAuthServices {
 
     /**
      * Buchen eines Kurses
-     *
-     * @param t Das Ticketing Objekt mit Credentials und Kurslist
-     * @return Das Ticketing Objekt ergänzt im msg und success Attribute
+     * @param httpHeaders auth_key zur Verifikation der Berechtigung
+     * @param sid ID des Schülers
+     * @param t Buchungsobjekt
+     * @return  Buchungsobjekt
      */
     @POST
     @Path("/kursbuchung/{sid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Ticketing book(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid, Ticketing t) {
+    public Ticketing setCourseBooking(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid, Ticketing t) {
         em.getEntityManagerFactory().getCache().evictAll();
         Log.d("Webservice kursbuchung POST:" + t.toString());
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
@@ -183,12 +184,15 @@ public class SAuthServices {
     }
 
     /**
-     * Kursbuchung abfrageb
+     * Kursbuchung abfragen
+     * @param httpHeaders auth_key zur Verifikation des Teilnehmers
+     * @param sid ID des Schülers
+     * @return  Buchungsobjekt
      */
     @GET
     @Path("/kursbuchung/{sid}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Ticketing askbook(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid) {
+    public Ticketing getCourseBooking(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid) {
         em.getEntityManagerFactory().getCache().evictAll();
         Log.d("Webservice kursbuchung GET:" + sid);
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
@@ -237,6 +241,10 @@ public class SAuthServices {
         return t;
     }
 
+    /**
+     * Abfragen der Aktiven Umfragen
+     * @return List der aktiven Umfragen
+     */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("/umfrage")
@@ -253,15 +261,15 @@ public class SAuthServices {
 
     /**
      * Liste der Anwesenheit für einen Schüler über einen Bereich
-     *
-     * @param id id des Schülers
-     * @param from Startdatum (inclusiv)
-     * @param to EndDatum (inclusiv)
-     * @return Liste der Anwesenheitsobjekte
+     * @param httpHeaders auth_key zur Verifikation
+     * @param sid ID des Schülers
+     * @param from Bereich von
+     * @param to Bereich bis
+     * @return Liste von Anwesenheitsobjekten
      */
     @GET
     @Path("/{sid}/{from}/{to}")
-    public List<AnwesenheitObjekt> getAnwesenheitFrom(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid, @PathParam("from") Date from, @PathParam("to") Date to) {
+    public List<AnwesenheitObjekt> getAnwesenheit(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid, @PathParam("from") Date from, @PathParam("to") Date to) {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator a = Authenticator.getInstance();
         String user = a.getUser(authToken);
@@ -305,6 +313,12 @@ public class SAuthServices {
         return anw;
     }
 
+    /**
+     * Schülerdetails zu einem Schüler abfragen
+     * @param httpHeaders auth_key zur Verifikation
+     * @param idschueler ID des Schülers
+     * @return Schülerobjekt
+     */
     @GET
     @Path("/{idschueler}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -350,10 +364,16 @@ public class SAuthServices {
         return null;
     }
 
+    /**
+     * Bild eines Schülers abfragen
+     * @param httpHeaders auth_key zur Verifikation
+     * @param idschueler ID der Schülers
+     * @return Bild des Schülers als jpg
+     */
     @GET
     @Path("/bild/{idschueler}")
     @Produces("image/jpg")
-    public Response getFile(@Context HttpHeaders httpHeaders, @PathParam("idschueler") int idschueler) {
+    public Response getImage(@Context HttpHeaders httpHeaders, @PathParam("idschueler") int idschueler) {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
         String user = aut.getUser(authToken);
@@ -370,10 +390,15 @@ public class SAuthServices {
         return Response.status(Response.Status.OK).build();
     }
 
+    /**
+     * Schüler Bild als BASE64 Encoding abfragen
+     * @param httpHeaders auth_key zur Verifikation
+     * @param idschueler ID des Schülers
+     * @return BildObjekt
+     */
     @GET
     @Path("/bild64/{idschueler}")
-
-    public BildObject getFile64(@Context HttpHeaders httpHeaders, @PathParam("idschueler") int idschueler) {
+    public BildObject getImage64(@Context HttpHeaders httpHeaders, @PathParam("idschueler") int idschueler) {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
         String user = aut.getUser(authToken);

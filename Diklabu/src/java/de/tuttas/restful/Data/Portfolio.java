@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Klasse für einen Portfolio eintrag
  * @author Jörg
  */
 public class Portfolio {
@@ -23,6 +23,17 @@ public class Portfolio {
     public Portfolio() {
     }
 
+    /**
+     * Portfolio eintrag Objekt erzeugen
+     * @param KName Name der Klasse
+     * @param Titel Titel der Klasse
+     * @param Wert Notenwert
+     * @param Notiz Notiz (Klassenbemerkung) erscheint auf dem Portfolio Ausdruck als Beschreibung des Kurses
+     * @param ID_Klasse ID der Klasse
+     * @param ID_Kategorie Kategorie
+     * @param schuljahr ID des Schuljahres
+     * @param schuljahrName  Name des Schuljahres
+     */
     public Portfolio(String KName, String Titel, String Wert, String Notiz,Integer ID_Klasse,Integer ID_Kategorie,Integer schuljahr, String schuljahrName) {
         this.KName = KName;
         this.Titel = Titel;

@@ -23,7 +23,7 @@ import javax.persistence.Transient;
 import org.apache.jasper.Constants;
 
 /**
- *
+ * Entitä Verlauf
  * @author Jörg
  */
 @Entity
@@ -56,6 +56,17 @@ public class Verlauf implements Serializable {
     @Transient
     private int kw;
 
+    /**
+     * Verlaufseintrag erzeugen
+     * @param ID_KLASSE ID der Klasse
+     * @param DATUM Datum des Eintrages
+     * @param STUNDE Stunde des Eintrages
+     * @param ID_LEHRER ID des Lehrers
+     * @param ID_LERNFELD ID der Lernfeldes
+     * @param INHALT Inahlt der Stunde
+     * @param BEMERKUNG Bemerkungen zur Stunden
+     * @param AUFGABE Lernsituation der Stunde
+     */
     public Verlauf(int ID_KLASSE, Timestamp DATUM, String STUNDE, String ID_LEHRER, String ID_LERNFELD, String INHALT, String BEMERKUNG, String AUFGABE) {
         this.ID_KLASSE = ID_KLASSE;
         this.DATUM = DATUM;

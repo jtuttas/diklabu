@@ -15,7 +15,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Relations Entität Schüler in Klasse
  * @author Jörg
  */
 @Entity

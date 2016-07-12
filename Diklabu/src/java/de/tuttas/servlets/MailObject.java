@@ -13,7 +13,7 @@ import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 /**
- *
+ * Eine EMail
  * @author Jörg
  */
 public class MailObject {
@@ -31,6 +31,13 @@ public class MailObject {
     private String subject;
     private String content;
 
+    /**
+     * Eine EMail erzeugen
+     * @param from Absender EMail Adresse
+     * @param subject Betreff
+     * @param content Inhalt
+     * @throws MailFormatException Wenn die Absenderadresse falsch formatiert ist
+     */
     public MailObject(String from, String subject, String content) throws MailFormatException {
         pattern = Pattern.compile(EMAIL_PATTERN);
         this.setFrom(from);        
@@ -38,6 +45,11 @@ public class MailObject {
         this.content = content;
     }
 
+    /**
+     * Überprüft ob eine EMail Adresse gültig ist
+     * @param mailAdress die EMail Adresse
+     * @return Ergebnis der Prüfung
+     */
     public boolean mailOk(String mailAdress) {
         if (mailAdress==null) return false;
         matcher = pattern.matcher(mailAdress);
@@ -48,6 +60,11 @@ public class MailObject {
         return from;
     }
 
+    /**
+     * Absender EMail Adresse setzen
+     * @param from die EMail Adresse
+     * @throws MailFormatException wenn ungültige Formatierung vorliegt
+     */
     public void setFrom(String from) throws MailFormatException {
         if (!mailOk(from)) {
             throw new MailFormatException("Absender EMail Adresse ungültig:" + from);
@@ -56,21 +73,39 @@ public class MailObject {
         }
     }
 
+    /**
+     * Liste der Empfänger
+     * @return die Empfänger
+     */
     public InternetAddress[] getRecipient() {
         InternetAddress[] a = new InternetAddress[1];
         return recipient.toArray(a);
     }
 
+    /**
+     * Liste der BCC Empfänger
+     * @return die BCC Empfänger
+     */
     public InternetAddress[] getBcc() {
         InternetAddress[] a = new InternetAddress[1];
         return bcc.toArray(a);
     }
 
+    /**
+     * Liste der CC Empfänger
+     * @return die CC Empfänger
+     */
     public InternetAddress[] getCC() {
         InternetAddress[] a = new InternetAddress[1];
         return cc.toArray(a);
     }
 
+    /**
+     * einen Empfänger hinzufügen
+     * @param recipient EMail Adresse des Empfängers
+     * @throws AddressException Wenn estwas schief ging
+     * @throws MailFormatException Wenn die EMail Adresse ungültig ist
+     */
     public void addRecipient(String recipient) throws AddressException, MailFormatException {
         if (!mailOk(recipient)) {
             throw new MailFormatException("An EMail Adresse ist ungültig:" + recipient);
@@ -84,18 +119,34 @@ public class MailObject {
 
     }
 
+    /**
+     * Abfrage des Betreffs
+     * @return Betreff
+     */
     public String getSubject() {
         return subject;
     }
 
+    /**
+     * Setzten des Betreffs
+     * @param subject das Betreff
+     */
     public void setSubject(String subject) {
         this.subject = subject;
     }
 
+    /**
+     * Abfage des Mail Inhalts
+     * @return der Mail Inhalt
+     */
     public String getContent() {
         return content;
     }
 
+    /**
+     * Setzen des Inhalts
+     * @param content der Mail Inhalt
+     */
     public void setContent(String content) {
         this.content = content;
     }
@@ -113,6 +164,12 @@ public class MailObject {
         return s;
     }
 
+    /**
+     * Hinzufügen von BCC empfängers
+     * @param bccMails Liste der BCC Empfänger
+     * @throws AddressException wenn etwas schief ging
+     * @throws MailFormatException wenn ein BCC Empfänger falsch fomatiert ist
+     */
     public void addBcc(String[] bccMails) throws AddressException, MailFormatException {
         for (int i = 0; i < bccMails.length; i++) {
 
@@ -128,6 +185,12 @@ public class MailObject {
         }
     }
 
+    /**
+     * Hinzufügen von CC empfängern
+     * @param ccMails Liste der CC Empfänger
+     * @throws AddressException wenn etwas schief ging
+     * @throws MailFormatException wenn eine CC Adresse falsch Formatiert ist
+     */
     public void addCC(String[] ccMails) throws AddressException, MailFormatException {
         for (int i = 0; i < ccMails.length; i++) {
             if (!mailOk(ccMails[i])) {
@@ -142,6 +205,12 @@ public class MailObject {
         }
     }
 
+    /**
+     * Einen CC Empfänger hinzufügen
+     * @param ccMailEMail Adresse eines CC Empfängers
+     * @throws AddressException wenn etwas schief ging
+     * @throws MailFormatException wenn die EMail Adresse des CC Empfängers falsch formiert ist
+     */
     public void addCC(String ccMail) throws AddressException, MailFormatException {
         if (!mailOk(ccMail)) {
             throw new MailFormatException("CC Mail Adresse ist ungülltig:" + ccMail);

@@ -12,7 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- *
+ * Kategorien von Klassen
  * @author Jörg
  */
 @Entity

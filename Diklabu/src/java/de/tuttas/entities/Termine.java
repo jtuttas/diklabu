@@ -14,7 +14,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Entität Termine
  * @author Jörg
  */
 @Entity

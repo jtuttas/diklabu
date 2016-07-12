@@ -12,11 +12,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
+ * Hilfsmethoden um Verpätungen zu ermitteln
  * @author Jörg
  */
 public class VerspaetungsUtil {
 
+    /**
+     * Ermittle fehtage etcc.
+     * @param ao das Anwesenheitsobjekt
+     * @return das Anwesenheitsobjekt mit Eintragungen
+     */
     public static AnwesenheitObjekt parse(AnwesenheitObjekt ao) {
 
         for (AnwesenheitEintrag ae : ao.getEintraege()) {
@@ -84,11 +89,22 @@ public class VerspaetungsUtil {
         return ao;
     }
 
+    
+    /**
+     * Testet ob der Anwesenheitseintrag ein gültiger Eintrag ist
+     * @param ae der Anwesenheitseintrag
+     * @return das Ergebnis der Prüfung
+     */
     public static boolean isValid(AnwesenheitEintrag ae) {
         String vermerk = ae.getVERMERK();
         return isValid(vermerk);
     }
 
+    /**
+     * Testet ob der Vermekr ein gültiger ist
+     * @param vermerk der Vermerk (z.B. ag90e)
+     * @return das Ergebnis der Prüfung
+     */
     public static boolean isValid(String vermerk) {
 
         vermerk = vermerk.replace((char) 160, ' ');

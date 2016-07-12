@@ -13,7 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Entität Login Schüler
+ * @deprecated Wird nicht mehr benötigt, das Authentifizierung über AD erfolgt
  * @author Jörg
  */
 @Entity

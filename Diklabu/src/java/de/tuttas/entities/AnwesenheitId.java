@@ -8,7 +8,7 @@ package de.tuttas.entities;
 import java.sql.Timestamp;
 
 /**
- *
+ * Zusammengesetzter Primärschlüssel für die Anwesenheit
  * @author Jörg
  */
 public class AnwesenheitId {
@@ -19,6 +19,11 @@ public class AnwesenheitId {
     public AnwesenheitId() {
     }
 
+    /**
+     * Primärschlüssel für die Anwesenheit
+     * @param ID_SCHUELER ID des Schülers
+     * @param DATUM  Datum des Eintrages
+     */
     public AnwesenheitId(Integer ID_SCHUELER, Timestamp DATUM) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.DATUM = DATUM;

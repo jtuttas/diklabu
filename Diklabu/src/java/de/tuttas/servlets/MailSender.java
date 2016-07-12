@@ -28,7 +28,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- *
+ * Versendet die EMails
  * @author Jörg
  */
 public class MailSender implements Runnable {
@@ -51,6 +51,10 @@ public class MailSender implements Runnable {
 
     }
     
+    /**
+     * Instanz des Mailsenders abfragen
+     * @return die Instanz
+     */
     public static MailSender getInstance() {
         if (instance==null) {
             instance= new MailSender();
@@ -127,6 +131,10 @@ public class MailSender implements Runnable {
         }        
     }
 
+    /**
+     * Eine Mail versenden
+     * @param mo die Email
+     */
     public void sendMail(MailObject mo) {
         mails.add(mo);
     }

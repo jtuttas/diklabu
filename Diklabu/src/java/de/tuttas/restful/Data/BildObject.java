@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Bild im BASE 64 Encoding
  * @author Jörg
  */
 public class BildObject {

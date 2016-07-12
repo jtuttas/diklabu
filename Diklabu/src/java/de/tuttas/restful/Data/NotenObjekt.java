@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Klasse für einen Noteneintrag
  * @author Jörg
  */
 public class NotenObjekt extends ResultObject{

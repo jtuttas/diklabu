@@ -21,7 +21,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 
 /**
- *
+ * Antwortskalen
  * @author Jörg
  */
 @Entity

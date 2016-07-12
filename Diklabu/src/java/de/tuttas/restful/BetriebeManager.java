@@ -25,7 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- *
+ * Restful Webservice zum Verwalten der Betriebe
  * @author Jörg
  */
 @Path("betriebe")
@@ -38,6 +38,10 @@ public class BetriebeManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    /**
+     * Alle Betriebe abfragen
+     * @return Liste aller Betriebe
+     */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     public List<Betrieb> getCompanies() {
@@ -48,6 +52,11 @@ public class BetriebeManager {
         return betriebe;
     }
 
+    /**
+     * Betrieb anhand seines Namens suchen
+     * @param b Name des Betriebes (% ist Wildcard)
+     * @return Liste der Betriebe die unter dem Namen zu finden sind
+     */
     @GET
     @Path("/{betrieb}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -61,6 +70,11 @@ public class BetriebeManager {
         return betriebe;
     }
     
+    /**
+     * Einen Betrieb abfragen
+     * @param bid Id des Betriebes
+     * @return Betrieb Objekt
+     */
     @GET
     @Path("id/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -69,10 +83,16 @@ public class BetriebeManager {
         return b;
     }
 
+    
+    /**
+     * Einen Betrieb löschen
+     * @param bid ID des Betriebes
+     * @return Result Objekt mit Meldungen
+     */
     @DELETE
     @Path("admin/{idbetrieb}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public PsResultObject deleteCompanies(@PathParam("idbetrieb") int bid) {
+    public PsResultObject deleteCompany(@PathParam("idbetrieb") int bid) {
         Betrieb b = em.find(Betrieb.class, bid);
 
         PsResultObject ro = new PsResultObject();
@@ -103,6 +123,11 @@ public class BetriebeManager {
     }
 
     
+    /**
+     * Einen neuen Betrieb hinzufügen
+     * @param b Das Betriebsobjekt
+     * @return Das Betriebsobjekt mit vergebener ID
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin")
@@ -113,6 +138,12 @@ public class BetriebeManager {
         return b;        
     }
     
+    /**
+     * Daten für einen Betrieb ändern
+     * @param bid ID des Betriebes
+     * @param b Betriebsobjekt mit neuen Daten
+     * @return Das veränderte Betriebsobjekt
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin/id/{idbetrieb}")

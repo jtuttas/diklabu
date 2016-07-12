@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Eintrag ins Portfolio
  * @author Jörg
  */
 public class PortfolioEintrag {
@@ -21,6 +21,10 @@ public class PortfolioEintrag {
     public PortfolioEintrag() {
     }
 
+    /**
+     * Portfolio Eintrag erzeugen
+     * @param ID_Schueler ID des Schülers
+     */
     public PortfolioEintrag(Integer ID_Schueler) {
         this.ID_Schueler = ID_Schueler;
     }

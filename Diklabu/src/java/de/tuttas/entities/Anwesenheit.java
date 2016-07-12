@@ -17,7 +17,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Die Anwesenheit
  * @author Jörg
  */
 @Entity
@@ -45,7 +45,14 @@ public class Anwesenheit implements Serializable {
     public Anwesenheit() {
     }
 
-        
+
+    /**
+     * Anwesenheit erzeugen
+     * @param ID_SCHUELER ID des Schülers
+     * @param DATUM Datum f. Anwesenheit
+     * @param ID_LEHRER der Lehrer (Kürzel)
+     * @param VERMERK  Vermerk zur Anwesenheit (z.B. ag90)
+     */
     public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM, String ID_LEHRER, String VERMERK) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.DATUM = DATUM;

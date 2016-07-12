@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Umfrage Ergebnis
  * @author Jörg
  */
 public class UmfrageResult {
@@ -20,6 +20,11 @@ public class UmfrageResult {
     public UmfrageResult() {
     }
 
+    /**
+     * Umfrage Ergebnis erzeugen
+     * @param frage die Frage
+     * @param id  die ID der Frage
+     */
     public UmfrageResult(String frage,int id) {
         this.frage = frage;
         this.id=id;

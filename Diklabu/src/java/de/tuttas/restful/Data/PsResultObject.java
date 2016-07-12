@@ -9,13 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * ErgebnisObjekt mit Warnungen und Meldungen
  * @author Jörg
  */
 public class PsResultObject extends ResultObject{
     
     private int[] ids ;
 
+    /**
+     * Betroffene IDs
+     * @return IDs
+     */
     public int[] getIds() {
         return ids;
     }

@@ -28,7 +28,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- *
+ * Restful Service zum Verwalten der Aubilder (api/v1/ausbilder)
  * @author Jörg
  */
 @Path("ausbilder")
@@ -40,6 +40,10 @@ public class AusbilderManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
     
+    /**
+     * Liste aller Ausbilder abfragen
+     * @return Liste der Ausbilder
+     */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})    
     public List<Ausbilder> getAusbilder() {
@@ -48,6 +52,11 @@ public class AusbilderManager {
         return ausbilder;
     }
     
+    /**
+     * Ausbilder nach Namen suchen
+     * @param n Name des Ausbilder (% als Wildcard)
+     * @return List der Ausbilder, die dem Namen entsprechen!
+     */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("find/{name}")
@@ -58,6 +67,11 @@ public class AusbilderManager {
         return ausbilder;
     }
 
+    /**
+     * Einen Ausbilder abfragen
+     * @param id ID des Ausbilders
+     * @return Ausbilderobjekt
+     */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("{id}")
@@ -66,6 +80,12 @@ public class AusbilderManager {
         return a;
     }
 
+    /**
+     * Daten eines Ausbilders ändern
+     * @param id ID des Ausbilders
+     * @param aus Daten des Ausbilders
+     * @return Ausbilderobjekt mit geänderten Daten
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin/{id}")
@@ -84,6 +104,11 @@ public class AusbilderManager {
         return a;
     }
     
+    /**
+     * Einen Ausbilder löschen
+     * @param id ID des Ausbilders
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @DELETE
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin/{id}")
@@ -119,10 +144,15 @@ public class AusbilderManager {
         return ro;
     }
     
+    /**
+     * Einen Ausbilder hinzufügen
+     * @param aus Das Ausbilderobjekt
+     * @return Das AusbilderObjekt mit erhaltener ID
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})   
     @Path("admin")
-    public Ausbilder setAusbilder(Ausbilder aus) {
+    public Ausbilder addAusbilder(Ausbilder aus) {
         em.getEntityManagerFactory().getCache().evictAll();
         em.persist(aus);
         em.flush();

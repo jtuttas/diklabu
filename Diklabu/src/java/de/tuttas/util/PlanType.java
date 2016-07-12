@@ -6,7 +6,7 @@
 package de.tuttas.util;
 
 /**
- *
+ * ENUMERATION für unterschiedliche Arten von Plänen
  * @author Jörg
  */
 public enum PlanType {

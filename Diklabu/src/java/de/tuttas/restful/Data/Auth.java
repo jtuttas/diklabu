@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Authentifizierungsklasse
  * @author Jörg
  */
 public class Auth {
@@ -16,6 +16,11 @@ public class Auth {
     public Auth() {
     }
 
+    /**
+     * Autentifizierungsobjekt erzeugen
+     * @param benutzer Benutzername
+     * @param kennwort Kennwort
+     */
     public Auth(String benutzer, String kennwort) {
         this.benutzer = benutzer;
         this.kennwort = kennwort;
@@ -39,11 +44,7 @@ public class Auth {
         this.kennwort = kennwort;
     }
 
-    public boolean validAdminUser() {
-        // TODO hier noch Admin User und Kennworte richtig machen
-        if (benutzer.compareTo("TU")==0 && kennwort.compareTo("mmbbs")==0) return true;
-        return false;
-    }
+   
 
     @Override
     public String toString() {

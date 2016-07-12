@@ -19,7 +19,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * antworten zu einer Umfrage
  * @author Jörg
  */
 @Entity
@@ -49,6 +49,12 @@ public class Antworten implements Serializable {
     public Antworten() {
     }
 
+    /**
+     * Eine Antwort erzeugen
+     * @param t Der Teilnehmer
+     * @param fragenAntworten die Frage
+     * @param antwortskala die Antowrtskala
+     */
     public Antworten( Teilnehmer t, Fragen fragenAntworten, Antwortskalen antwortskala) {
         
         this.fragenAntworten = fragenAntworten;

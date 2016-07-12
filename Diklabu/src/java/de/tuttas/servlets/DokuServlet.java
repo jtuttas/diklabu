@@ -66,7 +66,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 /**
- *
+ * Erzeugt ein pdf zur Dokumentation
  * @author Jörg
  */
 public class DokuServlet extends HttpServlet {

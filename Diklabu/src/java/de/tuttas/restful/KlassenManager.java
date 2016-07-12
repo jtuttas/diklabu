@@ -45,7 +45,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- *
+ * Manager zur Verwaltung von Klassen / Kurse
  * @author Jörg
  */
 @Path("klasse")
@@ -58,6 +58,11 @@ public class KlassenManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    /**
+     * Abfrage der Schüler eine Klasse
+     * @param kl Name der Klasse
+     * @return Liste der Schüler eine Klasse
+     */
     @GET
     @Path("/{klasse}")
      @Produces({"application/json; charset=iso-8859-1"})
@@ -71,6 +76,11 @@ public class KlassenManager {
         return schueler;
     }
     
+    /**
+     * Abfragen der Klassen
+     * @param idk ID der Kategorie (0 für 'normale' Klassen, oder 1 für WPKs (siehe Tabelle KATEGORIE)
+     * @return Liste der Klassen der genannten Kategorie
+     */
     @GET
     @Path("/klassen/{idk}") 
     @Produces({"application/json; charset=iso-8859-1"})
@@ -84,6 +94,11 @@ public class KlassenManager {
         return klassen;
     }
     
+    /**
+     * Abfrage der Schüler eine Klasse
+     * @param klid id der Klasse
+     * @return Liste der Schüler der Klasse
+     */
     @GET
     @Path("/member/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -97,6 +112,11 @@ public class KlassenManager {
         return schueler;
     }
     
+    /**
+     * Abfrage von Klassen nach Namen
+     * @param kl Name der Klasse (% ist Wildcard)
+     * @return Liste der Klassen, die dem Kriterium entsprechen
+     */
     @GET
     @Path("/info/{klasse}")
      @Produces({"application/json; charset=iso-8859-1"})
@@ -109,6 +129,11 @@ public class KlassenManager {
         return klassen;
     }
     
+    /**
+     * Abfrage einer Klasse
+     * @param kid ID der Klasse
+     * @return Das Klassenobjekt
+     */
      @GET
     @Path("/id/{id}")
      @Produces({"application/json; charset=iso-8859-1"})
@@ -117,6 +142,11 @@ public class KlassenManager {
         return k;
     }
     
+    /**
+     * Schüler einer Klasse inzufügen
+     * @param sk Schuler_Klasse Objekt mit IDs des Schülers und der Klasse
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @POST
     @Path("admin/add")
      @Produces({"application/json; charset=iso-8859-1"})
@@ -145,10 +175,16 @@ public class KlassenManager {
        
     }
     
+    /**
+     * Schüler aus einer Klasse entfernen
+     * @param sid ID des Schülers
+     * @param kid ID der Klasse
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @DELETE
     @Path("admin/{idschueler}/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject deleteSchuelerfromKlasse(@PathParam("idschueler") int sid,@PathParam("idklasse") int kid) {
+    public ResultObject removeSchueler(@PathParam("idschueler") int sid,@PathParam("idklasse") int kid) {
         Log.d("Webservice delete Schüler "+sid+" von Klasse:" + kid);
         ResultObject ro = new ResultObject();
         Query query = em.createNamedQuery("findSchuelerKlasse");
@@ -167,6 +203,11 @@ public class KlassenManager {
         return ro;
     }
     
+    /**
+     * Eine Klasse löschen
+     * @param kid ID der Klasse
+     * @return ErgebnisObjekt mit Meldungen
+     */
     @DELETE
     @Path("admin/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -210,6 +251,12 @@ public class KlassenManager {
         return ro;
     }
     
+    /**
+     * Attribute einer Klasse ändern
+     * @param kid ID der Klasse
+     * @param k Klassenobjekt mit neuen Werten
+     * @return geändertes Klassenobjekt
+     */
     @POST
     @Path("admin/id/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -229,6 +276,11 @@ public class KlassenManager {
         return kl;
     }
     
+    /**
+     * Eine neue Klasse erzeugen
+     * @param k Klassenobjekt
+     * @return Klassenobjekt mit vergebener ID
+     */
      @POST
      @Path("/admin")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -239,6 +291,11 @@ public class KlassenManager {
         return k;
     }
     
+    /**
+     * Ausbilder einer Klasse abfragen
+     * @param kl Name der Klasse
+     * @return Liste von AusbilderObjekten
+     */
     @GET
     @Path("/betriebe/{klasse}")
     public List<AusbilderObject> getCompanyPupil(@PathParam("klasse") String kl) {
@@ -251,6 +308,11 @@ public class KlassenManager {
         return ausbilder;
     }
 
+    /**
+     * Details zu einer Klasse abfragen inkl. Stundenplan und Vertretungsplan
+     * @param id ID der Klasse
+     * @return KlassenDetails Objekt
+     */
     @GET
     @Path("/details/{id}")
     public KlasseDetails getDetails(@PathParam("id") int id) {
@@ -271,6 +333,12 @@ public class KlassenManager {
         return d;
     }
 
+    /**
+     * Klassen Attribute ändern
+     * @param id ID der Klasse
+     * @param k Klassenobjekt
+     * @return Klassenobjekt mit geänderten Werten
+     */
     @POST
     @Path("details/{id}")
     public Klasse setDetails(@PathParam("id") int id, Klasse k) {
@@ -287,6 +355,12 @@ public class KlassenManager {
         return null;
     }
 
+    /**
+     * Schülerbilder in BASE64 Encoding einer Klasse abfragen
+     * @param kl Name der Klasse
+     * @param height gewünschte höhe der Bilder in Pixeln
+     * @return Liste von BilderObjekten 
+     */
     @GET
     @Path("/{klasse}/bilder64/{height}")
     public List<BildObject> getBilder(@PathParam("klasse") String kl, @PathParam("height") int height) {

@@ -10,7 +10,7 @@ import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Lehrer;
 
 /**
- *
+ * Details einer Klasse eines Kurses
  * @author Jörg
  */
 public class KlasseDetails {
@@ -31,6 +31,16 @@ public class KlasseDetails {
     public KlasseDetails() {
     }
 
+    /**
+     * Details einer Klasse eines Kurses erzeugen
+     * @param ID ID der Klasse
+     * @param ID_LEHRER ID (Kürzel) des Klassenlehrers
+     * @param TITEL Titel der Klasse
+     * @param KNAME Name der Klasse
+     * @param NOTIZ Bemerkungen zur Klasse
+     * @param ID_Kategorie Kategorie der Klasse
+     * @param KategorieName  Name der Kategorie
+     */
     public KlasseDetails(Integer ID, String ID_LEHRER, String TITEL, String KNAME, String NOTIZ, int ID_Kategorie, String KategorieName) {
         this.ID = ID;
         this.ID_LEHRER = ID_LEHRER;
@@ -42,7 +52,12 @@ public class KlasseDetails {
     }
 
     
-        
+    /**
+     * Details einer Klasse eines Kurses
+     * @param k Klasse
+     * @param l Lehrer 
+     * @param ka Kategorie
+     */
     public KlasseDetails(Klasse k,Lehrer l,Kategorie ka) {
         this.ID=k.getId();
         this.ID_LEHRER=k.getID_LEHRER();

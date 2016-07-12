@@ -59,7 +59,7 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 /**
- *
+ * Webservice zum Verwalten der Schüler
  * @author Jörg
  */
 @Path("schueler")
@@ -72,6 +72,11 @@ public class SchuelerManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    /**
+     * Abfrage der Klassen eines Schülers
+     * @param sid ID des Schülers
+     * @return Liste von Klassen / Kursen in denen der Schüler ist
+     */
      @GET
     @Path("/member/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -85,10 +90,16 @@ public class SchuelerManager {
         return klassen;
     }
     
+    /**
+     * Einen Schüler finden
+     * @param toFind Zeichenkette aus Vorname NachName und Geburtsdatum (z.B. ThomasMustermann1993-12-01)
+     * @param lDist Lefenshtein Distanz für die Suchen
+     * @return Liste von Schülern die dem Kriterium entsprechen
+     */
     @GET    
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("{tofind}/{ldist}") 
-    public List<SchuelerObject> getSchueler(@PathParam("tofind") String toFind,@PathParam("ldist") int lDist) {
+    public List<SchuelerObject> searchSchueler(@PathParam("tofind") String toFind,@PathParam("ldist") int lDist) {
         Query query = em.createNamedQuery("findSchueler");
         List<Schueler> schueler = query.getResultList();        
         
@@ -114,17 +125,27 @@ public class SchuelerManager {
         return sol;
     }
     
+    /**
+     * Alle Schüler abfragen
+     * @return Liste aller Schüler
+     */
     @GET    
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<Schueler> getSchueler() {
+    public List<Schueler> getPupils() {
         Query query = em.createNamedQuery("findSchueler");
         List<Schueler> schueler = query.getResultList();        
         return schueler;
     }
     
+    /**
+     * Attribute eines Schülers ändern
+     * @param idschueler ID des Schülers
+     * @param so Schüler Objekt mit neuen Schülerdaten
+     * @return geändertes Schülerobjekt
+     */
     @POST
     @Path("/{idschueler}")
-    public SchuelerObject getPupil(@PathParam("idschueler") int idschueler, SchuelerObject so) {
+    public SchuelerObject setPupil(@PathParam("idschueler") int idschueler, SchuelerObject so) {
         em.getEntityManagerFactory().getCache().evictAll();
         Schueler s = em.find(Schueler.class, so.getId());
         if (s == null) {
@@ -135,6 +156,11 @@ public class SchuelerManager {
         return so;
     }
 
+    /** 
+     * Einen neuen Achüler anlegen
+     * @param s Das Schülerobjekt
+     * @return Das Schülerobjekt mit vergebener ID
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("/admin")
@@ -147,10 +173,16 @@ public class SchuelerManager {
     }
 
     
+    /**
+     * Attribute für einen Schüler ändern
+     * @param sid ID des Schülers 
+     * @param s das Schülerobjekt
+     * @return das Schülerobjekt
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin/{idschueler}")
-    public Schueler setSchueler(@PathParam("idschueler") int sid,Schueler s) {
+    public Schueler setPupil(@PathParam("idschueler") int sid,Schueler s) {
         Log.d("set Schuler " + s);
         
         Schueler sl = em.find(Schueler.class, sid);
@@ -167,6 +199,11 @@ public class SchuelerManager {
         return sl;
     }
            
+    /**
+     * Schüler anhang von Vorname, Nachname und Geburtsdatum suchen
+     * @param c Schülerobjekt mit den notwendigen Daten
+     * @return Liste der Schüler auf die die Suche zutrifft
+     */
     @POST
     @Path("/info/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -182,6 +219,11 @@ public class SchuelerManager {
         return pupils;
     }
 
+    /**
+     * Einen Schüler löschen
+     * @param sid ID des Schülers
+     * @return Ergebnis Objekt mit Meldungen
+     */
     @DELETE
     @Path("/admin/{idschueler}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -223,6 +265,11 @@ public class SchuelerManager {
         return ro;
     }
 
+    /**
+     * Details zu einem Schüler abfragen
+     * @param idschueler ID des Schülers
+     * @return SchülerObjekt
+     */
     @GET
     @Path("/{idschueler}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -262,9 +309,14 @@ public class SchuelerManager {
         return null;
     }
 
+    /**
+     * Bild eines Schülers löschen
+     * @param idschueler ID des Schülers
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @DELETE
     @Path("/bild/{idschueler}")
-    public ResultObject deteleFile(@PathParam("idschueler") int idschueler) {
+    public ResultObject deteleImage(@PathParam("idschueler") int idschueler) {
         ResultObject ro = new ResultObject();
         String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         try{
@@ -286,10 +338,15 @@ public class SchuelerManager {
         return ro;
     }
     
+    /**
+     * Bild eines Schülers abfragen
+     * @param idschueler ID des Schülers
+     * @return Bild als JPG
+     */
     @GET
     @Path("/bild/{idschueler}")
     @Produces("image/jpg")
-    public Response getFile(@PathParam("idschueler") int idschueler) {
+    public Response getImage(@PathParam("idschueler") int idschueler) {
 
         String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("Lade  file " + filename);
@@ -300,10 +357,14 @@ public class SchuelerManager {
         return Response.status(Response.Status.OK).build();
     }
 
+    /**
+     * Bild eines Schülers Abfragen als BASE64
+     * @param idschueler ID des Schülers
+     * @return BildObjekt 
+     */
     @GET
     @Path("/bild64/{idschueler}")
-
-    public BildObject getFile64(@PathParam("idschueler") int idschueler) {
+    public BildObject getImage64(@PathParam("idschueler") int idschueler) {
         BildObject bo = new BildObject();
         bo.setId(idschueler);
         String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
@@ -324,6 +385,13 @@ public class SchuelerManager {
         }
     }
 
+    /**
+     * Bild eines Schülers hochladen
+     * @param idschueler ID des Schülers (wird zum Filenamen)
+     * @param uploadedInputStream InputStream
+     * @param fileDetail Original File Name etc.
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @POST
     @Path("/bild/{idschueler}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)

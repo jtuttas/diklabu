@@ -19,7 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Hilfsmethoden zum ermitteln des Stundenplans
  * @author Jörg
  */
 public class StundenplanUtil {
@@ -45,6 +45,10 @@ public class StundenplanUtil {
     private HashMap lehrerStdMap;
     private HashMap lehrerVertrMap;
 
+    /**
+     * Abfragen der Instanz
+     * @return die Instanz
+     */
     public static StundenplanUtil getInstance() {
         if (instance == null) {
             timestamp = new Date().getTime();
@@ -83,6 +87,12 @@ public class StundenplanUtil {
         }
     }
 
+    /**
+     * Einen Plan Abfagen
+     * @param identifier Klassenbezeichnung oder Lehrerkürzel
+     * @param pt Die Art des Plans
+     * @return Das Plan Objekt
+     */
     public PlanObject getPlanObject(String identifier, PlanType pt) {
         PlanObject po = new PlanObject();
 
@@ -130,6 +140,12 @@ public class StundenplanUtil {
         return po;
     }
 
+    /**
+     * Plan als HTML abfragen
+     * @param identifier Lehrerkürzel oder Klassenbezeichnung
+     * @param pt Die Art des Plans
+     * @return Der HTML Code des Plans
+     */
     public String getPlan(String identifier, PlanType pt) {
         PlanObject po = getPlanObject(identifier, pt);
         try {

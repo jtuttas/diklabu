@@ -27,7 +27,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- *
+ * LDAP Verbindung
  * @author Jörg
  */
 public class LDAPUtil {
@@ -37,6 +37,10 @@ public class LDAPUtil {
     private InitialDirContext context;
     private SearchControls ctrls;
 
+    /**
+     * Abfrage der Instanz der LDAP Verbiundung
+     * @return die Instanz
+     */
     public static LDAPUtil getInstance() {
         if (instance == null) {
             instance = new LDAPUtil();
@@ -60,6 +64,13 @@ public class LDAPUtil {
 
     }
 
+    /**
+     * Benutzer aus der LDAP Abfragen
+     * @param username Benutzername
+     * @param password Kennwort
+     * @return der Benutzer
+     * @throws Exception Wenn etwas schief ging
+     */
     public LDAPUser authenticateJndi(String username, String password) throws Exception {
 // Anbindung ans LDAP
         Properties props = new Properties();

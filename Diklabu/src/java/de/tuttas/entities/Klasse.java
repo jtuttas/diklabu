@@ -105,7 +105,7 @@ public class Klasse implements Serializable {
 
     /**
      * Abfrage des Titels der Klasse des Kurses
-     * @return 
+     * @return Der Titel zu einer Klasse
      */
     public String getTITEL() {
         return TITEL;

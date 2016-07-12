@@ -19,7 +19,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- *
+ * Webservice zum Verwalten der Schuljahre
  * @author Jörg
  */
 @Path("schuljahr")
@@ -31,6 +31,10 @@ public class SchuljahrManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
     
+    /**
+     * Abfrage des aktuellen Schuljahrs
+     * @return aktuelles Schuljahr
+     */
     @GET
     public Schuljahr getSchuljahr() {
         Query query = em.createNamedQuery("getLatestSchuljahr").setMaxResults(1);        
@@ -38,6 +42,10 @@ public class SchuljahrManager {
         return jahr.get(0);
     }
     
+    /**
+     * Abfrage aller Schuljahr
+     * @return Liste der Schuljahre
+     */
     @GET
     @Path("all")
     public List<Schuljahr> getSchuljahre() {

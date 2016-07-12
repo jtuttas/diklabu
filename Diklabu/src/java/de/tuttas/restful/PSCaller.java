@@ -44,7 +44,6 @@ public class PSCaller {
         Log.d("receive POST manager/pscaller:" + pso.toString());
         if (pso.getAuth() != null) {
             Auth auth = pso.getAuth();
-            if (auth.validAdminUser()) {
             try {
                 Runtime runtime = Runtime.getRuntime();
                 Process proc = runtime.exec("powershell " + pso.getScript());
@@ -70,11 +69,6 @@ public class PSCaller {
                 Logger.getLogger(PSCaller.class.getName()).log(Level.SEVERE, null, ex);
                 pso.setMsg(ex.getMessage());
                 pso.setSuccess(false);
-            }
-            }
-            else {
-                pso.setSuccess(false);
-                pso.setMsg("You are not alles to access the script");                
             }
         } else {
             pso.setSuccess(false);

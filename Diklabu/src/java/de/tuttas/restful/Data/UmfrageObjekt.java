@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
+ * Umfrage
  * @author Jörg
  */
 public class UmfrageObjekt extends ResultObject{
@@ -26,6 +26,10 @@ public class UmfrageObjekt extends ResultObject{
         antworten = new ArrayList<>();
     }
 
+    /**
+     * Neues Umfrage Objekt erzeugen
+     * @param titel Titel der Umfrage
+     */
     public UmfrageObjekt(String titel) {
         this.titel = titel;
         fragen = new ArrayList<>();

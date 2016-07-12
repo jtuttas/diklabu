@@ -19,7 +19,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 
 /**
- *
+ * Entität Teilnehmer einer Umfrage
  * @author Jörg
  */
 @Entity
@@ -48,6 +48,15 @@ public class Teilnehmer implements Serializable {
     public Teilnehmer() {
     }
 
+    /**
+     * Teilnehmer erzeugen
+     * @param key Key welcher den Teilnehmer idntifiziert
+     * @param SCHUELERID ID des Schülers bei Schülerumfrage
+     * @param BETRIEBID ID des Betriebes bei Betriebsumfrage
+     * @param LEHRERID ID des Lehrers bei Lehrerumfrage
+     * @param INVITED =1 wenn bereits eingeladen, sonst 0
+     * @param umfrage Umfrage 
+     */
     public Teilnehmer(String key, Integer SCHUELERID, Integer BETRIEBID, String LEHRERID, int INVITED, Umfrage umfrage) {
         this.key = key;
         this.SCHUELERID = SCHUELERID;

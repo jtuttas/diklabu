@@ -33,8 +33,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 /**
- *
+ * Restful Service zum Verwalten der Anwesenheit (/api/v1/anwesenheit)
  * @author Jörg
+ *  
  */
 @Path("anwesenheit")
 @Stateless
@@ -46,18 +47,14 @@ public class AnwesenheitsManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
-    @GET
-    public AnwesenheitEintrag getAnwesenheit() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        Timestamp d1 = new Timestamp(cal.getTimeInMillis());
-        AnwesenheitEintrag ae = new AnwesenheitEintrag(d1, "TU", 0, "a");
-        return ae;
-    }
-
+   
+    /**
+     * Löschen eines Anwesenhietseintrages
+     * Adresse /api/v1/anwesenheit/{ids}/{datum}
+     * @param ids ID des Schülers
+     * @param dat Datum des Anwesenheit
+     * @return Anwesenheit die gelöscht wurde, oder null bei Fehler
+     */
     @DELETE
     @Path("/{ids}/{datum}")
     public Anwesenheit delAnwesenheit(@PathParam("ids") Integer ids,@PathParam("datum") Date dat) {
@@ -72,9 +69,13 @@ public class AnwesenheitsManager {
         return a;
     }
 
-    
+    /**
+     * Setzen eines Anwesenheitseintrages
+     * @param ae der Anwesenheitseintrag
+     * @return der Anwesenheitseintrag oder null bei Fehler
+     */    
     @POST
-    public AnwesenheitEintrag setAnwesenheit(AnwesenheitEintrag ae) {
+    public AnwesenheitEintrag addAnwesenheit(AnwesenheitEintrag ae) {
         Log.d("POST Anwesenheitseintrag = " + ae.toString());
         Anwesenheit a = new Anwesenheit(ae.getID_SCHUELER(), ae.getDATUM(), ae.getID_LEHRER(), ae.getVERMERK());
         Query q = em.createNamedQuery("findAnwesenheitbyDatumAndSchuelerID");
@@ -124,6 +125,7 @@ public class AnwesenheitsManager {
     
     /**
      * Heutige Anwesenheit einer Klasse
+     * Adresse /api/v1/anwesenheit/{Name der Klasse}
      * @param kl Name der Klasse
      * @return Liste von AnwesenheitsObjekten
      */
@@ -165,14 +167,15 @@ public class AnwesenheitsManager {
     }
 
     /**
-     * Anwesenheit einer Klasse an einem bestimmten Tag
+     * Anwesenheit einer Klasse an einem bestimmten Tag abfragen
+     * Adresse /api/v1/anwesenheit/{Name der Klasse}/{Datum}
      * @param kl Name der Klasse
      * @param from Das Datum
      * @return Liste von Anwesenheitsobjekten
      */
     @GET
     @Path("/{klasse}/{from}")
-    public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from) {
+    public List<AnwesenheitObjekt> getAnwesenheit(@PathParam("klasse") String kl, @PathParam("from") Date from) {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
@@ -207,6 +210,7 @@ public class AnwesenheitsManager {
 
     /**
      * Liste der Anwesenheit einer Klasse über einen Bereich
+     * Adresse /api/v1/anwesenheit/{Name der Klasse}/{von Datum}/{bis Datum}
      * @param kl Name der Klasse
      * @param from Startdatum (inclusiv)
      * @param to EndDatum (inclusiv)
@@ -214,7 +218,7 @@ public class AnwesenheitsManager {
      */
     @GET
     @Path("/{klasse}/{from}/{to}")
-    public List<AnwesenheitObjekt> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from, @PathParam("to") Date to) {
+    public List<AnwesenheitObjekt> getAnwesenheit(@PathParam("klasse") String kl, @PathParam("from") Date from, @PathParam("to") Date to) {
         to = new Date(to.getTime()+24*60*60*1000);
         Log.d("Webservice Anwesenheit GET from=" + from + " to=" + to);
         TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbyKlasse", AnwesenheitEintrag.class);

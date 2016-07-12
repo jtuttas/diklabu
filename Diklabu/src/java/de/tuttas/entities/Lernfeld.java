@@ -14,7 +14,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Entität Lernfeld
  * @author Jörg
  */
 @Entity

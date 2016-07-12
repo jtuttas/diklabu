@@ -21,7 +21,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 
 /**
- *
+ * Entität Umfrage
  * @author Jörg
  */
 @Entity

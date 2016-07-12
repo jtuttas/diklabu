@@ -21,7 +21,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 /**
- *
+ * Konfigurationsklasse 
  * @author  Jörg
  */
 public class Config {
@@ -120,6 +120,10 @@ public class Config {
         }
     }
     
+    /**
+     * Abfrage der Instanz
+     * @return die Instanz
+     */
     public static Config getInstance() {
         if (instance==null) {
             instance=new Config();

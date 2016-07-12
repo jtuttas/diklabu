@@ -22,6 +22,8 @@ import de.tuttas.restful.Data.FragenObjekt;
 import de.tuttas.restful.Data.KlasseShort;
 import de.tuttas.restful.Data.Termin;
 import de.tuttas.restful.Data.UmfrageObjekt;
+import de.tuttas.restful.auth.Authenticator;
+import de.tuttas.restful.auth.HTTPHeaderNames;
 import de.tuttas.util.Log;
 import java.sql.Date;
 import java.sql.Timestamp;
@@ -45,7 +47,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-
 /**
  * Diese Webservices sind ohne eine Authentifizierung aufrufbar
  *
@@ -61,43 +62,35 @@ public class NoAuthServices {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
-    
-      /**
-         * Abfrage der Kuirsliste der Buchbaren Kurse
-         * @return Die Liste mit Kursen (Klassen)
-         */
-     @GET  
-     @Path("/getcourses")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public List<Klasse> getCourses() {
-        em.getEntityManagerFactory().getCache().evictAll();
-        Log.d ("Webservice courseselect/booking GET:");
-        
-        Query  query = em.createNamedQuery("getSelectedKlassen");
-        List<Klasse> courses = query.getResultList();
-        Log.d("Result List:"+courses);
-        return courses;                
-    }   
-      /**
-     * Antworten eines Teilnehmers abfragen
+    /**
+     * Abfrage der Kuirsliste der Buchbaren Kurse
      *
-     * @param httpHeaders
-     * @param key Key der Umfrage
-     * @return
+     * @return Die Liste mit Kursen (Klassen)
+     */
+    @GET
+    @Path("/getcourses")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public List<Klasse> getVotableCourses() {
+        em.getEntityManagerFactory().getCache().evictAll();
+        Log.d("Webservice courseselect/booking GET:");
+
+        Query query = em.createNamedQuery("getSelectedKlassen");
+        List<Klasse> courses = query.getResultList();
+        Log.d("Result List:" + courses);
+        return courses;
+    }
+
+    /**
+     * Umfrage Antworten eines Teilnehmers abfragen
+     *
+     * @param key Umfrage KEY des Teilnehmers
+     * @return LIst von Antwort Objekten
      */
     @GET
     @Path("/umfrage/antworten/{key}")
-    public List<AntwortUmfrage> getAntworten(@Context HttpHeaders httpHeaders, @PathParam("key") String key) {
+    public List<AntwortUmfrage> getUmfrageAntworten(@PathParam("key") String key) {
         Log.d("Get Antworten f. key (" + key + ")");
-        /*
-         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-         Authenticator aut = Authenticator.getInstance();
-         String user = aut.getUser(authToken);
-         Log.d("get  auth_token=" + authToken + " User=" + user);
-         if (user == null || Integer.parseInt(user) != sid) {
-         return null;
-         }
-         */
+
         Teilnehmer t = em.find(Teilnehmer.class, key);
         if (t == null) {
             return null;
@@ -122,33 +115,27 @@ public class NoAuthServices {
     }
 
     /**
-     * Umfrageeintrag erzeugen
+     * Umfrageeintrag eintragen
      *
-     * @param httpHeaders
-     * @param aw
-     * @return
+     * @param aw Das AntwortObjekt
+     * @return das AntwortObjekt
      */
     @POST
     @Path("umfrage")
-    public AntwortUmfrage addAntwort(@Context HttpHeaders httpHeaders, AntwortUmfrage aw) {
-        /*
-         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-         Authenticator aut = Authenticator.getInstance();
-         String user = aut.getUser(authToken);
-         Log.d("get  auth_token=" + authToken + " User=" + user);
-         if (user == null || Integer.parseInt(user) != aw.getIdSchueler()) {
-         return null;
-         }
-         */
+    public AntwortUmfrage addUmfrageAntwort(AntwortUmfrage aw) {
+
+        Teilnehmer t = em.find(Teilnehmer.class, aw.getKey());
+        if (t == null) {
+            return null;
+        }
 
         Fragen f = em.find(Fragen.class, aw.getIdFrage());
-        if (f != null) {
-            Teilnehmer t = em.find(Teilnehmer.class, aw.getKey());
+        if (f != null) {           
             if (t != null) {
                 Antwortskalen as = em.find(Antwortskalen.class, aw.getIdAntwort());
                 if (as != null) {
                     Umfrage u = t.getUmfrage();
-                    if (u.getACTIVE()==1) { 
+                    if (u.getACTIVE() == 1) {
                         Query q = em.createNamedQuery("getAntwort");
                         q.setParameter("paramUmfrage", u);
                         q.setParameter("paramTeilnehmer", t);
@@ -166,10 +153,9 @@ public class NoAuthServices {
                             aw.setSuccess(true);
                             aw.setMsg("Eintrag aktualisiert");
                         }
-                    }
-                    else {
-                    aw.setSuccess(false);
-                    aw.setMsg("Die Umfrage ist nicht mehr aktiv");                        
+                    } else {
+                        aw.setSuccess(false);
+                        aw.setMsg("Die Umfrage ist nicht mehr aktiv");
                     }
 
                 } else {
@@ -192,8 +178,8 @@ public class NoAuthServices {
     /**
      * Liefert eine Liste von Fragen und Antwortsmöglichkeiten für einen key
      *
-     * @param id key der Umfrage
-     * @return Liste von Umfrageobjekten
+     * @param key der Key
+     * @return UmfrageObjekt
      */
     @GET
     @Path("umfrage/fragen/{key}")
@@ -202,11 +188,13 @@ public class NoAuthServices {
         Log.d("Antworten und Fragen der Umfrage für key=" + key);
         em.getEntityManagerFactory().getCache().evictAll();
         Teilnehmer t = em.find(Teilnehmer.class, key);
-        if (t == null) { return null; }
+        if (t == null) {
+            return null;
+        }
         Map<Integer, AntwortSkalaObjekt> antworten = new HashMap();
-        
+
         Umfrage u = t.getUmfrage();
-        Log.d("Umfrage ist " + u.getNAME()+" aktive="+u.getACTIVE());
+        Log.d("Umfrage ist " + u.getNAME() + " aktive=" + u.getACTIVE());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
         uo.setActive(u.getACTIVE());
         Log.d("Aktive Umfrage mit Titel" + u.getNAME());
@@ -233,19 +221,27 @@ public class NoAuthServices {
         }
         return uo;
     }
-    
+
+    /**
+     * Liste aller Lehrer abfragen
+     * @return  Liste aller Lehrer
+     */
     @GET
     @Path("lehrer")
-    public List<Lehrer> getAnwesenheit() {
+    public List<Lehrer> getLehrer() {
         Log.d("Webservice Lehrer Get:");
         Query query = em.createNamedQuery("findAllTeachers");
         List<Lehrer> lehrer = query.getResultList();
         return lehrer;
     }
 
+    /**
+     * Liste aller Klassen abfragen
+     * @return Liste aller Klassen / Kurse
+     */
     @GET
     @Path("klassen")
-    public List<KlasseShort> getClasses() {
+    public List<KlasseShort> getCourses() {
         Log.d("Webservice klasse GET");
         TypedQuery<KlasseShort> query = em.createNamedQuery("findAllKlassen", KlasseShort.class);
         List<KlasseShort> klassen = query.getResultList();
@@ -253,6 +249,10 @@ public class NoAuthServices {
         return klassen;
     }
 
+    /**
+     * Liste aller Lernfelder abfragen
+     * @return Liste der Lernfelder
+     */
     @GET
     @Path("lernfelder")
     public List<Lernfeld> getLernfeld() {
@@ -261,58 +261,67 @@ public class NoAuthServices {
         List<Lernfeld> lernfeld = query.getResultList();
         return lernfeld;
     }
-    
+
+    /**
+     * Lister aller Termine abfragen
+     * @return alle Termine
+     */
     @GET
     @Path("termine")
-    public List<Termine> getTermine () {
+    public List<Termine> getTermine() {
         Log.d("Webservice Termine GET:");
         Query query = em.createNamedQuery("findAllTermine");
         List<Termine> termine = query.getResultList();
-        return termine;        
+        return termine;
     }
-    
+
+    /**
+     * Termine für einen Bereich abfragen
+     * @param from von Datum
+     * @param to bis Datum
+     * @param f1_id Filter 1
+     * @param f2_id Filter 2
+     * @return Liste der Termine
+     */
     @GET
     @Path("termine/{from}/{to}/{filter1}/{filter2}")
-    public List<Termin> getTermine(@PathParam("from") Date from, @PathParam("to") Date to,@PathParam("filter1") int f1_id,@PathParam("filter2") int f2_id) {
-        Log.d("Webservice Termine GET: from:"+from+" to:"+to+" filter1="+f1_id+" filter2="+f2_id);
-        
+    public List<Termin> getTermine(@PathParam("from") Date from, @PathParam("to") Date to, @PathParam("filter1") int f1_id, @PathParam("filter2") int f2_id) {
+        Log.d("Webservice Termine GET: from:" + from + " to:" + to + " filter1=" + f1_id + " filter2=" + f2_id);
+
         Termine t1 = em.find(Termine.class, f1_id);
         Termine t2 = em.find(Termine.class, f2_id);
-        if (t1!=null) {
-            Log.d("t1="+t1.getNAME());
-            if (t2!=null) {
-                Log.d("t2="+t2.getNAME());                
+        if (t1 != null) {
+            Log.d("t1=" + t1.getNAME());
+            if (t2 != null) {
+                Log.d("t2=" + t2.getNAME());
             }
-        }
-        else {
-            if (t2!=null) {
-                Log.d("t2="+t2.getNAME());                
-                t1=t2;
+        } else {
+            if (t2 != null) {
+                Log.d("t2=" + t2.getNAME());
+                t1 = t2;
             }
         }
         TypedQuery<Termin> query = null;
-        List<Termin> termine=null;
-        if (t1!=null && t2!=null) {
-            query = em.createNamedQuery("findAllTermineTwoFilters",Termin.class);
+        List<Termin> termine = null;
+        if (t1 != null && t2 != null) {
+            query = em.createNamedQuery("findAllTermineTwoFilters", Termin.class);
             query.setParameter("filter1", t1.getId());
             query.setParameter("filter2", t2.getId());
-            query.setParameter("fromDate", from);            
-            query.setParameter("toDate", to);            
+            query.setParameter("fromDate", from);
+            query.setParameter("toDate", to);
             termine = query.getResultList();
-        }
-        else if (t1!=null) {
-            query = em.createNamedQuery("findAllTermineOneFilter",Termin.class);
+        } else if (t1 != null) {
+            query = em.createNamedQuery("findAllTermineOneFilter", Termin.class);
             query.setParameter("filter1", t1.getId());
-            query.setParameter("fromDate", from);            
-            query.setParameter("toDate", to);            
+            query.setParameter("fromDate", from);
+            query.setParameter("toDate", to);
             termine = query.getResultList();
-        }
-        else {
+        } else {
             termine = new ArrayList<>();
-            to.setTime(to.getTime()+24*60*60*1000);
+            to.setTime(to.getTime() + 24 * 60 * 60 * 1000);
             while (from.before(to)) {
                 termine.add(new Termin(new Timestamp(from.getTime())));
-                from.setTime(from.getTime()+24*60*60*1000);
+                from.setTime(from.getTime() + 24 * 60 * 60 * 1000);
             }
         }
         return termine;

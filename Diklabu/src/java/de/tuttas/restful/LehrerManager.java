@@ -25,7 +25,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- *
+ * Restful Webservice zum Verwalten der Lehrer
  * @author Jörg
  */
 @Path("lehrer")
@@ -38,6 +38,10 @@ public class LehrerManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    /**
+     * Liste aller Lehrer abfragen
+     * @return List der Lehrer
+     */
     @GET
     public List<Lehrer> getAllLehrer() {
         Log.d("Webservice Lehrer Get:");
@@ -46,6 +50,11 @@ public class LehrerManager {
         return lehrer;
     }
 
+    /**
+     * Details zu einem Lehrer abfragen
+     * @param idLehrer ID des Lehrers
+     * @return Lehrer Objekt
+     */
     @GET
     @Path("/{idLehrer}")
     public Lehrer getLehrer(@PathParam("idLehrer") String idLehrer) {
@@ -60,6 +69,11 @@ public class LehrerManager {
         return lehrer;
     }
 
+    /**
+     * Einen neuen Lehrer anlegen
+     * @param l Lehrerobjekt
+     * @return Lehrerobjekt mit vergebener ID
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin")
@@ -70,6 +84,12 @@ public class LehrerManager {
         return l;
     }
 
+    /**
+     * Attribute für einen Lehrer verändern
+     * @param lid ID des Lehrers
+     * @param l Lehrerobjekt
+     * @return Lehrerobjekt oder null bei Fehlern
+     */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("admin/id/{idlehrer}")
@@ -97,10 +117,15 @@ public class LehrerManager {
         return le;
     }
 
+    /**
+     * Einen Lehrer löschen
+     * @param lid ID des Lehrers
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @DELETE
     @Path("admin/{idlehrer}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public PsResultObject deleteCompanies(@PathParam("idlehrer") String lid) {
+    public PsResultObject deleteLehrer(@PathParam("idlehrer") String lid) {
         Lehrer l = em.find(Lehrer.class, lid);
 
         PsResultObject ro = new PsResultObject();

@@ -13,7 +13,7 @@ import java.sql.Date;
 import java.util.List;
 
 /**
- *
+ * Schülerobjekt
  * @author Jörg
  */
 public class SchuelerObject  implements Comparable<SchuelerObject> {

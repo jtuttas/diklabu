@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- *
+ * Frage zu einer Umfrage
  * @author Jörg
  */
 public class FragenObjekt extends ResultObject{
@@ -24,6 +24,10 @@ public class FragenObjekt extends ResultObject{
         StringAntworten = new ArrayList<>();
     }
 
+    /**
+     * Fragenobjekt erzeugen
+     * @param frage Text der Frage
+     */
     public FragenObjekt(String frage) {
         this.frage = frage;
         IDantworten = new ArrayList<>();

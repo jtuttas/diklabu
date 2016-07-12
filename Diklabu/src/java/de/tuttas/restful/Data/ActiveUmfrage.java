@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Klasse für eine Aktive Umfrage
  * @author Jörg
  */
 public class ActiveUmfrage {
@@ -15,14 +15,28 @@ public class ActiveUmfrage {
     private String titel;
     private int active;
 
+    /**
+     * Aktive Umfrage erzeugen
+     */
     public ActiveUmfrage() {
     }
 
+    /**
+     * Aktive Umfrage 
+     * @param id ID der Umfrage
+     * @param titel Titel der Umfrage
+     */
     public ActiveUmfrage(int id, String titel) {
         this.id = id;
         this.titel = titel;
     }
 
+    /**
+     * Aktive Umfrage
+     * @param id ID der Umfrage
+     * @param titel Titel der Umfrage
+     * @param active 1=aktiv sonst 0
+     */
     public ActiveUmfrage(int id, String titel, int active) {
         this.id = id;
         this.titel = titel;

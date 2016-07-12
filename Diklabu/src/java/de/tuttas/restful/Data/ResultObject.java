@@ -8,7 +8,7 @@ package de.tuttas.restful.Data;
 import java.util.ArrayList;
 
 /**
- *
+ * ErgebnisObjekt mit Warnungen und Meldungen
  * @author Jörg
  */
 public class ResultObject {

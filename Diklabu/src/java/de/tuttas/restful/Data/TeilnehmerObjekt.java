@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Teilnehmer an der Umfrage
  * @author Jörg
  */
 public class TeilnehmerObjekt extends ResultObject{

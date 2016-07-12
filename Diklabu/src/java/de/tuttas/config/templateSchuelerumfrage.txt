@@ -3,7 +3,7 @@ Sehr geehrte(r) [[VNAME]] [[NNAME]],
 
 Bitte beteiligten Sie sich an der Umfrage '[[TITEL]]'
 
-Sie Erreichen die Umfrage über folgenden Link:
+Sie erreichen die Umfrage über folgenden Link:
 [[LINK]]
 
 Multi-Media Berufsbildende Schulen Hannover

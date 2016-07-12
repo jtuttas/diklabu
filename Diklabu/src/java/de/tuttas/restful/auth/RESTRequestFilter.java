@@ -23,6 +23,11 @@ public class RESTRequestFilter implements ContainerRequestFilter {
 
     private final static Logger log = Logger.getLogger(RESTRequestFilter.class.getName());
 
+    /**
+     * Request Filter, URLs mit noauth können von unangemeldeten Benutzer (also jedem) abgefragt werdn, URLS mit sauth können von Nutzern mit der Schüler Rolle abngefragt wreden, alle anderen Dienste nur von Nutzen mit Lehrer Rolle, bei URLs mit admin im Namen sind zudem Admin Rechte nötig!
+     * @param requestCtx Request Context
+     * @throws IOException Wenn etwas schief geht
+     */
     @Override
     public void filter(ContainerRequestContext requestCtx) throws IOException {
 
@@ -90,20 +95,5 @@ public class RESTRequestFilter implements ContainerRequestFilter {
         }
     }
 
-    private static String[] lehrerServices = new String[]{
-        "/anwesenheit", "/klasse","/lehrer","/noten","/schueler","/verlauf"
-    };
 
-    private Roles getRoleFor(String path) {
-        Log.d("Get Role for:" + path);
-
-        for (int i = 0; i < lehrerServices.length; i++) {
-            if (path.startsWith(lehrerServices[i])) {
-                return Roles.LEHRER;
-            }
-        }
-
-        //TODO auto generated Method
-        return Roles.SCHUELER;
-    }
 }

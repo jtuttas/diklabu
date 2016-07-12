@@ -17,7 +17,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 /**
- *
+ * Alle Noten (auch über mehrere Schuljahre hinweg)
  * @author Jörg
  */
 @Entity

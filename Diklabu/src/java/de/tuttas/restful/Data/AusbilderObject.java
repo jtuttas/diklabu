@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Hilfsklasse für einen Ausbilder
  * @author Jörg
  */
 public class AusbilderObject {
@@ -24,11 +24,29 @@ public class AusbilderObject {
 
     public AusbilderObject() {
     }
-    
+
+    /**
+     * Ausbilder Objekt erzeugen
+     * @param id ID des Schülers
+     */
     public  AusbilderObject(int id) {
         this.id_schueler=id;
     }
 
+    /**
+     * Ausbilder Objekt erzeugen
+     * @param id_schueler ID der Schülers
+     * @param anrede Anrede
+     * @param nName Nachname
+     * @param email EMail Adresse
+     * @param telefon Telefon Nr
+     * @param fax FAX Nr.
+     * @param name Name des Betriebes
+     * @param plz PLZ des Betriebes
+     * @param ort Ort des Betriebes
+     * @param strasse Straße des Betriebes
+     * @param nr Hausnummer des Betriebes
+     */
     public AusbilderObject(int id_schueler, String anrede, String nName, String email, String telefon, String fax, String name, String plz, String ort, String strasse, String nr) {
         this.id_schueler = id_schueler;
         this.anrede = anrede;

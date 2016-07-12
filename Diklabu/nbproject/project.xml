@@ -8,6 +8,7 @@
         <data xmlns="http://www.netbeans.org/ns/web-project/3">
             <name>Diklabu</name>
             <minimum-ant-version>1.6.5</minimum-ant-version>
+            <explicit-platform explicit-source-supported="true"/>
             <web-module-libraries>
                 <library dirs="200">
                     <file>${file.reference.xmlworker-5.5.8.jar}</file>

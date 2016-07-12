@@ -17,7 +17,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 /**
- *
+ * Entität Lehrer
  * @author Jörg
  */
 @Entity

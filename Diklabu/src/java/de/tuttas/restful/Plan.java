@@ -16,7 +16,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
 /**
- *
+ * Webservice zum Abfragen des Stundenplans / Vertertungsplans
  * @author Jörg
  */
 @Path("noauth/plan")
@@ -24,7 +24,11 @@ import javax.ws.rs.Produces;
 public class Plan {
 
     
-    
+    /**
+     * Stundenplan URL einer Klasse abfragen
+     * @param kl Name der Klasse
+     * @return PlanObjekt
+     */
     @GET
     @Path("/stundenplanurl/{klasse}")
     public PlanObject getStundenplan(@PathParam("klasse") String kl) {        
@@ -32,6 +36,11 @@ public class Plan {
         return StundenplanUtil.getInstance().getPlanObject(kl,PlanType.STDPlanSchueler);
     }
 
+    /**
+     * Stundenplan eines Lehrer abfragen
+     * @param lehrerName Name des Lehrers (Kürzel)
+     * @return HTML Code des Stundenplans
+     */
     @GET
     @Path("/stundenplanlehrer/{lehrerName}")
     @Produces("text/html")
@@ -40,6 +49,11 @@ public class Plan {
         return StundenplanUtil.getInstance().getPlan(lehrerName,PlanType.STDPlanLehrer);
     }
 
+    /**
+     * Vertertungsplan eines Lehrer Abfragen
+     * @param lehrerName Name des Lehrers (Kürzel)
+     * @return HTML Code des Vertertungsplans
+     */
     @GET
     @Path("/vertretungsplanlehrer/{lehrerName}")
     @Produces("text/html")
@@ -49,6 +63,11 @@ public class Plan {
     } 
     
 
+    /**
+     * Stundenplan einer Klasse abfragen
+     * @param kl Name der Klasse
+     * @return HTML Code des Stundenplans
+     */
     @GET
     @Path("/stundenplan/{klasse}")
     @Produces("text/html")
@@ -57,12 +76,22 @@ public class Plan {
         return StundenplanUtil.getInstance().getPlan(kl,PlanType.STDPlanSchueler);
     }
 
+    /**
+     * Vertertungsplan URL einer Klasse Abfragen
+     * @param kl Name der Klasse
+     * @return PlanObjekt
+     */
     @GET
     @Path("/vertertungsplanurl/{klasse}")
     public PlanObject getVertretungsplan(@PathParam("klasse") String kl) {
         return StundenplanUtil.getInstance().getPlanObject(kl,PlanType.VERTRPlanSchueler);
     }
 
+    /**
+     * Vertretungsplan einer Klasse Abfragen
+     * @param kl Name der Klasse
+     * @return HTML Code des Vertertungsplans
+     */
     @GET
     @Path("/vertertungsplan/{klasse}")
     @Produces("text/html")

@@ -8,7 +8,7 @@ package de.tuttas.restful.Data;
 import org.json.simple.JSONObject;
 
 /**
- *
+ * Vertertungsvorschlag für absenten Kollegen
  * @author Jörg
  */
 public class Vetretungseintrag {
@@ -22,6 +22,15 @@ public class Vetretungseintrag {
     public Vetretungseintrag() {
     }
 
+    /**
+     * Vertertungsvorschlag erzeugen
+     * @param stunde Stunde 
+     * @param Klasse name der Klasse
+     * @param idKlasse ID der Klasse
+     * @param aktion entfällt, Vertertung, Betreuung
+     * @param vertreter Kürzel des Vertretenden Kollegen
+     * @param kommentar  ggf. Kommentar (zieht vor etc.)
+     */
     public Vetretungseintrag(int stunde, String Klasse, int idKlasse, String aktion, String vertreter, String kommentar) {
         this.stunde = stunde;
         this.klasse = Klasse;

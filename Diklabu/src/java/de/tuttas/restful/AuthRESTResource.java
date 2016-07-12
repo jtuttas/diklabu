@@ -37,6 +37,10 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+/**
+ * Anmeldung und Abmeldung am System
+ * @author Jörg
+ */
 @Stateless(name = "DemoBusinessRESTResource", mappedName = "ejb/DemoBusinessRESTResource")
 public class AuthRESTResource implements AuthRESTResourceProxy {
 
@@ -48,6 +52,13 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    
+    /**
+     * Login
+     * @param httpHeaders Header mit Service-Key
+     * @param a Auth Objekt mit Benutzernamen und Kennwort
+     * @return Je nach Rolle (Schüler oder Lehrer) werden Daten in ein JSON Antwort Objekt übertragen. Bei erfolgreicher Anmeldung wird zudem der auth_key erzeugt!
+     */
     @Override
     @Consumes(MediaType.APPLICATION_JSON)
     public Response login(
@@ -146,6 +157,11 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
         }
     }
 
+    /**
+     * Abmelden
+     * @param httpHeaders mit auth_token zur Identifikatioon
+     * @return Ergebnisobjekt
+     */
     @Override
     public Response logout(
             @Context HttpHeaders httpHeaders) {

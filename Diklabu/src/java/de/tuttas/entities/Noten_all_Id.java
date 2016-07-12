@@ -6,7 +6,7 @@
 package de.tuttas.entities;
 
 /**
- *
+ * Zusammengesetzter Primärschlüssel für alle Noten
  * @author Jörg
  */
 public class Noten_all_Id {
@@ -17,6 +17,12 @@ public class Noten_all_Id {
     public Noten_all_Id() {
     }
 
+    /**
+     * Primärschlüssel für alle Noten erzeugen
+     * @param ID_SCHUELER ID des Schülers
+     * @param ID_LERNFELD ID der Lernfeldes
+     * @param ID_SCHULJAHR  ID des Schuljahres
+     */
     public Noten_all_Id(Integer ID_SCHUELER, String ID_LERNFELD, Integer ID_SCHULJAHR) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.ID_LERNFELD = ID_LERNFELD;

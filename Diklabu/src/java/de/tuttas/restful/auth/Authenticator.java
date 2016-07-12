@@ -24,6 +24,10 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.security.auth.login.LoginException;
 
+/**
+ * Authentifizierungs Klasse
+ * @author Jörg
+ */
 public final class Authenticator {
 
     private static Authenticator authenticator = null;
@@ -66,6 +70,10 @@ public final class Authenticator {
 
     }
 
+    /**
+     * Instanz der Authentifizierungsklasse abfragen
+     * @return Instanz der Authentifizierungsklasse
+     */
     public static Authenticator getInstance() {
         if (authenticator == null) {
             authenticator = new Authenticator();
@@ -74,8 +82,15 @@ public final class Authenticator {
         return authenticator;
     }
 
+    /**
+     * Login einer Users
+     * @param serviceKey Service Key
+     * @param username Benutzernamen
+     * @param password Kennwort
+     * @return Identifizierter Benutzer
+     * @throws LoginException Keine Authentifizierung möglich
+     */
     public LDAPUser login(String serviceKey, String username, String password) throws LoginException {
-
         if (!Config.getInstance().debug) {
             LDAPUtil ldap;
             try {
@@ -138,11 +153,9 @@ public final class Authenticator {
     }
 
     /**
-     * The method that pre-validates if the client which invokes the REST API is
-     * from a authorized and authenticated source.
-     *
-     * @param authToken The authorization token generated after login
-     * @return TRUE for acceptance and FALSE for denied.
+     * Prüfen ob das Auth_Token (noch) gültig ist
+     * @param authToken Das auth_token
+     * @return true = gültiges Token
      */
     public boolean isAuthTokenValid(String authToken) {
         if (authorizationTokensStorage.containsKey(authToken)) {
@@ -158,6 +171,12 @@ public final class Authenticator {
         return false;
     }
 
+    /**
+     * Abmelden eines Users
+     * @param serviceKey Service Key
+     * @param authToken das Auth Token
+     * @throws GeneralSecurityException  wenn etwas schief ging
+     */
     public void logout(String serviceKey, String authToken) throws GeneralSecurityException {
 
         if (authorizationTokensStorage.containsKey(authToken)) {
@@ -172,20 +191,40 @@ public final class Authenticator {
         throw new GeneralSecurityException("Invalid service key and authorization token match.");
     }
 
+    /**
+     * Abfrage der Rolle für ein Auth-Token
+     * @param authToken das Auth_Token
+     * @return der Name der Rolle
+     */
     public String getRole(String authToken) {
         String user = authorizationTokensStorage.get(authToken);
         Log.d("User mit token " + authToken + " ist " + user);
         return rolesStorage.get(user);
     }
     
+    /**
+     * Rolle für einen Benutzer setzen
+     * @param username der Benutzername
+     * @param role der name der Rolle
+     */
     public void setRole(String username,String role) {
         rolesStorage.put(username, role);
     }
     
+    /**
+     * Benutzer Abfragen anhand eines Auth-Tokens
+     * @param authToken das Auth Tokens
+     * @return Benutzername oder ID des Benutzers
+     */
     public String getUser(String authToken) {
         return authorizationTokensStorage.get(authToken);
     }
     
+    /**
+     * Benutzer stzen anhand eines Auth Tokens
+     * @param authToken das Auth Token
+     * @param user  der Benutzer Oder ID
+     */
     public void setUser(String authToken,String user) {
         authorizationTokensStorage.put(authToken, user);
     }

@@ -10,7 +10,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 /**
- *
+ * Anwesenheit eines Shcülers
  * @author Jörg
  */
 public class AnwesenheitEintrag {

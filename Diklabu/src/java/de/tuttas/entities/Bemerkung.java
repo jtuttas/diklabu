@@ -15,7 +15,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
 
 /**
- *
+ * Bemerkung zu einem Anwesenheitseintrag
  * @author Jörg
  */
 @Entity
@@ -40,6 +40,11 @@ public class Bemerkung implements Serializable {
     public Bemerkung() {
     }
 
+    /**
+     * Bemerkung zu einer Anwesenheit erzeugen
+     * @param datum Datum des Eintrages
+     * @param id_schueler  ID des Schülers
+     */
     public Bemerkung(Timestamp datum, int id_schueler) {
         this.DATUM=datum;
         this.ID_SCHUELER=id_schueler;

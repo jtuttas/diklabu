@@ -46,7 +46,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 /**
- *
+ * Verwaltung der Vertertunghsmeldungen
  * @author Jörg
  */
 @Path("vertretung")
@@ -62,6 +62,12 @@ public class VertretungsManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
+    /**
+     * Abfrage der Absenzmeldungen von bis
+     * @param from von Datum 
+     * @param to bis Datum
+     * @return Liste der Vertertungsobjekte
+     */
     @GET
     @Path("/{from}/{to}")
     public List<Vertretung> getVertretung(@PathParam("from") Date from, @PathParam("to") Date to) {
@@ -73,8 +79,13 @@ public class VertretungsManager {
         return v;
     }
 
+    /**
+     * Absenz Meldung abgeben
+     * @param vo Vetretungsobjekt
+     * @return Vertertungsobjekt mit ID oder NULL bei Fehlern
+     */
     @POST
-    public VertretungsObject setVertretung(VertretungsObject vo) {
+    public VertretungsObject addVertretung(VertretungsObject vo) {
         Log.d("POST Vertretungsmanager");
         Vertretung v = new Vertretung(vo.getEingereichtVon(), null, vo.getAbsenzLehrer(), new Timestamp(vo.getAbsenzAm().getTime()), "");
         v.setKommentar(vo.getKommentar());

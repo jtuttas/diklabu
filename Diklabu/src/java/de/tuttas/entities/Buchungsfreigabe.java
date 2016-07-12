@@ -28,7 +28,12 @@ public class Buchungsfreigabe implements Serializable {
 
     public Buchungsfreigabe() {
     }      
-
+    
+    
+/**
+ * Buchungsfreigabe erzeugen
+ * @param ID_KURS ID des Kurses
+ */
     public Buchungsfreigabe(Integer ID_KURS) {
         this.ID_KURS = ID_KURS;
     }

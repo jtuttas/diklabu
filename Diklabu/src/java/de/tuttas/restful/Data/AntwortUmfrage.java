@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Antwort auf eine Umfrage
  * @author Jörg
  */
 public class AntwortUmfrage {
@@ -21,6 +21,14 @@ public class AntwortUmfrage {
     public AntwortUmfrage() {
     }
 
+    /**
+     * Antwort eines Teilnehmers auf eine Umfrage
+     * @param key KEY des Teilnehmers
+     * @param idFrage ID der Frage
+     * @param frage Text der Frage
+     * @param idAntwort ID der Antwortskala
+     * @param antwort  Text der Antwortskala
+     */
     public AntwortUmfrage(String key, int idFrage, String frage, int idAntwort, String antwort) {
         this.key = key;
         this.idFrage = idFrage;

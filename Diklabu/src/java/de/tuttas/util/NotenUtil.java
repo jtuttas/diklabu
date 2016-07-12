@@ -9,13 +9,18 @@ import de.tuttas.entities.Kategorie;
 import de.tuttas.entities.Noten;
 
 /**
- *
+ * Hilfs Methoden zur Notenverwaltung
  * @author Jörg
  */
 public class NotenUtil {
     
     private static final String NOTENWERT[] = {"?","sehr gut","gut","befriedigend","ausreichend","mangelhaft","ungenügend","teilgenommen"};
     
+    /**
+     * Note als Text ausgeben
+     * @param Wert der Wert der Note (z.B. 1)
+     * @return  Der Name der Note (z.B. sehr gut)
+     */
     public static String getNote(String Wert) {        
         try {
             return NOTENWERT[Integer.parseInt(Wert)];
@@ -32,7 +37,7 @@ public class NotenUtil {
      * Überprüft ober die Note in die Kategorie eingetragen werden kann
      * @param n die Note
      * @param ka die Kategorie
-     * @return 
+     * @return Ergebnis der Prüfung
      */
     public static boolean gradeAllowed4Course(Noten n, Kategorie ka) {
         if (ka==null || n==null) return false;

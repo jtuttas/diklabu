@@ -6,7 +6,7 @@
 package de.tuttas.restful.Data;
 
 /**
- *
+ * Beteiligung an einer Umfrage
  * @author Jörg
  */
 public class Beteiligung {
@@ -21,12 +21,27 @@ public class Beteiligung {
     public Beteiligung() {
     }
 
+    /**
+     * Beteiligungs Objekt erzeugen
+     * @param key KEY des Benutzes
+     * @param anzahlFragenBeantwortet beantwortete Fragen
+     * @param anzahlFragen Anzahl der Fragen gesamt
+     */
     public Beteiligung(String key, int anzahlFragenBeantwortet, int anzahlFragen) {
         this.key = key;
         this.anzahlFragenBeantwortet = anzahlFragenBeantwortet;
         this.anzahlFragen=anzahlFragen;
     }
 
+    /**
+     * Beteiligungsobjekt erzeugen
+     * @param key KEY des Benutzers
+     * @param anzahlFragenBeantwortet Anzahl der beantworteten Fragen
+     * @param anzahlFragen Anzahl der Fragen insg.
+     * @param schuelerId Bei Schülerumfrage ID des Schülers
+     * @param betriebId Bei Betriebsumfrage ID des Betriebs
+     * @param lehrerId  Bei Lehrerumfrage Kürzel des Lehrers
+     */
     public Beteiligung(String key, int anzahlFragenBeantwortet, int anzahlFragen, Integer schuelerId, Integer betriebId, String lehrerId) {
         this.key = key;
         this.anzahlFragenBeantwortet = anzahlFragenBeantwortet;

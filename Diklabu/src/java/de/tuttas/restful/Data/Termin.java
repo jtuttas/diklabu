@@ -8,8 +8,8 @@ package de.tuttas.restful.Data;
 import java.sql.Timestamp;
 
 /**
- *
- * @author Jörg
+ * Termine einer Klasse
+ * @author  Jörg
  */
 public class Termin {
     private Timestamp date;

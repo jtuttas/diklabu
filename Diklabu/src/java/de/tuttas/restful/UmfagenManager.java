@@ -34,9 +34,11 @@ import de.tuttas.servlets.MailSender;
 import de.tuttas.util.Log;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -123,6 +125,10 @@ public class UmfagenManager {
         return uo;
     }
 
+    /**
+     * Liste der aktiven Umfragen abfragen
+     * @return Liste der Umfragen die aktiv sind
+     */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
     public List<ActiveUmfrage> getUmfragen() {
@@ -133,6 +139,12 @@ public class UmfagenManager {
         return umfrage;
     }
 
+    /**
+     * Beteiligung an einer Umfrage abfragen
+     * @param uid ID der Umfrage
+     * @param kname Name der Klasse
+     * @return Liste mit Beteiligungs Objekten
+     */
     @GET
     @Path("beteiligung/{uid}/{kname}")
     public List<Beteiligung> getBeteiligung(@PathParam("uid") int uid, @PathParam("kname") String kname) {
@@ -157,6 +169,12 @@ public class UmfagenManager {
         return beteiligungen;
     }
 
+    /**
+     * Umfrage Auswerten
+     * @param uid ID der Umfrage
+     * @param kname Name der Klasse
+     * @return Liste mit UmfrageResult Objekten
+     */
     @GET
     @Path("auswertung/{uid}/{klassenname}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -213,6 +231,11 @@ public class UmfagenManager {
         return resultList;
     }
 
+    /**
+     * Abfrage einer Frage
+     * @param fid ID der Frage
+     * @return Fragen Objekt
+     */
     @GET
     @Path("admin/frage/{fid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -232,6 +255,11 @@ public class UmfagenManager {
         return null;
     }
 
+    /**
+     * Neue Frage erzeugen
+     * @param fo FragenObjekt
+     * @return FragenObjekt
+     */
     @POST
     @Path("admin/frage")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -245,6 +273,11 @@ public class UmfagenManager {
         return fro;
     }
 
+    /**
+     * Fragen abändern
+     * @param fo FragenObjekt
+     * @return  FragenObjekt
+     */
     @PUT
     @Path("admin/frage/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -262,6 +295,11 @@ public class UmfagenManager {
         return null;
     }
 
+    /**
+     * Eine Frage löschen
+     * @param fid ID der Frage
+     * @return gelöschtes Fragenobjekt
+     */
     @DELETE
     @Path("admin/frage/{fid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -284,6 +322,11 @@ public class UmfagenManager {
         return fro;
     }
 
+    /**
+     * Eine Antwortskala Abfragen
+     * @param aid ID der Antwortskala
+     * @return Objekt für die AntwortSkala
+     */
     @GET
     @Path("admin/antwort/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -299,6 +342,10 @@ public class UmfagenManager {
         return null;
     }
 
+    /**
+     * Alle Antwortskalen abfragen
+     * @return Liste der Antwortskalen
+     */
     @GET
     @Path("admin/antwort/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -319,6 +366,10 @@ public class UmfagenManager {
 
     }
 
+    /**
+     * Liste aller Fragen abfragen
+     * @return Liste der Fragenobjekte
+     */
     @GET
     @Path("admin/frage/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -343,6 +394,11 @@ public class UmfagenManager {
 
     }
 
+    /**
+     * Neue Antwortskale erzeugen
+     * @param ao AntwortSkalen Objekt
+     * @return AntwortSkalen Objekt mit vergebener ID
+     */
     @POST
     @Path("admin/antwort")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -356,6 +412,11 @@ public class UmfagenManager {
         return ao;
     }
 
+    /**
+     * AntwortSkalen Objekt ändern
+     * @param ao neues Antwortskalen Objekt
+     * @return geändertes Antwortskalen Objekt
+     */
     @PUT
     @Path("admin/antwort")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -371,6 +432,11 @@ public class UmfagenManager {
         return null;
     }
 
+    /**
+     * Antwortskala löschen
+     * @param aid ID der Antwortskale
+     * @return gelöschtes Antwortskalen Objekt
+     */
     @DELETE
     @Path("admin/antwort/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -388,6 +454,12 @@ public class UmfagenManager {
         return null;
     }
 
+    /**
+     * Eine Antwort einer Frage hinzufügen
+     * @param fid ID der Frage
+     * @param aid ID der Antwort
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @POST
     @Path("admin/add/{fid}/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -418,6 +490,12 @@ public class UmfagenManager {
         return ro;
     }
 
+    /**
+     * Eine Antwortskale aus einer Frage entfernen
+     * @param fid ID der Frage
+     * @param aid ID der Antwortskala
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @POST
     @Path("admin/remove/{fid}/{aid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -449,6 +527,11 @@ public class UmfagenManager {
         return ro;
     }
 
+    /**
+     * Neue Umfrage erzeugen
+     * @param uo UmfrageObjekt
+     * @return UmfrageObjekt mit vergebener ID
+     */
     @POST
     @Path("admin/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -461,6 +544,11 @@ public class UmfagenManager {
         return uo;
     }
 
+    /**
+     * UmfrageObjekt Attribute ändern
+     * @param uo neues Umfrageobjekt
+     * @return verändertes Umfrageobjekt oder NULL bei Fehlern
+     */
     @PUT
     @Path("admin/")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -487,6 +575,12 @@ public class UmfagenManager {
         return null;
     }
 
+    /**
+     * Eine Umfrage löschen
+     * @param uid ID der Umfrage
+     * @param force force=true, es werden auch die Teilnehmer der Umfrage gelöscht
+     * @return gelöschtes UmfrageObjekt
+     */
     @DELETE
     @Path("admin/{uid}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -517,6 +611,12 @@ public class UmfagenManager {
         return uo;
     } 
 
+    /**
+     * Eine Frage einer Umfrage hinzufügen
+     * @param fid ID der Frage
+     * @param uid ID der Umfrage
+     * @return ErgebnisObjekt mit Meldungen
+     */
     @POST
     @Path("admin/addUmfrage/{fid}/{uid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -547,6 +647,12 @@ public class UmfagenManager {
         return ro;
     }
 
+    /**
+     * Eine Frage aus einer Umfrage entfernen
+     * @param fid ID der Frage 
+     * @param uid ID der Umfrage
+     * @return Ergebnis Objekt mit Meldungen
+     */
     @POST
     @Path("admin/removeUmfrage/{fid}/{uid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -578,6 +684,11 @@ public class UmfagenManager {
         return ro;
     }
 
+    /**
+     * Einen Teilnehmer zu einer Umfrage hinzufügen
+     * @param to das Teilnehmerobjekt
+     * @return das TeilnehmerObjekt mit vergebener ID
+     */
     @POST
     @Path("admin/subscriber")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -673,6 +784,11 @@ public class UmfagenManager {
 
     }
 
+    /**
+     * Abfrage der Teilnehmer an einer Umfrage
+     * @param uid ID der Umfrage
+     * @return Liste der Teilnehmer
+     */
     @GET
     @Path("admin/subscriber/{uid}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -698,6 +814,12 @@ public class UmfagenManager {
         return lto;
     }
 
+    /**
+     * einen Teilnehmer aus einer Umfrage löschen
+     * @param key KEY des Teilnehmers
+     * @param force force=true auch die Antworten des Teilnehmers werden gelöscht
+     * @return das gelöschte Teilnehmerobjekt
+     */
     @DELETE
     @Path("admin/subscriber/{key}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
@@ -731,32 +853,34 @@ public class UmfagenManager {
         return to;
     }
 
+    /**
+     * Teilnehmer via EMAIL einladen
+     * @param key KEY des Teilnehmers
+     * @return Ergebnisobjekt mit Meldungen
+     */
     @GET
     @Path("admin/invite/{key}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<ResultObject> inviteTeilnehmer(@PathParam("key") String key) {
-        ArrayList<ResultObject> rol = new ArrayList<>();
+    public ResultObject inviteTeilnehmer(@PathParam("key") String key) {
+        
         ResultObject ro = new ResultObject();
 
         Teilnehmer t = em.find(Teilnehmer.class, key);
         if (t == null) {
             ro.setSuccess(false);
             ro.setMsg("Kann Teilmnehmer mit Key=" + key + " nicht finden");
-            rol.add(ro);
-            return rol;
+            return ro;
         }
         if (t.getINVITED()==1) {
             ro.setSuccess(false);
             ro.setMsg("Der Teilnehmer mit Key=" + key + " wurde bereits eingeladen");
-            rol.add(ro);
-            return rol;
+            return ro;
         }
         Umfrage u = t.getUmfrage();
         if (u.getACTIVE() != 1) {
             ro.setSuccess(false);
             ro.setMsg("Umfrage " + u.getNAME() + " ist nicht aktiv");
-            rol.add(ro);
-            return rol;
+            return ro;
         }
         String pathTemplate = Config.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         pathTemplate = pathTemplate.substring(0, pathTemplate.indexOf("Config.class"));
@@ -765,7 +889,7 @@ public class UmfagenManager {
         BufferedReader br;
         StringBuilder sb = new StringBuilder();
         try {
-            br = new BufferedReader(new FileReader(pathTemplate));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(pathTemplate), "UTF8"));
 
             String line = br.readLine();
             while (line != null) {
@@ -781,7 +905,6 @@ public class UmfagenManager {
         }
         MailSender mailSender = MailSender.getInstance();
         if (t.getSCHUELERID() != null) {
-            ro = new ResultObject();
             Schueler s = em.find(Schueler.class, t.getSCHUELERID());
             if (s != null) {
                 
@@ -804,24 +927,26 @@ public class UmfagenManager {
                     } catch (AddressException ex) {
                         ro.setSuccess(false);
                         ro.setMsg(ex.getMessage());
-                        Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);
+                        return ro;
                     } catch (MailFormatException ex) {
                         ro.setSuccess(false);
                         ro.setMsg(ex.getMessage());
-                        Logger.getLogger(UmfagenManager.class.getName()).log(Level.SEVERE, null, ex);
+                        return ro;
                     }
 
                 } else {
                     ro.setSuccess(false);
                     ro.setMsg("Keine Mail Adresse für  " + s.getVNAME() + " " + s.getNNAME() + " gefunden!");
+                    return ro;
                 }
             } else {
                 ro.setSuccess(false);
                 ro.setMsg("Kann Schüler mit ID=" + t.getSCHUELERID() + " nicht finden!");
+                return ro;
             }
-            rol.add(ro);
+            
         }
-        return rol;
+        return ro;
 
     }
 }

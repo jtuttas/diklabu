@@ -6,7 +6,7 @@
 package de.tuttas.entities;
 
 /**
- *
+ * Zusammengesetzter Primärschlüssel für Relation Schüler in Klasse
  * @author Jörg
  */
 public class Schueler_KlasseId {
@@ -16,6 +16,11 @@ public class Schueler_KlasseId {
     public Schueler_KlasseId() {
     }
 
+    /**
+     * Zusammengesetzer Primärschlüssel erzeugen
+     * @param ID_SCHUELER ID des Schülers
+     * @param ID_KLASSE  ID der Klasse
+     */
     public Schueler_KlasseId(int ID_SCHUELER, int ID_KLASSE) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.ID_KLASSE = ID_KLASSE;

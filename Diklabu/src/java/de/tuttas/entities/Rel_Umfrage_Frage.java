@@ -12,7 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 /**
- *
+ * Relations Entität Umfrage und erhaltene Fragen
  * @author Jörg
  */
 @Entity

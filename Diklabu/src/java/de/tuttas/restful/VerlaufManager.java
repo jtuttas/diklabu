@@ -22,7 +22,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 
 /**
- *
+ * Webservice zum Verwalten der Unterrichtsverlaufes
  * @author Jörg
  */
 @Path("verlauf")
@@ -35,19 +35,12 @@ public class VerlaufManager {
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
 
-    @GET
-    public Verlauf getVerlauf() {
-        em.getEntityManagerFactory().getCache().evictAll();
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 0);
-        cal.set(Calendar.MINUTE, 0);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-        Timestamp d1 = new Timestamp(cal.getTimeInMillis());
-        Verlauf v = new Verlauf(0, d1, "01", "TU", "LF6", "beispielhafter Verlauf", "keine", "keine");
-        return v;
-    }
 
+    /**
+     * Verlaufseintrag löschen
+     * @param id ID des Verlauseintrages
+     * @return gelöschtes Verlaufsobjekt oder NULL bei Fehlern
+     */
     @DELETE
     @Path("/{id}")
     public Verlauf deleteVerlauf(@PathParam("id") int id) {
@@ -63,8 +56,13 @@ public class VerlaufManager {
 
     }
 
+    /**
+     * Verlauf Eintragen
+     * @param v Verlaufs Objekt
+     * @return Verlaufs Objekt mit vergebener ID
+     */
     @POST
-    public Verlauf setVerlauf(Verlauf v) {
+    public Verlauf addVerlauf(Verlauf v) {
         em.getEntityManagerFactory().getCache().evictAll();
         Log.d("POST Verlauf = " + v.toString());
         Query q = em.createNamedQuery("findVerlaufbyDatumStundeAndKlassenID");
@@ -103,6 +101,11 @@ public class VerlaufManager {
         return v;
     }
 
+    /**
+     * Unterrichtsverlauf für einer Klasse abfragen
+     * @param kl Name der Klasse
+     * @return Liste der Verlaufsobjekte
+     */
     @GET
     @Path("/{klasse}")
     public List<Verlauf> getVerlauf(@PathParam("klasse") String kl) {
@@ -125,9 +128,15 @@ public class VerlaufManager {
         return verlauf;
     }
 
+    /**
+     * Abfrage des Verlaufes für einer Klasse ab einem Datum
+     * @param kl Name der Klasse
+     * @param from Datum (ab)
+     * @return Liste der Verlaufsobjekte
+     */
     @GET
     @Path("/{klasse}/{from}")
-    public List<Verlauf> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from) {
+    public List<Verlauf> getVerlauf(@PathParam("klasse") String kl, @PathParam("from") Date from) {
         em.getEntityManagerFactory().getCache().evictAll();
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 0);
@@ -145,9 +154,16 @@ public class VerlaufManager {
         return verlauf;
     }
 
+    /**
+     * Abfrage des Verlaufes einer Klasse von bis
+     * @param kl Name der Klasse
+     * @param from von Datum
+     * @param to bis Datum
+     * @return Liste der Verlaufsobjekte
+     */
     @GET
     @Path("/{klasse}/{from}/{to}")
-    public List<Verlauf> getAnwesenheitFrom(@PathParam("klasse") String kl, @PathParam("from") Date from, @PathParam("to") Date to) {
+    public List<Verlauf> getVerlauf(@PathParam("klasse") String kl, @PathParam("from") Date from, @PathParam("to") Date to) {
         em.getEntityManagerFactory().getCache().evictAll();
         Log.d("Webservice Verlauf GET from=" + from + " to=" + to);
         Query query = em.createNamedQuery("findVerlaufbyKlasse");

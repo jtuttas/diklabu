@@ -15,7 +15,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 
 /**
- *
+ * Entität Termine (einer Klasse eines Kurses)
  * @author Jörg
  */
 /**
