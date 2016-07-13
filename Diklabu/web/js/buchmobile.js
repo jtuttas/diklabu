@@ -135,8 +135,15 @@ $(document).ready(function () {
             //event.preventDefault();
         }
         else {
-            toast("EMail wird versendet via BCC an Betriebe der Klasse " + localStorage.nameKlasse);
-            $.post('../MailServlet', $('#emailFormBetriebe').serialize());
+            
+            $.post('../MailServlet', $('#emailFormBetriebe').serialize(),function (data) {
+              if (data.success) {
+                toast("EMail wird versendet via BCC an Betriebe der Klasse " + localStorage.nameKlasse);
+              }
+              else {
+                toast(data.msg);
+              }              
+            });
             $("#BetriebBetreff").val("");
             $("#BetriebContent").val("");
             $.mobile.changePage("#klassenliste", {transition: "fade"});
