@@ -89,8 +89,16 @@ $(document).ready(function () {
             //event.preventDefault();
         }
         else {
-            toast("EMail wird versendet via CC an Klasse " + localStorage.nameKlasse);
-            $.post('../MailServlet', $('#emailFormKlasse').serialize());
+            
+            $.post('../MailServlet', $('#emailFormKlasse').serialize(),function (data) {
+              if (data.success) {
+                toast("EMail wird versendet via CC an Klasse " + localStorage.nameKlasse);
+              }
+              else {
+                toast(data.msg);
+              }
+              
+            });
             $("#KlasseBetreff").val("");
             $("#KlasseContent").val("");
             $.mobile.changePage("#klassenliste", {transition: "fade"});

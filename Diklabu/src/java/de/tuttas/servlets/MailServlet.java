@@ -128,6 +128,7 @@ public class MailServlet extends HttpServlet {
                     mo.addRecipient(recipient);
                     if (bcc!=null) mo.addBcc(bcc.split(";"));
                     if (cc!=null) mo.addCC(cc.split(";"));
+                    Log.d("Mail to send:"+mo.toString());
                     mailSender.sendMail(mo);
                     result.setSuccess(true);
                     result.setMsg("EMail erfolgreich versandt");
@@ -139,19 +140,21 @@ public class MailServlet extends HttpServlet {
                         
                     }
                 } catch (AddressException ex) {
+                    ex.printStackTrace();
                     try (PrintWriter out = response.getWriter()) {
                         out.println("Adress Exception:"+ex.getMessage());
                     }
                 } catch (MailFormatException ex) {
+                    ex.printStackTrace();
                     result.setSuccess(false);
                     result.setMsg(ex.getMessage());
                 }
             }
-            if (!result.isSuccess()) {
-                try (PrintWriter out = response.getWriter()) {
-                    out.println(result.toString());
-                }
+            
+            try (PrintWriter out = response.getWriter()) {
+                out.println(result.toString());
             }
+            
         } else {
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {

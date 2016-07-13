@@ -6,6 +6,7 @@
 package de.tuttas.restful.Data;
 
 import java.util.ArrayList;
+import org.json.simple.JSONObject;
 
 /**
  * ErgebnisObjekt mit Warnungen und Meldungen
@@ -53,4 +54,5 @@ public class ResultObject {
     public String toString() {
         return "{\"success\":"+success+",\"msg\":\""+msg+"\"}";
     }    
+
 }
