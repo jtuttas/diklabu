@@ -515,8 +515,15 @@ $("#absendenEMailBetrieb").click(function () {
         //event.preventDefault();
     }
     else {
-        toastr["success"]("EMail wird versendet via BCC an Betriebe", "Mail Service");
-        $.post('../MailServlet', $('#emailFormBetriebe').serialize());
+        
+        $.post('../MailServlet', $('#emailFormBetriebe').serialize(), function(data) {
+            if (data.success) {
+                toastr["success"]("EMail wird versendet via BCC an Betriebe", "Mail Service");
+            }
+            else {
+                toastr["error"](data.msg, "Mail Service");
+            }
+        });
         $("#emailBetriebBetreff").val("");
         $("#emailBetriebInhalt").val("");
     }
@@ -551,8 +558,15 @@ $("#absendenEMailKlasse").click(function () {
         //event.preventDefault();
     }
     else {
-        toastr["success"]("EMail wird versendet via CC an Klasse " + nameKlasse, "Mail Service");
-        $.post('../MailServlet', $('#emailFormKlasse').serialize());
+        
+        $.post('../MailServlet', $('#emailFormKlasse').serialize(),function (data) {
+            if (data.success) {
+                toastr["success"]("EMail wird versendet via CC an Klasse " + nameKlasse, "Mail Service");
+            }
+            else {
+                toastr["error"](data.msg, "Mail Service");
+            }
+        });
         $("#emailKlasseBetreff").val("");
         $("#emailKlasseInhalt").val("");
     }
