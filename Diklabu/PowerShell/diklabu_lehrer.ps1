@@ -121,6 +121,37 @@ function Get-Teacher
 
 <#
 .Synopsis
+   Alle Lehrer abfragen
+.DESCRIPTION
+   Fragt alle Lehrer ab
+.EXAMPLE
+   Get-Teachers 
+.EXAMPLE
+   Get-Teachers uri http://localhost:8080/Diklabu/api/v1/
+#>
+function Get-Teachers
+{
+    Param
+    (
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"noauth/lehrer/") -Headers $headers 
+            return $r;
+        } catch {
+            Write-Host "Get-Teachers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+        }
+    }
+}
+
+
+<#
+.Synopsis
    Einen neuen oder mehrere neu Lehrer anlegen
 .DESCRIPTION
    Erzeugt einen Neuen Lehrer. Bzw. importiert die Betriebe aus einer CSV Datei mit folgenden Einträgen
