@@ -152,11 +152,18 @@ public class CourseVotingManager {
         Query query = em.createNamedQuery("findWunschBySchuelerId");
         query.setParameter("paramId", sid);
         List<Kurswunsch> wunsche = query.getResultList();
-        for (Kurswunsch kw : wunsche) {
-            em.remove(kw);
+        if (wunsche.size()!=0) {
+            for (Kurswunsch kw : wunsche) {
+                em.remove(kw);
+            }
+            ro.setMsg("Kurswüsche entfernt");
+            ro.setSuccess(true);
         }
-        ro.setMsg("Kurswüsche entfernt");
-        ro.setSuccess(true);
+        else {
+            ro.setMsg("Keine Kurswünsche gefunden!");
+            ro.setSuccess(false);
+                    
+        }
         return ro;
     }
     

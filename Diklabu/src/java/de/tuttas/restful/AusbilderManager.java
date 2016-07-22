@@ -76,6 +76,7 @@ public class AusbilderManager {
     @Produces({"application/json; charset=iso-8859-1"})
     @Path("{id}")
     public Ausbilder getAusbilder(@PathParam("id") int id) {
+        Log.d("Finde Ausbilder mit ID="+id);
         Ausbilder a = em.find(Ausbilder.class, id);
         return a;
     }
