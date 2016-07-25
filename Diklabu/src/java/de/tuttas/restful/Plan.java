@@ -38,7 +38,7 @@ public class Plan {
 
     /**
      * Stundenplan eines Lehrer abfragen
-     * @param lehrerName Name des Lehrers (Kürzel)
+     * @param lehrerName Name des Lehrers 
      * @return HTML Code des Stundenplans
      */
     @GET
@@ -51,7 +51,7 @@ public class Plan {
 
     /**
      * Vertertungsplan eines Lehrer Abfragen
-     * @param lehrerName Name des Lehrers (Kürzel)
+     * @param lehrerName Name des Lehrers 
      * @return HTML Code des Vertertungsplans
      */
     @GET

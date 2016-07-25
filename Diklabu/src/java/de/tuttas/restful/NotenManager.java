@@ -95,16 +95,34 @@ public class NotenManager {
     @GET
     @Path("/schueler/{schuelerID}/{IDSchuljahr}")
     public NotenObjekt getNoten(@PathParam("schuelerID") int sid, @PathParam("IDSchuljahr") int ids) {
+        NotenObjekt no = new NotenObjekt();
+        Schueler s = em.find(Schueler.class, sid);
+        if (s==null) {
+            no.setSuccess(false);
+            no.setMsg("Kann Schüler mit ID="+sid+" nicht finden!");
+            return no;
+        }
+        Schuljahr sj = em.find(Schuljahr.class, ids);
+        if (sj==null) {
+            no.setSuccess(false);
+            no.setMsg("Kann Schuljahr mit ID="+ids+" nicht finden!");
+            return no;
+            
+        }
         Log.d("Webservice noten GET: schuelerID=" + sid + " Schuljahr ID=" + ids);
         Query query = em.createNamedQuery("findNoteneinesSchuelers");
         query.setParameter("paramNameSchuelerID", sid);
         query.setParameter("paramIDSchuljahr", ids);
         List<Noten_all> noten = query.getResultList();
         Log.d("Result List:" + noten);
-        NotenObjekt no = new NotenObjekt();
+        
         no.setSchuelerID(sid);
         no.setNoten(noten);
         no.setSuccess(true);
+        if (noten.size()==0) {
+            no.setWarning(true);
+            no.getWarningMsg().add("Keine Noten gefunden");
+        }
         return no;
     }
 
@@ -164,7 +182,13 @@ public class NotenManager {
     @Path("/{id}")
     public Noten addNote(@PathParam("id") int kid, Noten n) {
         em.getEntityManagerFactory().getCache().evictAll();
-
+        Schueler_Klasse sk = em.find(Schueler_Klasse.class, new Schueler_KlasseId(n.getID_SCHUELER(), kid));
+        if (sk==null) {
+            n.setSuccess(false);
+            n.setMsg("Schüler der ID "+n.getID_SCHUELER()+" ist nicht Mitglied der Klasse mit ID "+kid);
+            return n;
+        }
+        
         Klasse k = em.find(Klasse.class, kid);
         Log.d("POST Note = " + n.toString() + " für Klasse id=" + kid + "Klasse=" + k);
         if (k != null) {
