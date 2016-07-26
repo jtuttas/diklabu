@@ -138,7 +138,7 @@ public class SchuelerManager {
     }
     
     /**
-     * Attribute eines Schülers ändern
+     * Bemerkungen eines Schülers ändern
      * @param idschueler ID des Schülers
      * @param so Schüler Objekt mit neuen Schülerdaten
      * @return geändertes Schülerobjekt
@@ -147,7 +147,7 @@ public class SchuelerManager {
     @Path("/{idschueler}")
     public SchuelerObject setPupil(@PathParam("idschueler") int idschueler, SchuelerObject so) {
         em.getEntityManagerFactory().getCache().evictAll();
-        Schueler s = em.find(Schueler.class, so.getId());
+        Schueler s = em.find(Schueler.class, idschueler);
         if (s == null) {
             return null;
         }
@@ -157,7 +157,7 @@ public class SchuelerManager {
     }
 
     /** 
-     * Einen neuen Achüler anlegen
+     * Einen neuen Schüler anlegen
      * @param s Das Schülerobjekt
      * @return Das Schülerobjekt mit vergebener ID
      */

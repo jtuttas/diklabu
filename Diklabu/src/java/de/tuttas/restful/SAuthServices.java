@@ -274,7 +274,7 @@ public class SAuthServices {
         Authenticator a = Authenticator.getInstance();
         String user = a.getUser(authToken);
         Log.d("get Anwesenheit auth_token=" + authToken + " User=" + user);
-        if (user == null || Integer.parseInt(user) != sid) {
+        if (Config.getInstance().auth && (user == null || Integer.parseInt(user) != sid)) {
             return null;
         }
         to = new Date(to.getTime() + 24 * 60 * 60 * 1000);
@@ -331,7 +331,7 @@ public class SAuthServices {
 
         Log.d(
                 "get Anwesenheit auth_token=" + authToken + " User=" + user);
-        if (user== null || Integer.parseInt(user) != idschueler) {
+        if (Config.getInstance().auth && (user== null || Integer.parseInt(user) != idschueler)) {
             return null;
         }
         if (s!= null) {
@@ -378,7 +378,7 @@ public class SAuthServices {
         Authenticator aut = Authenticator.getInstance();
         String user = aut.getUser(authToken);
         Log.d("get Bild  auth_token=" + authToken + " User=" + user);
-        if (user == null || Integer.parseInt(user) != idschueler) {
+        if (Config.getInstance().auth && (user == null || Integer.parseInt(user) != idschueler)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
         String filename = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
@@ -403,7 +403,7 @@ public class SAuthServices {
         Authenticator aut = Authenticator.getInstance();
         String user = aut.getUser(authToken);
         Log.d("get Bild  auth_token=" + authToken + " User=" + user);
-        if (user == null || Integer.parseInt(user) != idschueler) {
+        if (Config.getInstance().auth && (user == null || Integer.parseInt(user) != idschueler)) {
             return null;
         }
         BildObject bo = new BildObject();

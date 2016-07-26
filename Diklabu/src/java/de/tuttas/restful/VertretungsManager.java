@@ -144,7 +144,12 @@ public class VertretungsManager {
             content = content.replace("[[ABSENZ]]", absentLehrer.getVNAME() + " " + absentLehrer.getNNAME());
             content = content.replace("[[DATUM]]", vo.getAbsenzAm().toString());
             content = content.replace("[[ABS]]", absender.getVNAME() + " " + absender.getNNAME());
-            content = content.replace("[[KOMMENTAR]]", vo.getKommentar());
+            if (vo.getKommentar()!=null) {
+                content = content.replace("[[KOMMENTAR]]", vo.getKommentar());
+            }
+            else {
+                content = content.replace("[[KOMMENTAR]]", "");
+            }
 
 
 
