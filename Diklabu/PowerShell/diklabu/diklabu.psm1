@@ -52,6 +52,7 @@ Export-ModuleMember -Function New-Coursevoting
 Export-ModuleMember -Function Stop-Coursevoting
 
 Export-ModuleMember -Function Get-Teacher
+Export-ModuleMember -Function Get-Teachers
 Export-ModuleMember -Function Set-Teacher
 Export-ModuleMember -Function New-Teacher
 Export-ModuleMember -Function Delete-Teacher

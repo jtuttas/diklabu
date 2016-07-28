@@ -75,11 +75,11 @@ function Get-Diklabuserver
 .Synopsis
    Anmelden am Klassenbuch
 .DESCRIPTION
-   Anmleden beim Klassenbuch und Sessionkey beziehen
+   Anmelden beim Klassenbuch und Sessionkey beziehen
 .EXAMPLE
-   login-diklabu -user Benutzername -password password 
+   login-diklabu -credential (get-Credential)
 .EXAMPLE
-   login-diklabu -user Benutzername -password password -URI http://localhost:8080/Diklabu/api/v1/
+   login-diklabu -credential (get-Credential) -URI http://localhost:8080/Diklabu/api/v1/
 #>
 function Login-Diklabu
 {
@@ -87,11 +87,8 @@ function Login-Diklabu
     (
         # Benutzername
         [Parameter(Mandatory=$true,Position=0)]
-        [String]$user,
+        [PSCredential]$credential,
 
-        # Kennwort
-        [Parameter(Mandatory=$true,Position=1)]
-        [String]$password,
 
         # URI des Diklabu Servers
         [Parameter(Position=2)]
@@ -102,8 +99,8 @@ function Login-Diklabu
     Begin
     {
         $data=echo "" | Select-Object -Property "benutzer","kennwort"
-        $data.benutzer=$user
-        $data.kennwort=$password        
+        $data.benutzer=$credential.userName
+        $data.kennwort=$credential.GetNetworkCredential().Password        
         $headers=@{}
         $headers["content-Type"]="application/json"
         $headers["service_key"]=$user+"f80ebc87-ad5c-4b29-9366-5359768df5a1";
