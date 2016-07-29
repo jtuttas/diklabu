@@ -49,6 +49,33 @@ function Sync-Teachers
                 Write-Host "Achtung der Lehrer "$user.GivenName" "$user.Name" hat keine Initialen (Kürzel) und kann nicht synchronisiert werden" -BackgroundColor DarkRed
             }    
         }
+        $teachers = Get-Teachers
+        foreach ($t in $teachers) {
+            $found=$false;
+            foreach ($user in $u) {
+                if ($t.id -eq $user.Initials) {
+                    $found=$true;
+                    break;
+                }
+            }
+            if (-not $found) {
+                Write-Host "Achtung der Lehrer mit Initialen "$t.ID" ("$t.VNAME" "$t.NNAME") wurde nicht gefunden" -BackgroundColor DarkRed
+                if (-not $force) {
+                    $r=Read-Host "Soll der Lehrer aus dem Klassenbuch entfernt werden? (j/n)"
+                    if ($r -eq "j") {
+                        if (-not $whatif) {
+                            $r=Delete-Teacher -ID $t.ID
+                        }
+                        Write-Host "Lehrer "$t.ID" gelöscht!" -BackgroundColor DarkGreen
+                    }
+                }
+                else {
+                    if (-not $whatif) {
+                        $r=Delete-Teacher -ID $t.ID
+                    }
+                    Write-Host "Lehrer "$t.ID" gelöscht!" -BackgroundColor DarkGreen
+                }
+            }
+        }
     }
 }
-Sync-Teachers

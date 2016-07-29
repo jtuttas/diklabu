@@ -1,2 +1,2 @@
 ﻿Write-Host $PSScriptRoot
-Import-Module -Name $PSScriptRoot/diklabu -Scope Local
+Import-Module -Name $PSScriptRoot/diklabu -Scope Global

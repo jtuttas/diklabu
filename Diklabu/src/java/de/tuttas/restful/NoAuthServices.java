@@ -228,6 +228,7 @@ public class NoAuthServices {
      */
     @GET
     @Path("lehrer")
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<Lehrer> getLehrer() {
         Log.d("Webservice Lehrer Get:");
         Query query = em.createNamedQuery("findAllTeachers");
