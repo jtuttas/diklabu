@@ -1,5 +1,4 @@
-﻿<# Synchronisation der Schüler aller Klassen gegen die AD und Übernahme der EMail Adresse und ggf. Ändern von
-   Vor- und Nachnamen
+﻿<# Synchronisation der Schüler aller Klassen gegen die AD und Übernahme der EMail Adresse 
 #>
 
 $global:min=999;
@@ -17,6 +16,9 @@ function search-User {
     $global:min=999;
     $found=$users[0];
     foreach ($user in $users) {
+        if (-not $user.GivenName) {
+            Write-Host "Achtung der AD Nutzer "$user.SamAccountName" hat keinen GivenName" -ForegroundColor Red
+        }
         [String]$name=$user.SamAccountName+$user.GivenName;
         #Write-Host "Teste!! $name"
         $l=Measure-StringDistance  $name $tofind
@@ -26,7 +28,13 @@ function search-User {
         }
 
     }
-    Write-Host "LEW=$min"
+    if ($min -gt 0 -and $min -lt 3) {
+        Write-Host "   LEW=$min" -BackgroundColor DarkYellow
+    }
+    elseif ($min -ge 3) {
+        Write-Host "   LEW=$min" -BackgroundColor DarkRed
+    }
+    
     if ($min -le $lew) {
         return $found;
     }
@@ -129,7 +137,8 @@ function set-emails
 
         $course = get-courses -id_kategorie 0
         foreach ($c in $course) {
-            Write-Host "Bearbeite Schüler der Klasse "$c.KNAME
+            Write-Host "-----------------------"
+            Write-Host "Bearbeite Schüler der Klasse "$c.KNAME -BackgroundColor DarkMagenta
             $cn=“(Cn="+$c.KNAME+".*)"
             try {
                 $member=get-aduser -Properties mail -Credential $credentials -Server 172.31.0.1 -LDAPFilter $cn -SearchBase  "DC=mmbbs,DC=local"
@@ -137,7 +146,7 @@ function set-emails
                 $p=Get-Coursemember -id $c.id
                 foreach ($schueler in $p) {
                     if ($p.ABGANG -like "N") {
-                        Write-Host "Bearbeite "$schueler.VNAME$schueler.NNAME
+                        Write-Host "`n`rBearbeite "$schueler.VNAME$schueler.NNAME" (ID="$schueler.id")"
                         [String]$s=$c.KNAME+"."+$schueler.NNAME
                         $s=$s.Replace(" ","")
 
@@ -150,6 +159,8 @@ function set-emails
 
                         $u=search-User $member $s 4
                         if ($u) {
+                            #$u
+                            Write-Host "gefunden wurde "$u.GivenName" "$u.Surname
                             [String]$mail=$u.mail
                             $m=$mail.Split(" ");
                             $mail=$m[0]
@@ -159,6 +170,8 @@ function set-emails
                             }
                             Write-Host "EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert auf "$mail -BackgroundColor DarkGreen
 
+                            # Übernehmen der Vornamen und des Nachnahmens aus der AD
+                            <#
                             $l = Measure-StringDistance $u.GivenName $schueler.VNAME
                             if ($l -ne 0) {
                                 if (-not $whatif) {
@@ -172,7 +185,8 @@ function set-emails
                                     $np=Set-Pupil -id $schueler.id -NNAME $u.Surname
                                 }
                                 Write-Host "Nachname ("$schueler.NNAME") geändert auf ("$u.Surname")" -BackgroundColor DarkYellow
-                            }             
+                            } 
+                            #>            
                         }
                         else {
                             Write-Host "Schüler "$schueler.VNAME$schueler.NNAME "nicht gefunden!" -BackgroundColor DarkRed                 

@@ -201,7 +201,7 @@ function Get-Courses
     (
         # ID Kategorie der Klasse
         [Parameter(Position=0)]
-        [int]$id_kategorie,
+        [int]$id_kategorie=-1,
 
         # Adresse des Diklabu Servers
         [String]$uri=$global:server
@@ -216,7 +216,7 @@ function Get-Courses
     Process
     {
         try {
-            if ($id_kategorie) {
+            if ($id_kategorie -ne -1) {                
                 $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/klassen/"+$id_kategorie) -Headers $headers 
             }
             else {
