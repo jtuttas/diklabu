@@ -112,23 +112,28 @@ function Importfrom-Csv
                 $comp=$null;
                 $ins=$null;
             }
-            Write-Host "Suche Lehrer "$line.KL_LEHRER
-            $teacher = Get-Teacher -ID $line.KL_LEHRER
-            if ($teacher) {
-                Write-Host "Bekannter Lehrer"$line.KL_LEHRER"aktualisiere Daten VNAME="$line.'LVUEL.VNAME'"NNAME="$line.'LVUEL.NNAME' -BackgroundColor DarkGreen
-                if (-not $whatif) {
-                    $teacher=Set-Teacher -ID $line.KL_LEHRER -NNAME $line.'LVUEL.NNAME' -VNAME $line.'LVUEL.VNAME'
+            if ($line.KL_LEHRER) {
+                Write-Host "Suche Lehrer "$line.KL_LEHRER
+                $teacher = Get-Teacher -ID $line.KL_LEHRER
+                if ($teacher) {
+                    Write-Host "Bekannter Lehrer"$line.KL_LEHRER"aktualisiere Daten VNAME="$line.'LVUEL.VNAME'"NNAME="$line.'LVUEL.NNAME' -BackgroundColor DarkGreen
+                    if (-not $whatif) {
+                        $teacher=Set-Teacher -ID $line.KL_LEHRER -NNAME $line.'LVUEL.NNAME' -VNAME $line.'LVUEL.VNAME'
+                    }
+                }
+                else {
+                    Write-Host "Neuer Lehrer"$line.KL_LEHRER"ID="$line.KL_LEHRER"VNAME="$line.'LVUEL.VNAME'"NNAME="$line.'LVUEL.NNAME' -BackgroundColor DarkRed
+                    if (-not $whatif) {
+                        $teacher=New-Teacher -ID $line.KL_LEHRER -NNAME $line.'LVUEL.NNAME' -VNAME $line.'LVUEL.VNAME'
+                    }
+                    else {
+                        $teacher="" | Select-Object "ID"
+                        $teacher.ID=$line.KL_LEHRER
+                    }
                 }
             }
             else {
-                Write-Host "Neuer Lehrer"$line.KL_LEHRER"ID="$line.KL_LEHRER"VNAME="$line.'LVUEL.VNAME'"NNAME="$line.'LVUEL.NNAME' -BackgroundColor DarkRed
-                if (-not $whatif) {
-                    $teacher=New-Teacher -ID $line.KL_LEHRER -NNAME $line.'LVUEL.NNAME' -VNAME $line.'LVUEL.VNAME'
-                }
-                else {
-                    $teacher="" | Select-Object "ID"
-                    $teacher.ID=$line.KL_LEHRER
-                }
+                Write-Host "Achtung f. die Klasse "$line.KL_NAME" ist kein Lehrer eingetragen" -BackgroundColor DarkRed
             }
             Write-Host "Suche Klasse ("$line.KL_NAME")"
                 
@@ -158,10 +163,18 @@ function Importfrom-Csv
             }      
             #$line  
             
-            $gdat = Get-Date -Date $line.GEBDAT -Format "yyyy-MM-dd"      
-            Write-Host "Suche Schüler "$line.'SIL.VNAME'$line.'SIL.NNAME'" Geb."$gdat
-            $searchString = $line.'SIL.VNAME'+$line.'SIL.NNAME'+$gdat
-            $schueler=Search-Pupil -VNAMENNAMEGEBDAT $searchString -LDist 3
+            if ($line.GEBDAT -ne "") {
+                $gdat = Get-Date -Date $line.GEBDAT -Format "yyyy-MM-dd"      
+                Write-Host "Suche Schüler "$line.'SIL.VNAME'$line.'SIL.NNAME'" Geb."$gdat
+                $searchString = $line.'SIL.VNAME'+$line.'SIL.NNAME'+$gdat
+                $schueler=Search-Pupil -VNAMENNAMEGEBDAT $searchString -LDist 3
+            }
+            else {
+                Write-Host "Achtung der Schüler hat kein Geburtsdatum, suche mit erhöhter Levensthein Distanz" -ForegroundColor Red
+                Write-Host "Suche Schüler "$line.'SIL.VNAME'$line.'SIL.NNAME'
+                $searchString = $line.'SIL.VNAME'+$line.'SIL.NNAME'+"19xx-xx-xx"
+                $schueler=Search-Pupil -VNAMENNAMEGEBDAT $searchString -LDist 12
+            }
             if ($schueler.Length -gt 1) {
                 Write-Host "Mehr als einen Schüler gefunden, wähle den mit der geringsten Levenshtein Distanz!" -BackgroundColor DarkYellow
                 $schueler = $schueler[0];

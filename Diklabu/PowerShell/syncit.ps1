@@ -1,20 +1,29 @@
 ﻿. "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
 . "$PSScriptRoot/sync_lehrer.ps1"
+. "$PSScriptRoot/set-emails.ps1"
 
+Set-Diklabuserver -uri https://diklabu.mm-bbs.de:8080/Diklabu/api/v1/
 # Anmelden am Diklabu Server
 $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
 $password = $config.tupassword | ConvertTo-SecureString -asPlainText -Force
 $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList "Tuttas", $password
-Login-Diklabu -credential $credentials
+$l=Login-Diklabu -credential $credentials
 
-$r=Sync-Teachers -whatif -force 
+$r=Sync-Teachers  -force 
 $r.msg > "$HOME/out.txt"
-$body="Das Synchronisationsscript ist am "+(Get-Date)+" durchgelaufen `r`n";
+$body="Das Synchronisationsscript ist am "+(Get-Date)+" durchgelaufen!! `r`n";
+
+$body+="sync_lehrer.ps1 `r`n";
 $body+="Es wurden "+$r.new+" neue Lehrer angeleget! `r`n";
 $body+="Es wurden "+$r.update+" Lehrer aktualisiert! `r`n";
 $body+="Es wurden "+$r.delete+" Lehrer geloescht! `r`n";
 $body+="Es traten "+$r.error+" Fehler auf (siehe Protokoll im Anhang) `r`n";
+$body+="`r`n";
+$body+="set-emails`r`n";
+$r=set-emails -force
+$body+="Es wurden "+$r.update+" Schülermails aktualisiert`r`n";
+$body+="Es wurden "+$r.error+" Schüler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
 
 
 

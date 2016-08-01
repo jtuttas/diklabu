@@ -130,6 +130,11 @@ function set-emails
     Begin
     {
         
+        $res="" | Select-Object "new","update","error"
+        $res.new=0;
+        $res.update=0;
+        $res.error=0;
+
         $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
         $password = $config.bindpassword | ConvertTo-SecureString -asPlainText -Force
         $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList "ldap-user", $password
@@ -160,16 +165,18 @@ function set-emails
                         $u=search-User $member $s 4
                         if ($u) {
                             #$u
-                            Write-Host "gefunden wurde "$u.GivenName" "$u.Surname
+                            Write-Host "gefunden wurde "$u.GivenName" "$u.Surname"("$u.UserPrincipalName")"
                             [String]$mail=$u.mail
                             $m=$mail.Split(" ");
                             $mail=$m[0]
                             #Write-Host $mail
-                            if (-not $whatif) {
-                                $np=Set-Pupil -id $schueler.id -EMAIL $mail
+                            if ($schueler.EMAIL -ne $mail) {
+                                if (-not $whatif) {
+                                    $np=Set-Pupil -id $schueler.id -EMAIL $mail
+                                }
+                                Write-Host "EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert auf "$mail -BackgroundColor DarkGreen
+                                $res.update++;
                             }
-                            Write-Host "EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert auf "$mail -BackgroundColor DarkGreen
-
                             # Übernehmen der Vornamen und des Nachnahmens aus der AD
                             <#
                             $l = Measure-StringDistance $u.GivenName $schueler.VNAME
@@ -190,6 +197,7 @@ function set-emails
                         }
                         else {
                             Write-Host "Schüler "$schueler.VNAME$schueler.NNAME "nicht gefunden!" -BackgroundColor DarkRed                 
+                            $res.error++;
                        }
                     }
                 }
@@ -199,5 +207,6 @@ function set-emails
                 break;
             }
         }
+        return $res
     }
 }

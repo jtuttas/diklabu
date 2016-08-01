@@ -63,6 +63,7 @@ function Sync-Teachers
                 $ret.error++;
             }    
         }
+        <#
         $teachers = Get-Teachers
         foreach ($t in $teachers) {
             $found=$false;
@@ -95,6 +96,7 @@ function Sync-Teachers
                 }
             }
         }
+        #>
         return $ret
     }
 }
