@@ -37,7 +37,7 @@ function Sync-Teachers
                     $ret.msg+= "+- Lehrer gefunden aktualisiere Daten`r`n" 
                     $ret.update++;
                     if (-not $whatif) {
-                        Set-Teacher -ID $user.Initials -VNAME $user.GivenName -NNAME $user.Name -EMAIL $user.Mail
+                        $r=Set-Teacher -ID $user.Initials -VNAME $user.GivenName -NNAME $user.Name -EMAIL $user.Mail
                     }
                 }
                 else {
@@ -48,12 +48,12 @@ function Sync-Teachers
                         $r=Read-Host "Neuen Lehrer anlegen (j/n)"
                         if ($r -eq "j") {
                            if (-not $whatif) {
-                                New-Teacher -ID $user.Initials -VNAME $user.GivenName -NNAME $user.Name -EMAIL $user.Mail
+                                $r=New-Teacher -ID $user.Initials -VNAME $user.GivenName -NNAME $user.Name -EMAIL $user.Mail
                             }
                         }
                     }
                     if (-not $whatif) {
-                        New-Teacher -ID $user.Initials -VNAME $user.GivenName -NNAME $user.Name -EMAIL $user.Mail
+                        $r=New-Teacher -ID $user.Initials -VNAME $user.GivenName -NNAME $user.Name -EMAIL $user.Mail
                     }
                 }
             }

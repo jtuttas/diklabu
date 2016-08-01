@@ -10,21 +10,21 @@ $password = $config.tupassword | ConvertTo-SecureString -asPlainText -Force
 $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList "Tuttas", $password
 $l=Login-Diklabu -credential $credentials
 
-$r=Sync-Teachers  -force 
-$r.msg > "$HOME/out.txt"
+$r1=Sync-Teachers  -force 
+$r1.msg > "$HOME/out_lehrer.txt"
 $body="Das Synchronisationsscript ist am "+(Get-Date)+" durchgelaufen!! `r`n";
-
-$body+="sync_lehrer.ps1 `r`n";
-$body+="Es wurden "+$r.new+" neue Lehrer angeleget! `r`n";
-$body+="Es wurden "+$r.update+" Lehrer aktualisiert! `r`n";
-$body+="Es wurden "+$r.delete+" Lehrer geloescht! `r`n";
-$body+="Es traten "+$r.error+" Fehler auf (siehe Protokoll im Anhang) `r`n";
+$body+="`r`nsync_lehrer.ps1`r`n";
+$body+="Es wurden "+$r1.new+" neue Lehrer angelegt!`r`n";
+$body+="Es wurden "+$r1.update+" Lehrer aktualisiert!`r`n";
+$body+="Es wurden "+$r1.delete+" Lehrer geloescht!`r`n";
+$body+="Es traten "+$r1.error+" Fehler auf (siehe Protokoll im Anhang)`r`n";
 $body+="`r`n";
-$body+="set-emails`r`n";
-$r=set-emails -force
-$body+="Es wurden "+$r.update+" Schülermails aktualisiert`r`n";
-$body+="Es wurden "+$r.error+" Schüler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
+$body+="set-emails.ps1`r`n";
+$r2=set-emails -force
+$body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
+$body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
+$body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
+$r2.msg > "$HOME/out_schueler.txt"
 
 
-
-send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$HOME/out.txt"
+send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$HOME/out_lehrer.txt","$HOME/out_schueler.txt"

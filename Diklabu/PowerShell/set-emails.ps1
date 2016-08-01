@@ -130,11 +130,11 @@ function set-emails
     Begin
     {
         
-        $res="" | Select-Object "new","update","error"
-        $res.new=0;
+        $res="" | Select-Object "total","update","error","msg"
+        $res.total=0;
         $res.update=0;
         $res.error=0;
-
+        $res.msg="";
         $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
         $password = $config.bindpassword | ConvertTo-SecureString -asPlainText -Force
         $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList "ldap-user", $password
@@ -144,6 +144,8 @@ function set-emails
         foreach ($c in $course) {
             Write-Host "-----------------------"
             Write-Host "Bearbeite Schüler der Klasse "$c.KNAME -BackgroundColor DarkMagenta
+            $res.msg +="`n`rBearbeite Schüler der Klasse "+$c.KNAME+"`n`r"
+            
             $cn=“(Cn="+$c.KNAME+".*)"
             try {
                 $member=get-aduser -Properties mail -Credential $credentials -Server 172.31.0.1 -LDAPFilter $cn -SearchBase  "DC=mmbbs,DC=local"
@@ -152,6 +154,8 @@ function set-emails
                 foreach ($schueler in $p) {
                     if ($p.ABGANG -like "N") {
                         Write-Host "`n`rBearbeite "$schueler.VNAME$schueler.NNAME" (ID="$schueler.id")"
+                        $res.msg +="Bearbeite "+$schueler.VNAME+" "+$schueler.NNAME+" (ID="+$schueler.id+")`n"
+                        $res.total++;
                         [String]$s=$c.KNAME+"."+$schueler.NNAME
                         $s=$s.Replace(" ","")
 
@@ -166,6 +170,7 @@ function set-emails
                         if ($u) {
                             #$u
                             Write-Host "gefunden wurde "$u.GivenName" "$u.Surname"("$u.UserPrincipalName")"
+                            $res.msg += "+- gefunden wurde "+$u.GivenName+" "+$u.Surname+"("+$u.UserPrincipalName+")`n"
                             [String]$mail=$u.mail
                             $m=$mail.Split(" ");
                             $mail=$m[0]
@@ -175,6 +180,7 @@ function set-emails
                                     $np=Set-Pupil -id $schueler.id -EMAIL $mail
                                 }
                                 Write-Host "EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert auf "$mail -BackgroundColor DarkGreen
+                                $res.msg += "+- EMail Adresse für "+$schueler.VNAME+" "+$schueler.NNAME+" geändert auf "+$mail+"`n"
                                 $res.update++;
                             }
                             # Übernehmen der Vornamen und des Nachnahmens aus der AD
@@ -197,8 +203,10 @@ function set-emails
                         }
                         else {
                             Write-Host "Schüler "$schueler.VNAME$schueler.NNAME "nicht gefunden!" -BackgroundColor DarkRed                 
+                            $res.msg +=  "#- Schüler "+$schueler.VNAME+" "+$schueler.NNAME+" nicht gefunden!`n" 
                             $res.error++;
                        }
+                       
                     }
                 }
             }

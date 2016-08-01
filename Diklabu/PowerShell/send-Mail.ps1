@@ -28,7 +28,7 @@ function send-mailreport
 
         # Anhang
         [Parameter(Position=4)]
-        $attachment
+        [String[]]$attachment
 
     )
 
