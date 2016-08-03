@@ -86,7 +86,7 @@ public class LDAPUtil {
         } catch (NamingException ex) {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
         }       
-        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(Config.getInstance().userContext, "(cn=" + username + ")", ctrls);
+        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(Config.getInstance().userContext, "(sn=" + username + ")", ctrls);
         Log.d("answers=" + answers);
         Log.d("answers=" + answers.hasMore());
         if (!answers.hasMore()) {
