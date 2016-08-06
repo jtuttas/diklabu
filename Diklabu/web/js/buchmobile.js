@@ -499,6 +499,7 @@ function performLogout() {
             delete localStorage.auth_token;
             delete localStorage.kennwort;            
             delete localStorage.myself;
+            delete localStorage.klassen;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
@@ -512,6 +513,7 @@ function performLogout() {
             delete localStorage.auth_token;
             delete localStorage.kennwort;            
             delete localStorage.myself;
+            delete localStorage.klassen;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
