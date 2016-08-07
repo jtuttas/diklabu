@@ -458,7 +458,7 @@ function performLogin() {
                 log("Service key =" + localStorage.service_key);
                 localStorage.myself = jsonObj.ID;
                 getLehrerData(jsonObj.ID);
-
+                loadCourseList();
                 localStorage.kennwort = $('#kennwort').val();
                 $.mobile.changePage("#klassenliste", {transition: "fade"});
             },
@@ -1098,28 +1098,36 @@ function getLehrerData(le) {
     }
 }
 
-if (localStorage.klassen != undefined) {
-    log("Liste der Klassen bereits geladen!");
-    data = JSON.parse(localStorage.klassen);
-    buildKlassenListeView(data);
-}
-else {
-    $.ajax({
-        url: SERVER + "/Diklabu/api/v1/noauth/klassen",
-        type: "GET",
-        contentType: "application/json; charset=UTF-8",
-        success: function (data) {
-            localStorage.klassen = JSON.stringify(data);
-            buildKlassenListeView(data);
-        },
-        error: function (xhr, textStatus, errorThrown) {
-            toast("kann Klassenliste nicht vom Server laden");
-            if (xhr.status == 401) {
-                performLogout();
+
+
+function loadCourseList() {
+    if (localStorage.klassen != undefined) {
+        log("Liste der Klassen bereits geladen!");
+        data = JSON.parse(localStorage.klassen);
+        buildKlassenListeView(data);
+    }
+    else {
+        log("Lade Klassenleiste!");
+        $.ajax({
+            url: SERVER + "/Diklabu/api/v1/noauth/klassen",
+            type: "GET",
+            contentType: "application/json; charset=UTF-8",
+            success: function (data) {
+                log("Klassenliste empfangen!");
+                localStorage.klassen = JSON.stringify(data);
+                buildKlassenListeView(data);
+            },
+            error: function (xhr, textStatus, errorThrown) {
+                toast("kann Klassenliste nicht vom Server laden");
+                if (xhr.status == 401) {
+                    performLogout();
+                }
             }
-        }
-    });
+        });
+    }
 }
+
+loadCourseList();
 
 function buildKlassenListeView(data) {
     log("buildKlassenlisteview size=" + data.length);
