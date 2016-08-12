@@ -500,6 +500,7 @@ function performLogout() {
             delete localStorage.kennwort;            
             delete localStorage.myself;
             delete localStorage.klassen;
+            delete localStorage.lernfelder;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});
@@ -514,6 +515,7 @@ function performLogout() {
             delete localStorage.kennwort;            
             delete localStorage.myself;
             delete localStorage.klassen;
+            delete localStorage.lernfelder;
             $("#benutzer").val("");
             $("#kennwort").val("");
             $.mobile.changePage("#login", {transition: "fade"});

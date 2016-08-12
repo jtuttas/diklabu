@@ -142,8 +142,8 @@ function set-emails
 
         $course = get-courses -id_kategorie 0
         foreach ($c in $course) {
-            Write-Host "-----------------------"
-            Write-Host "Bearbeite Schüler der Klasse "$c.KNAME -BackgroundColor DarkMagenta
+            Write-Verbose "-----------------------"
+            Write-Verbose "Bearbeite Schüler der Klasse "$c.KNAME 
             $res.msg +="`n`rBearbeite Schüler der Klasse "+$c.KNAME+"`n`r"
             
             $cn=“(Cn="+$c.KNAME+".*)"
@@ -153,7 +153,7 @@ function set-emails
                 $p=Get-Coursemember -id $c.id
                 foreach ($schueler in $p) {
                     if ($p.ABGANG -like "N") {
-                        Write-Host "`n`rBearbeite "$schueler.VNAME$schueler.NNAME" (ID="$schueler.id")"
+                        Write-Verbose "`n`rBearbeite "$schueler.VNAME$schueler.NNAME" (ID="$schueler.id")"
                         $res.msg +="Bearbeite "+$schueler.VNAME+" "+$schueler.NNAME+" (ID="+$schueler.id+")`n"
                         $res.total++;
                         [String]$s=$c.KNAME+"."+$schueler.NNAME
@@ -164,14 +164,15 @@ function set-emails
                             #Write-Host "Kürzen"
                         }
                         $s=$s+$schueler.VNAME
-                        Write-Host "Suche: $s"
+                        Write-Verbose "Suche: $s"
 
                         $u=search-User $member $s 4
                         if ($u) {
                             #$u
-                            Write-Host "gefunden wurde "$u.GivenName" "$u.Surname"("$u.UserPrincipalName")"
-                            $res.msg += "+- gefunden wurde "+$u.GivenName+" "+$u.Surname+"("+$u.UserPrincipalName+")`n"
+                            Write-Verbose "gefunden wurde "$u.GivenName" "$u.Surname"("$u.UserPrincipalName")"
+                            $res.msg += "+- gefunden wurde "+$u.GivenName+" "+$u.Surname+"("+$u.UserPrincipalName+") Email ($($u.mail))`n"
                             [String]$mail=$u.mail
+                            $mail=$mail.Trim()
                             $m=$mail.Split(" ");
                             $mail=$m[0]
                             #Write-Host $mail
@@ -179,8 +180,8 @@ function set-emails
                                 if (-not $whatif) {
                                     $np=Set-Pupil -id $schueler.id -EMAIL $mail
                                 }
-                                Write-Host "EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert auf "$mail -BackgroundColor DarkGreen
-                                $res.msg += "+- EMail Adresse für "+$schueler.VNAME+" "+$schueler.NNAME+" geändert auf "+$mail+"`n"
+                                Write-Warning "EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert von $($schueler.EMAIL) auf "$mail 
+                                $res.msg += "+- EMail Adresse für "+$schueler.VNAME+" "+$schueler.NNAME+" geändert von $($schueler.EMAIL) auf "+$mail+"`n"
                                 $res.update++;
                             }
                             # Übernehmen der Vornamen und des Nachnahmens aus der AD
@@ -202,7 +203,7 @@ function set-emails
                             #>            
                         }
                         else {
-                            Write-Host "Schüler "$schueler.VNAME$schueler.NNAME "nicht gefunden!" -BackgroundColor DarkRed                 
+                            Write-Warning "Schüler "$schueler.VNAME$schueler.NNAME "nicht gefunden!" 
                             $res.msg +=  "#- Schüler "+$schueler.VNAME+" "+$schueler.NNAME+" nicht gefunden!`n" 
                             $res.error++;
                        }
@@ -211,7 +212,7 @@ function set-emails
                 }
             }
             catch {
-                Write-Host "Kann keine Verbindung zum AD aufbauen!" -BackgroundColor DarkRed                 
+                Write-Error "Kann keine Verbindung zum AD aufbauen!"
                 break;
             }
         }
