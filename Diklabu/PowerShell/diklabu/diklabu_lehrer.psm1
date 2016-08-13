@@ -40,7 +40,8 @@ function Set-Teacher
         #EMAIL Adresse des Lehrers
         [String]$EMAIL,
         #TELEFON des Lehrers
-        [String]$TELEFON
+        [String]$TELEFON,
+        [switch]$whatif
     )
 
     Begin
@@ -65,10 +66,13 @@ function Set-Teacher
             $lehrer.TELEFON=$TELEFON
         }
         try {
-          $r=Invoke-RestMethod -Method Post -Uri ($uri+"lehrer/admin/id/"+$ID) -Headers $headers -Body (ConvertTo-Json $lehrer)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"lehrer/admin/id/"+$ID) -Headers $headers -Body (ConvertTo-Json $lehrer)
+            }
+            Write-Verbose "Ändere die Daten des Lehrer mit der ID $id auf $lehrer"
           return $r;
          } catch {
-            Write-Host "Set-Teacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Set-Teacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -112,9 +116,10 @@ function Get-Teacher
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"lehrer/"+$ID) -Headers $headers 
+            Write-Verbose "Abfrage der Daten des Lehrer mit der ID $ID"
             return $r;
         } catch {
-            Write-Host "Get-Teacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Teacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -142,9 +147,10 @@ function Get-Teachers
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"noauth/lehrer/") -Headers $headers 
+            Write-Verbose "Abfrage aller Lehrer"
             return $r;
         } catch {
-            Write-Host "Get-Teachers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Teachers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -186,7 +192,8 @@ function New-Teacher
         [String]$TELEFON,
         #Email Adresse des Lehrers
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [String]$EMAIL
+        [String]$EMAIL,
+        [switch]$whatif
 
     )
 
@@ -205,10 +212,13 @@ function New-Teacher
         $lehrer.EMAIL=$EMAIL
         $lehrer.id=$ID
         try {
-          $r=Invoke-RestMethod -Method Post -Uri ($uri+"lehrer/admin/") -Headers $headers -Body (ConvertTo-Json $lehrer)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"lehrer/admin/") -Headers $headers -Body (ConvertTo-Json $lehrer)
+            }
+            Write-Verbose "Lege neuen Lehrer an mit den Daten $lehrer"
           return $r;
         } catch {
-            Write-Host "New-Lehrer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "New-Lehrer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
    
@@ -234,7 +244,8 @@ function Delete-Teacher
         [String]$ID,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -246,10 +257,13 @@ function Delete-Teacher
     Process
     {
         try {
-          $r=Invoke-RestMethod -Method Delete -Uri ($uri+"lehrer/admin/"+$ID) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"lehrer/admin/"+$ID) -Headers $headers 
+            }
+            Write-Verbose "Lösche Lehrer mit der ID $ID"
           return $r;
           } catch {
-            Write-Host "Delete-Teacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Delete-Teacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }

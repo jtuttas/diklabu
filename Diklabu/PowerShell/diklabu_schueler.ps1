@@ -63,9 +63,10 @@ function Find-Pupil
         $schueler.VNAME=$VNAME
         try {
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/info") -Headers $headers -Body (ConvertTo-Json $schueler)  -ContentType "application/json; charset=iso-8859-1"             
+            Write-Verbose "Find Schüler $schueler ! Ergebnis: $r"
             return $r;
         } catch {
-            Write-Host "Find-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Find-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -111,9 +112,10 @@ function Search-Pupil
         $Encode = [uri]::EscapeDataString($VNAMENNAMEGEBDAT)
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$Encode+"/"+$LDist) -Headers $headers -ContentType "application/json; charset=iso-8859-1"             
+            Write-Verbose "Suche Schüler (Suchmuster: $VNAMENNAMEGEBDAT ) mit Levensheindistanz $LDist : Ergebnis: $r"
             return $r;
         } catch {
-            Write-Host "Search-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Search-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
         }
     }
 }
@@ -157,9 +159,10 @@ function Get-Pupil
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$id) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+            Write-Verbose "Suche Schüler mit der ID $id"
             return $r;
         } catch {
-            Write-Host "Get-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -192,9 +195,10 @@ function Get-Pupils
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/") -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+            Write-Verbose "Liste aller Schüler !"
             return $r;
         } catch {
-            Write-Host "Get-Pupils: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Pupils: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -256,7 +260,9 @@ function New-Pupil
 
         # Info
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [int]$id
+        [int]$id,
+
+        [switch]$whatif
 
 
     )
@@ -296,10 +302,13 @@ function New-Pupil
         }
         
         try {
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/admin") -Headers $headers -Body (ConvertTo-Json $schueler)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/admin") -Headers $headers -Body (ConvertTo-Json $schueler)
+            }
+            Write-Verbose "Neuer Schüler $schueler wird angelegt!"
             return $r;
         } catch {
-            Write-Host "New-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "New-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -363,7 +372,9 @@ function Set-Pupil
 
         # Info
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [String]$INFO
+        [String]$INFO,
+
+        [switch]$whatif
 
     )
 
@@ -401,9 +412,10 @@ function Set-Pupil
 
         try {
             $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/admin/"+$id) -Headers $headers -Body (ConvertTo-Json $schueler)
+            Write-Verbose "Daten des Schülers mit der ID $id geändert auf $schueler"
             return $r;
         } catch {
-            Write-Host "Set-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Set-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }    
 }
@@ -440,7 +452,8 @@ function Delete-Pupil
         [int]$id,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -453,10 +466,13 @@ function Delete-Pupil
     Process
     {
         try {
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"schueler/admin/"+$id) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"schueler/admin/"+$id) -Headers $headers 
+            }
+            Write-Verbose "Lösche Schüler mit der ID $id"
             return $r;
         } catch {
-            Write-Host "Delete-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Delete-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }

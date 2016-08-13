@@ -44,9 +44,10 @@ function Find-Instructor
         try {
             $tofind=[uri]::EscapeDataString($NNAME)
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"ausbilder/find/"+$tofind) -Headers $headers  
+            Write-Verbose "Finde Ausbilder ($tofind). Ergebnis: $r"
             return $r;
          } catch {
-            Write-Host "Find-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Find-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -90,9 +91,10 @@ function Get-Instructor
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"ausbilder/"+$ID) -Headers $headers  
+            Write-Verbose "Finde Ausbilder mit der ID $ID ! Ergebnis:$r"
             return $r;
         } catch {
-            Write-Host "Get-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
    
@@ -128,9 +130,10 @@ function Get-Instructors
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"ausbilder/") -Headers $headers  
+            Write-Verbose "Abfrage aller Ausbilder!"
             return $r;
         } catch {
-            Write-Host "Get-Instructors: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Instructors: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
         }
     }
    
@@ -182,7 +185,9 @@ function Set-Instructor
         [String]$TELEFON,
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         #ID_Betrieb des Ausbilders
-        [int]$ID_BETRIEB
+        [int]$ID_BETRIEB,
+
+        [switch]$whatif
 
     )
 
@@ -214,10 +219,14 @@ function Set-Instructor
             $ausbilder.NNAME=$NNAME       
         }
         try {         
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"ausbilder/admin/"+$ID) -Headers $headers -Body (ConvertTo-Json $ausbilder)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"ausbilder/admin/"+$ID) -Headers $headers -Body (ConvertTo-Json $ausbilder)
+            }
+            Write-Verbose "Ändern der Daten des Ausbilders mit der ID $ID auf $ausbilder"
+            
             return $r;
         } catch {
-            Write-Host "Set-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Set-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -265,7 +274,9 @@ function New-Instructor
         [int]$ID_BETRIEB,
 
          [Parameter(ValueFromPipelineByPropertyName=$true)]
-         [int]$ID
+         [int]$ID,
+         [switch]$whatif
+
     )
 
     Begin
@@ -300,10 +311,13 @@ function New-Instructor
             $ausbilder.ID=$ID
           }
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"ausbilder/admin/") -Headers $headers -Body (ConvertTo-Json $ausbilder)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"ausbilder/admin/") -Headers $headers -Body (ConvertTo-Json $ausbilder)
+            }
+            Write-Verbose "Erzeuge neuen Ausbilder $ausbilder"
             return $r;
           } catch {
-              Write-Host "New-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "New-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -333,7 +347,9 @@ function Delete-Instructor
         [int]$ID,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        [switch]$whatif
     )
 
     Begin
@@ -346,10 +362,13 @@ function Delete-Instructor
     Process
     {
           try {
-              $r=Invoke-RestMethod -Method Delete -Uri ($uri+"ausbilder/admin/"+$ID) -Headers $headers 
+              if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"ausbilder/admin/"+$ID) -Headers $headers 
+              }
+              Write-Verbose "Lösche Ausbilder mit der ID $ID . Ergebnis: $r"
               return $r;
           } catch {
-              Write-Host "Delete-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Delete-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }

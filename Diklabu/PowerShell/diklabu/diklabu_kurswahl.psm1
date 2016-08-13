@@ -42,7 +42,9 @@ function Add-Coursevoting
         [int]$id,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        [switch]$whatif
 
     )
 
@@ -55,10 +57,13 @@ function Add-Coursevoting
     Process
     {
         try {
-          $r=Invoke-RestMethod -Method Post -Uri ($uri+"coursevoting/admin/"+$id) -Headers $headers 
+          if (-not $whatif) {
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"coursevoting/admin/"+$id) -Headers $headers 
+          }
+          Write-Verbose "Der Kurs mit der ID $ID wird zur Kurswahl hinzugefügt!"
           return $r;
         } catch {
-            Write-Host "Add-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Add-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }   
 }
@@ -86,7 +91,9 @@ function Remove-Coursevoting
         [int]$id,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        [switch]$whatif
 
     )
 
@@ -98,11 +105,14 @@ function Remove-Coursevoting
     }
     Process
     {
-        try {           
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"coursevoting/admin/"+$id) -Headers $headers 
+        try {          
+           if (-not $whatif) { 
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"coursevoting/admin/"+$id) -Headers $headers 
+           }
+           Write-Verbose "Der Kurs mit der ID $id wird aus der Kurswahl entfernt!"
             return $r;
         } catch {
-            Write-Host "Remove-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Remove-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -124,7 +134,8 @@ function Enable-Coursevoting
     Param
     (
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -133,10 +144,13 @@ function Enable-Coursevoting
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
         try {
-          $r=Invoke-RestMethod -Method post -Uri ($uri+"coursevoting/admin/voting/1") -Headers $headers 
+          if (-not $whatif) {
+            $r=Invoke-RestMethod -Method post -Uri ($uri+"coursevoting/admin/voting/1") -Headers $headers 
+          }
+          Write-Verbose "Kurswahl freigeschaltet!"
           return $r;
         } catch {
-            Write-Host "Enable-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Enable-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -156,7 +170,8 @@ function Disable-Coursevoting
     Param
     (
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -166,10 +181,13 @@ function Disable-Coursevoting
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
         try {
-          $r=Invoke-RestMethod -Method post -Uri ($uri+"coursevoting/admin/voting/0") -Headers $headers 
+          if (-not $whatif) {
+            $r=Invoke-RestMethod -Method post -Uri ($uri+"coursevoting/admin/voting/0") -Headers $headers 
+          }
+          Write-Verbose "Kurswahl gesperrt!"
           return $r;
         } catch {
-            Write-Host "Disable-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Disable-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -205,7 +223,9 @@ function Reset-Coursevoting
         [int]$id,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        [switch]$whatif
 
     )
 
@@ -218,10 +238,13 @@ function Reset-Coursevoting
     Process
     {      
          try {
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"coursevoting/admin/schueler/"+$id) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"coursevoting/admin/schueler/"+$id) -Headers $headers 
+            }
+            Write-Verbose "Die Kurswahl für den Schülker mit der ID $id wurde zurückgesetzt: Ergebnis $r"
             return $r;
          } catch {
-            Write-Host "Reset-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Reset-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -248,7 +271,8 @@ function Clear-Coursevoting
         
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -265,10 +289,13 @@ function Clear-Coursevoting
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
           try {
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"coursevoting/admin/") -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"coursevoting/admin/") -Headers $headers 
+            }
+            Write-Verbose "Alle Kurswahlen wurden zurückgesetzt (gelöscht!)";
             return $r;
           } catch {
-              Write-Host "Clear-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Clear-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
         }
     }
@@ -323,9 +350,10 @@ function Get-Coursevoting
     Process {
         try {            
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"coursevoting/"+$id+"/"+$priority+"/"+$gebucht) -Headers $headers 
+            Write-Verbose "Abfrage der Kurswahl für den Kurs mit der ID $id und der priorität $priority (gebucht = $gebucht)"
             return $r;
         } catch {
-            Write-Host "Get-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -364,7 +392,9 @@ function New-Coursevoting
         [String]$course3,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        [switch]$whatif
 
     )
 
@@ -381,24 +411,31 @@ function New-Coursevoting
             $wunsch.ID_KURS=$course1
             $wunsch.PRIORITAET="1";
             $wunsch.GEBUCHT="0";
-            $r=Invoke-RestMethod -Method POST -Uri ($uri+"coursevoting/admin/schueler/") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
-            Write-Host $r
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method POST -Uri ($uri+"coursevoting/admin/schueler/") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
+            }
+            Write-Verbose "Buche einen Kurswunsch $wunsch . Ergebnis:$r"
+
             $wunsch=echo "" | Select-Object -Property "ID_SCHUELER","ID_KURS","PRIORITAET","GEBUCHT"
             $wunsch.ID_SCHUELER=$id
             $wunsch.ID_KURS=$course2
             $wunsch.PRIORITAET="2";
             $wunsch.GEBUCHT="0";
-            $r=Invoke-RestMethod -Method POST -Uri ($uri+"coursevoting/admin/schueler/") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
-            Write-Host $r
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method POST -Uri ($uri+"coursevoting/admin/schueler/") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
+            }
+            Write-Verbose "Buche einen Kurswunsch $wunsch . Ergebnis:$r"
             $wunsch=echo "" | Select-Object -Property "ID_SCHUELER","ID_KURS","PRIORITAET","GEBUCHT"
             $wunsch.ID_SCHUELER=$id
             $wunsch.ID_KURS=$course3
             $wunsch.PRIORITAET="3";
             $wunsch.GEBUCHT="0";
-            $r=Invoke-RestMethod -Method POST -Uri ($uri+"coursevoting/admin/schueler/") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
-            Write-Host $r
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method POST -Uri ($uri+"coursevoting/admin/schueler/") -Headers $headers  -Body (ConvertTo-Json $wunsch)     
+            }
+            Write-Verbose "Buche einen Kurswunsch $wunsch . Ergebnis:$r"
         } catch {
-            Write-Host "New-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "New-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -427,7 +464,8 @@ function Stop-Coursevoting
         [int]$id,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [whatif]$whatif
 
     )
 
@@ -439,10 +477,13 @@ function Stop-Coursevoting
     }
     Process {
         try {
-            $r=Invoke-RestMethod -Method Put -Uri ($uri+"coursevoting/admin/schueler/$id") -Headers $headers      
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Put -Uri ($uri+"coursevoting/admin/schueler/$id") -Headers $headers      
+            }
+            Write-Verbose "Beende die Kurswahl für Schüler mit der ID $id . Ergebnis: $r";
             return $r
         } catch {
-            Write-Host "Stop-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Stop-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -475,9 +516,10 @@ function Get-Coursevotings
           
           try {
               $r=Invoke-RestMethod -Method Get -Uri ($uri+"coursevoting/") -Headers $headers 
+              Write-Verbose "Liste der Kurs die zur Wahl stehen!"
               return $r;
           } catch {
-            Write-Host "Get-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Coursevoting: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }   
 }

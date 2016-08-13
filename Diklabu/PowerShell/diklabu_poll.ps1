@@ -44,9 +44,10 @@ function Get-Polls
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage") -Headers $headers 
+            Write-Verbose "Abfragen aller Umfragen"
             return $r;
         } catch {
-            Write-Host "Get-Polls: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Polls: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -86,9 +87,10 @@ function Get-Poll
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/fragen/"+$ID) -Headers $headers  
+            Write-Verbose "Fragen und Antwortskalen der Umfrage mit der ID $ID"
             return $r;
         } catch {
-            Write-Host "Get-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
    
@@ -140,6 +142,7 @@ function Get-Pollresults
         try {
             $Encode = [System.Web.HttpUtility]::UrlEncode($KNAME) 
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/auswertung/"+$ID+"/"+$Encode) -Headers $headers  
+            Write-Verbose "Auswertung der Umfrage mit der ID $ID für die Klasse $KNAME"
             foreach ($row in $r) {
                 $out = echo "" | Select-Object -Property "frage"
                 $out.frage=$row.frage;
@@ -153,7 +156,7 @@ function Get-Pollresults
                 $out
             }
         } catch {
-            Write-Host "Get-Pollresults: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Pollresults: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
    
@@ -179,7 +182,8 @@ function New-PollQuestion
         [String]$frage,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -195,10 +199,13 @@ function New-PollQuestion
           $f=echo "" | Select-Object -Property "frage"
           $f.frage=$frage
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/frage") -Headers $headers -Body (ConvertTo-Json $f)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/frage") -Headers $headers -Body (ConvertTo-Json $f)
+            }
+            Write-Verbose "Erzeuge neue Frage ($frage)"
             return $r;
           } catch {
-              Write-Host "New-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "New-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -224,7 +231,8 @@ function Set-PollQuestion
         [String]$FRAGE,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -241,10 +249,13 @@ function Set-PollQuestion
           $f.frage=$FRAGE
           $f.id=$ID
           try {        
-            $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin/frage") -Headers $headers -Body (ConvertTo-Json $f)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin/frage") -Headers $headers -Body (ConvertTo-Json $f)
+            }
+            Write-Verbose "Ändere die Frage mit der ID $ID auf ($FRAGE)"
             return $r;
           } catch {
-              Write-Host "Set-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Set-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -270,7 +281,8 @@ function Delete-PollQuestion
         $ID,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -284,10 +296,13 @@ function Delete-PollQuestion
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/frage/"+$ID) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/frage/"+$ID) -Headers $headers 
+            }
+            Write-Verbose "Lösche die Frage mit der ID $ID"
             return $r;
           } catch {
-              Write-Host "Delete-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Delete-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -327,9 +342,10 @@ function Get-PollQuestion
     {
           try {        
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/frage/"+$ID) -Headers $headers 
+            Write-Verbose "Abfrage der Frage mit der ID $ID"
             return $r;
           } catch {
-              Write-Host "Get-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Get-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -362,9 +378,10 @@ function Get-PollQuestions
     {
           try {        
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/frage") -Headers $headers 
+            Write-Verbose "Abfage aller Fragen"
             return $r;
           } catch {
-              Write-Host "Get-PollQuestions: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Get-PollQuestions: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -391,7 +408,8 @@ function New-PollAnswer
         [String]$ANTWORT,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -407,10 +425,13 @@ function New-PollAnswer
           $a=echo "" | Select-Object -Property "name"
           $a.name=$ANTWORT
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/antwort") -Headers $headers -Body (ConvertTo-Json $a)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/antwort") -Headers $headers -Body (ConvertTo-Json $a)
+            }
+            Write-Verbose "Erzeuge neue Antwortskale ($ANTWORT)"
             return $r;
           } catch {
-              Write-Host "New-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "New-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -436,7 +457,8 @@ function Set-PollAnswer
         [String]$ANTWORT,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -453,10 +475,13 @@ function Set-PollAnswer
           $a.name=$ANTWORT
           $a.id=$ID
           try {        
-            $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin/antwort") -Headers $headers -Body (ConvertTo-Json $a)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin/antwort") -Headers $headers -Body (ConvertTo-Json $a)
+            }
+            Write-Verbose "Ändere die Antwort mit der ID $ID auf ($ANTWORT)"
             return $r;
           } catch {
-              Write-Host "Set-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Set-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -482,7 +507,8 @@ function Delete-PollAnswer
         $ID,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -496,10 +522,13 @@ function Delete-PollAnswer
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/antwort/"+$ID) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/antwort/"+$ID) -Headers $headers 
+            }
+            Write-Verbose "Lösche die Antwortskale mit der ID $ID"
             return $r;
           } catch {
-              Write-Host "Delete-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Delete-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -539,9 +568,10 @@ function Get-PollAnswer
     {
           try {        
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/antwort/"+$ID) -Headers $headers 
+            Write-Verbose "Abfrage der Antwortskale mit der ID $ID : Ergebnis: $r"
             return $r;
           } catch {
-              Write-Host "Get-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Get-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -574,9 +604,10 @@ function Get-PollAnswers
     {
           try {        
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/antwort") -Headers $headers 
+            Write-Verbose "Abfrage aller Antwortskalen"
             return $r;
           } catch {
-              Write-Host "Get-PollAnswers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Get-PollAnswers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -607,7 +638,8 @@ function Add-PollAnswer
         
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -621,10 +653,13 @@ function Add-PollAnswer
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/add/"+$IDFrage+"/"+$IDAntwort) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/add/"+$IDFrage+"/"+$IDAntwort) -Headers $headers 
+            }
+            Write-Verbose "Füge der Frage mit der ID $IDFrage die Antwortskale mit der ID $IDAntwort hinzu!"
             return $r;
           } catch {
-              Write-Host "Add-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Add-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -655,7 +690,8 @@ function Remove-PollAnswer
         
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -669,10 +705,13 @@ function Remove-PollAnswer
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/remove/"+$IDFrage+"/"+$IDAntwort) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/remove/"+$IDFrage+"/"+$IDAntwort) -Headers $headers 
+            }
+            Write-Verbose "Entferne die Antwortskale $IDAntwort aus der Frage mit der ID $IDFrage"
             return $r;
           } catch {
-              Write-Host "Remove-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Remove-PollAnswer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -694,7 +733,8 @@ function New-Poll
         [String]$TITEL,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -710,10 +750,13 @@ function New-Poll
           $p=echo "" | Select-Object -Property "titel"
           $p.titel=$TITEL
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
+            }
+            Write-Verbose "Erzeuge einer neue Umfrage mit dem Titel ($TITEL)"
             return $r;
           } catch {
-              Write-Host "New-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "New-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -743,8 +786,8 @@ function Set-Poll
         [String]$ACTIVE,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
-
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -765,10 +808,13 @@ function Set-Poll
             $p | Add-Member -NotePropertyName "active" -NotePropertyValue $ACTIVE
           }
           try {        
-            $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Put -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
+            }
+            Write-Verbose "Ändere die Umfrage mit der ID $ID : auf $p"
             return $r;
           } catch {
-              Write-Host "Set-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Set-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
           }
     }
 }
@@ -792,7 +838,8 @@ function Delete-Poll
         [switch]$force=$false,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -806,10 +853,13 @@ function Delete-Poll
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/"+$ID+"/"+$force) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/"+$ID+"/"+$force) -Headers $headers 
+            }
+            Write-Verbose "Lösche die Umfrage mit der ID $ID"
             return $r;
           } catch {
-              Write-Host "Delete-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Delete-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -840,7 +890,8 @@ function Add-PollQuestion
         
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -854,10 +905,14 @@ function Add-PollQuestion
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/addUmfrage/"+$IDFrage+"/"+$IDUmfrage) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/addUmfrage/"+$IDFrage+"/"+$IDUmfrage) -Headers $headers 
+            }
+            Write-Verbose "Für die Frage mit der ID $IDFrage der Umfrage mit der ID $IDUmfrage hinzu!"
+
             return $r;
           } catch {
-              Write-Host "Add-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Add-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
           }
     }
 }
@@ -888,7 +943,8 @@ function Remove-PollQuestion
         
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
 
     )
 
@@ -902,10 +958,13 @@ function Remove-PollQuestion
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/removeUmfrage/"+$IDFrage+"/"+$IDUmfrage) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/removeUmfrage/"+$IDFrage+"/"+$IDUmfrage) -Headers $headers 
+            }
+            Write-Verbose "Entferne die Frage mit der ID $IDFrage aus der Umfrage mit der ID $IDUmfrage"
             return $r;
           } catch {
-              Write-Host "Remove-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Remove-PollQuestion: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -940,7 +999,8 @@ function New-PollSubscriber
         [String]$TYPE,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -968,10 +1028,13 @@ function New-PollSubscriber
           $t.idUmfrage=$ID_UMFRAGE
           
           try {        
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/subscriber") -Headers $headers -Body (ConvertTo-Json $t)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/subscriber") -Headers $headers -Body (ConvertTo-Json $t)
+            }
+            Write-Verbose "Erzeuge neuen Teilnehmer an der Umfrage mit der ID $ID_UMFRAGE ($t)"
             return $r;
           } catch {
-              Write-Host "New-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "New-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -1009,9 +1072,10 @@ function Get-PollSubscribers
     {
           try {        
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/subscriber/"+$ID_UMFRAGE) -Headers $headers 
+            Write-Verbose "Abfrage der Teilnehmer an der Umfrage mit der ID $ID_UMFRAGE"
             return $r;
           } catch {
-              Write-Host "Get-PollSubscribers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Get-PollSubscribers: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
           }
     }
 }
@@ -1039,7 +1103,8 @@ function Delete-PollSubscriber
         [switch]$force=$false,
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -1052,10 +1117,13 @@ function Delete-PollSubscriber
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/subscriber/"+$Key+"/"+$force) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"umfrage/admin/subscriber/"+$Key+"/"+$force) -Headers $headers 
+            }
+            Write-Verbose "Lösche Teilnehmer mit KEY ($Key)"
             return $r;
           } catch {
-              Write-Host "Delete-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Delete-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }
@@ -1085,7 +1153,8 @@ function Invite-PollSubscriber
 
         
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -1098,10 +1167,13 @@ function Invite-PollSubscriber
     Process
     {
           try {        
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/invite/"+$KEY) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"umfrage/admin/invite/"+$KEY) -Headers $headers 
+            }
+            Write-Verbose "Lade Teilnehmer mit Key ($KEY) ein!"
             return $r;
           } catch {
-              Write-Host "Invite-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Invite-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
           }
     }
 }

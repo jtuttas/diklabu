@@ -47,7 +47,9 @@ function Add-Coursemember
         [int]$klassenid,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        [switch]$whatif
 
     )
 
@@ -63,10 +65,13 @@ function Add-Coursemember
         $rel.ID_SCHUELER=$id
         $rel.ID_KLASSE=$klassenid
         try {
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/add") -Headers $headers  -Body (ConvertTo-Json $rel)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/add") -Headers $headers  -Body (ConvertTo-Json $rel)
+            }
+            Write-Verbose "Schüler mit der ID $id der Klasse mit der ID $klassenid hinzugefügt"
             return $r;
         } catch {
-            Write-Host "Add-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Add-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -105,6 +110,7 @@ function Find-Coursemember
 
         # Adresse des Diklabu Servers
         [String]$uri=$global:server
+
     )
 
     Begin
@@ -117,9 +123,10 @@ function Find-Coursemember
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/"+$KNAME) -Headers $headers  
+            Write-Verbose "Finde Klassenmitglieder der Klasse $KNAME. Ergebnis $r"
             return  $r;
          } catch {
-            Write-Host "Find-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Find-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -158,9 +165,10 @@ function Get-Coursemember
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/member/"+$id) -Headers $headers  
+            Write-Verbose "Finde Schüler der Klasse mit der ID $id Ergebnis:$r"
             return  $r;
          } catch {
-            Write-Host "Get-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -171,11 +179,11 @@ function Get-Coursemember
 .DESCRIPTION
    Liefert die Klassenobjekte einer oder mehrere Schüler. 
 .EXAMPLE
-   Get-Membership  -id 1234
+   Get-Coursemembership  -id 1234
 .EXAMPLE
-   Get-Membership  -id 1234 -uri http://localhost:8080/Diklabu/api/v1/
+   Get-Coursemembership  -id 1234 -uri http://localhost:8080/Diklabu/api/v1/
 .EXAMPLE
-   1234,5678 | Get-Membership 
+   1234,5678 | Get-Coursemembership 
 #>
 function Get-Coursemembership
 {
@@ -199,9 +207,10 @@ function Get-Coursemembership
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/member/"+$id) -Headers $headers  
+            Write-Verbose "Abfrage der Klassen in der sich der Schüler mit der ID $id befindet. Ergebnis: $r"
             return  $r;
          } catch {
-            Write-Host "Get-Membership: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Membership: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -243,7 +252,9 @@ function Remove-Coursemember
         [int]$klassenid,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+
+        [switch]$whatif
     )
 
     Begin
@@ -255,10 +266,13 @@ function Remove-Coursemember
     Process
     {
           try {
-              $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id+"/"+$klassenid) -Headers $headers 
+              if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id+"/"+$klassenid) -Headers $headers 
+              }
+              Write-Verbose "Entferne Schüler mit der ID $id aus der Klasse mit der ID $klassenid"
               return $r;
            } catch {
-              Write-Host "Remove-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+              Write-Error "Remove-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
         }
     }
     End

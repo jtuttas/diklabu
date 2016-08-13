@@ -47,9 +47,10 @@ function Find-Company
         try {
           $tofind=[uri]::EscapeDataString($NAME)
           $r=Invoke-RestMethod -Method Get -Uri ($uri+"betriebe/"+$tofind) -Headers $headers  
+          Write-Verbose "Finder Betrieb ($tofind). Ergebnis:$r"
           return $r;
          } catch {
-            Write-Host "Find-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Find-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }   
 }
@@ -90,7 +91,8 @@ function Set-Company
         #Straße des Betriebes
         [String]$STRASSE,
         #Hausnummer des Betriebes
-        [String]$NR
+        [String]$NR,
+        [switch]$whatif
     )
 
     Begin
@@ -118,10 +120,13 @@ function Set-Company
             $betrieb.NR=$NR
         }
         try {
-          $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/id/"+$ID) -Headers $headers -Body (ConvertTo-Json $betrieb)
+          if (-not $whatif) {
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/id/"+$ID) -Headers $headers -Body (ConvertTo-Json $betrieb)
+          }
+          Write-Verbose "Ändere Daten des Betriebes mit der ID $ID auf $betrieb"
           return $r;
          } catch {
-            Write-Host "Set-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Set-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
 
     }
@@ -165,9 +170,10 @@ function Get-Company
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"betriebe/id/"+$ID) -Headers $headers 
+            Write-Verbose "Finde Betrieb mit der ID $ID . Ergebnis: $r"
             return $r;
         } catch {
-            Write-Host "Get-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -201,9 +207,10 @@ function Get-Companies
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"betriebe/") -Headers $headers 
+            Write-Verbose "Abfrage aller Ausbildungsbetriebe"
             return $r;
         } catch {
-            Write-Host "Get-Companies: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Companies: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -249,7 +256,9 @@ function New-Company
         [String]$NR,
 
         [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-        [int]$ID
+        [int]$ID,
+
+        [switch]$whatif
 
     )
 
@@ -281,10 +290,13 @@ function New-Company
           $betrieb.ID=$ID
           }
         try {
-          $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/") -Headers $headers -Body (ConvertTo-Json $betrieb)
+          if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/") -Headers $headers -Body (ConvertTo-Json $betrieb)
+          }
+          Write-Verbose "Lege neuen Betrieb an mit den Daten $betrieb"
           return $r;
         } catch {
-            Write-Host "New-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "New-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
    
@@ -313,7 +325,8 @@ function Delete-Company
         [int]$ID,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -325,10 +338,13 @@ function Delete-Company
     Process
     {
         try {
-          $r=Invoke-RestMethod -Method Delete -Uri ($uri+"betriebe/admin/"+$ID) -Headers $headers 
+          if (-not $whatif) {
+            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"betriebe/admin/"+$ID) -Headers $headers 
+          }
+          Write-Verbose "Lösche Betrieb mit der ID $ID"
           return $r;
           } catch {
-            Write-Host "Delete-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Delete-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }

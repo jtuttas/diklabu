@@ -48,9 +48,10 @@ function Find-Course
     {        
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/info/"+$KNAME) -Headers $headers  
+            Write-Verbose "Finde Klasse mit Namen ($KNAME): Ergebnis:$r"
             return $r;
         } catch {
-            Write-Host "Find-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Find-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }    
 }
@@ -100,7 +101,8 @@ function Set-Course
         # Termine
         [String]$TERMINE,
         # ID_Kategorie
-        [int]$ID_KATEGORIE
+        [int]$ID_KATEGORIE,
+        [switch]$whatif
     )
 
     Begin
@@ -131,10 +133,13 @@ function Set-Course
             $klasse.ID_KATEGORIE=$ID_KATEGORIE
         }
         try {
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/id/"+$id) -Headers $headers  -Body (ConvertTo-Json $klasse)
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/id/"+$id) -Headers $headers  -Body (ConvertTo-Json $klasse)
+            }
+            Write-Verbose "Ändere Daten der Klasse mt ID $id auf $klasse"
             return $r;
         } catch {
-            Write-Host "Set-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Set-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -178,9 +183,10 @@ function Get-Course
     {
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/id/"+$id) -Headers $headers 
+            Write-Verbose "Abfrage der Klasse mit der ID $id . Ergebnis: $r"
             return $r;
         } catch {
-            Write-Host "Get-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -218,13 +224,15 @@ function Get-Courses
         try {
             if ($id_kategorie -ne -1) {                
                 $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/klassen/"+$id_kategorie) -Headers $headers 
+                Write-Verbose "Abfrage der Klassen der Kategorie $id_kategorie"
             }
             else {
                 $r=Invoke-RestMethod -Method Get -Uri ($uri+"noauth/klassen") -Headers $headers 
+                Write-Verbose "Abfrage aller Klassen"
             }
             return $r;
         } catch {
-            Write-Host "Get-Courses: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Get-Courses: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -278,7 +286,8 @@ function New-Course
         [int]$ID_KATEGORIE=-1,
         # id
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [int]$id
+        [int]$id,
+        [switch]$whatif
     )
      Begin
     {
@@ -311,10 +320,13 @@ function New-Course
           $klasse.id=$id
         }
         try {
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/") -Headers $headers  -Body (ConvertTo-Json $klasse)                         
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/") -Headers $headers  -Body (ConvertTo-Json $klasse)                         
+            }
+            Write-Verbose "Neue Klasse anlegen: $klasse"
             return $r;       
         } catch {
-            Write-Host "New-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "New-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }   
 }
@@ -348,7 +360,8 @@ function Delete-Course
         [int]$id,
 
         # Adresse des Diklabu Servers
-        [String]$uri=$global:server
+        [String]$uri=$global:server,
+        [switch]$whatif
     )
 
     Begin
@@ -360,10 +373,13 @@ function Delete-Course
     Process
     {
         try {
-            $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id) -Headers $headers 
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id) -Headers $headers 
+            }
+            Write-Verbose "Lösche Klasse mit der ID $id"
             return $r
         } catch {
-            Write-Host "Delete-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription -ForegroundColor red
+            Write-Error "Delete-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
     End

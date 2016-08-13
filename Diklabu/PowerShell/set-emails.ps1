@@ -17,7 +17,7 @@ function search-User {
     $found=$users[0];
     foreach ($user in $users) {
         if (-not $user.GivenName) {
-            Write-Host "Achtung der AD Nutzer "$user.SamAccountName" hat keinen GivenName" -ForegroundColor Red
+            Write-Warning "Achtung der AD Nutzer "$user.SamAccountName" hat keinen GivenName" 
         }
         [String]$name=$user.SamAccountName+$user.GivenName;
         #Write-Host "Teste!! $name"
@@ -29,10 +29,10 @@ function search-User {
 
     }
     if ($min -gt 0 -and $min -lt 3) {
-        Write-Host "   LEW=$min" -BackgroundColor DarkYellow
+        #Write-Host "   LEW=$min" -BackgroundColor DarkYellow
     }
     elseif ($min -ge 3) {
-        Write-Host "   LEW=$min" -BackgroundColor DarkRed
+        Write-Warning "  Achtung Lewenshtein Distanz bei $tofind ist größer als 2! LEW=$min" 
     }
     
     if ($min -le $lew) {
