@@ -4,11 +4,11 @@
 .DESCRIPTION
    Erzeugt in der AD OUs und Gruppen für Klassen und fügt die Schülerinnen und Schüler ein.
 .EXAMPLE
-   Syncto-AD -course FISI15A -credetials (get-Credetials Administrator) -path "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -server 192.168.178.53
+   Syncto-AD -course FISI15A -credetials (Get-Credential Administrator) -path "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -server 192.168.178.53
 
    Legt die Schüler der Klasse FISI15A in der AD an und gibt ihnen das default Kennwort "MMBBS1!" Ferner wird eine OU FISI15A angelegt und in dieser eine Gruppe FISI15A. In der die Schüler als Mitglieder aufgenommen werden.
 .EXAMPLE
-   "FIAE16H","FIAE16H","FIAE16I"|SyncTo-AD -credentials (get-Credetials Administrator)  -server 192.168.178.53 -path "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -Verbose
+   "FIAE16H","FIAE16H","FIAE16I"|SyncTo-AD -credentials (Get-Credential Administrator)  -server 192.168.178.53 -path "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -Verbose
 
     Legt die Schüler der Klassen "FIAE16H","FIAE16H","FIAE16I" in der AD an und gibt ihnen das default Kennwort "MMBBS1!" Ferner werden OUs "FIAE16H","FIAE16H","FIAE16I" angelegt und entsprechende Gruppen in der die Schüler Mitgleid sind.
 #>
@@ -21,7 +21,7 @@ function SyncTo-AD
         [String]$course,
 
         # Pfad
-        [Parameter(Mandatory=$true,Position=1,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
         $path,
 
 
@@ -34,12 +34,16 @@ function SyncTo-AD
         $server="localhost",
 
         # Passwort
-        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-        $password="MMBBS1!",
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        $password="Mm#bbS1!test!",
 
         # Home Laufwerk
-        [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-        $homeDrive
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        $homeDrive="c:\\Test",
+
+        [switch]$whatif
+
+
 
     )
 
@@ -66,15 +70,19 @@ function SyncTo-AD
         }
         else {
             Write-Verbose "+- OU $course existiert nicht, wird angelegt" 
-            $ou=New-ADOrganizationalUnit -Credential $c -Server $server -DisplayName $course -Name $course -Path $path -ProtectedFromAccidentalDeletion $False
+            if (-not $whatif) {
+                $ou=New-ADOrganizationalUnit -Credential $c -Server $server -DisplayName $course -Name $course -Path $path -ProtectedFromAccidentalDeletion $False
+            }
         }
 
         $gr=Get-ADGroup -Credential $c -Server $server -Filter {name -like $course}
         if (-not $gr) {
             Write-Verbose "+- Gruppe $course wird in OU $course angelegt !" 
             $other = @{'mail'=$course+"@mm-bbs.de"};
-            New-ADGroup -Server $server -Credential $credentials -Name $course -SamAccountName $course -Path "OU=$course,$path" -GroupScope Global -OtherAttributes $other
-            $gr=Get-ADGroup -Credential $c -Server $server -Filter {name -like $course}
+            if (-not $whatif) {
+                New-ADGroup -Server $server -Credential $credentials -Name $course -SamAccountName $course -Path "OU=$course,$path" -GroupScope Global -OtherAttributes $other
+                $gr=Get-ADGroup -Credential $c -Server $server -Filter {name -like $course}
+            }
         }
         else {
             Write-Verbose "+- Gruppe $course existiert!" 
@@ -88,7 +96,21 @@ function SyncTo-AD
             else {
                 $courseName = $schueler.klassen | ForEach-Object {if ($_.ID_KATEGORIE -eq 0) {$_.KNAME}}                
             }
-            $cn=“(Cn="+$courseName+"."+$schueler.name+")"
+            $sname=$schueler.name
+            # Anpassen an die Namenskonventionen in der AD
+            $sname=$sname.Replace(" ","")            
+            $sname=$sname.Replace("-","")            
+            $sname=$sname.replace("ö","oe");
+            $sname=$sname.replace("ä","ae");
+            $sname=$sname.replace("ü","ue");
+            $sname=$sname.replace("ß","ss");
+            $l=$sname.Length
+            if ($l -gt 12) {
+                $l=12
+            }
+            $sname=$sname.Substring(0,$l);
+            $sname=$courseName+"."+$sname;
+            $cn=“(Cn="+$sname+")"
             Write-Verbose "+- LDAP Filter is $cn"
             try {
                 $admember=get-aduser -Properties mail -Credential $credentials -Server $server -LDAPFilter $cn -SearchBase  "OU=$courseName,$path" -ErrorAction SilentlyContinue 
@@ -100,24 +122,16 @@ function SyncTo-AD
                         Write-Verbose "+- Der Schüler $($schueler.vorname) $($schueler.name) ist bereits in der Gruppe $course" 
                     }
                     else {
-                        Add-ADGroupMember -Credential $credentials -Server $server -Identity $gr -Members $($courseName+"."+$schueler.name)
+                        if (-not $whatif) {
+                            Add-ADGroupMember -Credential $credentials -Server $server -Identity $gr -Members $sname
+                        }
                         Write-Verbose "+- Der Schüler $($schueler.vorname) $($schueler.name) wurde zur Gruppe $course hinzugefügt"
                     }
                 }
                 else {
                     if ($courseObject.ID_KATEGORIE -eq 0) {
                         Write-Verbose "+- Schüler nicht gefunden, wird angelegt!" 
-                        $mail = $course+"."+$schueler.name
-                        $mail=$mail.replace(" ","");
-                        $mail=$mail.replace("ö","oe");
-                        $mail=$mail.replace("ä","ae");
-                        $mail=$mail.replace("ü","ue");
-                        $mail=$mail.replace("ß","ss");
-                        $l=$mail.Length
-                        if ($l -gt 15) {
-                            $l=15
-                        }
-                        $mail=$mail.Substring(0,$l);
+                        $mail = $sname                        
                         $mail+="@mm-bbs.de";
                
                         $other = @{'mail'=$mail;"streetAddress"=$schueler.betrieb.STRASSE;"postalCode"=$schueler.betrieb.PLZ;"l"=$schueler.betrieb.ORT};
@@ -127,18 +141,22 @@ function SyncTo-AD
                         if ($l -ge 64) {
                             $company=$company.subString(0,63);
                         }                       
-               
-                        New-ADUser -Credential $c -Enabled $true -HomeDrive $homeDrive -Company "$company"  -Surname $schueler.name -AccountPassword $pass -SamAccountName $($course+"."+$schueler.name) -UserPrincipalName $mail -Server $server -Name $($course+"."+$schueler.name) -DisplayName  $($course+"."+$schueler.name)  -GivenName $schueler.vorname -OfficePhone $schueler.id -Path "OU=$course,$path" -OtherAttributes $other              
-                        Add-ADGroupMember -Credential $credentials  -Server $server -Identity $gr -Members $($course+"."+$schueler.name) 
+                        if (-not $whatif) {
+                            #$cn
+                            New-ADUser -Credential $credentials -Enabled $true  -Company "$company"  -Surname $schueler.name -AccountPassword $pass -SamAccountName $sname -UserPrincipalName $mail -Server $server -Name $sname -DisplayName  $sname  -GivenName $schueler.vorname -OfficePhone $schueler.id -Path "OU=$course,$path" -OtherAttributes $other              
+                            Add-ADGroupMember -Credential $credentials  -Server $server -Identity $gr -Members $sname
+                        }
+
                         Write-Verbose "+- Der Schüler $($schueler.vorname) $($schueler.name) wurde zur Gruppe $course hinzugefügt"
                     }
                     else {
-                        Write-Verbose "+- Der Schüler $($schueler.vorname) $($schueler.name) konnte nicht in der AD gefunden werden!"
+                        Write-Warning "+- Der Schüler $($schueler.vorname) $($schueler.name) konnte nicht in der AD gefunden werden!"
                     }
                 }
             }
             catch {
-                Write-Verbose "+- LDAP Filter $cn nicht gefunden!"
+                $_
+                Write-Warning "+-- LDAP Filter $cn nicht gefunden!"
             }
         }
     }

@@ -990,7 +990,7 @@ function New-PollSubscriber
         [int]$ID_UMFRAGE,
 
         # ID-Subscriber
-        [Parameter(Mandatory=$true,Position=1,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
         $id,
 
         # TYPE
@@ -1012,26 +1012,31 @@ function New-PollSubscriber
     }
     Process
     {
-         
           if ($TYPE -eq "SCHÜLER") {
             $t=echo "" | Select-Object -Property "idUmfrage","idSchueler"            
+            $t.idUmfrage=$ID_UMFRAGE
             $t.idSchueler=$id
+            Write-Verbose "Erzeuge neuen Schüler Teilnehmer mit ID $id an der Umfrage mit der ID $ID_UMFRAGE ($t)"
           }
           elseif ($TYPE -eq "BETRIEB") {
             $t=echo "" | Select-Object -Property "idUmfrage","idBetrieb"
+            $t.idUmfrage=$ID_UMFRAGE
             $t.idBetrieb=$id
+            Write-Verbose "Erzeuge neuen Betrieb Teilnehmer mit ID $id an der Umfrage mit der ID $ID_UMFRAGE ($t)"
           }
           elseif ($TYPE -eq "LEHRER") {
             $t=echo "" | Select-Object -Property "idUmfrage","idLehrer"
+            $t.idUmfrage=$ID_UMFRAGE
             $t.idLehrer=$id
+            Write-Verbose "Erzeuge neuen Lehrer Teilnehmer mit ID $id an der Umfrage mit der ID $ID_UMFRAGE ($t)"
           }
-          $t.idUmfrage=$ID_UMFRAGE
+          
           
           try {        
             if (-not $whatif) {
                 $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin/subscriber") -Headers $headers -Body (ConvertTo-Json $t)
             }
-            Write-Verbose "Erzeuge neuen Teilnehmer an der Umfrage mit der ID $ID_UMFRAGE ($t)"
+            
             return $r;
           } catch {
               Write-Error "New-PollSubscriber: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
