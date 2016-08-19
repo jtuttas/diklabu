@@ -30,30 +30,15 @@ $("#btnAbfragen").click(function () {
                 sessionStorage.idKlasse = data.idKlasse;
                 log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
                 getKurswunsch(function (data) {
-                    if (data.courseList != undefined && data.courseList.length != 0) {
-                        $("#erstWunschAbfragen").text(data.courseList[0].TITEL + " (" + data.courseList[0].ID_LEHRER + ")");
-                        $("#zweitWunschAbfragen").text(data.courseList[1].TITEL + " (" + data.courseList[1].ID_LEHRER + ")");
-                        $("#drittWunschAbfragen").text(data.courseList[2].TITEL + " (" + data.courseList[2].ID_LEHRER + ")");
-                        if (data.selectedCourse != undefined) {
-                            $("#zuteilung").text(data.selectedCourse.TITEL + " (" + data.selectedCourse.ID_LEHRER + ")");
-                            toastr["success"]("Kurs zugeteilt!", "Information");
+                    for(i=0;i<data.klassen.length;i++) {
+                        klasse = data.klassen[i];
+                        
+                        if (klasse.TITEL!=undefined) {
+                            $("#kurse").append('<tr><td>'+klasse.KNAME+'</td><td>'+klasse.TITEL+'</td></tr>');
                         }
                         else {
-                            $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
-                            toastr["info"]("Ihnen wurde noch kein Kurs zugeteilt!", "Information");
-
+                            $("#kurse").append('<tr><td>'+klasse.KNAME+'</td><td>&nbsp;</td></tr>');
                         }
-                    }
-                    else {
-                        $("#erstWunschAbfragen").text("kein Kurs gewählt");
-                        $("#zweitWunschAbfragen").text("kein Kurs gewählt");
-                        $("#drittWunschAbfragen").text("kein Kurs gewählt");
-                        $("#zuteilung").text("Ihnen wurde noch kein Kurs zugeteilt");
-                        //window.location.href = "#kurswahl";
-                        toastr["warning"]("Sie haben noch keinen Kurs gewählt!", "Information");
-                        $("#benutzername").val($("#benutzername2").val());
-                        $("#kennwort").val($("#kennwort2").val());
-                        $("#lnkKurswahl").trigger("click");
                     }
                     perfromLogout($("#benutzername2").val(), $("#kennwort2").val());
                 });
@@ -236,7 +221,7 @@ function submitKurswunsch(callback) {
 
 function getKurswunsch(callback) {
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/sauth/kursbuchung/" + sessionStorage.myself,
+        url: SERVER + "/Diklabu/api/v1/sauth/" + sessionStorage.myself,
         type: "GET",
         headers: {
             "service_key": sessionStorage.service_key,

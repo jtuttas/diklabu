@@ -183,63 +183,6 @@ public class SAuthServices {
         return t;
     }
 
-    /**
-     * Kursbuchung abfragen
-     * @param httpHeaders auth_key zur Verifikation des Teilnehmers
-     * @param sid ID des Schülers
-     * @return  Buchungsobjekt
-     */
-    @GET
-    @Path("/kursbuchung/{sid}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Ticketing getCourseBooking(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid) {
-        em.getEntityManagerFactory().getCache().evictAll();
-        Log.d("Webservice kursbuchung GET:" + sid);
-        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-        Authenticator a = Authenticator.getInstance();
-        String user = a.getUser(authToken);
-        Log.d("Kursbuchug auth_token=" + authToken + " User=" + user);
-        Ticketing t = new Ticketing();
-
-        if (Config.getInstance().auth == true && (user == null || Integer.parseInt(user) != sid)) {
-            t.setSuccess(false);
-            t.setMsg("Sie sind nicht berechtigt!");
-            return t;
-        }
-        Schueler s = em.find(Schueler.class, sid);
-        if (s == null) {
-            t.setSuccess(false);
-            t.setMsg("Schüler mit der ID " + sid + " unbekannt!");
-            return t;
-        }
-
-        //  Schauen ob der Pupil schon gewählt hat
-        Query q = em.createNamedQuery("findKlasseByUserId");
-        q.setParameter("paramId", sid);
-        List<Klasse> courses = q.getResultList();
-        Log.d("Result List Courses:" + courses);
-        if (courses.size() != 0) {
-            t.setCourseList(courses);
-        
-            // Abfrage des zugeteilten Kurses
-            Query query = em.createNamedQuery("findKlassebyKurswunsch");
-            query.setParameter("paramWunsch1ID", courses.get(0).getId());
-            query.setParameter("paramWunsch2ID", courses.get(1).getId());
-            query.setParameter("paramWunsch3ID", courses.get(2).getId());
-            query.setParameter("paramIDSchueler", sid);
-            List<Klasse> selectCourses = query.getResultList();
-            Log.d("Liste der zugeteilten Kurses:" + selectCourses);
-            if (selectCourses.size() != 0) {
-                t.setSelectedCourse(selectCourses.get(0));
-            }
-            t.setSuccess(true);
-        }
-        else {
-            t.setSuccess(false);
-            t.setMsg("Sie haben noch nicht gewählt!");
-        }
-        return t;
-    }
 
     /**
      * Abfragen der Aktiven Umfragen

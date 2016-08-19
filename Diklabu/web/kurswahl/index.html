@@ -51,7 +51,7 @@
                             <a class="page-scroll" href="#help">Weitere Infos</a>
                         </li>
                         <li>
-                            <a id="lnkResults" class="page-scroll" href="#results">Zuteilung</a>
+                            <a id="lnkResults" class="page-scroll" href="#results">meine Klasse/Kurse</a>
                         </li>
                     </ul>
                 </div>
@@ -137,7 +137,7 @@
                     <hr class="primary">
                     <p>Bitte melden Sie sich mit Ihren Anmeldedaten (Klassenbezeichnung.Nachname und ihrem Kennwort) an.</p>
                     <p>Es wird versucht Ihren Erstwunsch zu berücksichtigen. Wenn dieses nicht möglich ist wird versucht Ihren Zweitwunsch zu berücksichtigen!</p>
-                    <p>Das Ergebnis der Kurswahl können Sie zeitnah über den Link <a class="page-scroll" href="#results">Zuteilung</a> in Erfahrung bringen!</p>
+                    <p>Das Ergebnis der Kurswahl können Sie zeitnah über den Link <a class="page-scroll" href="#results">Meine Klasse/Kurse</a> in Erfahrung bringen!</p>
                     <p>Bei weiteren Fragen wenden Sie sich bitte an ihre Abteilungsleiterin Frau Wessel!</p>
                 </div>
                 <div class="col-lg-4 text-center">
@@ -166,34 +166,20 @@
                         <input type="password" class="form-control" id="kennwort2" placeholder="Kennwort">                        
                     </div>
                     <div class="col-sm-1"></div>
-                    <div class="col-sm-8">
-                        <div class="fixedFont">gewählte Kurse</div>
+                    <div class="col-sm-7">
+                        <div class="fixedFont">Meine Klasse/Kurse</div>
                         <p>&nbsp;</p>
                         <div class="row">
-                            <div class="col-sm-4">
-                                <h4>1. Wunsch</h4>
-                            </div>
-                            <div class="col-sm-8">
-                                <h4 id="erstWunschAbfragen">&nbsp;</h4>
-                            </div>
-                            <div class="col-sm-4">
-                                <h4>2. Wunsch</h4>
-                            </div>
-                            <div class="col-sm-8">
-                                <h4 id="zweitWunschAbfragen">&nbsp;</h4>
-                            </div>
-                            <div class="col-sm-4">
-                                <h4>3. Wunsch</h4>
-                            </div>
-                            <div class="col-sm-8">
-                                <h4 id="drittWunschAbfragen">&nbsp;</h4>
-                            </div>                            
-                            <div class="col-sm-4">
-                                <h2>Kurszuteilung</h2>
-                            </div>
-                            <div class="col-sm-8">
-                                <h2 id="zuteilung">&nbsp;</h2>
-                            </div>                            
+                            <table class="table">
+    <thead>
+      <tr>
+        <th>Klasse/Kurs</th>
+        <th>Titel</th>
+      </tr>
+    </thead>
+    <tbody id="kurse">
+    </tbody>
+  </table>                        
                             
                         </div>
                     </div>

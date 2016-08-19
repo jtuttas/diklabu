@@ -25,16 +25,9 @@ $(document).ready(function () {
                 sessionStorage.myself = data.ID;
                 sessionStorage.benutzer=$("#benutzername").val();
                 sessionStorage.kennwort=$("#kennwort").val();
+                               
+                getCourseList();
                 
-                getKurswunsch(function (data) {
-                    if (data.courseList != undefined) {
-                        courseList=data;
-                        $.mobile.changePage('#results');
-                    }
-                    else {
-                        getCourseList();
-                    }
-                });
             }, function () {
                 toast("Anmeldedaten ungültig");
             });
