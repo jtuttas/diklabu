@@ -117,7 +117,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                         Logger.getLogger(AuthRESTResource.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
-            } else if (u.getRole().equals(Roles.toString(Roles.LEHRER)) || u.getRole().equals(Roles.toString(Roles.ADMIN))) {
+            } else if (u.getRole().equals(Roles.toString(Roles.LEHRER)) || u.getRole().equals(Roles.toString(Roles.ADMIN)) || u.getRole().equals(Roles.toString(Roles.VERWALTUNG))) {
                 Lehrer l = em.find(Lehrer.class, u.getShortName());
                 if (l != null && u.getEMail() != null && !l.getEMAIL().equals(u.getEMail())) {
                     Log.d("Aktualisiere EMails für Lehrer aus der AD auf " + u.getEMail());

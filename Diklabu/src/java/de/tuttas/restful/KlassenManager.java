@@ -148,7 +148,7 @@ public class KlassenManager {
      * @return Ergebnisobjekt mit Meldungen
      */
     @POST
-    @Path("admin/add")
+    @Path("verwaltung/add")
      @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject addSchuelerToKlasse(Schueler_Klasse sk) {        
         Log.d("Schüler einer Klasse zuweisen:"+sk.toString());
@@ -182,7 +182,7 @@ public class KlassenManager {
      * @return Ergebnisobjekt mit Meldungen
      */
     @DELETE
-    @Path("admin/{idschueler}/{idklasse}")
+    @Path("verwaltung/{idschueler}/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject removeSchueler(@PathParam("idschueler") int sid,@PathParam("idklasse") int kid) {
         Log.d("Webservice delete Schüler "+sid+" von Klasse:" + kid);

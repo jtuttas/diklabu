@@ -95,7 +95,8 @@ function performLogin() {
                     sessionStorage.myemail = jsonObj.email;
                     sessionStorage.VNAME=jsonObj.VNAME;
                     sessionStorage.NNAME=jsonObj.NNAME;
-                    if (jsonObj.role == "Admin" || jsonObj.role == "Lehrer") {
+                    sessionStorage.role=jsonObj.role;
+                    if (jsonObj.role == "Admin" || jsonObj.role == "Lehrer" || jsonObj.role == "Verwaltung") {
                         window.location.replace("buch.html");
                     }
                     else {

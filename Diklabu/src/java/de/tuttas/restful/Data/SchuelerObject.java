@@ -30,10 +30,20 @@ public class SchuelerObject  implements Comparable<SchuelerObject> {
     private String info;
     private String eduplazaMail;
     private Integer ldist;
+    private String Abgang;
 
     public SchuelerObject() {
     }
 
+    public void setAbgang(String Abgang) {
+        this.Abgang = Abgang;
+    }
+
+    public String getAbgang() {
+        return Abgang;
+    }
+
+    
     public void setLdist(Integer ldist) {
         this.ldist = ldist;
     }

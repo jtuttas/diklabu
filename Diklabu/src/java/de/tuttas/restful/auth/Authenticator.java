@@ -53,8 +53,8 @@ public final class Authenticator {
 
             for (Lehrer l : lehrer) {
                 Log.d("Anlegen Benutzer (" + l.getId() + ")");
-                usersStorage.put(l.getIdplain(), "mmbbs");
-                rolesStorage.put(l.getIdplain(), Roles.toString(Roles.LEHRER));
+                usersStorage.put(l.getId(), "mmbbs");
+                rolesStorage.put(l.getId(), Roles.toString(Roles.LEHRER));
             }
 
             // Lehrer Testzugang
@@ -110,7 +110,12 @@ public final class Authenticator {
                             u.setRole(Roles.toString(Roles.ADMIN));
                         }
                     }
-                    Log.d("Login Successfull! u=" + u + " authToken=" + authToken);
+                    for (int i = 0; i < Config.getInstance().verwaltung.length; i++) {
+                        if (Config.getInstance().verwaltung[i].equals(username.toUpperCase())) {
+                            u.setRole(Roles.toString(Roles.VERWALTUNG));
+                        }
+                    }
+                    Log.d("Login Successfull! u=" + u + " authToken=" + authToken+" Rolle ist "+u.getRole());
                     rolesStorage.put(username, u.getRole());
                     return u;
                 }
@@ -144,9 +149,17 @@ public final class Authenticator {
                             u.setRole(Roles.toString(Roles.ADMIN));
                         }
                     }
+                    for (int i = 0; i < Config.getInstance().verwaltung.length; i++) {
+                        if (Config.getInstance().verwaltung[i].equals(username.toUpperCase())) {
+                            u.setRole(Roles.toString(Roles.VERWALTUNG));
+                        }
+                    }
                     rolesStorage.put(username, u.getRole());
                     return u;
                 }
+            }
+            else {
+                Log.d("Benutzer "+username+" nicht im userStorage enthalten!");
             }
             throw new LoginException("Don't Come Here Again!");
         }

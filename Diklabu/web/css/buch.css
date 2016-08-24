@@ -4,6 +4,18 @@ background-size: cover;
 color: #ffffff;
 }
 
+.selectable {
+    cursor: pointer;
+}
+
+#administration {
+    cursor: pointer;
+}
+
+.selected {
+    color: darkred;
+    font-style: oblique;
+}
 
 #loading-indicator {
   position: absolute;

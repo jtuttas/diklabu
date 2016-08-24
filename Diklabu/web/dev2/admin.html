@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>   
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="author" content="">
+        <title>Diklabu Admin</title>
+        <!-- Bootstrap Core CSS -->
+        <link rel="stylesheet" href="../css/bootstrap.min.css" type="text/css"/>
+        <!-- Custom Fonts -->
+        <link rel="stylesheet" href="../css/datepicker.css"/>
+
+        <!-- Plugin CSS -->
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="../css/buch.css" type="text/css"/>
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+        <link href="../css/toastr.css" rel="stylesheet"/>
+
+    </head>
+    <body id="page-top">
+        <input type="hidden" name="template" id="template"/>
+        <div class="container-fluid">
+            <div class="row">                
+                <div class="jumbotron jhead">
+                    <div class="row">
+                        <button id="login" type="button" class="btn  btn-danger mybutton col-md-1 col-md-offset-11">Logout</button>                                                    
+                        <img src="../img/ajax-loader.gif" id="loading-indicator" style="display:none" />
+                    </div>
+                    <h1 id="diklabuname"></h1>
+
+                </div>
+
+                <ul class="nav nav-tabs" id="navTabs">
+                    <li id="firstNavTab" class="active"><a data-toggle="tab" href="#tabSchueler">Schueler</a></li>
+                    <li><a data-toggle="tab" href="#tabKurswahl">Kurswahl</a></li>
+                </ul>
+                <br>
+                <div class="tab-content">
+                    <div id="tabSchueler" class="tab-pane fade in active" >
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="input-group"> <span class="input-group-addon">Filter</span>
+
+                                    <input id="filter" type="text" class="form-control" placeholder="Type here...">
+                                </div>
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Vorname</th>
+                                            <th>Gebdatum</th>                                    
+                                        </tr>
+                                    </thead>
+                                    <tbody class="searchable" id="sdata">
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="stammdatenContainer" class="col-md-6" style="display: none">
+                                <form class="form-horizontal">
+                                    <fieldset>
+
+                                        <!-- Form Name -->
+                                        <legend>Stammdaten</legend>
+
+                                        <!-- Text input-->
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label" for="nname">Name</label>  
+                                            <div class="col-md-4">
+                                                <input id="nname" name="nname" type="text" placeholder="Name" class="form-control input-md sinput">
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Text input-->
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label" for="vname">Vorname</label>  
+                                            <div class="col-md-4">
+                                                <input id="vname" name="vname" type="text" placeholder="Vorname" class="form-control input-md sinput">
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Text input-->
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label" for="email">EMail</label>  
+                                            <div class="col-md-4">
+                                                <input id="email" name="email" type="text" placeholder="EMail" class="form-control input-md sinput">
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Text input-->
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label" for="gebdat">Geb. Datum</label>  
+                                            <div class="col-md-4">
+                                                <input id="gebdat" name="gebdat" type="text" placeholder="yyyy-mm-dd" class="form-control input-md sinput">
+
+                                            </div>
+                                        </div>
+
+                                        <!-- Select Basic -->
+                                        <div class="form-group">
+                                            <label class="col-md-4 control-label" for="abgang">Abgang</label>
+                                            <div class="col-md-4">
+                                                <select id="abgang" name="abgang" class="form-control">
+                                                    <option value="J">J</option>
+                                                    <option value="N">N</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                    </fieldset>
+                                </form>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <h3>in Klasse/Kurs</h3>
+                                        <div id="memberklasse" class="list-group">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <p>&nbsp;</p>
+                                        <p>&nbsp;</p>
+                                        <button id="btnAdd" type="button" class="btn btn-primary btn-block disabled" >Add</button><br/>
+                                        <button id="btnRemove" type="button" class="btn btn-danger btn-block disabled" >Remove</button>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <h3>Klassen</h3>
+                                        <div class="input-group"> <span class="input-group-addon">Filter</span>
+
+                                    <input id="filterClasses" type="text" class="form-control" placeholder="Type here...">
+                                </div>
+                                        
+                                        <div  id="klassen" class="list-group">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tabKurswahl" class="tab-pane fade">
+                        <div class="row" >                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+        <!-- Modal Info Dialog-->
+        <div id="schuelerinfo" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h2 class="modal-title" id="infoName">Modal Header</h2>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="row">
+                                    <img class="col-md-12" id="infoBild" src="../img/anonym.gif" width="150">
+                                </div>
+                                <form enctype="multipart/form-data" id="bildUploadForm" action="/Diklabu/api/v1/schueler/bild/14279">
+                                    <div class="row">
+                                        <span class="btn btn-default col-md-12 btn-file" >
+                                            Auswählen<input id="fileBild" type="file" name="file"/>
+
+                                        </span>
+                                        <strong class="col-md-12" id="bildWahl">&nbsp;</strong>
+
+                                    </div>
+                                    <div class="row">
+                                        <button id="uploadBildButton" type="submit" class="col-md-12 btn btn-primary">Upload</button>
+                                    </div>
+                                </form>
+
+                            </div>
+                            <div class="col-md-7">
+                                <strong id="infoGeb"></strong>
+                                <h3>Ausbilder</h3>
+                                <p id="infoAusbilderName"></p>
+                                <a id="infoAusbilderMail" href="mailto:"></a>
+                                <p id="infoAusbilderTel"></p>
+                                <p id="infoAusbilderFax"></p>
+                                <h3>Betrieb</h3>
+                                <p id="infoBetriebName"></p>                  
+                                <p id="infoBetriebStrasse"></p>
+                                <p id="infoBetriebOrt"></p>
+                                <h3>Klassen/Kurse</h3>
+                                <ul id="infoKlassen">
+                                </ul>
+                            </div>
+                        </div>   
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- jQuery -->
+        <script src="../js/jquery.js"></script>
+        <!-- Bootstrap Core JavaScript -->
+        <script src="../js/bootstrap.min.js"></script>
+        <!-- Plugin JavaScript -->
+        <script src="../js/jquery.easing.min.js"></script>
+        <script src="../js/jquery.fittext.js"></script>
+        <script src="../js/wow.min.js"></script>
+        <!-- Custom Theme JavaScript -->
+        <script src="../js/creative.js"></script>
+
+        <script src="../js/toastr.min.js"></script>
+
+        <!-- bootbox code -->
+        <script src="../js/bootbox.min.js"></script>
+
+        <script src="../ClientConfig"></script>
+        <script>
+            $("#version").text(VERSION);
+        </script>
+        <script src="../js/diklabu-admin.js"></script>        
+    </body>
+</html>

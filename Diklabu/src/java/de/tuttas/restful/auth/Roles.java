@@ -10,7 +10,7 @@ package de.tuttas.restful.auth;
  * @author Jörg
  */
 public enum Roles {
-    SCHUELER,LEHRER,ADMIN;
+    SCHUELER,LEHRER,ADMIN,VERWALTUNG;
     
     /**
      * Rolle einem Namen zuweisen
@@ -24,7 +24,9 @@ public enum Roles {
             case LEHRER:
                 return "Lehrer";
             case SCHUELER:
-                return "Schueler";                       
+                return "Schueler";  
+            case VERWALTUNG:
+                return "Verwaltung";
         }
         return null;
     }

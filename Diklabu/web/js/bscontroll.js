@@ -30,6 +30,7 @@ $("#btnAbfragen").click(function () {
                 sessionStorage.idKlasse = data.idKlasse;
                 log("kname=" + sessionStorage.kname + " idKlasse=" + sessionStorage.idKlasse);
                 getKurswunsch(function (data) {
+                    $("#kurse").empty();
                     for(i=0;i<data.klassen.length;i++) {
                         klasse = data.klassen[i];
                         

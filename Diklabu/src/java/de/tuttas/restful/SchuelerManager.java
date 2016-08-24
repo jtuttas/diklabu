@@ -181,7 +181,7 @@ public class SchuelerManager {
      */
     @POST
     @Produces({"application/json; charset=iso-8859-1"})
-    @Path("admin/{idschueler}")
+    @Path("verwaltung/{idschueler}")
     public Schueler setPupil(@PathParam("idschueler") int sid,Schueler s) {
         Log.d("set Schuler " + s);
         
@@ -285,6 +285,7 @@ public class SchuelerManager {
             so.setVorname(s.getVNAME());
             so.setEmail(s.getEMAIL());
             so.setInfo(s.getINFO());
+            so.setAbgang(s.getABGANG());
             Query query = em.createNamedQuery("findKlassenbySchuelerID");
             query.setParameter("paramIDSchueler", so.getId());
             List<Klasse> klassen = query.getResultList();

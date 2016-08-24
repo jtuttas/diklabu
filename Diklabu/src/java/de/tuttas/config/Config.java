@@ -29,6 +29,7 @@ import org.json.simple.parser.ParseException;
  *   "auth": true,<br>
  *   "IMAGE_FILE_PATH": "c:\\Temp\\",<br>
  *   "adminusers":["TU","TUTTAS","KEMMRIES"],<br>
+ *   "verwaltung:["BÜ"],
  *   "AUTH_TOKE_TIMEOUT" : 432000000,<br>
  *       <br>
  *   "ldaphost": "ldap://192.168.178.147:389",<br>
@@ -55,7 +56,7 @@ public class Config {
     /**
      * Version Nummer
      */
-    public final static String VERSION="V 1.99";
+    public final static String VERSION="V 1.991";
     
     /**
      * JSON Objekt für die Client Seite
@@ -88,15 +89,21 @@ public class Config {
                 Log.d("IMage_File_Path="+IMAGE_FILE_PATH); 
                 JSONArray ja = (JSONArray) jo.get("adminusers");               
                 adminusers = new String[ja.size()];
-                for (int i=0;i<adminusers.length;i++) {
+                for (int i=0;i<adminusers.length;i++) { 
                     adminusers[i]=(String) ja.get(i);
+                }
+                ja = (JSONArray) jo.get("verwaltung");                 
+                verwaltung = new String[ja.size()];
+                for (int i=0;i<verwaltung.length;i++) {
+                    verwaltung[i]=(String) ja.get(i);
+                    Log.d("Setzte Verwaltung "+(String)ja.get(i));
                 }
        
                 
                 AUTH_TOKE_TIMEOUT=(long)jo.get("AUTH_TOKE_TIMEOUT");
                 
                 // LDAP Konfiguration
-                ldaphost = (String)jo.get("ldaphost");
+                ldaphost = (String)jo.get("ldaphost"); 
                 bindUser = (String) jo.get("binduser");
                 bindPassword =(String)jo.get("bindpassword");
                 userContext=(String)jo.get("context");
@@ -110,7 +117,7 @@ public class Config {
                 // Client Configuration
                 clientConfig = (JSONObject) jo.get("clientConfig");
                 clientConfig.put("VERSION",Config.VERSION);
-                                
+                                 
         } catch (UnsupportedEncodingException ex) {
             Logger.getLogger(Config.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
@@ -155,6 +162,8 @@ public class Config {
      * Liste der ADMIN Benutzer
      */
     public  String[] adminusers = new String[]{"TU","TUTTAS"};
+    
+    public  String[] verwaltung = new String[]{"BÜ"};
     
     // Authentifizierung für die RestFul Services notwenig (im debug mode ist das Kennwort mmbbs und der Benutzername das Lehrerkürzel
     /**

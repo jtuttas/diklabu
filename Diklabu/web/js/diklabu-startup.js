@@ -52,6 +52,13 @@ $(document).ajaxComplete(function (event, request, settings) {
     $('#loading-indicator').hide();
 });
 
+if (sessionStorage.role=="Admin" || sessionStorage.role == "Verwaltung") {
+    $("#administration").show();
+}
+else {
+    $("#administration").hide();
+}
+
 $("#btnAddVertretung").click(function () {
     log("add Vertretung");
     c=$("#vertrFirstRow").clone();

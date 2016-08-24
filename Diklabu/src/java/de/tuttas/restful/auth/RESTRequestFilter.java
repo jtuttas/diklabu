@@ -72,9 +72,16 @@ public class RESTRequestFilter implements ContainerRequestFilter {
                     if (userRole.equals(Roles.toString(Roles.ADMIN))) {
                         // Admin darf alles
                     } 
-                    else if (userRole.equals(Roles.toString(Roles.LEHRER))) {
-                        // Lehrer dürfen keine Services Nutzen, die das Wort Admin im Namen haben
+                    else if (userRole.equals(Roles.toString(Roles.VERWALTUNG))) {
+                        // Verwaltung dürfen die Services Nutzen, die das Wort verwaltung im Namen haben
                         if (path.contains("admin")) {
+                            Log.d("Nicht genügend Rechte");
+                            requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+                        }
+                    }
+                    else if (userRole.equals(Roles.toString(Roles.LEHRER))) {
+                        // Lehrer dürfen keine Services Nutzen, die das Wort Admin oder Verwaltung im Namen haben
+                        if (path.contains("admin") || path.contains("verwaltung")) {
                             Log.d("Nicht genügend Rechte");
                             requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
                         }
