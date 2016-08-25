@@ -124,7 +124,8 @@ function set-emails
     Param
     (
         [switch]$whatif,
-        [switch]$force
+        [switch]$force,
+        [switch]$verbose
     )
 
     Begin
@@ -136,24 +137,27 @@ function set-emails
         $res.error=0;
         $res.msg="";
         $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
+        
         $password = $config.bindpassword | ConvertTo-SecureString -asPlainText -Force
+        
         $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList "ldap-user", $password
         #$u=get-aduser -Properties mail -Credential $credentials -Server 172.31.0.1 -LDAPFilter “(Cn=FIAE15H.*)" -SearchBase  "DC=mmbbs,DC=local"
 
         $course = get-courses -id_kategorie 0
+        
         foreach ($c in $course) {
             Write-Verbose "-----------------------"
-            Write-Verbose "Bearbeite Schüler der Klasse "$c.KNAME 
+            Write-Verbose "Bearbeite Schüler der Klasse $($c.KNAME)" 
             $res.msg +="`n`rBearbeite Schüler der Klasse "+$c.KNAME+"`n`r"
             
             $cn=“(Cn="+$c.KNAME+".*)"
-            try {
+            #try {
                 $member=get-aduser -Properties mail -Credential $credentials -Server 172.31.0.1 -LDAPFilter $cn -SearchBase  "DC=mmbbs,DC=local"
    
                 $p=Get-Coursemember -id $c.id
                 foreach ($schueler in $p) {
                     if ($p.ABGANG -like "N") {
-                        Write-Verbose "`n`rBearbeite "$schueler.VNAME$schueler.NNAME" (ID="$schueler.id")"
+                        Write-Verbose "`n`rBearbeite $($schueler.VNAME) $($schueler.NNAME) ID=$($schueler.id)"
                         $res.msg +="Bearbeite "+$schueler.VNAME+" "+$schueler.NNAME+" (ID="+$schueler.id+")`n"
                         $res.total++;
                         [String]$s=$c.KNAME+"."+$schueler.NNAME
@@ -169,7 +173,7 @@ function set-emails
                         $u=search-User $member $s 4
                         if ($u) {
                             #$u
-                            Write-Verbose "gefunden wurde "$u.GivenName" "$u.Surname"("$u.UserPrincipalName")"
+                            Write-Verbose "+- gefunden wurde $($u.GivenName) $($u.Surname) ($($u.UserPrincipalName))"
                             $res.msg += "+- gefunden wurde "+$u.GivenName+" "+$u.Surname+"("+$u.UserPrincipalName+") Email ($($u.mail))`n"
                             [String]$mail=$u.mail
                             $mail=$mail.Trim()
@@ -180,7 +184,7 @@ function set-emails
                                 if (-not $whatif) {
                                     $np=Set-Pupil -id $schueler.id -EMAIL $mail
                                 }
-                                Write-Warning "EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert von $($schueler.EMAIL) auf "$mail 
+                                Write-Warning "+- EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert von $($schueler.EMAIL) auf "$mail 
                                 $res.msg += "+- EMail Adresse für "+$schueler.VNAME+" "+$schueler.NNAME+" geändert von $($schueler.EMAIL) auf "+$mail+"`n"
                                 $res.update++;
                             }
@@ -203,18 +207,18 @@ function set-emails
                             #>            
                         }
                         else {
-                            Write-Warning "Schüler "$schueler.VNAME$schueler.NNAME "nicht gefunden!" 
+                            Write-Warning "#- Schüler $($schueler.VNAME) $($schueler.NNAME) nicht gefunden!" 
                             $res.msg +=  "#- Schüler "+$schueler.VNAME+" "+$schueler.NNAME+" nicht gefunden!`n" 
                             $res.error++;
                        }
                        
                     }
                 }
-            }
-            catch {
-                Write-Error "Kann keine Verbindung zum AD aufbauen!"
-                break;
-            }
+            #}
+            #catch {
+            #    Write-Error "Kann keine Verbindung zum AD aufbauen!"
+            #   break;
+            #}
         }
         return $res
     }

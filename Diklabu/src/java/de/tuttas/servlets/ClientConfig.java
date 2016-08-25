@@ -38,11 +38,11 @@ public class ClientConfig extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             /* TODO output your page here. You may use following sample code. */
             Config c = Config.getInstance();
-            Set set = c.clientConfig.keySet();
+            Set set = c.clientConfig.keySet();  
             
-            Iterator<?> keys = set.iterator();
+            Iterator<?> keys = set.iterator();     
 
-            while( keys.hasNext() ) {
+            while( keys.hasNext() ) { 
                 
                 String key = (String)keys.next();
                 

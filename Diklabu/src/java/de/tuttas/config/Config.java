@@ -84,8 +84,9 @@ public class Config {
                 JSONParser parser = new JSONParser();
                 JSONObject jo = (JSONObject) parser.parse(conf);
                 debug = (boolean)jo.get("debug");
+               
                 auth = (boolean)jo.get("auth");
-                IMAGE_FILE_PATH = (String)jo.get("IMAGE_FILE_PATH");   
+                IMAGE_FILE_PATH = (String)jo.get("IMAGE_FILE_PATH");    
                 Log.d("IMage_File_Path="+IMAGE_FILE_PATH); 
                 JSONArray ja = (JSONArray) jo.get("adminusers");               
                 adminusers = new String[ja.size()];
@@ -94,7 +95,7 @@ public class Config {
                 }
                 ja = (JSONArray) jo.get("verwaltung");                 
                 verwaltung = new String[ja.size()];
-                for (int i=0;i<verwaltung.length;i++) {
+                for (int i=0;i<verwaltung.length;i++) { 
                     verwaltung[i]=(String) ja.get(i);
                     Log.d("Setzte Verwaltung "+(String)ja.get(i));
                 }
