@@ -66,7 +66,7 @@ function Add-Coursemember
         $rel.ID_KLASSE=$klassenid
         try {
             if (-not $whatif) {
-                $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/admin/add") -Headers $headers  -Body (ConvertTo-Json $rel)
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/verwaltung/add") -Headers $headers  -Body (ConvertTo-Json $rel)
             }
             Write-Verbose "Schüler mit der ID $id der Klasse mit der ID $klassenid hinzugefügt"
             return $r;
@@ -267,7 +267,7 @@ function Remove-Coursemember
     {
           try {
               if (-not $whatif) {
-                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/admin/"+$id+"/"+$klassenid) -Headers $headers 
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/verwaltung/"+$id+"/"+$klassenid) -Headers $headers 
               }
               Write-Verbose "Entferne Schüler mit der ID $id aus der Klasse mit der ID $klassenid"
               return $r;

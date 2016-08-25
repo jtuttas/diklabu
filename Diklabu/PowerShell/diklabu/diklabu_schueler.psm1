@@ -411,7 +411,7 @@ function Set-Pupil
         }
 
         try {
-            $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/admin/"+$id) -Headers $headers -Body (ConvertTo-Json $schueler)
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"schueler/verwaltung/"+$id) -Headers $headers -Body (ConvertTo-Json $schueler)
             Write-Verbose "Daten des Schülers mit der ID $id geändert auf $schueler"
             return $r;
         } catch {
