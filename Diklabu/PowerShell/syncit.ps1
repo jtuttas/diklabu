@@ -11,7 +11,7 @@ $credentials = New-Object System.Management.Automation.PSCredential -ArgumentLis
 $l=Login-Diklabu -credential $credentials
 
 #$r1=Sync-Teachers  -force 
-#$r1.msg > "$HOME/out_lehrer.txt"
+#$r1.msg > "$PSScriptRoot/../../../out_lehrer.txt"
 $body="Das Synchronisationsscript ist am "+(Get-Date)+" durchgelaufen!! `r`n";
 #$body+="`r`nsync_lehrer.ps1`r`n";
 #$body+="Es wurden "+$r1.new+" neue Lehrer angelegt!`r`n";
@@ -24,7 +24,6 @@ $r2=set-emails -force
 $body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
 $body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
 $body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
-$r2.msg > "$HOME/out_schueler.txt"
+$r2.msg > "$PSScriptRoot/../../../out_schueler.txt"
 
-
-send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$HOME/out_lehrer.txt","$HOME/out_schueler.txt"
+send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$PSScriptRoot/../../../out_lehrer.txt","$PSScriptRoot/../../../out_schueler.txt"
