@@ -21,6 +21,7 @@ public class LDAPUser {
     // ShortName ohne deutsche Umlaute
     private String idPlain;
     private String role;
+    private String course;
 
     public LDAPUser() {
     }
@@ -40,6 +41,16 @@ public class LDAPUser {
         this.idPlain=StringUtil.removeGermanCharacters(ShortName);
     }
 
+    public void setCourse(String course) {
+        this.course = course;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+
+    
+    
     @Override
     public String toString() {
         return "NName="+NName+" VName="+VName+" EMail="+EMail+" Kürzel="+ShortName+ " Role="+role;

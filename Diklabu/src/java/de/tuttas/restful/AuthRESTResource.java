@@ -76,13 +76,14 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
             Log.d("Rest Login u=(" + u+")");
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
             if (u.getRole().equals(Roles.toString(Roles.SCHUELER))) {
+                
                 Query query = em.createNamedQuery("findSchuelerByNameAndKlasse");
                 query.setParameter("paramVNAME", u.getVName());
                 query.setParameter("paramNNAME", u.getNName());
-                Log.d("Klasse=(" + username.substring(0, username.indexOf(".")).toUpperCase() + ")");
-                query.setParameter("paramKLASSE", username.substring(0, username.indexOf(".")).toUpperCase());
+                query.setParameter("paramKLASSE", u.getCourse());
                 List<Schueler> schueler = query.getResultList();
                 Log.d("Result List:" + schueler);
+                
                 if (schueler.size() != 0) {
                     u.setShortName("" + schueler.get(0).getId());
                     demoAuthenticator.setUser(u.getAuthToken(), schueler.get(0).getId().toString());
@@ -94,10 +95,10 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                         s.setEMAIL(u.getEMail());
                         em.merge(s);
                     }
-                    String kname = username.substring(0, username.indexOf("."));
-                    jsonObjBuilder.add("nameKlasse", kname.toUpperCase());
+                    
+                    jsonObjBuilder.add("nameKlasse", u.getCourse());
                     query = em.createNamedQuery("findKlassebyName");
-                    query.setParameter("paramKName", kname.toUpperCase());
+                    query.setParameter("paramKName", u.getCourse().toUpperCase());
                     List<Klasse> klasse = query.getResultList();
                     if (klasse.size() != 0) {
                         jsonObjBuilder.add("idKlasse", klasse.get(0).getId());
@@ -109,7 +110,12 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     jsonObjBuilder.add("auth_token", u.getAuthToken());
 
                 } else {
-                    jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" in Klasse "+username.substring(0, username.indexOf(".")).toUpperCase()+" finden!");
+                    if (u.getCourse()!=null) {
+                        jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" in Klasse "+u.getCourse()+" finden!");
+                    }
+                    else {
+                        jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" hat keine Gruppenzugehörigkeit!");                        
+                    }
                     jsonObjBuilder.add("success", false);
                     try {
                         demoAuthenticator.logout("", u.getAuthToken());
