@@ -23,11 +23,11 @@ import javax.persistence.NamedQuery;
 @Entity
 @NamedQueries({
    // @NamedQuery(name = "findAnwesenheitbyKlasse", query= "select a from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on sk.ID_SCHUELER=s.ID INNER JOIN Klasse k on k.ID=sk.ID_KLASSE where k.KNAME='FISI13A' and a.DATUM between '2015-09-08' and '2015-09-10' ORDER BY s.ID ")
-     @NamedQuery(name = "findAnwesenheitbyKlasse", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on sk.ID_SCHUELER=s.ID INNER JOIN Klasse k on k.ID=sk.ID_KLASSE where k.KNAME like :paramKName and (a.DATUM between :paramFromDate and :paramToDate) ORDER BY s.NNAME,a.DATUM "),
-     @NamedQuery(name = "findAnwesenheitbySchueler", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID where s.ID= :paramIdSchueler and (a.DATUM between :paramFromDate and :paramToDate) ORDER BY a.DATUM "),
+     @NamedQuery(name = "findAnwesenheitbyKlasse", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK,a.KRANKMELDUNG) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID INNER JOIN Schueler_Klasse sk on sk.ID_SCHUELER=s.ID INNER JOIN Klasse k on k.ID=sk.ID_KLASSE where k.KNAME like :paramKName and (a.DATUM between :paramFromDate and :paramToDate) ORDER BY s.NNAME,a.DATUM "),
+     @NamedQuery(name = "findAnwesenheitbySchueler", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK,a.KRANKMELDUNG) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID where s.ID= :paramIdSchueler and (a.DATUM between :paramFromDate and :paramToDate) ORDER BY a.DATUM "),
      @NamedQuery(name = "findAnwesenheitByidSchueler", query= "select a from Anwesenheit a where a.ID_SCHUELER= :paramidSchueler"),
    //@NamedQuery(name = "findAnwesenheitbyKlasse", query= "select a from Anwesenheit a where a.ID_SCHUELER=14279 and (a.DATUM between :paramFromDate and :paramToDate)")
-     @NamedQuery(name = "findAnwesenheitbyDatumAndSchuelerID", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID where a.DATUM=:paramDatum and a.ID_SCHUELER=:paramSchuelerID  ORDER BY s.NNAME")
+     @NamedQuery(name = "findAnwesenheitbyDatumAndSchuelerID", query= "select NEW de.tuttas.restful.Data.AnwesenheitEintrag(a.DATUM,a.ID_LEHRER,a.ID_SCHUELER,a.VERMERK,a.KRANKMELDUNG) from Anwesenheit a INNER JOIN Schueler s on a.ID_SCHUELER=s.ID where a.DATUM=:paramDatum and a.ID_SCHUELER=:paramSchuelerID  ORDER BY s.NNAME")
     
 })
 @IdClass(AnwesenheitId.class)
@@ -41,11 +41,15 @@ public class Anwesenheit implements Serializable {
     private String ID_LEHRER;
     private String VERMERK;
     //private int ID_KLASSE;
+    private String KRANKMELDUNG;
 
     public Anwesenheit() {
     }
 
-
+     public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM) {
+        this.ID_SCHUELER = ID_SCHUELER;
+        this.DATUM = DATUM;
+    }
     /**
      * Anwesenheit erzeugen
      * @param ID_SCHUELER ID des Schülers
@@ -53,13 +57,23 @@ public class Anwesenheit implements Serializable {
      * @param ID_LEHRER der Lehrer (Kürzel)
      * @param VERMERK  Vermerk zur Anwesenheit (z.B. ag90)
      */
-    public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM, String ID_LEHRER, String VERMERK) {
+    public Anwesenheit(Integer ID_SCHUELER, Timestamp DATUM, String ID_LEHRER, String VERMERK,String KRANKMELDUNG) {
         this.ID_SCHUELER = ID_SCHUELER;
         this.DATUM = DATUM;
         this.ID_LEHRER = ID_LEHRER;
         this.VERMERK = VERMERK;        
+        this.KRANKMELDUNG=KRANKMELDUNG;
     }
 
+    public String getKRANKMELDUNG() {
+        return KRANKMELDUNG;
+    }
+
+    public void setKRANKMELDUNG(String KRANKMELDUNG) {
+        this.KRANKMELDUNG = KRANKMELDUNG;
+    }
+
+    
     
     public void setDATUM(Timestamp DATUM) {
         this.DATUM = DATUM;

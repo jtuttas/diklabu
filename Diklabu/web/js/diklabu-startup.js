@@ -27,6 +27,8 @@ var lernfelder;
 var klassen;
 // Liste der Vertretungen
 var vertretungen;
+// Liste der Krankmeldungen
+var krankmeldungen;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -52,7 +54,7 @@ $(document).ajaxComplete(function (event, request, settings) {
     $('#loading-indicator').hide();
 });
 
-if (sessionStorage.role=="Admin" || sessionStorage.role == "Verwaltung") {
+if (sessionStorage.role == "Admin" || sessionStorage.role == "Verwaltung") {
     $("#administration").show();
 }
 else {
@@ -61,10 +63,10 @@ else {
 
 $("#btnAddVertretung").click(function () {
     log("add Vertretung");
-    c=$("#vertrFirstRow").clone();
+    c = $("#vertrFirstRow").clone();
     c.find(".vertrKommentar").val("");
     $("#vertrBody").append(c);
-            
+
     $(".btnDeleteRow").unbind();
     $(".btnDeleteRow").click(function () {
         log("delete Vertretung, Zeilen=" + $('#vertrBody >tr').length);
@@ -117,10 +119,10 @@ $("#btnSubmitVertretung").click(function () {
         if (error) {
             return;
         }
-        if ($("#absDate").val()=="") {
+        if ($("#absDate").val() == "") {
             toastr["warning"]("Kein Absenz Datum eingetragen!", "Warnung!");
             return;
-            
+
         }
         var eintr = {
             "eingereichtVon": sessionStorage.myself,
@@ -134,7 +136,7 @@ $("#btnSubmitVertretung").click(function () {
             log("baue Eintrag:" + $(this).find(".absStunde").val());
             var row = {
                 "stunde": $(this).find(".absStunde").val(),
-                "klasse": $(this).find(".vertKlassen").val(),                
+                "klasse": $(this).find(".vertKlassen").val(),
                 "idKlasse": $(this).find(".vertKlassen option:selected").attr("kid"),
                 "aktion": $(this).find(".vertAktion").val(),
                 "vertreter": $(this).find(".vertLehrer").val(),
@@ -144,7 +146,7 @@ $("#btnSubmitVertretung").click(function () {
 
         });
         log("sende -> " + JSON.stringify(eintr));
-         $.ajax({
+        $.ajax({
             url: SERVER + "/Diklabu/api/v1/vertretung/",
             type: "POST",
             cache: false,
@@ -161,7 +163,7 @@ $("#btnSubmitVertretung").click(function () {
                     $("#absLehrer").val("");
                     $("#absDate").val("");
                     $("#absKommentar").val("");
-                    r=$("#vertrFirstRow").clone();
+                    r = $("#vertrFirstRow").clone();
                     $("#vertrBody").empty();
                     $("#vertrBody").append(r);
                     $(".vertrKommentar").val("");
@@ -170,7 +172,7 @@ $("#btnSubmitVertretung").click(function () {
                     toastr["error"](data.msg, "Fehler!");
                 }
                 if (data.warning) {
-                    for (i=0;i<data.warningMsg.length;i++) {
+                    for (i = 0; i < data.warningMsg.length; i++) {
                         toastr["warning"](data.warningMsg[i], "Warnung!");
                     }
                 }
@@ -389,8 +391,147 @@ $("#emailWeiter").click(function () {
     }
 })
 
+$(document).on('click', '.btn-delete-krankmeldung', function () {
+    log("Lösche Krankmledung mit Namen " + $(this).attr("atestFile"));
+    data = $(this).attr("atestId").split("_");
+    id = data[0];
+    dat = data[1];
+    log("Lösche Krankmledung ID=" + id + " Datum=" + dat);
+    deleteKrankmeldung(id, dat, function (e) {
+        if (e.success == false) {
+            toastr["error"](e.msg, "Fehler!");
+        }
+        else {
+            toastr["success"](e.msg, "Information!");
+            getFehltage($("#atestSchueler option:selected").attr("atid"), $("#startDate").val(), $("#endDate").val(), function (data) {
+                updateKrankmeldungen(data);
+            });
+        }
+    });
+});
+
+
+$(document).on('change', '.attestCheck', function () {
+    log("change State " + $(this).attr("acid") + " checked=" + $(this).prop("checked"));
+    enableUploadButton();
+});
+
+
+$(document).on('change', '.atestFilter', function () {
+    updateKrankmeldungen(krankmeldungen);
+    enableUploadButton();
+});
+
+function enableUploadButton() {
+    log("Checkboxes checked=" + $('.attestCheck:checked').length);
+    if ($("#fileAtest").val() != "" && $('.attestCheck:checked').length > 0) {
+        $("#uploadPdfButton").removeClass("disabled");
+    }
+    else {
+        $("#uploadPdfButton").addClass("disabled");
+    }
+}
+
+$(document).on('change', '#atestSchueler', function () {
+    log("Schüler geänder!");
+    log("gewählt ist " + $("#atestSchueler option:selected").attr("atid"));
+    getFehltage($("#atestSchueler option:selected").attr("atid"), $("#startDate").val(), $("#endDate").val(), function (data) {
+        updateKrankmeldungen(data);
+        enableUploadButton();
+    });
+});
+
+function updateKrankmeldungen(data) {
+    krankmeldungen = data;
+    $("#atestTable").empty();
+    if (data.length != 0) {
+        log("Empfange:" + JSON.stringify(data));
+        log("ID Schueler =" + data[0].id_Schueler);
+        $("#atestUploadForm").attr("action", SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + data[0].id_Schueler);
+        idSchueler = data[0].id_Schueler;
+        for (i = 0; i < data[0].eintraege.length; i++) {
+            eintr = data[0].eintraege[i];
+            dat = eintr.DATUM.substring(0, eintr.DATUM.indexOf('T'));
+            bem = "";
+            vermerk = eintr.VERMERK;
+            vermerk = vermerk.trim();
+            //log("Vermekr ist (" + vermerk + ")");
+            var e = vermerk.search('^e');
+            var f = vermerk.search('^f');
+            var v = vermerk.search('^v\\d+|^ag\\d+');
+            //log("e =" + e + " f=" + f + " v=" + v);
+            if ($("#filter_e").prop("checked") && e != -1 ||
+                    $("#filter_f").prop("checked") && f != -1 ||
+                    $("#filter_v").prop("checked") && v != -1) {
+                if (eintr.BEMERKUNG != undefined) {
+                    bem = eintr.BEMERKUNG;
+                }
+                if (eintr.KRANKMELDUNG != undefined) {                    
+                    $("#atestTable").append('<tr><td><a href="'+SERVER+"/Diklabu/api/v1/anwesenheit/schueler/"+eintr.KRANKMELDUNG+'" target="_blank"><img src="../img/document.png"></a></td><td>' + dat + '</td><td>' + eintr.VERMERK + '</td><td>' + bem + '</td><td><button atestId="' + eintr.ID_SCHUELER + "_" + dat + '" type="button" class="btn btn-warning btn-delete-krankmeldung">Delete</button></td></tr>');
+                }
+                else {
+                    $("#atestTable").append('<tr><td><label><input type="checkbox" acid="' + eintr.ID_SCHUELER + "_" + dat + '" class="attestCheck" value=""></label></td><td>' + dat + '</td><td>' + eintr.VERMERK + '</td><td>' + bem + '</td><td></td></tr>');
+                }
+
+
+
+            }
+
+        }
+    }
+}
+
+// Attest Upload Button gedrückt
+$('#atestUploadForm').on('submit', (function (e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    log("--> Hochladen der Krankmeldung für Schüler id=" + idSchueler);
+    $.ajax({
+        type: 'POST',
+        url: SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + idSchueler,
+        data: formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success: function (data) {
+            log("success");
+            if (data.success) {
+                $('.attestCheck:checked').each(function (i, obj) {
+                    da = $(this).attr("acid").split("_");
+                    log("Setzte ID= " + da[0] + " Tag=" + da[1]+ "File="+data.msg);
+                    setKrankmeldung(da[0], da[1], data.msg, function (data) {
+                        if (data.success == true) {
+                            
+                        }
+                        else {
+                            toastr["error"](data.msg, "Fehler!");
+                        }
+                    });
+                });
+                toastr["success"]("Dokument " + data.msg + " verknüpft!", "Information!");
+                $("#fileAtest").val("");
+                $("#atestWahl").text("");
+                getFehltage($("#atestSchueler option:selected").attr("atid"), $("#startDate").val(), $("#endDate").val(), function (data) {
+                    updateKrankmeldungen(data);
+                    enableUploadButton();
+                });
+            }
+            else {
+                toastr["error"](data.msg, "Fehler!");
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            log("error");
+            toastr["error"]("Fehler beim Hochladen der Krankmeldung!", "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}));
+
 // Ändern der Fileauswahl beim Bild Upload
-$(document).on('change', '.btn-file :file', function () {
+$(document).on('change', '#fileBild', function () {
 
     var input = $(this),
             numFiles = input.get(0).files ? input.get(0).files.length : 1,
@@ -399,6 +540,19 @@ $(document).on('change', '.btn-file :file', function () {
     input.trigger('fileselect', [numFiles, label]);
     $("#bildWahl").text(label);
     $("#uploadBildButton").show();
+});
+
+// Ändern der Fileauswahl beim pdf Upload
+$(document).on('change', '#fileAtest', function () {
+
+    var input = $(this),
+            numFiles = input.get(0).files ? input.get(0).files.length : 1,
+            label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    log("Ausgewählt wurde als pdf " + label);
+    input.trigger('fileselect', [numFiles, label]);
+    $("#atestWahl").text(label);
+    enableUploadButton();
+
 });
 
 // Bild Upload Button gedrückt
@@ -522,8 +676,8 @@ $("#absendenEMailBetrieb").click(function () {
         //event.preventDefault();
     }
     else {
-        
-        $.post('../MailServlet', $('#emailFormBetriebe').serialize(), function(data) {
+
+        $.post('../MailServlet', $('#emailFormBetriebe').serialize(), function (data) {
             if (data.success) {
                 toastr["success"]("EMail wird versendet via BCC an Betriebe", "Mail Service");
             }
@@ -565,8 +719,8 @@ $("#absendenEMailKlasse").click(function () {
         //event.preventDefault();
     }
     else {
-        
-        $.post('../MailServlet', $('#emailFormKlasse').serialize(),function (data) {
+
+        $.post('../MailServlet', $('#emailFormKlasse').serialize(), function (data) {
             if (data.success) {
                 toastr["success"]("EMail wird versendet via CC an Klasse " + nameKlasse, "Mail Service");
             }
@@ -920,7 +1074,7 @@ function getSchuljahre(callback) {
 function getVertretung(callback) {
     log("get Vertertung");
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/vertretung/"+$("#startDate").val()+"/"+$("#endDate").val(),
+        url: SERVER + "/Diklabu/api/v1/vertretung/" + $("#startDate").val() + "/" + $("#endDate").val(),
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         headers: {
@@ -928,7 +1082,7 @@ function getVertretung(callback) {
             "auth_token": sessionStorage.auth_token
         },
         success: function (data) {
-            log("empfange getVertretung -> "+JSON.stringify(data));
+            log("empfange getVertretung -> " + JSON.stringify(data));
             callback(data);
         },
         error: function (xhr, textStatus, errorThrown) {
@@ -1100,6 +1254,33 @@ function submitAnwesenheit(eintr, success) {
             }
         });
     }
+}
+
+
+function setKrankmeldung(id, dat, file, callback) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + id + "/" + dat,
+        type: "PUT",
+        cache: false,
+        async: false,
+        data: file,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            if (callback != undefined) {
+                callback(data);
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Anwesenheitseintrag nicht nicht verknüfpen! Status Code=" + xhr.status, "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
 }
 
 /**
@@ -1292,6 +1473,37 @@ function submitNote(lf, ids, wert) {
         },
         error: function (xhr, textStatus, errorThrown) {
             toastr["error"]("Kann Note nicht eintragen! Status Code=" + xhr.status, "Fehler!");
+            if (xhr.status == 401) {
+                loggedOut();
+            }
+        }
+    });
+}
+
+/**
+ * Löscht die Krankmeldung eines Schülers
+ * @param {type} ids id Schüler
+ * @param {type} dat Datum
+ * @param {type} callback
+ 
+ */
+function deleteKrankmeldung(ids, dat, callback) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + ids + "/" + dat,
+        type: "DELETE",
+        cache: false,
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            if (callback != undefined) {
+                callback(data);
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Kann Krankmeldung nicht löschen! Status Code=" + xhr.status, "Fehler!");
             if (xhr.status == 401) {
                 loggedOut();
             }
@@ -1565,6 +1777,32 @@ function loadUmfrage(callback) {
         },
         error: function () {
             toastr["error"]("kann aktive Umfrage nicht vom Server laden", "Fehler!");
+        }
+    });
+}
+
+/**
+ * Laden der Fehltage
+ * @param {type} ids ID des Schülers
+ * @param {type} from von Datum
+ * @param {type} to bis Datum
+ * @param {type} callback
+ */
+function getFehltage(ids, from, to, callback) {
+    log("getFehltage for ID=" + ids + " from " + from + " to" + to);
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + ids + "/" + from + "/" + to,
+        type: "GET",
+        headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            callback(data);
+        },
+        error: function () {
+            toastr["error"]("Kann Fehltage nicht vom Server laden", "Fehler!");
         }
     });
 }
@@ -2522,7 +2760,7 @@ function refreshKlassenliste(kl, callback) {
                 $("#tabelleKlasse").empty();
                 $("#tabelleBemerkungen").empty();
                 $("#tabelleBeteiligung").empty();
-
+                $("#atestSchueler").empty();
                 $("#tabelleKlasse").append('<thead><tr><th ><h3>Name</h3></th></tr></thead>');
                 $("#tabelleKlasse").append("<tbody>");
                 for (i = 0; i < data.length; i++) {
@@ -2534,6 +2772,7 @@ function refreshKlassenliste(kl, callback) {
                     else {
                         $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" name="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
                     }
+                    $("#atestSchueler").append('<option atid="' + data[i].id + '">' + data[i].VNAME + " " + data[i].NNAME + '</option>');
                 }
                 $("#tabelleKlasse").append("</tbody>");
                 $("#tabelleBemerkungen").append("</tbody>");
@@ -2595,6 +2834,17 @@ function updateCurrentView() {
             $("#printContainer").show();
             break;
             // Fehlzeiten
+        case "Krankmeldungen":
+            refreshKlassenliste(nameKlasse, function (data) {
+                log("gewählt ist " + $("#atestSchueler option:selected").attr("atid"));
+                getFehltage($("#atestSchueler option:selected").attr("atid"), $("#startDate").val(), $("#endDate").val(), function (data) {
+                    updateKrankmeldungen(data);
+                    enableUploadButton();
+                });
+            });
+            $("#dokumentationContainer").hide();
+            $("#printContainer").hide();
+            break;
         case "Übersicht":
             refreshKlassenliste(nameKlasse, function (data) {
                 refreshAnwesenheit(nameKlasse, function () {
@@ -2633,8 +2883,8 @@ function updateCurrentView() {
                 $(".vertKlassen").append("<option></option>");
                 for (i = 0; i < klassen.length; i++) {
                     k = klassen[i];
-                    
-                    $(".vertKlassen").append("<option kid=\""+k.id+"\">" + k.KNAME + "</option>");
+
+                    $(".vertKlassen").append("<option kid=\"" + k.id + "\">" + k.KNAME + "</option>");
                 }
             });
             $("#dokumentationContainer").hide();
@@ -2643,22 +2893,22 @@ function updateCurrentView() {
         case "Vertretungsliste":
             $("#dokumentationType").val("Vertretungsliste");
             getVertretung(function (data) {
-                vertretungen=data;
+                vertretungen = data;
                 $("#vertrUbersichtBody").empty();
-                for (i=0;i<data.length;i++) {
-                    v=data[i];
-                    $("#vertrUbersichtBody").append('<tr><td>'+v.absenzVon+'</td><td>'+getReadableDate(v.absenzAm)+'</td><td>'+v.eingereichtVon+'</td><td>'+getReadableDate(v.eingereichtAm)+'</td><td><img  index="'+i+'" class="vdetails" src="../img/Info.png"></td></tr>');
+                for (i = 0; i < data.length; i++) {
+                    v = data[i];
+                    $("#vertrUbersichtBody").append('<tr><td>' + v.absenzVon + '</td><td>' + getReadableDate(v.absenzAm) + '</td><td>' + v.eingereichtVon + '</td><td>' + getReadableDate(v.eingereichtAm) + '</td><td><img  index="' + i + '" class="vdetails" src="../img/Info.png"></td></tr>');
                 }
                 $(".vdetails").click(function () {
                     index = $(this).attr("index");
                     v = vertretungen[index];
-                    $("#dvHead").text("Absenz von "+v.absenzVon+" am "+getReadableDate(v.absenzAm)+" eingetragen von "+v.eingereichtVon+" am "+getReadableDate(v.eingereichtAm));
+                    $("#dvHead").text("Absenz von " + v.absenzVon + " am " + getReadableDate(v.absenzAm) + " eingetragen von " + v.eingereichtVon + " am " + getReadableDate(v.eingereichtAm));
                     $("#veKommentar").text(v.kommentar);
                     regelungen = JSON.parse(v.jsonString);
                     $("#vertrBodyDetails").empty();
-                    for (i=0;i<regelungen.length;i++) {
+                    for (i = 0; i < regelungen.length; i++) {
                         r = regelungen[i];
-                        $("#vertrBodyDetails").append('<tr><td>'+r.stunde+'</td><td>'+r.Klasse+'</td><td>'+r.Aktion+'</td><td>'+r.Vertreter+'</td><td>'+r.Kommentar+'</td></tr>');
+                        $("#vertrBodyDetails").append('<tr><td>' + r.stunde + '</td><td>' + r.Klasse + '</td><td>' + r.Aktion + '</td><td>' + r.Vertreter + '</td><td>' + r.Kommentar + '</td></tr>');
                     }
                     $('#detailsVertretung').modal('show');
                 });

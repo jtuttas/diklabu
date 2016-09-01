@@ -20,10 +20,21 @@ public class AnwesenheitEintrag {
     private String VERMERK;
     private String BEMERKUNG;
     private int ID_KLASSE;
+    private String KRANKMELDUNG;
     
     
     private boolean parseError = false;
 
+    public void setKRANKMELDUNG(String KRANKMELDUNG) {
+        this.KRANKMELDUNG = KRANKMELDUNG;
+    }
+
+    public String getKRANKMELDUNG() {
+        return KRANKMELDUNG;
+    }
+
+    
+    
     public void setID_KLASSE(int ID_KLASSE) {
         this.ID_KLASSE = ID_KLASSE;
     }
@@ -53,11 +64,12 @@ public class AnwesenheitEintrag {
     public AnwesenheitEintrag() {
     }
 
-    public AnwesenheitEintrag(Timestamp DATUM, String ID_LEHRER, int ID_SCHUELER, String VERMERK) {
+    public AnwesenheitEintrag(Timestamp DATUM, String ID_LEHRER, int ID_SCHUELER, String VERMERK,String KRANKMELDUNG) {
         this.DATUM = DATUM;
         this.ID_LEHRER = ID_LEHRER;
         this.ID_SCHUELER = ID_SCHUELER;
         this.VERMERK = VERMERK;
+        this.KRANKMELDUNG=KRANKMELDUNG;
 
     }
 

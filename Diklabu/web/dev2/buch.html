@@ -40,7 +40,7 @@
                     <div class="row">
                         <div class="col-md-1" >
                             <a href="admin.html">
-                            <img src="../img/administration.png" id="administration" style="display: none">
+                                <img src="../img/administration.png" id="administration" style="display: none">
                             </a>
                         </div>
                         <div class="col-md-3 col-md-offset-4">
@@ -274,6 +274,7 @@
                     <div id="tabFehlzeiten" class="tab-pane fade">
                         <ul class="nav nav-tabs" id="fehlzeitenTab" >
                             <li class="active"><a data-toggle="tab" href="#tabUebersicht">Übersicht</a></li>                            
+                            <li><a data-toggle="tab" href="#tabKrankmeldungen">Krankmeldungen</a></li>
                             <li><a data-toggle="tab" href="#tabMail">Mail</a></li>
                         </ul>
                         <div class="tab-content">
@@ -299,6 +300,53 @@
                                     </tbody>
                                 </table>
                             </div>
+                    <div id="tabKrankmeldungen" class="tab-pane fade">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label for="atestSchueler">Schüler:</label>
+                                <select class="form-control" id="atestSchueler">
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <br/>
+                                <label class="checkbox-inline"><input id="filter_e" class="atestFilter" type="checkbox" value="" checked>entschuldigt</label>
+                                <label class="checkbox-inline"><input id="filter_f" class="atestFilter" type="checkbox" value="" checked>unentschuldigt</label>
+                                <label class="checkbox-inline"><input id="filter_v" class="atestFilter" type="checkbox" value="" checked>Verspätungen</label>
+                            </div>
+                            <form method="POST" enctype="multipart/form-data" id="atestUploadForm" action="/Diklabu/api/v1/anwesenheit/schueler/14279">
+                                <div class="col-md-4">
+                                    <br/>
+
+                                    <span class="btn btn-default btn-file" id="atestFileSchueler" >                                        
+                                        <label for="atestFileSchueler">pdf wählen</label>
+                                        <input id="fileAtest" type="file" name="file"/>
+                                    </span>
+                                    <strong id="atestWahl">&nbsp;</strong>
+
+                                </div>
+                                <div class="col-md-1">
+                                    <br/>
+                                    <button id="uploadPdfButton" type="submit" class="btn btn-primary disabled">Upload</button>
+                                </div>                                    
+                            </form>
+                        </div>
+
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="5%">Opt</th>
+                                    <th>Datum</th>
+                                    <th>Eintrag</th>
+                                    <th>Bemerkung</th>
+                                    <th>Aktion</th>
+                                </tr>
+                            </thead>
+                            <tbody id="atestTable">
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                            
                             <div id="tabMail" class="tab-pane fade in" >
                                 <div class="row">
                                     <form id="emailForm" target="blanc" method="POST" action="/Diklabu/MailServlet" accept-charset="ISO-8859-1">
@@ -546,7 +594,7 @@
                     <div id="tabPortfolio" class="tab-pane fade">
                         <table class="table table-striped table-hover"  >
                             <thead id="headPortfolio">
-                                
+
                             </thead>
                             <tbody id="bodyPortfolio">
                             </tbody>   
@@ -833,7 +881,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Modal Info Dialog-->
         <div id="detailsVertretung" class="modal fade" role="dialog">
             <div class="modal-dialog">
@@ -845,22 +893,22 @@
                         <h4 class="modal-title" id="dvHead" >Modal Header</h4>
 
                     </div>
-                        <div class="modal-body">
-                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th width="7%">Stunde</th>
-                                                        <th width="15%">Klasse</th>
-                                                        <th width="15%">Aktion</th>
-                                                        <th width="10%">Vertreter</th>
-                                                        <th>Kommentar</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="vertrBodyDetails">
-                                                </tbody>
-                            </table>
-                            <strong id="veKommentar"></strong>
-                        </div>
+                    <div class="modal-body">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th width="7%">Stunde</th>
+                                    <th width="15%">Klasse</th>
+                                    <th width="15%">Aktion</th>
+                                    <th width="10%">Vertreter</th>
+                                    <th>Kommentar</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vertrBodyDetails">
+                            </tbody>
+                        </table>
+                        <strong id="veKommentar"></strong>
+                    </div>
                 </div>
             </div>
         </div>

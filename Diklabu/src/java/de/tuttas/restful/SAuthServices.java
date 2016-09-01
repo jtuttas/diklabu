@@ -232,10 +232,18 @@ public class SAuthServices {
                 "paramToDate", to);
         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
 
-        return getData(anwesenheit);
+        Query qb = em.createNamedQuery("findBemerkungbyDate");
+        qb.setParameter("paramFromDate", from);
+        qb.setParameter("paramToDate", to);
+        List<String> ids = new ArrayList<>();
+        ids.add(""+sid);
+        qb.setParameter("idList", ids);
+        List<Bemerkung> bem = qb.getResultList();  
+        Log.d("Bemerkungen="+bem);
+        return getData(anwesenheit,bem);
     }
 
-    private List<AnwesenheitObjekt> getData(List<AnwesenheitEintrag> anwesenheit) {
+    private List<AnwesenheitObjekt> getData(List<AnwesenheitEintrag> anwesenheit,List<Bemerkung>bem) {
         //Log.d("Results:="+anwesenheit);
         List<AnwesenheitObjekt> anw = new ArrayList();
         int id = 0;
@@ -245,8 +253,18 @@ public class SAuthServices {
                 id = anwesenheit.get(i).getID_SCHUELER();
                 ao = new AnwesenheitObjekt(id);
                 anw.add(ao);
+                
             }
+            
             anwesenheit.get(i).setParseError(!VerspaetungsUtil.isValid(anwesenheit.get(i)));
+            for (Bemerkung b : bem) {
+                //Log.d("Teste "+b.getDATUM()+" ist "+anwesenheit.get(i).getDATUM()+" und ID="+b.getID_SCHUELER()+" ist "+anwesenheit.get(i).getID_SCHUELER());
+                if (b.getID_SCHUELER()==anwesenheit.get(i).getID_SCHUELER() && b.getDATUM().equals(anwesenheit.get(i).getDATUM())) {
+                   anwesenheit.get(i).setBEMERKUNG(b.getBEMERKUNG());
+                   //Log.d("sertze Bemerkung auf "+b.getBEMERKUNG());
+                }
+            }
+            //anwesenheit.get(i).setBEMERKUNG(null);
             ao.getEintraege().add(anwesenheit.get(i));
         }
 

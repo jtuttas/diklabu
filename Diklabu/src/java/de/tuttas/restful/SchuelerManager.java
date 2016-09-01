@@ -10,21 +10,27 @@ import com.drew.metadata.MetadataException;
 import de.tuttas.config.Config;
 import de.tuttas.entities.Anwesenheit;
 import de.tuttas.entities.Ausbilder;
+import de.tuttas.entities.Bemerkung;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.LoginSchueler;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
+import de.tuttas.restful.Data.AnwesenheitEintrag;
+import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.Data.BildObject;
 
 import de.tuttas.restful.Data.KlasseDetails;
 import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
+import de.tuttas.restful.auth.Authenticator;
+import de.tuttas.restful.auth.HTTPHeaderNames;
 import de.tuttas.util.DatumUtil;
 import de.tuttas.util.ImageUtil;
 import de.tuttas.util.Log;
 import de.tuttas.util.StringUtil;
+import de.tuttas.util.VerspaetungsUtil;
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -33,6 +39,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +52,7 @@ import javax.imageio.ImageIO;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -52,6 +60,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -89,6 +99,7 @@ public class SchuelerManager {
         Log.d("Result List:" + klassen);
         return klassen;
     }
+    
     
     /**
      * Einen Schüler finden
