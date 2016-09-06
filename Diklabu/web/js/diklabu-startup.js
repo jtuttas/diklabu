@@ -2987,6 +2987,7 @@ function updateCurrentView() {
         case "Betriebe anschreiben":
             $("#fromLehrerBetriebMail").val(sessionStorage.myemail);
             $("#toBetriebMail").val(sessionStorage.myemail);
+            $("#auth_tokenBetriebeAnschreiben").val(sessionStorage.auth_token);
             refreshKlassenliste(nameKlasse, function (data) {
                 getBetriebe(nameKlasse, function (data) {
                     updateBetriebeMails();
@@ -2998,6 +2999,7 @@ function updateCurrentView() {
         case "Klasse anschreiben":
             $("#fromLehrerKlasseMail").val(sessionStorage.myemail);
             $("#toKlasseMail").val(sessionStorage.myemail);
+            $("#auth_tokenemailKlasse").val(sessionStorage.auth_token);
             refreshKlassenliste(nameKlasse, function (data) {
                 updateKlasseMails();
             });

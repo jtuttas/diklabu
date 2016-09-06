@@ -100,7 +100,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     query = em.createNamedQuery("findKlassebyName");
                     query.setParameter("paramKName", u.getCourse().toUpperCase());
                     List<Klasse> klasse = query.getResultList();
-                    if (klasse.size() != 0) {
+                    if (klasse.size() != 0) { 
                         jsonObjBuilder.add("idKlasse", klasse.get(0).getId());
                     }
                     jsonObjBuilder.add("VNAME", u.getVName());
