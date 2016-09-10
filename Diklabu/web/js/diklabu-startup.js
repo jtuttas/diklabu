@@ -391,6 +391,31 @@ $("#emailWeiter").click(function () {
     }
 })
 
+$(document).on('keyup', '#klassenfilter', function () {
+
+    var rex = new RegExp($(this).val(), 'i');
+    //$('#klassen').hide();
+    var first="";
+    $('#klassen option').filter(function () {
+        //log("Teste "+$(this).val()+" reg test ist "+rex.test($(this).val()));
+        if (rex.test($(this).val())) {
+            $(this).show();
+            //log("hide "+$(this).val());
+            if (first=="") {
+                first=$(this).val();
+            }
+        }
+        else {
+            $(this).hide();
+            //log("show "+$(this).val());
+            
+        }
+    });    
+    //$('#klassen').show();
+    log("First="+first);
+    $("#klassen").val(first);
+    $('#klassen').trigger('change');
+});
 $(document).on('click', '.btn-delete-krankmeldung', function () {
     log("Lösche Krankmledung mit Namen " + $(this).attr("atestFile"));
     data = $(this).attr("atestId").split("_");
@@ -466,8 +491,8 @@ function updateKrankmeldungen(data) {
                 if (eintr.BEMERKUNG != undefined) {
                     bem = eintr.BEMERKUNG;
                 }
-                if (eintr.KRANKMELDUNG != undefined) {                    
-                    $("#atestTable").append('<tr><td><a href="'+SERVER+"/Diklabu/api/v1/anwesenheit/schueler/"+eintr.KRANKMELDUNG+'" target="_blank"><img src="../img/document.png"></a></td><td>' + dat + '</td><td>' + eintr.VERMERK + '</td><td>' + bem + '</td><td><button atestId="' + eintr.ID_SCHUELER + "_" + dat + '" type="button" class="btn btn-warning btn-delete-krankmeldung">Delete</button></td></tr>');
+                if (eintr.KRANKMELDUNG != undefined) {
+                    $("#atestTable").append('<tr><td><a href="' + SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + eintr.KRANKMELDUNG + '" target="_blank"><img src="../img/document.png"></a></td><td>' + dat + '</td><td>' + eintr.VERMERK + '</td><td>' + bem + '</td><td><button atestId="' + eintr.ID_SCHUELER + "_" + dat + '" type="button" class="btn btn-warning btn-delete-krankmeldung">Delete</button></td></tr>');
                 }
                 else {
                     $("#atestTable").append('<tr><td><label><input type="checkbox" acid="' + eintr.ID_SCHUELER + "_" + dat + '" class="attestCheck" value=""></label></td><td>' + dat + '</td><td>' + eintr.VERMERK + '</td><td>' + bem + '</td><td></td></tr>');
@@ -498,10 +523,10 @@ $('#atestUploadForm').on('submit', (function (e) {
             if (data.success) {
                 $('.attestCheck:checked').each(function (i, obj) {
                     da = $(this).attr("acid").split("_");
-                    log("Setzte ID= " + da[0] + " Tag=" + da[1]+ "File="+data.msg);
+                    log("Setzte ID= " + da[0] + " Tag=" + da[1] + "File=" + data.msg);
                     setKrankmeldung(da[0], da[1], data.msg, function (data) {
                         if (data.success == true) {
-                            
+
                         }
                         else {
                             toastr["error"](data.msg, "Fehler!");
