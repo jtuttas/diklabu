@@ -7,11 +7,14 @@ package de.tuttas.restful;
 
 import de.tuttas.restful.Data.Auth;
 import de.tuttas.restful.Data.PSCallerObject;
+import de.tuttas.util.CallPowershell;
 import de.tuttas.util.Log;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,32 +47,19 @@ public class PSCaller {
         Log.d("receive POST manager/pscaller:" + pso.toString());
         if (pso.getAuth() != null) {
             Auth auth = pso.getAuth();
-            try {
-                Runtime runtime = Runtime.getRuntime();
-                Process proc = runtime.exec("powershell " + pso.getScript());
-                
-                InputStream is = proc.getInputStream();
-                InputStreamReader isr = new InputStreamReader(is);
-                BufferedReader reader = new BufferedReader(isr);
-                String line;
-                String out = "";
-                while ((line = reader.readLine()) != null) {
-                    out = out + line;
-                }
-                reader.close();
-                proc.getOutputStream().close();
-                out = "{\"result\":" + out + "}";
-                Log.d("out=" + out);                
-                
-                pso.setResult(out);
-                pso.setSuccess(true);
-                
-            } catch (IOException ex) {
-                Log.d("IOException:" + ex.getMessage());
-                Logger.getLogger(PSCaller.class.getName()).log(Level.SEVERE, null, ex);
-                pso.setMsg(ex.getMessage());
-                pso.setSuccess(false);
+            
+            String fName = pso.getScript();
+            if (fName.indexOf(" ")!=-1) {
+                fName=fName.substring(0, fName.indexOf(" "));
             }
+            File f = new File(fName);
+            if(!f.exists()) { 
+                Log.d("File not found!"+fName);
+                pso.setSuccess(false);
+                pso.setMsg("Script-File "+fName+" nicht gefunden!");
+                return pso;
+            }
+            CallPowershell.call(pso);
         } else {
             pso.setSuccess(false);
             pso.setMsg("No Auth");

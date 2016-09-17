@@ -61,6 +61,7 @@ else {
     $("#administration").hide();
 }
 
+$("#klassenfilter").val("");
 $("#btnAddVertretung").click(function () {
     log("add Vertretung");
     c = $("#vertrFirstRow").clone();
@@ -3138,8 +3139,8 @@ function updateCurrentView() {
 
 
 function drawResults(results, col) {
-    $('#loading-indicator').show();
     for (i = 0; i < results.length; i++) {
+        $('#loading-indicator').show();
         var result = results[i];
         var antworten = results[i].skalen;
         // Create the data table.

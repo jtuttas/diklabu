@@ -38,11 +38,12 @@ function send-mailreport
         $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
         $password = $config.pass | ConvertTo-SecureString -asPlainText -Force
         $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $config.user, $password
+        $utf8 = New-Object System.Text.utf8encoding
         if ($attachment) {
-            Send-MailMessage -Body $body -From $from -To $to -SmtpServer $config.smtphost -Credential $credentials -Subject $subject -UseSsl -Port $config.port -Attachments $attachment
+            Send-MailMessage -Encoding $utf8 -Body $body -From $from -To $to -SmtpServer $config.smtphost -Credential $credentials -Subject $subject -UseSsl -Port $config.port -Attachments $attachment
         }
         else {
-            Send-MailMessage -Body $body -From $from -To $to -SmtpServer $config.smtphost -Credential $credentials -Subject $subject -UseSsl -Port $config.port
+            Send-MailMessage -Encoding $utf8 -Body $body -From $from -To $to -SmtpServer $config.smtphost -Credential $credentials -Subject $subject -UseSsl -Port $config.port
 
         }
 

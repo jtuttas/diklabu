@@ -12,12 +12,10 @@ package de.tuttas.restful.Data;
  *
  * @author Jörg
  */
-public class PSCallerObject {
+public class PSCallerObject extends ResultObject{
     Auth auth;
     String script;
     String result;
-    String msg;
-    boolean success;
 
     public Auth getAuth() {
         return auth;
@@ -26,26 +24,7 @@ public class PSCallerObject {
     public void setAuth(Auth auth) {
         this.auth = auth;
     }
-    
-    
-    public boolean getSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-    
-    
+            
 
     public PSCallerObject() {
     }

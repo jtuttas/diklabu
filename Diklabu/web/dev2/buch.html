@@ -43,10 +43,13 @@
                                 <img src="../img/administration.png" id="administration" style="display: none">
                             </a>
                         </div>
-                        <div class="col-md-2 col-md-offset-1">
-                              <label for="klassenfilter">Filter Klassen</label>
-
-                                    <input id="klassenfilter" type="text" class="form-control" placeholder="Type here...">
+                        <div class="col-md-1 col-md-offset-1">                  
+                            <div class="form-group has-feedback">
+                                <label for="klassenfilter" class="control-label">Klassen</label>
+                                <input id="klassenfilter" type="text" class="form-control" placeholder="filter..."/>
+                            <span style="color:black;" class="glyphicon glyphicon-search form-control-feedback"></span>    
+                            </div>
+                            
                         </div>
                         <div class="col-md-3">
                             <label for="klassen">Klassen</label>
@@ -61,7 +64,7 @@
                                 <input type="text" class="input-sm form-control" name="end" id="endDate"/>
                             </div>
                         </div>
-                        <div class="col-md-1">
+                        <div class="col-md-1 col-md-offset-2">
                             <br>
                             <div id="dokumentationContainer" style="display: none;">
                                 <form action="/Diklabu/DokuServlet" target="_blank" method="POST" role="form" class="form-horizontal">
@@ -84,8 +87,10 @@
                                 </form>
                             </div>
                             <div id="printContainer" style="display: none;">
-                                <button id="print"  class="btn  btn-success mybutton">Ausdrucken</button>                                
+                                    <div class="row">
+                                <button id="print"  class="btn  btn-success mybutton col-md-12">Ausdrucken</button>                                
                                 <br>
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -305,53 +310,53 @@
                                     </tbody>
                                 </table>
                             </div>
-                    <div id="tabKrankmeldungen" class="tab-pane fade">
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label for="atestSchueler">Schüler:</label>
-                                <select class="form-control" id="atestSchueler">
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <br/>
-                                <label class="checkbox-inline"><input id="filter_e" class="atestFilter" type="checkbox" value="" checked>entschuldigt</label>
-                                <label class="checkbox-inline"><input id="filter_f" class="atestFilter" type="checkbox" value="" checked>unentschuldigt</label>
-                                <label class="checkbox-inline"><input id="filter_v" class="atestFilter" type="checkbox" value="" checked>Verspätungen</label>
-                            </div>
-                            <form method="POST" enctype="multipart/form-data" id="atestUploadForm" action="/Diklabu/api/v1/anwesenheit/schueler/14279">
-                                <div class="col-md-4">
-                                    <br/>
+                            <div id="tabKrankmeldungen" class="tab-pane fade">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <label for="atestSchueler">Schüler:</label>
+                                        <select class="form-control" id="atestSchueler">
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <br/>
+                                        <label class="checkbox-inline"><input id="filter_e" class="atestFilter" type="checkbox" value="" checked>entschuldigt</label>
+                                        <label class="checkbox-inline"><input id="filter_f" class="atestFilter" type="checkbox" value="" checked>unentschuldigt</label>
+                                        <label class="checkbox-inline"><input id="filter_v" class="atestFilter" type="checkbox" value="" checked>Verspätungen</label>
+                                    </div>
+                                    <form method="POST" enctype="multipart/form-data" id="atestUploadForm" action="/Diklabu/api/v1/anwesenheit/schueler/14279">
+                                        <div class="col-md-4">
+                                            <br/>
 
-                                    <span class="btn btn-default btn-file" id="atestFileSchueler" >                                        
-                                        <label for="atestFileSchueler">pdf wählen</label>
-                                        <input id="fileAtest" type="file" name="file"/>
-                                    </span>
-                                    <strong id="atestWahl">&nbsp;</strong>
+                                            <span class="btn btn-default btn-file" id="atestFileSchueler" >                                        
+                                                <label for="atestFileSchueler">pdf wählen</label>
+                                                <input id="fileAtest" type="file" name="file"/>
+                                            </span>
+                                            <strong id="atestWahl">&nbsp;</strong>
 
+                                        </div>
+                                        <div class="col-md-1">
+                                            <br/>
+                                            <button id="uploadPdfButton" type="submit" class="btn btn-primary disabled">Upload</button>
+                                        </div>                                    
+                                    </form>
                                 </div>
-                                <div class="col-md-1">
-                                    <br/>
-                                    <button id="uploadPdfButton" type="submit" class="btn btn-primary disabled">Upload</button>
-                                </div>                                    
-                            </form>
-                        </div>
 
-                        <table class="table table-striped table-hover">
-                            <thead>
-                                <tr>
-                                    <th width="5%">Opt</th>
-                                    <th>Datum</th>
-                                    <th>Eintrag</th>
-                                    <th>Bemerkung</th>
-                                    <th>Aktion</th>
-                                </tr>
-                            </thead>
-                            <tbody id="atestTable">
-                                
-                            </tbody>
-                        </table>
-                    </div>
-                            
+                                <table class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th width="5%">Opt</th>
+                                            <th>Datum</th>
+                                            <th>Eintrag</th>
+                                            <th>Bemerkung</th>
+                                            <th>Aktion</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="atestTable">
+
+                                    </tbody>
+                                </table>
+                            </div>
+
                             <div id="tabMail" class="tab-pane fade in" >
                                 <div class="row">
                                     <form id="emailForm" target="blanc" method="POST" action="/Diklabu/MailServlet" accept-charset="ISO-8859-1">

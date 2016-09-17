@@ -6,6 +6,8 @@ Bitte beteiligten Sie sich an der Umfrage '[[TITEL]]'
 Sie erreichen die Umfrage über folgenden Link:
 [[LINK]]
 
+Hinweis!: Die Umfrage ist nur aus dem Schulnetz der MMBbS zu erreichen!
+
 Multi-Media Berufsbildende Schulen Hannover
 Expo Plaza 3
 30539 Hannover
