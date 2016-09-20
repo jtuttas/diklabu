@@ -19,6 +19,7 @@ public class UmfrageObjekt extends ResultObject{
     private List<FragenObjekt> fragen ;
     private String titel;
     private Integer active;
+    private String owner;
 
 
     public UmfrageObjekt() {
@@ -36,6 +37,15 @@ public class UmfrageObjekt extends ResultObject{
         antworten = new ArrayList<>();
     }
 
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+    
+    
     public void setActive(Integer active) {
         this.active = active;
     }

@@ -14,6 +14,7 @@ public class ActiveUmfrage {
     private int id;
     private String titel;
     private int active;
+    private String owner;
 
     /**
      * Aktive Umfrage erzeugen
@@ -26,9 +27,10 @@ public class ActiveUmfrage {
      * @param id ID der Umfrage
      * @param titel Titel der Umfrage
      */
-    public ActiveUmfrage(int id, String titel) {
+    public ActiveUmfrage(int id, String titel,String owner) {
         this.id = id;
         this.titel = titel;
+        this.owner = owner;
     }
 
     /**
@@ -37,11 +39,21 @@ public class ActiveUmfrage {
      * @param titel Titel der Umfrage
      * @param active 1=aktiv sonst 0
      */
-    public ActiveUmfrage(int id, String titel, int active) {
+    public ActiveUmfrage(int id, String titel, int active,String owner) {
         this.id = id;
         this.titel = titel;
         this.active = active;
+        this.owner=owner;
     }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+    
     
     
 

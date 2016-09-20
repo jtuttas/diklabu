@@ -28,6 +28,9 @@ import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.restful.Data.TeilnehmerObjekt;
 import de.tuttas.restful.Data.UmfrageObjekt;
 import de.tuttas.restful.Data.UmfrageResult;
+import de.tuttas.restful.auth.Authenticator;
+import de.tuttas.restful.auth.HTTPHeaderNames;
+import de.tuttas.restful.auth.Roles;
 import de.tuttas.servlets.MailFormatException;
 import de.tuttas.servlets.MailObject;
 import de.tuttas.servlets.MailSender;
@@ -61,9 +64,12 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 
 /**
  * Restful Service zum Verwalten der Umfrage
+ *
  * @author Jörg
  */
 @Path("umfrage")
@@ -91,10 +97,12 @@ public class UmfagenManager {
         em.getEntityManagerFactory().getCache().evictAll();
         Umfrage u = em.find(Umfrage.class, id);
         if (u == null) {
+            Log.d("Umfrage nicht gefunden!");
             return null;
         }
         Log.d("Umfrage ist " + u.getNAME());
         UmfrageObjekt uo = new UmfrageObjekt(u.getNAME());
+        uo.setOwner(u.getOWNER());
         Log.d("Aktive Umfrage mit Titel" + u.getNAME());
         Log.d("Die Umfrage hat FRagen n=" + u.getFragen().size());
         Collection<Fragen> fr = u.getFragen();
@@ -121,14 +129,26 @@ public class UmfagenManager {
     }
 
     /**
-     * Liste der aktiven Umfragen abfragen
-     * @return Liste der Umfragen die aktiv sind
+     * Liste der Umfragen abfragen
+     *
+     * @return Liste der Umfragen
      */
     @GET
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<ActiveUmfrage> getUmfragen() {
-        Log.d("Umfragen abfragen");
-        Query query = em.createNamedQuery("findAllUmfragen");
+    public List<ActiveUmfrage> getUmfragen(@Context HttpHeaders httpHeaders) {
+        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+        Authenticator a = Authenticator.getInstance();
+        String user = a.getUser(authToken);
+        Query query=null;
+        if (a.getRole(authToken).equals(Roles.toString(Roles.ADMIN))) {
+            Log.d("Umfragen abfragen User=" + user+ "Role ist ADMIN");
+            query = em.createNamedQuery("findAllUmfragenAdmin");            
+        }
+        else {
+            Log.d("Umfragen abfragen User=" + user);
+            query = em.createNamedQuery("findAllUmfragen");
+            query.setParameter("paramOWNER", user);            
+        }
         List<ActiveUmfrage> umfrage = query.getResultList();
         Log.d("Result List:" + umfrage);
         return umfrage;
@@ -136,17 +156,25 @@ public class UmfagenManager {
 
     /**
      * Beteiligung an einer Umfrage abfragen
+     *
      * @param uid ID der Umfrage
      * @param kname Name der Klasse
      * @return Liste mit Beteiligungs Objekten
      */
     @GET
     @Path("beteiligung/{uid}/{kname}")
-    public List<Beteiligung> getBeteiligung(@PathParam("uid") int uid, @PathParam("kname") String kname) {
+    public List<Beteiligung> getBeteiligung(@Context HttpHeaders httpHeaders,@PathParam("uid") int uid, @PathParam("kname") String kname) {
         Log.d("Get Beteiligung f. Umfrage " + uid + " und Klasse =" + kname);
+        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+        Authenticator a = Authenticator.getInstance();
+        String user = a.getUser(authToken);
         em.getEntityManagerFactory().getCache().evictAll();
         Umfrage u = em.find(Umfrage.class, uid);
         if (u == null) {
+            return null;
+        }
+        if (u.getOWNER()!=null && (!u.getOWNER().equals(user) || !a.getRole(authToken).equals(Roles.toString(Roles.ADMIN)))) {
+            Log.d("Keine Berechtigung die Beteiligung an der Umfrage einzusehen");
             return null;
         }
         List<Beteiligung> beteiligungen = new ArrayList<>();
@@ -157,7 +185,7 @@ public class UmfagenManager {
             Log.d("Der Teilnehmer mit der ID " + ro[0] + " hat " + ro[1] + " Fragen beantwortet!");
             Teilnehmer t = (Teilnehmer) ro[0];
             Long fragen = (Long) ro[1];
-            Log.d("t="+t+" fragen="+fragen+" u="+u);
+            Log.d("t=" + t + " fragen=" + fragen + " u=" + u);
             Beteiligung b = new Beteiligung(t.getKey(), fragen.intValue(), u.getFragen().size(), t.getSCHUELERID(), t.getBETRIEBID(), t.getLEHRERID());
             beteiligungen.add(b);
         }
@@ -166,6 +194,7 @@ public class UmfagenManager {
 
     /**
      * Umfrage Auswerten
+     *
      * @param uid ID der Umfrage
      * @param kname Name der Klasse
      * @return Liste mit UmfrageResult Objekten
@@ -173,25 +202,33 @@ public class UmfagenManager {
     @GET
     @Path("auswertung/{uid}/{klassenname}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<UmfrageResult> getAntwortenKlasse(@PathParam("uid") int uid, @PathParam("klassenname") String kname) {
+    public List<UmfrageResult> getAntwortenKlasse(@Context HttpHeaders httpHeaders,@PathParam("uid") int uid, @PathParam("klassenname") String kname) {
         Log.d("Get Antworten f. Umfrage " + uid + " und Klasse(n) =" + kname);
+        String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+        Authenticator aut = Authenticator.getInstance();
+        String user = aut.getUser(authToken);
+
         String[] klassen = kname.split(";");
-        
+
         String qString = "SELECT a.antwortskala,COUNT(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Teilnehmer t on a.teilnehmer = t inner join Schueler s on s.ID=t.SCHUELERID inner join Schueler_Klasse sk on t.SCHUELERID=sk.ID_SCHUELER inner join Klasse k on sk.ID_KLASSE=k.ID WHERE (";
-        for (int i=0;i<klassen.length;i++) {
-            qString+="k.KNAME like '" + klassen[i]+"'";
-            if (i!=klassen.length-1) {
-                qString+=" or ";
+        for (int i = 0; i < klassen.length; i++) {
+            qString += "k.KNAME like '" + klassen[i] + "'";
+            if (i != klassen.length - 1) {
+                qString += " or ";
             }
-            
+
         }
         qString += ") and ";
-        Log.d("qString="+qString);
-        
+        Log.d("qString=" + qString);
+
         em.getEntityManagerFactory().getCache().evictAll();
         List<UmfrageResult> resultList = new ArrayList<UmfrageResult>();
         Umfrage u = em.find(Umfrage.class, uid);
         if (u == null) {
+            return null;
+        }
+        if (u.getOWNER()!=null && (!u.getOWNER().equals(user) || !aut.getRole(authToken).equals(Roles.toString(Roles.ADMIN)))) {
+            Log.d("Keine Berechtigung die Beteiligung an der Umfrage auszuwerten");
             return null;
         }
         for (Fragen f : u.getFragen()) {
@@ -202,8 +239,8 @@ public class UmfagenManager {
             }
             //Query q = em.createQuery("select aska.NAME,count(a.antwortskala) from Antworten a inner join a.antwortskala aska inner join Schueler s on a.ID_SCHUELER=s.ID inner join Schueler_Klasse sk on s.id=sk.ID_SCHUELER inner join Klasse k on k.ID=sk.IK_KLASSE Group by a.fragenAntworten");
             Log.d("Frage=" + f);
-            
-            Query q = em.createQuery(qString+" t.umfrage.ID_UMFRAGE=" + uid + " and a.fragenAntworten.ID_FRAGE=" + f.getID_FRAGE() + " Group by a.antwortskala");
+
+            Query q = em.createQuery(qString + " t.umfrage.ID_UMFRAGE=" + uid + " and a.fragenAntworten.ID_FRAGE=" + f.getID_FRAGE() + " Group by a.antwortskala");
             List<Object[]> r = q.getResultList();
             for (int i = 0; i < r.size(); i++) {
                 Object[] ro = r.get(i);
@@ -228,6 +265,7 @@ public class UmfagenManager {
 
     /**
      * Abfrage einer Frage
+     *
      * @param fid ID der Frage
      * @return Fragen Objekt
      */
@@ -252,6 +290,7 @@ public class UmfagenManager {
 
     /**
      * Neue Frage erzeugen
+     *
      * @param fo FragenObjekt
      * @return FragenObjekt
      */
@@ -270,8 +309,9 @@ public class UmfagenManager {
 
     /**
      * Fragen abändern
+     *
      * @param fo FragenObjekt
-     * @return  FragenObjekt
+     * @return FragenObjekt
      */
     @PUT
     @Path("admin/frage/")
@@ -292,6 +332,7 @@ public class UmfagenManager {
 
     /**
      * Eine Frage löschen
+     *
      * @param fid ID der Frage
      * @return gelöschtes Fragenobjekt
      */
@@ -308,17 +349,17 @@ public class UmfagenManager {
             fro.setFrage(f.getTITEL());
             fro.setId(f.getID_FRAGE());
             fro.setSuccess(true);
-            fro.setMsg("Frage '"+f.getTITEL()+"' entfernt!");
-        }
-        else {
+            fro.setMsg("Frage '" + f.getTITEL() + "' entfernt!");
+        } else {
             fro.setSuccess(false);
-            fro.setMsg("Kann Frage mit ID="+fid+" nicht finden!");
+            fro.setMsg("Kann Frage mit ID=" + fid + " nicht finden!");
         }
         return fro;
     }
 
     /**
      * Eine Antwortskala Abfragen
+     *
      * @param aid ID der Antwortskala
      * @return Objekt für die AntwortSkala
      */
@@ -339,6 +380,7 @@ public class UmfagenManager {
 
     /**
      * Alle Antwortskalen abfragen
+     *
      * @return Liste der Antwortskalen
      */
     @GET
@@ -363,6 +405,7 @@ public class UmfagenManager {
 
     /**
      * Liste aller Fragen abfragen
+     *
      * @return Liste der Fragenobjekte
      */
     @GET
@@ -391,6 +434,7 @@ public class UmfagenManager {
 
     /**
      * Neue Antwortskale erzeugen
+     *
      * @param ao AntwortSkalen Objekt
      * @return AntwortSkalen Objekt mit vergebener ID
      */
@@ -409,6 +453,7 @@ public class UmfagenManager {
 
     /**
      * AntwortSkalen Objekt ändern
+     *
      * @param ao neues Antwortskalen Objekt
      * @return geändertes Antwortskalen Objekt
      */
@@ -429,6 +474,7 @@ public class UmfagenManager {
 
     /**
      * Antwortskala löschen
+     *
      * @param aid ID der Antwortskale
      * @return gelöschtes Antwortskalen Objekt
      */
@@ -451,6 +497,7 @@ public class UmfagenManager {
 
     /**
      * Eine Antwort einer Frage hinzufügen
+     *
      * @param fid ID der Frage
      * @param aid ID der Antwort
      * @return Ergebnisobjekt mit Meldungen
@@ -487,6 +534,7 @@ public class UmfagenManager {
 
     /**
      * Eine Antwortskale aus einer Frage entfernen
+     *
      * @param fid ID der Frage
      * @param aid ID der Antwortskala
      * @return Ergebnisobjekt mit Meldungen
@@ -524,6 +572,7 @@ public class UmfagenManager {
 
     /**
      * Neue Umfrage erzeugen
+     *
      * @param uo UmfrageObjekt
      * @return UmfrageObjekt mit vergebener ID
      */
@@ -533,6 +582,9 @@ public class UmfagenManager {
     public UmfrageObjekt newUmfrage(UmfrageObjekt uo) {
         Log.d("newUmfrage:" + uo);
         Umfrage u = new Umfrage(uo.getTitel());
+        if (uo.getOwner()!=null) {
+            u.setOWNER(uo.getOwner());
+        }
         em.persist(u);
         em.flush();
         uo.setId(u.getID_UMFRAGE());
@@ -541,6 +593,7 @@ public class UmfagenManager {
 
     /**
      * UmfrageObjekt Attribute ändern
+     *
      * @param uo neues Umfrageobjekt
      * @return verändertes Umfrageobjekt oder NULL bei Fehlern
      */
@@ -557,11 +610,15 @@ public class UmfagenManager {
             if (uo.getActive() != null) {
                 u.setACTIVE(uo.getActive());
             }
+            if (uo.getOwner() != null) {
+                u.setOWNER(uo.getOwner());
+            }
             em.merge(u);
             em.flush();
             uo.setId(u.getID_UMFRAGE());
             uo.setActive(u.getACTIVE());
             uo.setTitel(u.getNAME());
+            uo.setOwner(u.getOWNER());
             uo.setFragen(null);
             uo.setAntworten(null);
 
@@ -572,42 +629,43 @@ public class UmfagenManager {
 
     /**
      * Eine Umfrage löschen
+     *
      * @param uid ID der Umfrage
-     * @param force force=true, es werden auch die Teilnehmer der Umfrage gelöscht
+     * @param force force=true, es werden auch die Teilnehmer der Umfrage
+     * gelöscht
      * @return gelöschtes UmfrageObjekt
      */
     @DELETE
     @Path("admin/{uid}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public UmfrageObjekt deleteUmfrage(@PathParam("uid") int uid,@PathParam("force") boolean force) {
+    public UmfrageObjekt deleteUmfrage(@PathParam("uid") int uid, @PathParam("force") boolean force) {
         Log.d("Detele Umfrage id=:" + uid);
         Umfrage u = em.find(Umfrage.class, uid);
         UmfrageObjekt uo = new UmfrageObjekt();
         if (u != null) {
-            if (!force && u.getTeilnehmer().size()>0) {
+            if (!force && u.getTeilnehmer().size() > 0) {
                 uo.setId(u.getID_UMFRAGE());
                 uo.setTitel(u.getNAME());
                 uo.setSuccess(false);
-                uo.setMsg("Die Umfrage "+u.getNAME()+" hat noch Teilnehmer (evtl. force verwenden)!");
-            }
-            else {
+                uo.setMsg("Die Umfrage " + u.getNAME() + " hat noch Teilnehmer (evtl. force verwenden)!");
+            } else {
                 em.remove(u);
                 em.flush();
                 uo.setId(u.getID_UMFRAGE());
                 uo.setTitel(u.getNAME());
                 uo.setSuccess(true);
-                uo.setMsg("Umfrage "+u.getNAME()+" gelöscht!");
+                uo.setMsg("Umfrage " + u.getNAME() + " gelöscht!");
             }
-        }
-        else {
+        } else {
             uo.setSuccess(false);
-            uo.setMsg("Kann Umfrage mit ID="+uid+" nicht finden!");
+            uo.setMsg("Kann Umfrage mit ID=" + uid + " nicht finden!");
         }
         return uo;
-    } 
+    }
 
     /**
      * Eine Frage einer Umfrage hinzufügen
+     *
      * @param fid ID der Frage
      * @param uid ID der Umfrage
      * @return ErgebnisObjekt mit Meldungen
@@ -644,7 +702,8 @@ public class UmfagenManager {
 
     /**
      * Eine Frage aus einer Umfrage entfernen
-     * @param fid ID der Frage 
+     *
+     * @param fid ID der Frage
      * @param uid ID der Umfrage
      * @return Ergebnis Objekt mit Meldungen
      */
@@ -681,6 +740,7 @@ public class UmfagenManager {
 
     /**
      * Einen Teilnehmer zu einer Umfrage hinzufügen
+     *
      * @param to das Teilnehmerobjekt
      * @return das TeilnehmerObjekt mit vergebener ID
      */
@@ -781,6 +841,7 @@ public class UmfagenManager {
 
     /**
      * Abfrage der Teilnehmer an einer Umfrage
+     *
      * @param uid ID der Umfrage
      * @return Liste der Teilnehmer
      */
@@ -811,25 +872,27 @@ public class UmfagenManager {
 
     /**
      * einen Teilnehmer aus einer Umfrage löschen
+     *
      * @param key KEY des Teilnehmers
-     * @param force force=true auch die Antworten des Teilnehmers werden gelöscht
+     * @param force force=true auch die Antworten des Teilnehmers werden
+     * gelöscht
      * @return das gelöschte Teilnehmerobjekt
      */
     @DELETE
     @Path("admin/subscriber/{key}/{force}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public TeilnehmerObjekt deleteTeilnehmer(@PathParam("key") String key,@PathParam("force") boolean force) {
-        Log.d("Lösche Teilnehmer force="+force);
+    public TeilnehmerObjekt deleteTeilnehmer(@PathParam("key") String key, @PathParam("force") boolean force) {
+        Log.d("Lösche Teilnehmer force=" + force);
         Teilnehmer t = em.find(Teilnehmer.class, key);
         TeilnehmerObjekt to = new TeilnehmerObjekt();
         if (t == null) {
-            to.setMsg("Kann Teilnehmer mit KEY "+key+" nicht finden!");
+            to.setMsg("Kann Teilnehmer mit KEY " + key + " nicht finden!");
             to.setSuccess(false);
             to.setKey(key);
             return to;
-            
+
         }
-        if (!force && t.getAntworten().size()!=0) {
+        if (!force && t.getAntworten().size() != 0) {
             to.setMsg("Der Teilnehmer hat bereits Antworten eingereicht (force setzen um zu löschen)");
             to.setSuccess(false);
             to.setKey(key);
@@ -850,6 +913,7 @@ public class UmfagenManager {
 
     /**
      * Teilnehmer via EMAIL einladen
+     *
      * @param key KEY des Teilnehmers
      * @return Ergebnisobjekt mit Meldungen
      */
@@ -857,7 +921,7 @@ public class UmfagenManager {
     @Path("admin/invite/{key}")
     @Produces({"application/json; charset=iso-8859-1"})
     public ResultObject inviteTeilnehmer(@PathParam("key") String key) {
-        
+
         ResultObject ro = new ResultObject();
 
         Teilnehmer t = em.find(Teilnehmer.class, key);
@@ -866,7 +930,7 @@ public class UmfagenManager {
             ro.setMsg("Kann Teilmnehmer mit Key=" + key + " nicht finden");
             return ro;
         }
-        if (t.getINVITED()==1) {
+        if (t.getINVITED() == 1) {
             ro.setSuccess(false);
             ro.setMsg("Der Teilnehmer mit Key=" + key + " wurde bereits eingeladen");
             return ro;
@@ -902,7 +966,7 @@ public class UmfagenManager {
         if (t.getSCHUELERID() != null) {
             Schueler s = em.find(Schueler.class, t.getSCHUELERID());
             if (s != null) {
-                
+
                 if (s.getEMAIL() != null) {
                     String sbn = new String(sb.toString());
                     sbn = sbn.replace("[[VNAME]]", s.getVNAME());
@@ -915,7 +979,7 @@ public class UmfagenManager {
                         mo.addRecipient(s.getEMAIL());
                         mailSender.sendMail(mo);
                         ro.setSuccess(true);
-                        ro.setMsg("Habe " + s.getVNAME() + " " + s.getNNAME() + " (" + s.getEMAIL()+") Zur Umfrage '" + u.getNAME() + "' eingeladen!");
+                        ro.setMsg("Habe " + s.getVNAME() + " " + s.getNNAME() + " (" + s.getEMAIL() + ") Zur Umfrage '" + u.getNAME() + "' eingeladen!");
                         t.setINVITED(1);
                         em.persist(t);
                         em.flush();
@@ -939,7 +1003,7 @@ public class UmfagenManager {
                 ro.setMsg("Kann Schüler mit ID=" + t.getSCHUELERID() + " nicht finden!");
                 return ro;
             }
-            
+
         }
         return ro;
 

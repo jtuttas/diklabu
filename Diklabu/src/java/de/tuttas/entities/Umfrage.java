@@ -27,12 +27,15 @@ import javax.persistence.OneToMany;
 @Entity
 @NamedQueries({
      @NamedQuery(name = "findActiveUmfrage", query= "select new de.tuttas.restful.Data.ActiveUmfrage(u.ID_UMFRAGE,u.NAME,1)  from Umfrage u where u.ACTIVE=1"),
-     @NamedQuery(name = "findAllUmfragen", query= "select new de.tuttas.restful.Data.ActiveUmfrage(u.ID_UMFRAGE,u.NAME,u.ACTIVE)  from Umfrage u "),
+     @NamedQuery(name = "findAllUmfragen", query= "select new de.tuttas.restful.Data.ActiveUmfrage(u.ID_UMFRAGE,u.NAME,u.ACTIVE,u.OWNER)  from Umfrage u where u.OWNER = :paramOWNER or U.OWNER is NULL"),
+     @NamedQuery(name = "findAllUmfragenAdmin", query= "select new de.tuttas.restful.Data.ActiveUmfrage(u.ID_UMFRAGE,u.NAME,u.ACTIVE,u.OWNER)  from Umfrage u"),
 })
 public class Umfrage implements Serializable {
     private static final long serialVersionUID = 1L;
     private String NAME;
     private int ACTIVE;
+    private String OWNER;
+    
      @JoinTable(name="REL_UMFRAGE_FRAGE",
             joinColumns =  { 
                    @JoinColumn(name = "ID_UMFRAGE")
@@ -54,6 +57,14 @@ public class Umfrage implements Serializable {
     public Umfrage() {
     }
 
+    public void setOWNER(String OWNER) {
+        this.OWNER = OWNER;
+    }
+
+    public String getOWNER() {
+        return OWNER;
+    }
+    
     public void setTeilnehmer(Collection<Teilnehmer> teilnehmer) {
         this.teilnehmer = teilnehmer;
     }

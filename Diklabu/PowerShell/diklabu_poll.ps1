@@ -156,6 +156,7 @@ function Get-Pollresults
                 $out
             }
         } catch {
+        
             Write-Error "Get-Pollresults: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
@@ -722,7 +723,9 @@ function Remove-PollAnswer
 .DESCRIPTION
    Erzeugt eine neue Umfrage    
 .EXAMPLE
-   New-Poll -TITEL "Schülerbefragung 2018"
+   New-Poll -TITEL "Schülerbefragung 2018" 
+.EXAMPLE
+   New-Poll -TITEL "Privatebefragung 2018" -OWNER TU
 #>
 function New-Poll
 {
@@ -731,6 +734,8 @@ function New-Poll
         # Titel
         [Parameter(Mandatory=$true,Position=0,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
         [String]$TITEL,
+
+        [String]$OWNER,
         
         # Adresse des Diklabu Servers
         [String]$uri=$global:server,
@@ -747,13 +752,16 @@ function New-Poll
     }
     Process
     {
-          $p=echo "" | Select-Object -Property "titel"
+          $p=echo "" | Select-Object -Property "titel","owner"
           $p.titel=$TITEL
+          if ($OWNER) {
+            $p.owner=$OWNER;
+          }
           try {        
             if (-not $whatif) {
                 $r=Invoke-RestMethod -Method Post -Uri ($uri+"umfrage/admin") -Headers $headers -Body (ConvertTo-Json $p)
             }
-            Write-Verbose "Erzeuge einer neue Umfrage mit dem Titel ($TITEL)"
+            Write-Verbose "Erzeuge einer neue Umfrage mit dem Titel ($TITEL), Besitzer ist $OWNER"
             return $r;
           } catch {
               Write-Error "New-Poll: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
@@ -768,7 +776,7 @@ function New-Poll
    Ändert eine Umfrage
     
 .EXAMPLE
-   Set-Poll  -id 1 -TITEL "Schülerbefragung 2018/19"
+   Set-Poll  -id 1 -TITEL "Schülerbefragung 2018/19" -OWNER TU
 #>
 function Set-Poll
 {
@@ -784,6 +792,9 @@ function Set-Poll
         # Aktive Umfage (1=ja)
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [String]$ACTIVE,
+
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [String]$OWNER,
 
         # Adresse des Diklabu Servers
         [String]$uri=$global:server,
@@ -803,6 +814,10 @@ function Set-Poll
           if ($TITEL) {
             $p | Add-Member -NotePropertyName "titel" -NotePropertyValue $TITEL
           }
+          if ($OWNER) {
+            $p | Add-Member -NotePropertyName "owner" -NotePropertyValue $OWNER
+          }
+
           $p.id=$ID
           if ($ACTIVE) {
             $p | Add-Member -NotePropertyName "active" -NotePropertyValue $ACTIVE
