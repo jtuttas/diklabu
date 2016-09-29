@@ -140,7 +140,7 @@ public class UmfagenManager {
         Authenticator a = Authenticator.getInstance();
         String user = a.getUser(authToken);
         Query query=null;
-        if (a.getRole(authToken).equals(Roles.toString(Roles.ADMIN))) {
+        if (!Config.getInstance().auth || a.getRole(authToken).equals(Roles.toString(Roles.ADMIN))) {
             Log.d("Umfragen abfragen User=" + user+ "Role ist ADMIN");
             query = em.createNamedQuery("findAllUmfragenAdmin");            
         }

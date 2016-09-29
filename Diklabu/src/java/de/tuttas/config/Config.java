@@ -29,6 +29,7 @@ import org.json.simple.parser.ParseException;
  *   "auth": true,<br>
  *   "IMAGE_FILE_PATH": "c:\\Temp\\",<br>
  *   "ATEST_FILE_PATH": "c:\\Temp\\",<br>
+ *   "TEMPLATE_FILE_PATH": "c:\\Temp\\",<br>
  *   "adminusers":["TU","TUTTAS","KEMMRIES"],<br>
  *   "verwaltung:["BÜ"],
  *   "AUTH_TOKE_TIMEOUT" : 432000000,<br>
@@ -57,7 +58,7 @@ public class Config {
     /**
      * Version Nummer
      */
-    public final static String VERSION="V 2.0";
+    public final static String VERSION="V 2.1";
     
     /**
      * JSON Objekt für die Client Seite
@@ -89,6 +90,7 @@ public class Config {
                 auth = (boolean)jo.get("auth");
                 IMAGE_FILE_PATH = (String)jo.get("IMAGE_FILE_PATH");   
                 ATEST_FILE_PATH = (String)jo.get("ATEST_FILE_PATH");   
+                TEMPLATE_FILE_PATH = (String)jo.get("TEMPLATE_FILE_PATH");   
                 Log.d("IMage_File_Path="+IMAGE_FILE_PATH); 
                 JSONArray ja = (JSONArray) jo.get("adminusers");               
                 adminusers = new String[ja.size()];
@@ -161,6 +163,7 @@ public class Config {
      */
     public String IMAGE_FILE_PATH = "c:\\Temp\\";
     public String ATEST_FILE_PATH = "c:\\Temp\\";
+    public String TEMPLATE_FILE_PATH = "c:\\Temp\\";
     // Nutzer mit Admin Rechten 
     /**
      * Liste der ADMIN Benutzer

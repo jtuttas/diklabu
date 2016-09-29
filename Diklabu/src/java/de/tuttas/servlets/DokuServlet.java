@@ -8,11 +8,18 @@ package de.tuttas.servlets;
 import com.itextpdf.text.BadElementException;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
+import com.sun.faces.lifecycle.Phase;
 
 import de.tuttas.config.Config;
+import de.tuttas.entities.Antwortskalen;
+import de.tuttas.entities.Fragen;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.Klasse_all;
 import de.tuttas.entities.Lernfeld;
@@ -22,25 +29,33 @@ import de.tuttas.entities.Noten_all;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schuljahr;
 import de.tuttas.entities.Termine;
+import de.tuttas.entities.Umfrage;
 import de.tuttas.entities.Verlauf;
 import de.tuttas.entities.Vertretung;
+import de.tuttas.restful.Data.AntwortSkalaObjekt;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AnwesenheitObjekt;
 import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.NotenObjekt;
 import de.tuttas.restful.Data.Termin;
+import de.tuttas.restful.Data.UmfrageResult;
+import de.tuttas.restful.UmfagenManager;
 import de.tuttas.restful.auth.Authenticator;
+import de.tuttas.restful.auth.Roles;
 import de.tuttas.util.DatumUtil;
+import de.tuttas.util.ExcelUtil;
 import de.tuttas.util.Log;
 import de.tuttas.util.NotenUtil;
 import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
+import de.tuttas.util.UmfrageUtil;
 import de.tuttas.util.VerspaetungsUtil;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.sql.Timestamp;
 
 import java.util.Date;
@@ -50,7 +65,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -61,12 +79,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 /**
  * Erzeugt ein pdf zur Dokumentation
+ *
  * @author Jörg
  */
 public class DokuServlet extends HttpServlet {
@@ -110,6 +133,7 @@ public class DokuServlet extends HttpServlet {
             }
         } else {
             if (Config.getInstance().debug || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(auth)) {
+                Log.d("ID Klasse = "+request.getParameter("idklasse"));
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
                 String type = request.getParameter("type");
@@ -156,34 +180,98 @@ public class DokuServlet extends HttpServlet {
                 Log.d("setze To auf " + new java.sql.Date(parsedTo.getTime()));
                 Log.d("type=" + type + " cmd=" + cmd + " Klasse=" + kl.getKNAME());
                 if (type.compareTo("csv") == 0) {
-                    PrintWriter out = response.getWriter();
+                    
                     MyTableDataModel myModel = null;
                     if (cmd.compareTo("Betriebe") == 0) {
-                        response.setContentType("text/csv");
-                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");                        
+                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
+                        response.addHeader("Content-Disposition", contentDisposition );                                           
+                        
                         myModel = getModelBetriebsliste(kl);
-                        out.println(myModel.toCsv());
-                    } else if (cmd.compareTo("Notenliste") == 0) {
-                        response.setContentType("text/csv");
-                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Betriebe"}, myModel.getRows(),myModel.getCols());
+                        wb=myModel.toExcel(wb,0);
+                        wb.write(response.getOutputStream());
+                    } else if (cmd.compareTo("Notenliste") == 0) {                        
+                        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");                        
+                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
+                        response.addHeader("Content-Disposition", contentDisposition );                                           
+                        
                         myModel = getModelNotenliste(kl, idSchuljahr);
-                        out.println(myModel.toCsv());
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Notenliste"}, myModel.getRows(),myModel.getCols());
+                        wb=myModel.toExcel(wb,0);
+                        wb.write(response.getOutputStream());
+                        
                     } else if (cmd.compareTo("Fehlzeiten") == 0) {
-                        response.setContentType("text/csv");
-                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");                        
+                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
+                        response.addHeader("Content-Disposition", contentDisposition );                                           
+                        
                         myModel = getModelFehlzeiten(kl, parsedFrom, parsedTo);
-                        out.println(myModel.toCsv());
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Fehlzeiten"}, myModel.getRows(),myModel.getCols());
+                        wb=myModel.toExcel(wb,0);
+                        wb.write(response.getOutputStream());
                     } else if (cmd.compareTo("Anwesenheit") == 0) {
-                        response.setContentType("text/csv");
-                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");                        
+                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
+                        response.addHeader("Content-Disposition", contentDisposition );                                           
+                        
                         myModel = getModelAnwesenheit(kl, parsedFrom, parsedTo, anwFilter1, anwFilter2);
-                        out.println(myModel.toCsv());
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Anwesenheit"}, myModel.getRows(),myModel.getCols());
+                        wb=myModel.toExcel(wb,0);
+                        wb.write(response.getOutputStream());
+                        
                     } else if (cmd.compareTo("Verlauf") == 0) {
-                        response.setContentType("text/csv");
-                        response.addHeader("Content-Disposition", "attachment; filename=" + cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".csv");
+                        
+                        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");                        
+                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString()+".xlsx";
+                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
+                        response.addHeader("Content-Disposition", contentDisposition );
+                        
                         myModel = getModelVerlauf(kl, parsedFrom, parsedTo, filter1, filter2, me);
-                        out.println(myModel.toCsv());
-                    } else {
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Unterrichtsverlauf"}, myModel.getRows(),myModel.getCols());
+                        wb=myModel.toExcel(wb,0);
+                        wb.write(response.getOutputStream());
+                    } else if (cmd.compareTo("UmfrageAuswertung") == 0) {                        
+                        Umfrage u = em.find(Umfrage.class, anwFilter1);
+                        Umfrage u2 = em.find(Umfrage.class, anwFilter2);
+                        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");                        
+                        String fileName= "Auswertung_"+u.getNAME()+"_vom_"+ new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
+                        response.addHeader("Content-Disposition", contentDisposition );
+                        List<UmfrageResult> res1 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter1, filter1);
+                        List<UmfrageResult> res2 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter2, filter2);
+                        res2=UmfrageUtil.getComparableResultList(res1,res2);
+                        myModel = getModelUmfrageAuswertung(res1);                        
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+u.getNAME()+".xlsx",new String[]{"Hauptgruppe","Vergleichsgruppe","Info"},myModel.getRows(),myModel.getCols());
+                        wb=myModel.toExcel(wb,0);
+                        myModel = getModelUmfrageAuswertung(res2);                        
+                        wb=myModel.toExcel(wb,1);
+                        XSSFSheet s = wb.getSheetAt(2);
+                        XSSFRow r = s.getRow(0);
+                        r.getCell(0).setCellValue(u.getNAME());
+                        r.getCell(1).setCellValue(filter1);
+                        r=s.getRow(1);
+                        r.getCell(0).setCellValue(u2.getNAME());
+                        r.getCell(1).setCellValue(filter2);
+                        wb.write(response.getOutputStream());                        
+                    }else {
+                        PrintWriter out = response.getWriter();
                         response.setContentType("application/json; charset=UTF-8");
                         String r = "{\"error\":true,\"msg\":\"Kann für " + cmd + " kein Datenmodell erzeugen!\"}";
                         out.print(r);
@@ -212,10 +300,18 @@ public class DokuServlet extends HttpServlet {
                             kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Notenliste</b></td>");
                         } else if (cmd.compareTo("Betriebe") == 0) {
                             kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Betriebsliste</b></td>");
+                        } else if (cmd.compareTo("UmfrageAuswertung") == 0) {
+                            kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Auswertung Umfrage</b></td>");
                         }
                         kopf += ("</tr>");
                         kopf += ("<tr>");
-                        kopf += ("<td  align='center' rowspan=\"2\"><h3>Klasse/ Kurs: " + kl.getKNAME() + "</h3></td>");
+                        if (cmd.compareTo("UmfrageAuswertung") == 0) {
+                            Umfrage u1 = em.find(Umfrage.class, anwFilter1);
+                            Umfrage u2 = em.find(Umfrage.class, anwFilter2);
+                            kopf += ("<td  align='center' rowspan=\"2\" style=\"padding:5px;font-size: 11\">Hauptgruppe: (" + u1.getNAME() + "/" + filter1 + ")<br></br> Vergleichsgruppe: (" + u2.getNAME() + "/" + filter2 + ")</td>");
+                        } else {
+                            kopf += ("<td  align='center' rowspan=\"2\"><h3>Klasse/ Kurs: " + kl.getKNAME() + "</h3></td>");
+                        }
                         kopf += ("<td  style=\"font-size: 11;\">Verantwortlicher: " + kl.getID_LEHRER() + "</td>");
                         kopf += ("<td  style=\"font-size: 11;\">geprüft</td>");
                         kopf += ("</tr>");
@@ -256,12 +352,23 @@ public class DokuServlet extends HttpServlet {
                             response.addHeader("Content-Disposition", "attachment; filename=Betriebsliste_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
                             MyTableDataModel myModel = getModelBetriebsliste(kl);
                             document = createBetriebsListe(myModel, kopf, out);
+                        } else if (cmd.compareTo("UmfrageAuswertung") == 0) {
+                            response.addHeader("Content-Disposition", "attachment; filename=UmfrageAuswertung_" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
+                            List<UmfrageResult> res1 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter1, filter1);
+                            List<UmfrageResult> res2 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter2, filter2);
+                            res2=UmfrageUtil.getComparableResultList(res1,res2);
+                            if (res1 != null && res2 != null) {
+                                Log.d("erzeuge pdf Dokument");
+                                document = createUmfrageauswertung(res1, res2, anwFilter1, anwFilter2, filter1, filter2, kopf, out);
+                            }
                         }
 
                     } catch (DocumentException exc) {
+                        Log.d("Document Exception " + exc.getMessage());
                         exc.printStackTrace();
                         throw new IOException(exc.getMessage());
                     } catch (ParseException ex) {
+                        Log.d("Parse Exception " + ex.getMessage());
                         Logger.getLogger(DokuServlet.class.getName()).log(Level.SEVERE, null, ex);
                     } finally {
                         out.close();
@@ -366,6 +473,94 @@ public class DokuServlet extends HttpServlet {
             }
         }
         return mo;
+    }
+
+    private Document createUmfrageauswertung(List<UmfrageResult> res1, List<UmfrageResult> res2, int idUmfrage1, int idUmfrage2, String filter1, String filter2, String kopf, OutputStream out) throws DocumentException, BadElementException, IOException {
+        Document document = new Document();
+        /* Basic PDF Creation inside servlet */
+        Umfrage u1 = em.find(Umfrage.class, idUmfrage1);
+        Umfrage u2 = em.find(Umfrage.class, idUmfrage2);
+
+        // Bild einfügen
+        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        Image image = Image.getInstance(url);
+        image.setAbsolutePosition(45f, 720f);
+        image.scalePercent(50f);
+        
+        StringBuilder htmlString = new StringBuilder();
+        htmlString.append(kopf);
+        htmlString.append("<br></br>");
+
+        int maxRows = res1.size();
+        if (res2.size() > maxRows) {
+            maxRows = res2.size();
+        }
+        document.open();
+
+        Font boldFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
+        Font normalFont = new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC);
+        PdfPTable table = new PdfPTable(new float[]{1, 2, 2});
+        PdfPCell qestionCell;
+        PdfPCell group1Cell;
+        PdfPCell group2Cell;
+        int i=0;
+        for (i = 0; i < maxRows; i++) {
+            Log.d("Print Row "+i);
+            if (i % 5 == 0) {
+                if (i != 0) {
+                    document.add(table);
+                    document.newPage();
+                    document = printHead(document, htmlString, out,image);
+                } else {
+                    document = printHead(document, htmlString, out,image);
+                }
+
+                table = new PdfPTable(new float[]{1, 2, 2});
+                table.setWidthPercentage((float) 100.0);
+                qestionCell = new PdfPCell(new Phrase("\nFragen", boldFont));
+                group1Cell = new PdfPCell();
+                group1Cell.addElement(new Phrase("Hauptgruppe:", boldFont));
+                group1Cell.addElement(new Phrase(u1.getNAME() + "\n" + filter1, normalFont));
+                group2Cell = new PdfPCell();
+                group2Cell.addElement(new Phrase("Vergleichsgruppe:", boldFont));
+                group2Cell.addElement(new Phrase(u2.getNAME() + "\n" + filter2, normalFont));
+                qestionCell.setBorderWidth(2.0f);
+                group1Cell.setBorderWidth(2.0f);
+                group2Cell.setBorderWidth(2.0f);
+                table.addCell(qestionCell);
+                table.addCell(group1Cell);
+                table.addCell(group2Cell);
+            }
+            String url1 = UmfrageUtil.getCharUrl(res1.get(i));
+            Log.d("URL1="+url1);
+            Image image1 = Image.getInstance(url1);
+
+            Image image2=null;
+            if (res2.size()>i) {
+                String url2 = UmfrageUtil.getCharUrl(res2.get(i));
+                Log.d("URL2="+url2);
+                image2 = Image.getInstance(url2);
+            }
+            qestionCell = new PdfPCell(new Phrase(res1.get(i).getFrage(), normalFont));
+            qestionCell.setBorderWidth(1.0f);
+            group1Cell = new PdfPCell(image1, true);
+            group1Cell.setBorderWidth(1.0f);
+            group1Cell.setPadding(10);
+            if (image2!=null) group2Cell = new PdfPCell(image2, true);
+            else group2Cell = new PdfPCell();
+            group2Cell.setBorderWidth(1.0f);
+            group2Cell.setPadding(10);
+
+            table.addCell(qestionCell);
+            table.addCell(group1Cell);
+            table.addCell(group2Cell);
+        }
+        if (!(i%5==0)) {
+            document.add(table);            
+        }
+
+        document.close();
+        return document;
     }
 
     private Document createBetriebsListe(MyTableDataModel mo, String kopf, OutputStream out) throws ParseException, IOException, DocumentException {
@@ -835,6 +1030,53 @@ public class DokuServlet extends HttpServlet {
         return document;
     }
 
+    /**
+     * Umfrage Modell erzeugen
+     *
+     * @param anwFilter1 ID Umfrage
+     * @param filter1 Filter (Klassen) z.B. FISI%
+     * @return
+     */
+    private MyTableDataModel getModelUmfrageAuswertung(List<UmfrageResult> res1) {
+        
+        Log.d("res1=" + res1);
+        String[] headlines;
+        if (res1.size() > 0) {
+            headlines = new String[res1.get(0).getSkalen().size() + 1];
+            headlines[0] = "Fragen";
+            int i = 1;
+            Iterator it = res1.get(0).getSkalen().iterator();
+            while (it.hasNext()) {
+                AntwortSkalaObjekt as = (AntwortSkalaObjekt) it.next();
+                Log.d("Seatze headline auf " + as.getName());
+                headlines[i++] = as.getName();
+            }
+        } else {
+            headlines = new String[1];
+            headlines[0] = "Die Umfrage enthält keine Fragen";
+        }
+        MyTableDataModel mo = new MyTableDataModel(res1.size(), headlines);
+        int x = 0;
+        int y = 0;
+        Log.d("Table Data has " + mo.getRows() + " Rows und " + mo.getCols() + " Cols");
+        Iterator results = res1.iterator();
+        while (results.hasNext()) {
+            UmfrageResult ur = (UmfrageResult) results.next();
+            mo.setData(x, y, ur.getFrage());
+            Iterator antworten = ur.getSkalen().iterator();
+            x++;
+            while (antworten.hasNext()) {
+                AntwortSkalaObjekt as = (AntwortSkalaObjekt) antworten.next();
+                //Log.d("x="+x+" y="+y);
+                mo.setData(x, y, "" + as.getAnzahl());
+                x++;
+            }
+            x = 0;
+            y++;
+        }
+        return mo;
+    }
+
     private MyTableDataModel getModelVerlauf(Klasse kl, Date parsedFrom, Date parsedTo, String filter1, String filter2, String me) {
         Query query = em.createNamedQuery("findVerlaufbyKlasse");
         query.setParameter("paramKName", kl.getKNAME());
@@ -1013,8 +1255,8 @@ public class DokuServlet extends HttpServlet {
         Log.d("Result Liste = " + vl);
 
         for (Vertretung v : vl) {
-            htmlString.append("<h3>Absenz von "+v.getAbsenzVon()+" am "+toReadableFromat(v.getAbsenzAm())+" eingereicht von "+v.getEingereichtVon()+" am "+toReadableFromat(v.getEingereichtAm())+"</h3>");    
-            htmlString.append("<h4>"+v.getKommentar()+"</h4>");
+            htmlString.append("<h3>Absenz von " + v.getAbsenzVon() + " am " + toReadableFromat(v.getAbsenzAm()) + " eingereicht von " + v.getEingereichtVon() + " am " + toReadableFromat(v.getEingereichtAm()) + "</h3>");
+            htmlString.append("<h4>" + v.getKommentar() + "</h4>");
             htmlString.append("<p> </p>");
             htmlString.append("<table border='0.5' align='center' width='100%'>");
             htmlString.append("<tr>");
@@ -1023,18 +1265,18 @@ public class DokuServlet extends HttpServlet {
             JSONParser jsonParser = new JSONParser();
             try {
                 JSONArray ja = (JSONArray) jsonParser.parse(v.getJsonString());
-                
-                for (int i=0;i<ja.size();i++) {
+
+                for (int i = 0; i < ja.size(); i++) {
                     JSONObject jo = (JSONObject) ja.get(i);
                     htmlString.append("<tr>");
-                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='10%'>"+jo.get("stunde")+"</td>");
-                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='15%'>"+jo.get("Klasse")+"</td>");
-                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='15%'>"+jo.get("Aktion")+"</td>");
-                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='10%'>"+jo.get("Vertreter")+"</td>");
-                    htmlString.append("<td style=\"font-size: 11;padding:4px;\">"+jo.get("Kommentar")+"</td>");
+                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='10%'>" + jo.get("stunde") + "</td>");
+                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='15%'>" + jo.get("Klasse") + "</td>");
+                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='15%'>" + jo.get("Aktion") + "</td>");
+                    htmlString.append("<td style=\"font-size: 11;padding:4px;\" width='10%'>" + jo.get("Vertreter") + "</td>");
+                    htmlString.append("<td style=\"font-size: 11;padding:4px;\">" + jo.get("Kommentar") + "</td>");
                     htmlString.append("</tr>");
                 }
-                
+
             } catch (org.json.simple.parser.ParseException ex) {
                 ex.printStackTrace();
                 Logger.getLogger(DokuServlet.class.getName()).log(Level.SEVERE, null, ex);
@@ -1042,7 +1284,7 @@ public class DokuServlet extends HttpServlet {
             htmlString.append("</table>");
             htmlString.append("<p></p>");
         }
-        
+
         //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
@@ -1268,6 +1510,18 @@ public class DokuServlet extends HttpServlet {
         Calendar gc = GregorianCalendar.getInstance();
         gc.setTime(new Date(absenzAm.getTime()));
         return toReadableDate(gc);
+    }
+
+    private Document printHead(Document document, StringBuilder htmlString, OutputStream out, Image image) throws DocumentException, BadElementException, IOException {
+        PdfWriter writer = PdfWriter.getInstance(document, out);
+        document.open();
+        // Dokument erzeugen
+        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+        
+        Log.d("document="+document+" image="+image);
+        document.add(image);
+        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        return document;
     }
 
 }

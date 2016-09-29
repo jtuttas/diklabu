@@ -396,24 +396,24 @@ $(document).on('keyup', '#klassenfilter', function () {
 
     var rex = new RegExp($(this).val(), 'i');
     //$('#klassen').hide();
-    var first="";
+    var first = "";
     $('#klassen option').filter(function () {
         //log("Teste "+$(this).val()+" reg test ist "+rex.test($(this).val()));
         if (rex.test($(this).val())) {
             $(this).show();
             //log("hide "+$(this).val());
-            if (first=="") {
-                first=$(this).val();
+            if (first == "") {
+                first = $(this).val();
             }
         }
         else {
             $(this).hide();
             //log("show "+$(this).val());
-            
+
         }
-    });    
+    });
     //$('#klassen').show();
-    log("First="+first);
+    log("First=" + first);
     $("#klassen").val(first);
     $('#klassen').trigger('change');
 });
@@ -1864,7 +1864,7 @@ function loadUmfragen(callback) {
  * @returns {undefined}
  */
 function loadResults(id, klassefilter, callback) {
-    log("--> getAuswertung");
+    log("--> getAuswertung id="+id+" klassenfilter="+klassefilter);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/umfrage/auswertung/" + id + "/" + encodeURIComponent(klassefilter),
         type: "GET",
@@ -1874,6 +1874,7 @@ function loadResults(id, klassefilter, callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
+            log("load Results data="+JSON.stringify(data));
             callback(data);
         },
         error: function () {
@@ -3107,8 +3108,10 @@ function updateCurrentView() {
             });
             break;
         case "Auswertung":
-            $("#dokumentationContainer").hide();
-            $("#printContainer").show();
+            $("#dokumentationContainer").show();
+            $("#printContainer").hide();
+            $("#dokumentationType").val("UmfrageAuswertung");
+            $('#loading-indicator').show();
             loadUmfragen(function (data) {
                 umfragen = data;
                 log("empfange:" + JSON.stringify(data));
@@ -3127,7 +3130,13 @@ function updateCurrentView() {
                     updateAuswertung(data);
                     drawResults(data, 1);
                     drawResults(data, 2);
-
+                    log("Setze anwfilter1 auf " + $('option:selected', $("#gruppe1Umfrage")).attr('uid'));
+                    log("Setze anwfilter2 auf " + $('option:selected', $("#gruppe2Umfrage")).attr('uid'));
+                    $("#anwfilter1").val($('option:selected', $("#gruppe1Umfrage")).attr('uid'));
+                    $("#anwfilter2").val($('option:selected', $("#gruppe2Umfrage")).attr('uid'));
+                    $("#dokufilter1").val($("#gruppe1Filter").val());
+                    $("#dokufilter2").val($("#gruppe2Filter").val());
+                    $('#loading-indicator').hide();
                 });
 
 
@@ -3139,6 +3148,7 @@ function updateCurrentView() {
 
 
 function drawResults(results, col) {
+    found=false;
     for (i = 0; i < results.length; i++) {
         $('#loading-indicator').show();
         var result = results[i];
@@ -3176,12 +3186,16 @@ function drawResults(results, col) {
         if ($("#chart" + col + result.id).length) {
             var chart = new google.visualization.PieChart(document.getElementById('chart' + col + result.id));
             chart.draw(data, options);
+            found=true;
         }
         else {
             log("Container existiert nicht!");
         }
     }
     $('#loading-indicator').hide();
+    if (!found) {
+        toastr["warning"]("Vergleichsgruppe enthält keine passenden Fragen!", "Achtung!");
+    }
 }
 
 
@@ -3203,10 +3217,13 @@ function updateAuswertungsFilter(data) {
         var keyCode = e.keyCode || e.which;
         log("key Pressed gruppe1Filer" + keyCode);
         if (keyCode == 13) {
-            loadResults(umfrage.id, $("#gruppe1Filter").val(), function (data) {
+            uid = $('option:selected', "#gruppe1Umfrage").attr('uid');
+            log("Umfrage1 ID = "+uid);
+            loadResults(uid, $("#gruppe1Filter").val(), function (data) {
                 log("empfange:" + JSON.stringify(data));
 
                 drawResults(data, 1);
+                $("#dokufilter1").val($("#gruppe1Filter").val());
             });
         }
     });
@@ -3215,9 +3232,12 @@ function updateAuswertungsFilter(data) {
         var keyCode = e.keyCode || e.which;
         log("key Pressed gruppe2Filer" + keyCode);
         if (keyCode == 13) {
-            loadResults(umfrage.id, $("#gruppe2Filter").val(), function (data) {
+            uid = $('option:selected', "#gruppe2Umfrage").attr('uid');
+            log("Umfrage2 ID = "+uid);
+            loadResults(uid, $("#gruppe2Filter").val(), function (data) {
                 log("empfange:" + JSON.stringify(data));
                 drawResults(data, 2);
+                $("#dokufilter2").val($("#gruppe2Filter").val());
             });
 
         }
@@ -3231,7 +3251,13 @@ function updateAuswertungsFilter(data) {
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
+        $("#dokufilter1").val($("#gruppe1Filter").val());
+        $("#dokufilter2").val($("#gruppe2Filter").val());
+        log("Setze anwfilter1 auf " + $('option:selected', $("#gruppe1Umfrage")).attr('uid'));
+        log("Setze anwfilter2 auf " + $('option:selected', $("#gruppe2Umfrage")).attr('uid'));
 
+        $("#anwfilter1").val($('option:selected', $("#gruppe1Umfrage")).attr('uid'));
+        $("#anwfilter2").val($('option:selected', $("#gruppe2Umfrage")).attr('uid'));
         loadResults(uid, $('#gruppe1Filter').val(), function (data) {
             updateAuswertung(data);
             log("empfange 1:" + JSON.stringify(data));
@@ -3240,6 +3266,9 @@ function updateAuswertungsFilter(data) {
             loadResults($('option:selected', "#gruppe2Umfrage").attr('uid'), $('#gruppe2Filter').val(), function (data) {
                 //updateAuswertung(data);
                 log("empfange 2:" + JSON.stringify(data));
+                if (data.length==0) {
+                    toastr["warning"]("Gewählte Umfrage enthält keine Fragen!", "Achtung!");
+                }
                 drawResults(data, 2);
             });
 
@@ -3255,10 +3284,20 @@ function updateAuswertungsFilter(data) {
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
-
+        $("#dokufilter1").val($("#gruppe1Filter").val());
+        $("#dokufilter2").val($("#gruppe2Filter").val());
+        log("Setze anwfilter1 auf " + $('option:selected', $("#gruppe1Umfrage")).attr('uid'));
+        log("Setze anwfilter2 auf " + $('option:selected', $("#gruppe2Umfrage")).attr('uid'));
+        $("#anwfilter1").val($('#gruppe1Umfrage option:selected').attr('uid'));
+        $("#anwfilter2").val($('#gruppe2Umfrage option:selected').attr('uid'));
         loadResults(uid, $('#gruppe2Filter').val(), function (data) {
             log("empfange :" + JSON.stringify(data));
-            drawResults(data, 2);
+            if (data.length==0) {
+                toastr["warning"]("Gewählte Umfrage enthält keine Fragen!", "Achtung!");
+            }
+            else {
+                drawResults(data, 2);
+            }
         });
     });
 }
@@ -3278,9 +3317,14 @@ function getUmfrage(id) {
 function updateAuswertung(data) {
     $("#tabelleUmfrageAuswertung").empty();
     log("upodate Auswertung data=" + JSON.stringify(data));
-    for (i = 0; i < data.length; i++) {
-        log("Update Auswertung frage=" + data[i].frage + " id=" + data[i].id);
-        $("#tabelleUmfrageAuswertung").append('<tr><td>' + data[i].frage + '</td><td><div id="chart1' + data[i].id + '"></div></td><td><div id="chart2' + data[i].id + '"></div></td></tr>')
+    if (data.length ==0) {
+        toastr["warning"]("Die Umfrage enthält keine Fragen!", "Warnung!");
+    }
+    else {
+        for (i = 0; i < data.length; i++) {
+            log("Update Auswertung frage=" + data[i].frage + " id=" + data[i].id);
+            $("#tabelleUmfrageAuswertung").append('<tr><td>' + data[i].frage + '</td><td><div id="chart1' + data[i].id + '"></div></td><td><div id="chart2' + data[i].id + '"></div></td></tr>')
+        }
     }
 }
 
