@@ -45,7 +45,9 @@ $("#template").load(SERVER + "/Diklabu/template.txt", function () {
 });
 $("#diklabuname").text(DIKLABUNAME);
 log("found token:" + sessionStorage.auth_token);
-
+if (sessionStorage.auth_token == undefined && !debug) {
+    window.location.replace("index.html");
+}
 $(document).ajaxSend(function (event, request, settings) {
     $('#loading-indicator').show();
 });

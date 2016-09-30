@@ -495,8 +495,9 @@ public class DokuServlet extends HttpServlet {
         if (res2.size() > maxRows) {
             maxRows = res2.size();
         }
+        PdfWriter writer = PdfWriter.getInstance(document, out);
         document.open();
-
+        writer.setPageEmpty(false);
         Font boldFont = new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD);
         Font normalFont = new Font(Font.FontFamily.HELVETICA, 10, Font.ITALIC);
         PdfPTable table = new PdfPTable(new float[]{1, 2, 2});
@@ -510,9 +511,9 @@ public class DokuServlet extends HttpServlet {
                 if (i != 0) {
                     document.add(table);
                     document.newPage();
-                    document = printHead(document, htmlString, out,image);
+                    document = printHead(writer,document, htmlString, out,image);
                 } else {
-                    document = printHead(document, htmlString, out,image);
+                    document = printHead(writer,document, htmlString, out,image);
                 }
 
                 table = new PdfPTable(new float[]{1, 2, 2});
@@ -541,6 +542,7 @@ public class DokuServlet extends HttpServlet {
                 Log.d("URL2="+url2);
                 image2 = Image.getInstance(url2);
             }
+            Log.d("Write to pdf:"+res1.get(i).getFrage());
             qestionCell = new PdfPCell(new Phrase(res1.get(i).getFrage(), normalFont));
             qestionCell.setBorderWidth(1.0f);
             group1Cell = new PdfPCell(image1, true);
@@ -1512,9 +1514,7 @@ public class DokuServlet extends HttpServlet {
         return toReadableDate(gc);
     }
 
-    private Document printHead(Document document, StringBuilder htmlString, OutputStream out, Image image) throws DocumentException, BadElementException, IOException {
-        PdfWriter writer = PdfWriter.getInstance(document, out);
-        document.open();
+    private Document printHead(PdfWriter writer,Document document, StringBuilder htmlString, OutputStream out, Image image) throws DocumentException, BadElementException, IOException {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         
