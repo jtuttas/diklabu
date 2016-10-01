@@ -211,10 +211,10 @@ function generateHeadUmfrage(antworten) {
     $("#umfrageHead").empty();
     console.log("Antworten=" + JSON.stringify(antworten));
     var html = "<tr>";
-    var width=52/antworten.length;
+    var width=100/(antworten.length+1);
     html += '<th><h2>Fragen</h2></th>';
     for (i = 0; i < antworten.length; i++) {
-        html += '<th class="antworten" width="'+width+'%">' + antworten[i].name + '</th>'
+        html += '<th class="antworten" ><h5>' + antworten[i].name + '</h5></th>'
         console.log("Fühe Antwort hinzu" + antworten[i].name + " id=" + antworten[i].id);
     }
     html += '</tr>';

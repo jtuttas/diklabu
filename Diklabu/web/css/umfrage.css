@@ -1,0 +1,42 @@
+.jumbotron {
+background-image: url("../img/diklabuheader.png");
+background-size: cover;
+color: #ffffff;
+}
+
+.selectable {
+    cursor: pointer;
+}
+
+.infoUmfrage {
+    cursor: pointer;
+}
+
+#administration {
+    cursor: pointer;
+}
+
+.selected {
+    color: darkred;
+    font-style: oblique;
+}
+
+#loading-indicator {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+}
+
+.antworten {
+    font-size: 10px;
+    text-align: center;
+}
+
+.checkfrage {
+    cursor: pointer;
+    text-align: center;
+}
+.uncheckfrage {    
+    text-align: center;
+}
+

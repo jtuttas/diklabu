@@ -191,7 +191,9 @@ $("#btnSubmitVertretung").click(function () {
     }
 });
 
-
+$(".infoUmfrage").click(function () {
+   $('#helpUmfrage').modal('show'); 
+});
 
 
 getKlassenliste(function () {

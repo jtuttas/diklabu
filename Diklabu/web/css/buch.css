@@ -8,6 +8,10 @@ color: #ffffff;
     cursor: pointer;
 }
 
+.infoUmfrage {
+    cursor: pointer;
+}
+
 #administration {
     cursor: pointer;
 }

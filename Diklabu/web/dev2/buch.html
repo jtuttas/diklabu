@@ -660,14 +660,14 @@
                                             <label for="gruppe1Umfrage">Umfrage:</label>
                                             <select class="form-control" id="gruppe1Umfrage">
                                             </select>
-                                            <label for="gruppe1Filter">Filter:</label>
+                                            <label for="gruppe1Filter">Filter: <img class="infoUmfrage" src="../img/Info.png"></label>
                                             <input type="text" class="form-control" id="gruppe1Filter" />
                                         </th>
                                         <th>
                                             <label for="gruppe2Umfrage">Umfrage:</label>
                                             <select class="form-control" id="gruppe2Umfrage">
                                             </select>
-                                            <label for="gruppe2Filter">Filter:</label>
+                                            <label for="gruppe2Filter">Filter: <img class="infoUmfrage" src="../img/Info.png"></label>
                                             <input type="text" class="form-control" id="gruppe2Filter" />
                                     <div id="chart_div"></div>
                                     </th>
@@ -930,6 +930,33 @@
             </div>
         </div>
 
+         <!-- Modal Info Dialog-->
+        <div id="helpUmfrage" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="dvHead" >Filter für Ergebnisse einer Umfrage</h4>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>Umfragen können in der Haupt- und Vergleichsgruppe nach Klassen gefiltert werden. Geben Sie hier die
+                        Klassenbezeichnung ein, so erhalten Sie die Umfrageergebnisse der Klasse. Mehrere
+                        Klassen können durch ";" getrennt werden. Das "%" Zeichen dient als Wildcard.</p>
+                        <hr>
+                        <h4>Beispiele</h4>
+                        <ul>
+                            <li>FISI14A;FISI14B <strong>Es werden die Ergebnisse der Klassen FISI14A und FISI14B angezeigt.</strong></li>
+                            <li>FIAE% <strong>Es werden die Ergebnisse aller FIAE Klassen angezeigt.</strong></li>
+                            <li>SYK14%;IFK14% <strong>Es werden die Ergebnisse der Klassen SYK14 und IFK14 angezeigt.</strong></li>
+                            <li>% <strong>Es werden die alle Ergebnisse der Umfrage angezeigt.</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- jQuery -->
         <script src="../js/jquery.js"></script>
         <!-- Bootstrap Core JavaScript -->
