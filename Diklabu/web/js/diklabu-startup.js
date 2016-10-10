@@ -3116,6 +3116,7 @@ function updateCurrentView() {
             $("#printContainer").hide();
             $("#dokumentationType").val("UmfrageAuswertung");
             $('#loading-indicator').show();
+            $('#updateUmfrage').modal('show'); 
             loadUmfragen(function (data) {
                 umfragen = data;
                 log("empfange:" + JSON.stringify(data));
@@ -3141,6 +3142,7 @@ function updateCurrentView() {
                     $("#dokufilter1").val($("#gruppe1Filter").val());
                     $("#dokufilter2").val($("#gruppe2Filter").val());
                     $('#loading-indicator').hide();
+                    $('#updateUmfrage').modal('hide'); 
                 });
 
 
@@ -3221,6 +3223,7 @@ function updateAuswertungsFilter(data) {
         var keyCode = e.keyCode || e.which;
         log("key Pressed gruppe1Filer" + keyCode);
         if (keyCode == 13) {
+            $('#updateUmfrage').modal('show'); 
             uid = $('option:selected', "#gruppe1Umfrage").attr('uid');
             log("Umfrage1 ID = "+uid);
             loadResults(uid, $("#gruppe1Filter").val(), function (data) {
@@ -3228,6 +3231,7 @@ function updateAuswertungsFilter(data) {
 
                 drawResults(data, 1);
                 $("#dokufilter1").val($("#gruppe1Filter").val());
+                $('#updateUmfrage').modal('hide'); 
             });
         }
     });
@@ -3238,10 +3242,12 @@ function updateAuswertungsFilter(data) {
         if (keyCode == 13) {
             uid = $('option:selected', "#gruppe2Umfrage").attr('uid');
             log("Umfrage2 ID = "+uid);
+            $('#updateUmfrage').modal('show'); 
             loadResults(uid, $("#gruppe2Filter").val(), function (data) {
                 log("empfange:" + JSON.stringify(data));
                 drawResults(data, 2);
                 $("#dokufilter2").val($("#gruppe2Filter").val());
+                $('#updateUmfrage').modal('hide'); 
             });
 
         }
@@ -3255,6 +3261,7 @@ function updateAuswertungsFilter(data) {
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
+        $('#updateUmfrage').modal('show'); 
         $("#dokufilter1").val($("#gruppe1Filter").val());
         $("#dokufilter2").val($("#gruppe2Filter").val());
         log("Setze anwfilter1 auf " + $('option:selected', $("#gruppe1Umfrage")).attr('uid'));
@@ -3272,8 +3279,10 @@ function updateAuswertungsFilter(data) {
                 log("empfange 2:" + JSON.stringify(data));
                 if (data.length==0) {
                     toastr["warning"]("Gewählte Umfrage enthält keine Fragen!", "Achtung!");
+                    $('#updateUmfrage').modal('hide'); 
                 }
                 drawResults(data, 2);
+                $('#updateUmfrage').modal('hide'); 
             });
 
         });
@@ -3288,6 +3297,7 @@ function updateAuswertungsFilter(data) {
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
+        $('#updateUmfrage').modal('show'); 
         $("#dokufilter1").val($("#gruppe1Filter").val());
         $("#dokufilter2").val($("#gruppe2Filter").val());
         log("Setze anwfilter1 auf " + $('option:selected', $("#gruppe1Umfrage")).attr('uid'));
@@ -3298,9 +3308,11 @@ function updateAuswertungsFilter(data) {
             log("empfange :" + JSON.stringify(data));
             if (data.length==0) {
                 toastr["warning"]("Gewählte Umfrage enthält keine Fragen!", "Achtung!");
+                $('#updateUmfrage').modal('hide'); 
             }
             else {
                 drawResults(data, 2);
+                $('#updateUmfrage').modal('hide'); 
             }
         });
     });

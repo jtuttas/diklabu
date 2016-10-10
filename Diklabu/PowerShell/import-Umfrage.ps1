@@ -60,3 +60,23 @@ else {
         }
     }
 }
+
+# Schüler hinzufügen
+#Find-Course "FISI14%" | Get-Coursemember | New-PollSubscriber -ID_UMFRAGE 12284 -TYPE SCHÜLER
+
+# Eine Klasse einladen
+<#
+$ps=Get-PollSubscribers -ID_UMFRAGE 4367
+$cousemember = Find-Coursemember -KNAME FISI14A
+foreach ($pupil in $ps) {
+    foreach ($cm in $cousemember) {
+        if ($cm.id -eq $pupil.idSchueler) {
+            Invite-PollSubscriber -KEY $pupil.key -whatif -Verbose
+            Write-Host "Lade ein "$pupil.key". Das ist "$cm.VNAME" "$cm.NNAME
+        }
+    }
+}
+#>
+
+# alle Schüler einer Umfrage einladen
+#Get-PollSubscribers 12284 | Invite-PollSubscriber 
