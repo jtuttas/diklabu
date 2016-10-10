@@ -595,6 +595,10 @@ $('#bildUploadForm').on('submit', (function (e) {
         type: 'POST',
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + idSchueler,
         data: formData,
+        headers: {
+                "service_key": sessionStorage.service_key,
+                "auth_token": sessionStorage.auth_token
+            },
         cache: false,
         contentType: false,
         processData: false,
@@ -3115,7 +3119,7 @@ function updateCurrentView() {
             $("#dokumentationContainer").show();
             $("#printContainer").hide();
             $("#dokumentationType").val("UmfrageAuswertung");
-            $('#loading-indicator').show();
+            
             $('#updateUmfrage').modal('show'); 
             loadUmfragen(function (data) {
                 umfragen = data;
@@ -3131,7 +3135,7 @@ function updateCurrentView() {
 
                 loadResults(umfrage.id, nameKlasse, function (data) {
                     log("empfange Results:" + JSON.stringify(data));
-                    $('#loading-indicator').show();
+                    
                     updateAuswertung(data);
                     drawResults(data, 1);
                     drawResults(data, 2);
@@ -3141,7 +3145,7 @@ function updateCurrentView() {
                     $("#anwfilter2").val($('option:selected', $("#gruppe2Umfrage")).attr('uid'));
                     $("#dokufilter1").val($("#gruppe1Filter").val());
                     $("#dokufilter2").val($("#gruppe2Filter").val());
-                    $('#loading-indicator').hide();
+                    
                     $('#updateUmfrage').modal('hide'); 
                 });
 
@@ -3156,7 +3160,7 @@ function updateCurrentView() {
 function drawResults(results, col) {
     found=false;
     for (i = 0; i < results.length; i++) {
-        $('#loading-indicator').show();
+
         var result = results[i];
         var antworten = results[i].skalen;
         // Create the data table.
@@ -3198,7 +3202,7 @@ function drawResults(results, col) {
             log("Container existiert nicht!");
         }
     }
-    $('#loading-indicator').hide();
+
     if (!found) {
         toastr["warning"]("Vergleichsgruppe enthält keine passenden Fragen!", "Achtung!");
     }
