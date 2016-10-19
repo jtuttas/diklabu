@@ -63,7 +63,7 @@ public class Config {
     /**
      * JSON Objekt für die Client Seite
      */
-    public JSONObject clientConfig;
+    public JSONObject clientConfig; 
     
     /**
 
