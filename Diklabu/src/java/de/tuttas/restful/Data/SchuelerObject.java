@@ -31,10 +31,20 @@ public class SchuelerObject  implements Comparable<SchuelerObject> {
     private String eduplazaMail;
     private Integer ldist;
     private String Abgang;
+    private Integer ID_MMBBS;
 
     public SchuelerObject() {
     }
 
+    public void setID_MMBBS(Integer ID_MMBBS) {
+        this.ID_MMBBS = ID_MMBBS;
+    }
+
+    public Integer getID_MMBBS() {
+        return ID_MMBBS;
+    }
+
+    
     public void setAbgang(String Abgang) {
         this.Abgang = Abgang;
     }

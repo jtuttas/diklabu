@@ -14,6 +14,7 @@ import de.tuttas.entities.Bemerkung;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import de.tuttas.entities.LoginSchueler;
+import de.tuttas.entities.Noten;
 import de.tuttas.restful.Data.SchuelerObject;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
@@ -205,6 +206,7 @@ public class SchuelerManager {
             if (s.getINFO()!=null) sl.setINFO(s.getINFO());
             if (s.getNNAME()!=null) sl.setNNAME(s.getNNAME());
             if (s.getVNAME()!=null) sl.setVNAME(s.getVNAME());
+            if (s.getID_MMBBS()!=null) sl.setID_MMBBS(s.getID_MMBBS());
             em.merge(sl);
         }  
         return sl;
@@ -264,7 +266,26 @@ public class SchuelerManager {
                     Log.d("Lösche Anwesenheitseintrag "+a);
                     em.remove(a);
                 }
+                query = em.createNamedQuery("findNoteByIDSchueler");
+                query.setParameter("paramSchuelerID", sid);    
+                List<Noten> noten = query.getResultList();
+                for (Noten n:noten) {
+                    Log.d("Lösche Note "+n);
+                    em.remove(n);
+                }
+                
+                query = em.createNamedQuery("findBemerkungbySchuelerId");
+                query.setParameter("paramSchuelerId", sid);    
+                List<Bemerkung> bem = query.getResultList();
+                for (Bemerkung b:bem) {
+                    Log.d("Lösche Bemerkung "+b);
+                    em.remove(b);
+                }
+                        
                 em.flush();
+                
+                
+                
                 em.remove(s);
                 ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" gelöscht");
                 ro.setSuccess(true);
@@ -297,6 +318,8 @@ public class SchuelerManager {
             so.setEmail(s.getEMAIL());
             so.setInfo(s.getINFO());
             so.setAbgang(s.getABGANG());
+            so.setID_MMBBS(s.getID_MMBBS());
+                    
             Query query = em.createNamedQuery("findKlassenbySchuelerID");
             query.setParameter("paramIDSchueler", so.getId());
             List<Klasse> klassen = query.getResultList();
@@ -319,6 +342,22 @@ public class SchuelerManager {
             return so;
         }
         return null;
+    }
+    
+    /**
+     * Details zu einem Schüler anhand ID_MMBBS abfragen
+     * @param idschueler ID des Schülers
+     * @return SchülerObjekt
+     */
+    @GET
+    @Path("/bbsplan/{idschueler}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<Schueler> getBbsPlanPupil(@PathParam("idschueler") int idschueler) {
+        Log.d("Abfrage Schueler mit der BBS-PLAN ID " + idschueler);
+        Query query = em.createNamedQuery("findSchuelerByID_MMBBS");
+        query.setParameter("paramID_MMBBS", idschueler);
+        List<Schueler> pupils = query.getResultList();
+        return pupils;
     }
 
     /**

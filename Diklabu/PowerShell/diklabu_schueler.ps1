@@ -143,8 +143,12 @@ function Get-Pupil
     Param
     (       
         # ID des Schülers
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0,ParameterSetName = "Set 1")]
         [int]$id,
+
+        # BBS-PLan ID des Schülers
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0,ParameterSetName = "Set 2")]
+        [int]$bbsplanid,
 
         # Adresse des Diklabu Servers
         [String]$uri=$global:server
@@ -158,8 +162,14 @@ function Get-Pupil
     Process
     {
         try {
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$id) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
-            Write-Verbose "Suche Schüler mit der ID $id"
+            if ($id) {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$id) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+                Write-Verbose "Suche Schüler mit der ID $id"
+            }
+            else {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/bbsplan/"+$bbsplanid) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+                Write-Verbose "Suche Schüler mit der BBS PLan ID $bbsplanid"
+            }
             return $r;
         } catch {
             Write-Error "Get-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
@@ -236,7 +246,7 @@ function New-Pupil
         [String]$NNAME,
 
         # Geburtsdatum im SQL Format yyyy-mm-dd
-        [Parameter(Mandatory=$true,Position=2,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Position=2,ValueFromPipelineByPropertyName=$true)]
         [String]$GEBDAT,
 
         # Adresse des Diklabu Servers
@@ -258,6 +268,10 @@ function New-Pupil
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [String]$INFO,
 
+        # BBS Plan ID
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [int]$bbsplanid,
+
         # Info
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [int]$id,
@@ -275,7 +289,7 @@ function New-Pupil
     }
     Process
     {
-        $schueler=echo "" | Select-Object -Property "EMAIL","GEBDAT","VNAME","NNAME","ID_AUSBILDER","ABGANG","INFO","id"
+        $schueler=echo "" | Select-Object -Property "EMAIL","GEBDAT","VNAME","NNAME","ID_AUSBILDER","ABGANG","INFO","id","ID_MMBBS"
         if ($VNAME) {
           $schueler.VNAME=$VNAME
         }
@@ -299,6 +313,9 @@ function New-Pupil
         }
         if ($INFO) {
           $schueler.INFO=$INFO
+        }
+        if ($bbsplanid -ne 0) {
+          $schueler.ID_MMBBS=$bbsplanid
         }
         
         try {
@@ -374,6 +391,10 @@ function Set-Pupil
         [Parameter(ValueFromPipelineByPropertyName=$true)]
         [String]$INFO,
 
+        # BBS PLan ID
+        [Parameter(ValueFromPipelineByPropertyName=$true)]
+        [int]$bbsplanid,
+
         [switch]$whatif
 
     )
@@ -387,7 +408,7 @@ function Set-Pupil
     }
     Process
     {
-        $schueler=echo "" | Select-Object -Property "EMAIL","GEBDAT","VNAME","NNAME","ID_AUSBILDER","ABGANG","INFO"
+        $schueler=echo "" | Select-Object -Property "EMAIL","GEBDAT","VNAME","NNAME","ID_AUSBILDER","ABGANG","INFO","ID_MMBBS"
         if ($VNAME) {
             $schueler.VNAME=$VNAME
         }
@@ -408,6 +429,9 @@ function Set-Pupil
         }
         if ($INFO) {
             $schueler.INFO=$INFO
+        }
+        if ($bbsplanid -ne 0) {
+            $schueler.ID_MMBBS=$bbsplanid
         }
 
         try {

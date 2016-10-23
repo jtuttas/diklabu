@@ -7,6 +7,7 @@ Import-Module diklabu_coursemember.psm1
 Import-Module diklabu_kurswahl.psm1
 Import-Module diklabu_lehrer.psm1
 Import-Module diklabu_poll.psm1
+Import-Module diklabu_bbsplanung.psm1
 
 
 Export-ModuleMember -Function Set-Diklabuserver
@@ -86,5 +87,16 @@ Export-ModuleMember -Function Get-Pupils
 Export-ModuleMember -Function Get-Companies
 Export-ModuleMember -Function Get-Instructor
 
+Export-ModuleMember -Function Connect-BbsPlan
+Export-ModuleMember -Function Disconnect-BbsPlan
+Export-ModuleMember -Function Test-BPCoursemember
+Export-ModuleMember -Function Get-BPPupils
+Export-ModuleMember -Function Get-BPCompanies
+Export-ModuleMember -Function Get-BPCompany
+Export-ModuleMember -Function Get-BPInstructors
+Export-ModuleMember -Function Get-BPTeachers
+Export-ModuleMember -Function Get-BPCourses
+Export-ModuleMember -Function Get-BPCoursemember
+Export-ModuleMember -Function Export-BBSPlanung
 
 
