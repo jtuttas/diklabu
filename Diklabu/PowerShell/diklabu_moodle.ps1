@@ -315,6 +315,59 @@ function New-MoodleCourse
 
 <#
 .Synopsis
+   Löscht einen oder mehrere Kurse
+.DESCRIPTION
+   Löscht einen oder mehrere Kurse
+.EXAMPLE
+   Delete-MoodleCourse -id 12
+   Löscht den Kurs mit der ID 12
+#>
+function Delete-MoodleCourse
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Name des Kurses
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
+                   Position=0)]
+        [int]$id,
+        [switch]$force,
+        [switch]$whatif
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+        }
+        else {
+            $postParams = @{wstoken=$token;wsfunction='core_course_delete_courses';moodlewsrestformat='json'}
+        }
+        $n=0
+
+    }
+    Process
+    {
+        $postParams['courseids['+$n+']']=$id
+        $n++
+    }  
+    End
+    {
+        if (-not $whatif) {
+            if (-not $force) {
+                $q=Read-Host "Sollen die Kurse wirklich gelöscht werden? (J/N)"
+                if ($q -ne "J") {
+                    return;
+                }
+            }
+            $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            Write-Verbose "Kurse  gelöscht"
+            $r
+        }
+    }
+}
+<#
+.Synopsis
    Benutzer einem Kurs hinzufügen
 .DESCRIPTION
    Benutzer einem Kurs hinzufügen

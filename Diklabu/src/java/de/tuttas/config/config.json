@@ -1,0 +1,22 @@
+{
+    "debug": true,
+    "auth": false,
+    "IMAGE_FILE_PATH": "c:\\Temp\\",
+    "adminusers":["TU","TUTTAS","KEMMRIES"],
+    "AUTH_TOKE_TIMEOUT" : 432000000,
+        
+    "ldaphost": "ldap://192.168.178.147:389",
+    "binduser": "CN=Administrator,CN=Users,DC=tuttas,DC=de",
+    "bindpassword":"Th8_ui4i5",
+    "context": "OU=mmbbs,DC=tuttas,DC=de",
+    
+    "smtphost": "smtp.uni-hannover.de",
+    "port": "587",
+    "user": "joerg.tuttas@ifbe.uni-hannover.de",
+    "pass": "d0dd7426b45e",
+    "clientConfig" : {
+        "SERVER": "http://localhost:8080",        
+        "WEBSOCKET": "ws://",
+        "DIKLABUNAME":"DiKlaBu@localhost"
+    }
+}
