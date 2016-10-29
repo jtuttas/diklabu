@@ -1,5 +1,5 @@
-﻿$global:moodle
-$gloabl:token
+﻿$global:moodle=$null
+$global:token=$null
 
 <#
 .Synopsis
@@ -63,13 +63,10 @@ function Get-MoodleCourses
             write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
         }
         else {
+            Write-Verbose "Get-MoodleCourses"
             $postParams = @{wstoken=$token;wsfunction='core_course_get_courses';moodlewsrestformat='json'}
             $courses=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-            $out=@{}
-            foreach ($c in $courses) {
-                $out[$c.shortname]=$c
-            }
-            $out
+            $courses
         }
     }
     
@@ -96,6 +93,7 @@ function Get-MoodleCategories
             write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
         }
         else {
+            Write-Verbose "Get-MoodleCategories"
             $postParams = @{wstoken=$token;wsfunction='core_course_get_categories';moodlewsrestformat='json'}
             $courses=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             $courses  
@@ -124,6 +122,7 @@ function Get-MoodleCohorts
             write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
         }
         else {
+            Write-Verbose "Get-MoodleCohorts"
             $postParams = @{wstoken=$token;wsfunction='core_cohort_get_cohorts';moodlewsrestformat='json'}
             $courses=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             $courses  
@@ -167,13 +166,10 @@ function Get-MoodleCoursemember
     }
     Process
     {
+        Write-Verbose "Get-MoodleCourseMember IDCourse=$id"
         $postParams["courseid"]=$id
         $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-        $out=@{}
-        foreach ($m in $r) {
-            $out[$m.id]=$m
-        }
-        $out
+        $r
     }  
 }
 
@@ -238,9 +234,11 @@ function Get-MoodleUser
             $postParams['values['+$n+']']=$property
             $n++;
         }
+        Write-Verbose "Get-MoodleUser property=$property"
     }  
     End
     {
+        
         $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
         $r
     }
@@ -292,6 +290,7 @@ function New-MoodleCourse
     }
     Process
     {
+        Write-Verbose "New Moodle Course fullname=$fullname shortname=$shortname categoryId=$categoryid"
         $postParams['courses['+$n+'][fullname]']=$fullname
         $postParams['courses['+$n+'][shortname]']=$shortname
         $postParams['courses['+$n+'][categoryid]']=$categoryid
@@ -348,6 +347,7 @@ function Delete-MoodleCourse
     }
     Process
     {
+        Write-Verbose "Delete-MoodleCourse ID=$id"
         $postParams['courseids['+$n+']']=$id
         $n++
     }  
@@ -421,9 +421,11 @@ function Add-MoodleCourseMember
         $postParams['enrolments['+$n+'][courseid]']=$courseid
         if ($role -eq "STUDENT") {
             $postParams['enrolments['+$n+'][roleid]']=5
+            Write-Verbose "Add-MoodleCourseMember userid=$userid courseId=$courseid Role=STUDENT"
         }
         elseif($role -eq "TEACHER") {
            $postParams['enrolments['+$n+'][roleid]']=3
+           Write-Verbose "Add-MoodleCourseMember userid=$userid courseId=$courseid Role=TEACHER"
         }
        
         $n++
@@ -439,6 +441,73 @@ function Add-MoodleCourseMember
             }
             $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             Write-Verbose "Benutzer mit ID=$userid in den Kurs ID=$courseid eingeschrieben"
+            $r
+        }
+    }
+}
+
+<#
+.Synopsis
+   Benutzer aus einem Kurs entfernen
+.DESCRIPTION
+   Benutzer aus einem Kurs entfernen
+.EXAMPLE
+   Remove-MoodleCourseMember -courseid 41 -userid 47 
+   Entfernt den Benutzer mit der ID 47 aus den Kurs mit der ID 41 
+.EXAMPLE
+   1,2,3 | Add-MoodleCourseMember -courseid 41 
+   Entfernt die Benutzer mit den IDs 1,2,3 aus den Kurs mit der ID 41 
+#>
+function Remove-MoodleCourseMember
+{
+    [CmdletBinding()]
+    Param
+    (
+        # ID des Users
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   ValueFromPipeline=$true,
+                   Position=0)]
+        [int]$userid,
+        # ID des Kurses
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
+        [int]$courseid,
+
+        [switch]$force,
+        [switch]$whatif
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+        }
+        else {
+            $postParams = @{wstoken=$token;wsfunction='enrol_manual_unenrol_users';moodlewsrestformat='json'}
+        }
+        $n=0
+
+    }
+    Process
+    {
+        Write-Verbose "Remove-MoodleCourseMember userid=$userid courseId=$courseid"
+        $postParams['enrolments['+$n+'][userid]']=$userid
+        $postParams['enrolments['+$n+'][courseid]']=$courseid
+       
+        $n++
+    }  
+    End
+    {
+        if (-not $whatif) {
+            if (-not $force) {
+                $q=Read-Host "Benutzer mit Teilnehmen ID=$userid aus dem Kurs mit ID=$courseid entfernen? (J/N)"
+                if ($q -ne "J") {
+                    return;
+                } 
+            }
+            $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            Write-Verbose "Benutzer mit ID=$userid aus dem Kurs ID=$courseid entfernt"
             $r
         }
     }
@@ -484,6 +553,7 @@ function Get-MoodleCohortMember
     }
     Process
     {
+        Write-Verbose "Get-MoodleCohortMember cohortId=$cohortid"
         $postParams['cohortids['+$n+']']= $cohortid
         $n++
     }  
