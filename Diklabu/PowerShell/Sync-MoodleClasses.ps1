@@ -4,8 +4,8 @@
 .DESCRIPTION
    Moodle Klassen Kurs anlegen und Benutzer (Schüler und Lehrer eintragen)
 .EXAMPLE
-   Sync-MoodleClasses -categoryid 3 -untisexport c:\Temp\untis.csv
-   Legt Moodle Kurse unter der Kategorie 3 für jede Klasse aus untis.csv in Moodle an und fügt die Schüler der 
+   Sync-MoodleClasses -categoryid 3 -untisexport c:\Temp\untis.csv -templateid 2
+   Legt Moodle Kurse unter der Kategorie 3 für jede Klasse aus untis.csv in Moodle an (als Kopie des Kurses mit der id 2) und fügt die Schüler der 
    globalen Gruppe mit dem Namen Klasse als STUDENT in den Kurs ein und fügt die Lehrer der Klasse als TEACHER
    in den Kurs ein!
 
@@ -24,6 +24,7 @@ function Sync-MoodleCourses
         [Parameter(Mandatory=$true,
                    Position=1)]
         [String]$untisexport,
+        [int]$templateid=-1,
         [switch]$force,
         [switch]$whatif       
     )
@@ -86,7 +87,12 @@ function Sync-MoodleCourses
             if (-not $moodelCourses[$line.klasse] -and -not $moodelCourses[$line.klasse].categoryid -eq $categoryid) {
                 Write-Verbose " Klassenkurs existiert nicht in Moodle, und wird angelegt"
                 if (-not $whatif) {
-                    $c=New-MoodleCourse -fullname $line.klasse -shortname $line.klasse -categoryid $categoryid
+                    if ($templateid -eq -1) {
+                        $c=New-MoodleCourse -fullname $line.klasse -shortname $line.klasse -categoryid $categoryid
+                    }
+                    else {
+                        $c=Copy-MoodleCourse -fullname $line.klasse -shortname $line.klasse -categoryid $categoryid -courseid $templateid
+                    }
                     if (-not $c) {
                         $c = "" | Select-Object -Property id
                         $c.id=-1
@@ -106,16 +112,22 @@ function Sync-MoodleCourses
                 $l = @{}
                 $moodelCourses[$line.klasse] | Add-Member -MemberType NoteProperty -Name lehrer -Value $l
                 $coursemember = Get-MoodleCoursemember -id $moodelCourses[$line.klasse].id
-                $com=@{}
-                $com2=@{}
-                foreach ($co in $coursemember) {
-                    $com[$co.id]=$co
-                    $com2[$co.id]=$co
+                
+                if ($coursemember.errorcode.Length -gt 0) {
+                    Write-Warning $coursemember.message
                 }
-                $moodelCourses[$line.klasse] | Add-Member -MemberType NoteProperty -Name member -Value $com
-                $moodelCourses[$line.klasse].member=$com
-                $moodelCourses[$line.klasse] | Add-Member -MemberType NoteProperty -Name unusedMember -Value $com2
-                $moodelCourses[$line.klasse].unusedMember=$com2
+                else {
+                    $com=@{}
+                    $com2=@{}
+                    foreach ($co in $coursemember) {
+                        $com[$co.id]=$co
+                        $com2[$co.id]=$co
+                    }
+                    $moodelCourses[$line.klasse] | Add-Member -MemberType NoteProperty -Name member -Value $com
+                    $moodelCourses[$line.klasse].member=$com
+                    $moodelCourses[$line.klasse] | Add-Member -MemberType NoteProperty -Name unusedMember -Value $com2
+                    $moodelCourses[$line.klasse].unusedMember=$com2
+                }
             }
             #$moodelCourses[$line.klasse] 
             
@@ -156,17 +168,18 @@ function Sync-MoodleCourses
                         Write-Verbose " Suchen den Moodle Benutzer mit der EMAIL $($lehrer[$line.lol].email)"
                         $muser = Get-MoodleUser -property $lehrer[$line.lol].email -PROPERTYTYPE EMAIL
                         if ($muser) {
-                            
-                            if (-not $moodelCourses[$line.klasse].member[$muser.id]) {
-                                Write-Verbose " Trage den Moodle Benutzer in den Kurs $($line.klasse) ein!"                
-                                if (-not $whatif) {
-                                    $r = Add-MoodleCourseMember -userid $muser.id -courseid $moodelCourses[$line.klasse].id -role TEACHER
+                            if (-not $whatif) {
+                                if (-not $moodelCourses[$line.klasse].member[$muser.id]) {
+                                    Write-Verbose " Trage den Moodle Benutzer in den Kurs $($line.klasse) ein!"                
+                                    if (-not $whatif) {
+                                        $r = Add-MoodleCourseMember -userid $muser.id -courseid $moodelCourses[$line.klasse].id -role TEACHER
+                                    }
                                 }
+                                else {
+                                   Write-Verbose " Der Moodle Benutzer ist bereits im Kurs $($line.klasse)!"                
+                                }
+                                $moodelCourses[$line.klasse].unusedMember.Remove($muser.id)
                             }
-                            else {
-                               Write-Verbose " Der Moodle Benutzer ist bereits im Kurs $($line.klasse)!"                
-                            }
-                            $moodelCourses[$line.klasse].unusedMember.Remove($muser.id)
                         }
                         else {
                             Write-Warning "Der Lehrer mit dem Kürzel $($line.lol) und der EMail Adresse $($lehrer[$line.lol].email) kann nicht in Moodle gefunden werden!"
@@ -189,15 +202,17 @@ function Sync-MoodleCourses
         
         Write-Verbose "Lösche die Teilnehmer aus den Kursen, die im Kurs noch sind, aber weder in cohorts noch als Lehrer dort eingetragen sind"
         
-        foreach ($u in $moodelCourses.Values[0]) {            
-            if ($moodelCourses[$u.shortname].unusedMember.Count -gt 0) {
+        foreach ($u in $moodelCourses.Values[0]) {   
+            if (-not $whatif) {         
+                if ($moodelCourses[$u.shortname].unusedMember.Count -gt 0) {
                 
-               foreach ($m in $moodelCourses[$u.shortname].unusedMember) {
-                    Write-Verbose "Der Teilnehmer $($m.Values[0].firstname) $($m.Values[0].lastname) ID=$($m.Values[0].id) ist nicht mehr im Klassenkurs $($u.shortname) enthalten und kann gelöscht werden"
-                    if (-not $whatif) {
-                        Remove-MoodleCourseMember -userid $m.Values[0].id -courseid $u.id
-                    }
-               }
+                   foreach ($m in $moodelCourses[$u.shortname].unusedMember) {
+                        Write-Verbose "Der Teilnehmer $($m.Values[0].firstname) $($m.Values[0].lastname) ID=$($m.Values[0].id) ist nicht mehr im Klassenkurs $($u.shortname) enthalten und kann gelöscht werden"
+                        if (-not $whatif) {
+                            Remove-MoodleCourseMember -userid $m.Values[0].id -courseid $u.id
+                        }
+                   }
+                }
             }
         }        
     }
