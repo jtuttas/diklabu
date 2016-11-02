@@ -73,7 +73,7 @@ RUN  mkdir /home/diklabu && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
         chmod +xxx diklabu/Diklabu/start.sh 
 
-RUN isql-fb -i /home/diklabu/diklabu/Diklabu/Sql_buils.sql        
+#RUN isql-fb -i /home/diklabu/diklabu/Diklabu/Sql_buils.sql        
 
 EXPOSE 8080 4848 8181 3050 22
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
