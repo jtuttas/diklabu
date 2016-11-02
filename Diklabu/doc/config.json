@@ -1,0 +1,25 @@
+{
+    "debug": true,
+    "auth": false,
+    "IMAGE_FILE_PATH": "/home/diklabu/temp",
+	"ATEST_FILE_PATH": "/home/diklabu/temp",
+	"TEMPLATE_FILE_PATH": "/home/diklabu/temp",
+    "adminusers":["TU"],
+     "verwaltung":["BÜ"],
+    "AUTH_TOKE_TIMEOUT" : 432000000,
+        
+    "ldaphost": "ldap://192.168.178.53:389",
+    "binduser": "CN=Administrator,CN=Users,DC=tuttas,DC=de",
+    "bindpassword":"xyz",
+    "context": "OU=mmbbs,DC=tuttas,DC=de",
+    
+    "smtphost": "smtp.uni-hannover.de",
+    "port": "587",
+    "user": "user",
+    "pass": "pass",
+    "clientConfig" : {
+        "SERVER": "http://localhost:8080",        
+        "WEBSOCKET": "ws://",
+        "DIKLABUNAME":"DiKlaBu@Docker"
+    }
+}
