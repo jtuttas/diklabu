@@ -72,5 +72,4 @@ RUN  mkdir /home/diklabu && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/
 
 EXPOSE 8080 4848 8181 3050 22
-CMD ["/usr/sbin/fbguard"]
-ENTRYPOINT /glassfish4/bin/asadmin start-domain && /usr/sbin/sshd -D
+ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
