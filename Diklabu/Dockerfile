@@ -71,7 +71,8 @@ RUN  mkdir /home/diklabu && \
         git clone https://github.com/jtuttas/diklabu.git && \
         mv diklabu/Diklabu/lib/ /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
-        chmod +xxx diklabu/Diklabu/start.sh
+        chmod +xxx diklabu/Diklabu/start.sh && \
+        isql-fb -i /home/diklabu/diklabu/Diklabu/Sql_buils.sql
 
 EXPOSE 8080 4848 8181 3050 22
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
