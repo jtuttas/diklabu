@@ -17,7 +17,8 @@ RUN \
 RUN apt-get -qq update && \
        apt-get -qq -y install nano && \
        apt-get -qq -y install git && \
-       apt-get -qq -y install mc    
+       apt-get -qq -y install mc   && \
+        apt-get -qq -y install nettools 
 
 VOLUME /var/lib/firebird/2.5/data
 VOLUME /var/lib/firebird/2.5/backup
