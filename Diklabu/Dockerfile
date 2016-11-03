@@ -20,7 +20,7 @@ RUN apt-get -qq update && \
        apt-get -qq -y install mc  
    #     apt-get -qq -y install net-tools 
 
-VOLUME /var/lib/firebird/2.5/data
+#VOLUME /var/lib/firebird/2.5/data
 VOLUME /var/lib/firebird/2.5/backup
 
 # SSH Installieren
@@ -39,8 +39,8 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 RUN     apt-get install -y openjdk-8-jdk
 
 # glassfish installieren
-ENV GLASSFISH_PKG=glassfish-4.1.1-web.zip \
-    GLASSFISH_URL=http://download.oracle.com/glassfish/4.1.1/release/glassfish-4.1.1-web.zip \
+ENV GLASSFISH_PKG=glassfish-4.0-web.zip \
+    GLASSFISH_URL=http://download.java.net/glassfish/4.0/release/glassfish-4.0-web.zip \
     GLASSFISH_HOME=/glassfish4 \
     PATH=$PATH:/glassfish4/bin \
     PASSWORD=mmbbs
@@ -72,8 +72,8 @@ RUN  mkdir /home/diklabu && \
         git clone https://github.com/jtuttas/diklabu.git && \        
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
-        chmod +xxx diklabu/Diklabu/start.sh && \        
         cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
+        chmod +xxx diklabu/Diklabu/start.sh && \        
         asadmin --user=admin start-domain && \
         /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050 connectionPoolKlassenbuch && \
         /glassfish4/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/glassfishpwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \

@@ -18,7 +18,7 @@
     "user": "user",
     "pass": "pass",
     "clientConfig" : {
-        "SERVER": "http://:8080",        
+        "SERVER": "",        
         "WEBSOCKET": "ws://",
         "DIKLABUNAME":"DiKlaBu@Docker"
     }
