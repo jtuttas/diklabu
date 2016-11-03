@@ -39,6 +39,7 @@ function Login-Moodle
         $url=$url+"login/token.php?username=$($data.benutzer)&password=$($data.kennwort)&service=$service"
         $r=Invoke-RestMethod -Method GET -Uri $url -ContentType "application/json; charset=iso-8859-1"             
         $global:token=$r.token
+        $r
     }
 }
 
@@ -317,82 +318,6 @@ function New-MoodleCourse
 
 <#
 .Synopsis
-   Copy Moodle Kurs anlegen
-.DESCRIPTION
-   Copy Moodle Kurs anlegen
-.EXAMPLE
-   Copy-MoodleCourse -fullname "Mein neuer Kurs" -shortname "kn2" -categoryid 4 -courseid 2
-   Kopiert den Kurs mit der Kurs id 2 als neuen Kurs in der Kategorie 4 an
-#>
-function Copy-MoodleCourse
-{
-    [CmdletBinding()]
-    Param
-    (
-        # Name des Kurses
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        [String]$fullname,
-        # Kurzname des Kurses
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=1)]
-        [String]$shortname,
-
-        # Kategorie, wo der Kurs erscheinen soll
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=2)]
-        [int]$categoryid,
-
-        # ID des Kurses der kopiert werden soll
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=3)]
-        [int]$courseid,
-        [switch]$force,
-        [switch]$whatif
-    )
-    Begin
-    {
-        if (-not $global:token) {
-            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
-            break;
-        }
-        else {
-            $postParams = @{wstoken=$token;wsfunction='core_course_duplicate_course';moodlewsrestformat='json'}
-        }
-        $n=0
-
-    }
-    Process
-    {
-        Write-Verbose "New Moodle Course fullname=$fullname shortname=$shortname categoryId=$categoryid"
-        $postParams['fullname']=$fullname
-        $postParams['shortname']=$shortname
-        $postParams['categoryid']=$categoryid
-        $postParams['courseid']=$courseid
-        if (-not $whatif) {
-            if (-not $force) {
-                $q=Read-Host "Soll der Kurs '$fullname' ($shortname) in der Kategorie ID=$categoryid als Kopie des Kurses mit der ID $courseid erstellt werden? (J/N)"
-                if ($q -ne "J") {
-                    return;
-                }
-            }
-            $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-            Write-Verbose "Kurs '$fullname' ($shortname) wurde in der Kategorie mit der ID $categoryid als Kopie des Kurses mit der ID $courseid angelegt!"
-            $r
-        }      
-    }  
-    End
-    {
- 
-    }
-}
-
-<#
-.Synopsis
    Löscht einen oder mehrere Kurse
 .DESCRIPTION
    Löscht einen oder mehrere Kurse
@@ -427,9 +352,15 @@ function Delete-MoodleCourse
     }
     Process
     {
-        Write-Verbose "Delete-MoodleCourse ID=$id"
+        
         $postParams['courseids['+$n+']']=$id
         $n++
+        if ($whatif) {
+            Write-Verbose "würde Kurs mit ID $id löschen!"
+        }
+        else {
+            Write-Verbose "Delete-MoodleCourse ID=$id"
+        }
     }  
     End
     {
@@ -441,7 +372,7 @@ function Delete-MoodleCourse
                 }
             }
             $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-            Write-Verbose "Kurse  gelöscht"
+            Write-Verbose "Kurse ID $id  gelöscht"
             $r
         }
     }
