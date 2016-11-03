@@ -64,8 +64,11 @@ function Sync-MoodleCourses
         $obj.email = "tuttas@mmbbs.de"
         $lehrer["TU"]=$obj
         $obj = "" | Select-Object "email"
-        $obj.email = "zimmler@mmbbs.de"
-        $lehrer["ZM"]=$obj
+        $obj.email = "hecht@mmbbs.de"
+        $lehrer["HE"]=$obj
+        $obj = "" | Select-Object "email"
+        $obj.email = "jordan@mmbbs.de"
+        $lehrer["JD"]=$obj
         
 
 
@@ -113,8 +116,8 @@ function Sync-MoodleCourses
                 $moodelCourses[$line.klasse] | Add-Member -MemberType NoteProperty -Name lehrer -Value $l
                 $coursemember = Get-MoodleCoursemember -id $moodelCourses[$line.klasse].id
                 
-                if ($coursemember.errorcode.Length -gt 0) {
-                    Write-Warning $coursemember.message
+                if ($coursemember.PSobject.Properties.name -match "errorcode") {
+                    Write-Warning $coursemember.errorcode
                 }
                 else {
                     $com=@{}
@@ -139,16 +142,18 @@ function Sync-MoodleCourses
                     $member = Get-MoodleCohortMember $cohorts[$line.klasse].id
                     
                     foreach ($id in $member.userids) {
-                        if (-not $moodelCourses[$line.klasse].member[$id]) {
-                            Write-Verbose " Trage den Moodle Nutzer mit der ID $id in den Kurs $($moodelCourses[$line.klasse].id) ein!"
-                            if (-not $whatif) {
-                                    Add-MoodleCourseMember -userid $id -courseid $moodelCourses[$line.klasse].id -role STUDENT
+                        if (-not $whatif) {
+                            if (-not $moodelCourses[$line.klasse].member[$id]) {
+                                Write-Verbose " Trage den Moodle Nutzer mit der ID $id in den Kurs $($moodelCourses[$line.klasse].id) ein!"
+                                if (-not $whatif) {
+                                        Add-MoodleCourseMember -userid $id -courseid $moodelCourses[$line.klasse].id -role STUDENT
+                                }
                             }
+                            else {
+                               Write-Verbose " Der Moodle Nutzer mit der ID $id ist bereits im Kurs $($moodelCourses[$line.klasse].id)!"
+                            }
+                            $moodelCourses[$line.klasse].unusedMember.Remove($id)
                         }
-                        else {
-                           Write-Verbose " Der Moodle Nutzer mit der ID $id ist bereits im Kurs $($moodelCourses[$line.klasse].id)!"
-                        }
-                        $moodelCourses[$line.klasse].unusedMember.Remove($id)
                     }
                 }
                 else {
@@ -169,16 +174,19 @@ function Sync-MoodleCourses
                         $muser = Get-MoodleUser -property $lehrer[$line.lol].email -PROPERTYTYPE EMAIL
                         if ($muser) {
                             if (-not $whatif) {
-                                if (-not $moodelCourses[$line.klasse].member[$muser.id]) {
-                                    Write-Verbose " Trage den Moodle Benutzer in den Kurs $($line.klasse) ein!"                
-                                    if (-not $whatif) {
-                                        $r = Add-MoodleCourseMember -userid $muser.id -courseid $moodelCourses[$line.klasse].id -role TEACHER
+                                # Es kommt vor, dass ein Lehrer mit seiner EMail mehrmals im Moodle System ist
+                                foreach ($lu in $muser) {
+                                    if (-not $moodelCourses[$line.klasse].member[$lu.id]) {
+                                        Write-Verbose " Trage den Moodle Benutzer in den Kurs $($line.klasse) ein!"                
+                                        if (-not $whatif) {
+                                            $r = Add-MoodleCourseMember -userid $lu.id -courseid $moodelCourses[$line.klasse].id -role TEACHER
+                                        }
                                     }
+                                    else {
+                                       Write-Verbose " Der Moodle Benutzer ist bereits im Kurs $($line.klasse)!"                
+                                    }
+                                    $moodelCourses[$line.klasse].unusedMember.Remove($lu.id)
                                 }
-                                else {
-                                   Write-Verbose " Der Moodle Benutzer ist bereits im Kurs $($line.klasse)!"                
-                                }
-                                $moodelCourses[$line.klasse].unusedMember.Remove($muser.id)
                             }
                         }
                         else {
