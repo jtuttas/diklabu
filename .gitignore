@@ -4,7 +4,6 @@
 .mtj.tmp/
 
 # Package Files #
-*.war
 *.ear
 Diklabu/setup/glassfish-resources.xml
 
