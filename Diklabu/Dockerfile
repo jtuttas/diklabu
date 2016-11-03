@@ -69,16 +69,18 @@ RUN  mkdir /home/diklabu && \
         cd /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \
+        #mv diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
-        chmod +xxx diklabu/Diklabu/start.sh && \
-        mv diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
+        chmod +xxx diklabu/Diklabu/start.sh && \        
         cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
-        /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050 connectionPoolKlassenbuch
+        asadmin --user=admin start-domain && \
+        /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050 connectionPoolKlassenbuch && \
+        /glassfish4/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/glassfishpwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \
         asadmin --user=admin stop-domain 
         
 
 
 EXPOSE 8080 4848 8181 3050 22
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
-CMD bash -C '/home/diklabu/diklabu/Diklabu/start.sh';'bash'
+ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
