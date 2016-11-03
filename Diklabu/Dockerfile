@@ -17,8 +17,8 @@ RUN \
 RUN apt-get -qq update && \
        apt-get -qq -y install nano && \
        apt-get -qq -y install git && \
-       apt-get -qq -y install mc   && \
-        apt-get -qq -y install nettools 
+       apt-get -qq -y install mc  
+   #     apt-get -qq -y install net-tools 
 
 VOLUME /var/lib/firebird/2.5/data
 VOLUME /var/lib/firebird/2.5/backup
@@ -70,7 +70,7 @@ RUN  mkdir /home/diklabu && \
         cd /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \
-        cp diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
+        cp /home/diklabu/diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
         chmod +xxx diklabu/Diklabu/start.sh && \        
