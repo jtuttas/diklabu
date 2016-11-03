@@ -60,8 +60,8 @@ RUN apt-get -qq -y install wget unzip && \
     asadmin start-domain && \
     echo "AS_ADMIN_PASSWORD=${PASSWORD}" > /tmp/glassfishpwd && \
     asadmin --user=admin --passwordfile=/tmp/glassfishpwd enable-secure-admin && \
-    asadmin --user=admin stop-domain && \
-    rm /tmp/glassfishpwd
+    asadmin --user=admin stop-domain 
+    
 
 # diklabu installieren
 
@@ -69,9 +69,14 @@ RUN  mkdir /home/diklabu && \
         cd /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \
-        mv diklabu/Diklabu/lib/ /glassfish4/glassfish/domains/domain1/lib/ext/  && \
+        mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
-        chmod +xxx diklabu/Diklabu/start.sh 
+        chmod +xxx diklabu/Diklabu/start.sh && \
+        mv diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
+        cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
+        /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050 connectionPoolKlassenbuch
+        asadmin --user=admin stop-domain 
+        
 
 
 EXPOSE 8080 4848 8181 3050 22
