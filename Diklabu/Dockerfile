@@ -69,8 +69,7 @@ RUN apt-get -qq -y install wget unzip && \
 RUN  mkdir /home/diklabu && \
         cd /home/diklabu && \
         mkdir temp && \
-        git clone https://github.com/jtuttas/diklabu.git && \
-        cp /home/diklabu/diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
+        git clone https://github.com/jtuttas/diklabu.git && \        
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
         chmod +xxx diklabu/Diklabu/start.sh && \        
@@ -79,6 +78,13 @@ RUN  mkdir /home/diklabu && \
         /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050 connectionPoolKlassenbuch && \
         /glassfish4/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/glassfishpwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \
         asadmin --user=admin stop-domain 
+
+RUN cp /home/diklabu/diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
+       cd /var/lib/firebird/2.5/data && \
+       chown firebird diklabu.GDB  && \
+       chgrp firebird diklabu.GDB && \
+       chmod +664 diklabu.GDB && \
+       ls -la
         
 
 
