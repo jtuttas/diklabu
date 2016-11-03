@@ -69,7 +69,7 @@ RUN  mkdir /home/diklabu && \
         cd /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \
-        #mv diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
+        cp diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
         chmod +xxx diklabu/Diklabu/start.sh && \        
@@ -83,4 +83,7 @@ RUN  mkdir /home/diklabu && \
 
 EXPOSE 8080 4848 8181 3050 22
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
-ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
+#ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
+#cmd     ["/home/diklabu/diklabu/Diklabu/start.sh", "-n"]
+#cmd /home/diklabu/diklabu/Diklabu/start.sh
+CMD bash -C '/home/diklabu/diklabu/Diklabu/start.sh';'bash'
