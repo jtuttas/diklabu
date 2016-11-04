@@ -72,8 +72,8 @@ RUN  mkdir /home/diklabu && \
         git clone https://github.com/jtuttas/diklabu.git && \        
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
         mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
-        cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
         chmod +xxx diklabu/Diklabu/start.sh && \        
+        cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
         asadmin --user=admin start-domain && \
         /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050:encoding=ISO8859_1:characterEncoding=ISO8859_1:characterSetResults=ISO8859_1 connectionPoolKlassenbuch && \
         /glassfish4/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/glassfishpwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \

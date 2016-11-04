@@ -19,7 +19,7 @@
     "pass": "pass",
     "clientConfig" : {
         "SERVER": "",        
-        "WEBSOCKET": "ws:",
+        "WEBSOCKET": "ws://192.168.178.64",
         "DIKLABUNAME":"DiKlaBu@Docker"
     }
 }
