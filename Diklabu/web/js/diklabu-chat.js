@@ -3,8 +3,8 @@ var chatServer = SERVER.substring(SERVER.indexOf("//") + 2);
 console.log("Chat Server " + chatServer);
 
 function chatConnect() {
-    // TODO ws für normal wss für secure
-    webSocket = new WebSocket(WEBSOCKET+ "/Diklabu/chat");
+    // IP Adresse ermitteln
+    webSocket = new WebSocket(WEBSOCKET+ chatServer + "/Diklabu/chat");
     webSocket.onmessage = function (event) {
         console.log("receive CHAT:" + event.data);
         var chatLine = JSON.parse(event.data);
