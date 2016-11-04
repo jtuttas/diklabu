@@ -50,7 +50,11 @@ public class ClientConfig extends HttpServlet {
                     out.println("var "+key+"=\""+c.clientConfig.get(key)+"\";");
                 
             }
-            out.println("var debug="+c.debug);
+            out.println("var debug="+c.debug+";");
+            out.println("var servername=\""+request.getServerName()+"\";");
+            out.println("var serverport="+request.getServerPort()+";");
+            
+            
         }
     }
 
