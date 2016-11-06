@@ -1,5 +1,5 @@
-﻿$global:moodle=$null
-$global:token=$null
+﻿$global:moodle
+$global:token
 
 <#
 .Synopsis
