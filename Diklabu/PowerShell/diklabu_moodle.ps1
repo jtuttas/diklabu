@@ -654,4 +654,56 @@ function Get-MoodleCohortMember
     }
 }
 
+<#
+.Synopsis
+   Neuen Seafile Benutzer anlegen
+.DESCRIPTION
+   Legt einen neuen Seafile Benutzer an
+.EXAMPLE
+   Get-MoodleCohortMember -cohortid 5
+   Fragt die Mitglieder der Globalen Gruppe mit der ID 5 ab
+.EXAMPLE
+   1,3,5 | Get-MoodleCohortMember 
+   Fragt die Mitglieder der Globalen Gruppe mit den IDs 1,3,5 ab
+
+#>
+function Get-MoodleCohortMember
+{
+    [CmdletBinding()]
+    Param
+    (
+        # ID der globalen Gruppe
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   ValueFromPipeline=$true,
+                   Position=0)]
+        [int]$cohortid
+       
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+            break;
+        }
+        else {
+            $postParams = @{wstoken=$token;wsfunction='core_cohort_get_cohort_members';moodlewsrestformat='json'}
+        }
+        $n=0
+
+    }
+    Process
+    {
+        Write-Verbose "Get-MoodleCohortMember cohortId=$cohortid"
+        $postParams['cohortids['+$n+']']= $cohortid
+        $n++
+    }  
+    End
+    {
+        $r=Invoke-RestMethod -Method POST -Uri $global:moodle -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        $r
+    }
+}
+
+
 

@@ -423,3 +423,175 @@ function Get-SFGroupmember
     }
 }
 
+<#
+.Synopsis
+   Neuen Seafile Benutzer anlegen
+.DESCRIPTION
+   Legt einen neuen Seafile Benutzer an
+.EXAMPLE
+   New-SFUser -email s3@mmbbs.de -password mmbbs
+   Legt einen neuen Benutzer mit der EMail Adresse s3@mmbbs.de und dem Kennwort mmbbs an!
+.EXAMPLE
+   "s3@mmbbs.de","s4@mmbbs.de" | New-SFUser -password mmbbs
+   Legt die genannten Benutzer mit der EMAIL Adressen an und vergibt das Kennwort "mmbbs"
+
+#>
+function New-SFUser
+{
+    [CmdletBinding()]   
+    Param
+    (
+      [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+      [String]$email,
+      [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1)]
+      [String]$password,
+       [switch]$force,
+      [switch]$whatif
+
+    )
+
+    Begin
+    {
+        if (-not $global:sftoken) {
+            Write-Error "Sie sind nicht an Seafile angemeldet, veruchen Sie es mit Login-Seafile"
+            return
+        }
+        $headers=@{}      
+        $headers["content-Type"]="application/x-www-form-urlencoded"  
+        $headers["Authorization"]="TOKEN "+$global:sftoken;
+    }
+    Process {
+        
+        $url = $global:seafile+"/api2/accounts/$email/"
+        try {
+            if (-not $whatif) {
+                if (-not $force) {
+                    $q = Read-Host "Soll neuer Benutzer mit EMail $email angelegt werden? (J/N)"
+                    if ($q -ne "J") {
+                        return;
+                    }
+                }
+                $body = "password=$password"
+                $r=Invoke-RestMethod -Method PUT -Body $body -Uri $url -Headers $headers  
+                Write-Verbose "Erzeuge neuen User $email und dem Kennwoprt $password"
+                $r
+            }
+            else {
+                Write-Verbose "Würde neuen User $email und dem Kennwoprt $password erzeugen"
+            }
+        }
+        catch {
+            $errorcode = $_.Exception.Response.StatusCode.value__ 
+            Write-Error $_
+        }
+    }
+}
+
+<#
+.Synopsis
+   Seafile Benutzer löschen
+.DESCRIPTION
+   Löscht einen Seafile Benutzer 
+.EXAMPLE
+   Delete-SFUser -email s3@mmbbs.de 
+   Löscht Benutzer mit der EMail Adresse s3@mmbbs.de !
+.EXAMPLE
+   "s3@mmbbs.de","s4@mmbbs.de" | Delete-SFUser 
+   Löscht die genannten Benutzer mit der EMAIL Adressen
+
+#>
+function Delete-SFUser
+{
+    [CmdletBinding()]   
+    Param
+    (
+      [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+      [String]$email,
+      [switch]$force,
+      [switch]$whatif
+
+    )
+
+    Begin
+    {
+        if (-not $global:sftoken) {
+            Write-Error "Sie sind nicht an Seafile angemeldet, veruchen Sie es mit Login-Seafile"
+            return
+        }
+        $headers=@{}      
+        $headers["content-Type"]="application/x-www-form-urlencoded"  
+        $headers["Authorization"]="TOKEN "+$global:sftoken;
+    }
+    Process {
+        
+        $url = $global:seafile+"/api2/accounts/$email/"
+        try {
+            if (-not $whatif) {
+                if (-not $force) {
+                    $q = Read-Host "Soll neuer Benutzer mit EMail $email angelegt werden? (J/N)"
+                    if ($q -ne "J") {
+                        return;
+                    }
+                }
+                $r=Invoke-RestMethod -Method DELETE -Uri $url -Headers $headers  
+                Write-Verbose "Lösche  User $email !"
+                $r
+            }
+            else {
+                Write-Verbose "Würde neuen User $email löschen"
+            }
+        }
+        catch {
+            $errorcode = $_.Exception.Response.StatusCode.value__ 
+            Write-Error $_
+        }
+    }
+}
+
+<#
+.Synopsis
+   Zeigt die Seafile Benutzer an
+.DESCRIPTION
+   Zeigt alle Seafile Benutzer an
+.EXAMPLE
+   Get-SFUsers 
+   Zeigt die Seafile Benutzer an
+#>
+function Get-SFUsers
+{
+    [CmdletBinding()]   
+    Param
+    (
+      [Parameter(Position=0)]
+      [int]$start=-1,
+      [Parameter(Position=1)]
+      [int]$limit=-1,
+      [Parameter(Position=2)]
+      [ValidateSet('LDAP','DB','LDAPImport')]
+      [String]$scope
+    )
+
+    Begin
+    {
+        if (-not $global:sftoken) {
+            Write-Error "Sie sind nicht an Seafile angemeldet, veruchen Sie es mit Login-Seafile"
+            return
+        }
+        $headers=@{}      
+        $headers["content-Type"]="application/x-www-form-urlencoded"  
+        $headers["Authorization"]="TOKEN "+$global:sftoken;
+        $url = $global:seafile+"/api2/accounts/"
+        $url+="?start=$start&limit=$limit"
+        if ($scope) {
+            $url+="&scope=$scope"
+        }
+        try {
+            $r=Invoke-RestMethod -Method GET -Uri $url -Headers $headers  
+            Write-Verbose "Abfrage aller Seafilebenutzer"
+            $r
+        }
+        catch {
+            Write-Error $_
+        }
+    }
+}
