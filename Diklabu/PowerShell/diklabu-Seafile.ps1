@@ -534,11 +534,11 @@ function Delete-SFUser
                     }
                 }
                 $r=Invoke-RestMethod -Method DELETE -Uri $url -Headers $headers  
-                Write-Verbose "Lösche  User $email !"
+                Write-Verbose "Lösche User $email !"
                 $r
             }
             else {
-                Write-Verbose "Würde neuen User $email löschen"
+                Write-Verbose "Würde User $email löschen"
             }
         }
         catch {
@@ -593,5 +593,51 @@ function Get-SFUsers
         catch {
             Write-Error $_
         }
+    }
+}
+
+<#
+.Synopsis
+   Zeigt Informationen zu einem User
+.DESCRIPTION
+   Zeigt Informationen zu einem User
+.EXAMPLE
+   Get-SFUser -email tuttas@mmbbs.de
+   Zeigt die Informationen zum SF User tuttas@mmbbs.de an
+.EXAMPLE
+   "tuttas@mmbbs.de","kemmries@mmbbs.de" | Get-SFUser 
+   Zeigt die Informationen zu den SF User tuttas@mmbbs.de und kemmries@mmbbs.de an
+#>
+function Get-SFUser
+{
+    [CmdletBinding()]   
+    Param
+    (
+     [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+      [String]$email
+    )
+
+    Begin
+    {
+        if (-not $global:sftoken) {
+            Write-Error "Sie sind nicht an Seafile angemeldet, veruchen Sie es mit Login-Seafile"
+            return
+        }
+        $headers=@{}      
+        $headers["content-Type"]="application/x-www-form-urlencoded"  
+        $headers["Authorization"]="TOKEN "+$global:sftoken;
+    }
+    Process {
+        $url = $global:seafile+"api2/accounts/$email/"        
+        try {
+            $r=Invoke-RestMethod -Method GET -Uri $url -Headers $headers  
+            Write-Verbose "Abfrage des Seafilebenutzers $email"
+            $r
+        }
+        catch {
+            Write-Error $_
+            $null
+        }
+
     }
 }
