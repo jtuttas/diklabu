@@ -39,7 +39,7 @@ function Sync-MoodleCourses
         }
         
         $lehrer=@{}  
-        <#
+        
               
         $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
         $l = $config.ldaphost
@@ -57,19 +57,18 @@ function Sync-MoodleCourses
                 Write-Warning "Achtung der Lehrer $($user.GivenName) $($user.Name) hat keine Initialen (Kürzel)!"  
             }    
         } 
-        #>              
-        # Zum Testen ohne AD
         
+        <#
         $obj = "" | Select-Object "email"
-        $obj.email = "tuttas@mmbbs.de"
+        $obj.mail = "tuttas@mmbbs.de"
         $lehrer["TU"]=$obj
         $obj = "" | Select-Object "email"
-        $obj.email = "hecht@mmbbs.de"
+        $obj.mail = "hecht@mmbbs.de"
         $lehrer["HE"]=$obj
         $obj = "" | Select-Object "email"
-        $obj.email = "jordan@mmbbs.de"
+        $obj.mail = "jordan@mmbbs.de"
         $lehrer["JD"]=$obj
-        
+        #>
 
 
         $coh = Get-MoodleCohorts
@@ -170,14 +169,14 @@ function Sync-MoodleCourses
                     if ($line.lol) {
                     Write-Verbose " Suchen den Lehrer mit dem Kürzel $($line.lol)"
                     if ($lehrer[$line.lol]) {
-                        Write-Verbose " Suchen den Moodle Benutzer mit der EMAIL $($lehrer[$line.lol].email)"
-                        $muser = Get-MoodleUser -property $lehrer[$line.lol].email -PROPERTYTYPE EMAIL
+                        Write-Verbose " Suchen den Moodle Benutzer mit der EMAIL $($lehrer[$line.lol].mail)"
+                        $muser = Get-MoodleUser -property $lehrer[$line.lol].mail -PROPERTYTYPE EMAIL
                         if ($muser) {
                             if (-not $whatif) {
                                 # Es kommt vor, dass ein Lehrer mit seiner EMail mehrmals im Moodle System ist
                                 foreach ($lu in $muser) {
                                     if (-not $moodelCourses[$line.klasse].member[$lu.id]) {
-                                        Write-Verbose " Trage den Moodle Benutzer in den Kurs $($line.klasse) ein!"                
+                                        Write-Verbose " Trage den Moodle Benutzer $($lehrer[$line.lol].mail) in den Kurs $($line.klasse) ein!"                
                                         if (-not $whatif) {
                                             $r = Add-MoodleCourseMember -userid $lu.id -courseid $moodelCourses[$line.klasse].id -role TEACHER
                                         }
@@ -190,7 +189,7 @@ function Sync-MoodleCourses
                             }
                         }
                         else {
-                            Write-Warning "Der Lehrer mit dem Kürzel $($line.lol) und der EMail Adresse $($lehrer[$line.lol].email) kann nicht in Moodle gefunden werden!"
+                            Write-Warning "Der Lehrer mit dem Kürzel $($line.lol) und der EMail Adresse $($lehrer[$line.lol].mail) kann nicht in Moodle gefunden werden!"
                         }
                     }
                     else {

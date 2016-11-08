@@ -18,6 +18,8 @@ function Sync-SFCourses
         [Parameter(Mandatory=$true,
                    Position=0)]
         [String]$untisexport,
+        # Kategorien, die als Kurse angelegt werden (Klassenkurse Kategorie 0) wird immer angelegt!
+        [int []]$includeIDKategorie=(1,2,3,9),
         [switch]$force,
         [switch]$whatif       
     )
@@ -59,14 +61,28 @@ function Sync-SFCourses
             if (-not $sfgroups[$line.klasse]) {
                 Write-Verbose " Klassen existiert nicht als Gruppe in Seafile, und wird angelegt"
                 if (-not $whatif) {
-                    $c = New-SFGroup -name $line.klasse 
+                    if ($force) {
+                        $c = New-SFGroup -name $line.klasse -force 
+                    }
+                    else {
+                       $c = New-SFGroup -name $line.klasse 
+                    }
                     $sfgroups[$line.klasse]=$c
                 }  
             }            
 
             
             
-            if (-not $cohorts[$line.klasse].bearbeitet) {                
+            if (-not $cohorts[$line.klasse].bearbeitet) {  
+                $memberIst=@{};
+                $memist = @{};
+                $memi = Get-SFGroupmember -id $sfgroups[$line.klasse].id
+                foreach ($mi in $memi) {
+                    [String]$mail=$mi.email;
+                    $memberIst[$mail]=$mail
+                    $memist[$mail]=$mail
+                }
+                $sfgroups[$line.klasse] | Add-Member -MemberType NoteProperty -Name memberIst -Value $memist
                 if ($cohorts[$line.klasse]) {
                     $cohorts[$line.klasse] | Add-Member -MemberType NoteProperty -Name bearbeitet -Value $true
                     Write-Verbose " Globale MoodleGruppe $($line.klasse) gefunden, füge Schüler in die SF Gruppe ein!"
@@ -78,19 +94,11 @@ function Sync-SFCourses
                         $muser = Get-MoodleUser -property $m -PROPERTYTYPE ID
                         $memberSoll[$muser.email]=[String]$muser.email
                     }
-                    $memi = Get-SFGroupmember -id  $sfgroups[$line.klasse].id
-                    $memberIst=@{};
-                    foreach ($mi in $memi) {
-                        [String]$mail=$mi.email;
-                        $memberIst[$mail]=$mail
-                    }
-                   
                     
                     foreach ($soll in $memberSoll.Values[0]) {
-                        
                         if (-not $whatif) {
                             # Ist Benutzer schon in der Gruppe (ist=soll)
-                            
+                            Write-Verbose "Bearbeite Gruppenmitglied $soll"
                             if ($memberIst[$soll]) {
                                 Write-Verbose "Der Benutzer $($soll) ist bereits in der Gruppe $($line.klasse)"                                
                             }
@@ -99,15 +107,29 @@ function Sync-SFCourses
                                 $u = Get-SFUser -email $soll -ErrorAction SilentlyContinue
                                 if ($u) {
                                     Write-Verbose "Nutzer $($soll) gefunden und wird hinzugefügt"
-                                    $m=Add-SFGroupmember -email $soll -id $sfgroups[$line.klasse].id
+                                    if ($force) {
+                                         $m=Add-SFGroupmember -email $soll -id $sfgroups[$line.klasse].id -force
+                                    }
+                                    else {
+                                         $m=Add-SFGroupmember -email $soll -id $sfgroups[$line.klasse].id
+                                    }
                                 }
                                 else {
                                    Write-Verbose "Nutzer $($soll) NICHT gefunden und wird angelegt und hinzugefügt"
-                                   $m=New-SFUser -email $soll -password mmbbs
-                                   $m=Add-SFGroupmember -email $soll -id $sfgroups[$line.klasse].id
+                                   if ($force) {
+                                   
+                                        $m=New-SFUser -email $soll -password mmbbs -force
+                                        $m=Add-SFGroupmember -email $soll -id $sfgroups[$line.klasse].id -force
+                                   }
+                                   else {
+                                        $m=New-SFUser -email $soll -password mmbbs 
+                                        $m=Add-SFGroupmember -email $soll -id $sfgroups[$line.klasse].id
+                                   }
                                 }
                             }
                             $memberIst.Remove($soll)
+                            
+                            $sfgroups[$line.klasse].memberIst.remove($soll)
                         }
                     }
                 }
@@ -117,6 +139,7 @@ function Sync-SFCourses
                     $obj.bearbeitet=$true
                     $cohorts[$line.klasse]=$obj
                 }
+                
             }
 
             if (-not $sfgroups[$line.klasse].lehrer) {
@@ -138,13 +161,20 @@ function Sync-SFCourses
                                 if (-not $memberIst[$lehrer[$line.lol].email]) {
                                     Write-Verbose " Trage den User in die Gruppe $($line.klasse) ein!"                
                                     if (-not $whatif) {
-                                        $m=Add-SFGroupmember -email $lehrer[$line.lol].email -id $sfgroups[$line.klasse].id
+                                        if ($force) {
+                                            $m=Add-SFGroupmember -email $lehrer[$line.lol].email -id $sfgroups[$line.klasse].id -force
+                                        }
+                                        else {
+                                             $m=Add-SFGroupmember -email $lehrer[$line.lol].email -id $sfgroups[$line.klasse].id
+                                        }
                                     }
                                 }
                                 else {
                                     Write-Verbose " Der User ist bereits in der Gruppe  $($line.klasse)!"  
                                     $memberIst.Remove($soll)              
-                                }                                
+                                }   
+                               
+                                $sfgroups[$line.klasse].memberIst.remove($lehrer[$line.lol].email)                             
                             }
                         }
                         else {
@@ -166,9 +196,151 @@ function Sync-SFCourses
             }
         }       
         
-        <#
+        <# 
+            Kurse bilden f. WPKs etc
+
+            Anhand von $includeIDKategorie werden die Gruppen in Seafile angelegt, Schüler
+            werden aus dem diklabu hinzugefügt und der Kursleiter als Lehrer dort eingetragen!
+
+        #>
+        # KUrse aus dem Klassenbuch
+        $diklabuCourses = Get-Courses | Where-Object {$includeIDKategorie -contains $_.idkategorie} 
+
+        # Kurse in Seafile
+        
+
+        foreach ($c in $diklabuCourses) {
+            if (-not $sfgroups[$c.KNAME]) {
+                Write-Verbose "Der diklabu Kurs $($c.KNAME) existiert nicht und wird angelegt"
+                if (-not $whatif) {
+                    if ($force) {
+                        $g=New-SFGroup -name $c.KNAME -force
+                    }
+                    else {
+                        $g=New-SFGroup -name $c.KNAME 
+                    }
+                    $sfgroups[$c.KNAME]=$g
+                }
+            }
+            else {#
+                Write-Verbose "Der diklabu Kurs $($c.KNAME) gefunden"
+            }
+
+
+            # Schüler in der Kurs eintragen
+            
+            # Schüler im diklabu
+            $coursemem = Get-Coursemember -id $c.id
+            # Schüler in Seafile
+            $sfm = Get-SFGroupmember -id $sfgroups[$c.KNAME].id
+            $grist = @{}
+            foreach ($g in $sfm) {
+                $grist[$g.email]=$g.email;
+            }
+            $sfgroups[$c.KNAME] | Add-Member -MemberType NoteProperty -Name memberIst -Value $grist
+
+            foreach ($mem in $coursemem) {
+                $le = Get-SFUser -email $mem.EMAIL
+                if ($le) {
+                   
+                    if ( -not $grist[$mem.EMAIL]) {
+                        Write-Verbose "Schüler gefunden, weise ihn den Kurs $($c.KNAME) zu!"
+                        if (-not $whatif) {
+                            if ($force) {
+                                $u= Add-SFGroupmember -email $mem.EMAIL -id $sfgroups[$c.KNAME].id -force
+                            }
+                            else {
+                                $u= Add-SFGroupmember -email $mem.EMAIL -id $sfgroups[$c.KNAME].id 
+                            }
+                        }
+                    }
+                    else {
+                         Write-Verbose "Schüler gefunden, ist bereits im Kurs $($c.KNAME) zu!"
+                    }
+                    $sfgroups[$c.KNAME].memberIst.remove($mem.EMAIL);
+
+                }
+                else {
+                    Write-Verbose "Schüler nicht gefunden, wird angelegt!"
+                    if (-not $whatif) {
+                        if ($force) {
+                            $u= New-SFUser -email $mem.EMAIL -password mmbbs -force
+                        }
+                        else {
+                            $u= New-SFUser -email $mem.EMAIL -password mmbbs
+                        }
+                    }
+                    Write-Verbose "Neuer Schüler  $($mem.EMAIL) wird dem Kurs $($c.KNAME) hinzugefügt"
+                    if (-not $whatif) {
+                        if ($force) {
+                            $u= Add-SFGroupmember -email $mem.EMAIL -id $sfgroups[$c.KNAME].id -force
+                        }
+                        else {
+                            $u= Add-SFGroupmember -email $mem.EMAIL -id $sfgroups[$c.KNAME].id 
+                        }
+                        $sfgroups[$c.KNAME].memberIst.remove($mem.EMAIL);
+                    }
+                    
+                }
+            }
+            # Noch den Lehrer des Kurses eintragen
+            if ($c.ID_LEHRER -eq "") {
+                Write-Warning "Achtung der Kurs $($c.KNAME) hat keinen Lehrer zugewiesen bekommen (ID_LEHRER)"
+            }
+            else {
+                $le = Get-SFUser -email $lehrer[$c.ID_LEHRER].email
+                if ($le) {
+                    if ( -not $grist[$lehrer[$c.ID_LEHRER].email]) {
+                        Write-Verbose "Lehrer gefunden, weise ihn den Kurs $($c.KNAME) zu!"
+                        if (-not $whatif) {
+                            if ($force) {
+                                $u= Add-SFGroupmember -email $lehrer[$c.ID_LEHRER].email -id $sfgroups[$c.KNAME].id -force
+                            }
+                            else {
+                                $u= Add-SFGroupmember -email $lehrer[$c.ID_LEHRER].email -id $sfgroups[$c.KNAME].id 
+                            }
+                        }
+                        
+                    }
+                    else {
+                        Write-Verbose "Lehrer ist bereits Mitglied im Kurs $($c.KNAME)"
+                    }
+                    $sfgroups[$c.KNAME].memberIst.remove($lehrer[$c.ID_LEHRER].email);
+                }
+                else {
+                    Write-Verbose "Lehrer nicht gefunden, wird angelegt!"
+                    if (-not $whatif) {
+                        if ($force) {
+                            $u= New-SFUser -email $lehrer[$c.ID_LEHRER].email -password mmbbs -force
+                        }
+                        else {
+                            $u= New-SFUser -email $lehrer[$c.ID_LEHRER].email -password mmbbs
+                        }
+                    }
+                    Write-Verbose "Neuer Lehrer $($lehrer[$c.ID_LEHRER].email) wird dem Kurs $($c.KNAME) hinzugefügt"
+                    if (-not $whatif) {
+                        if ($force) {
+                            $u= Add-SFGroupmember -email $lehrer[$c.ID_LEHRER].email -id $sfgroups[$c.KNAME].id -force
+                        }
+                        else {
+                            $u= Add-SFGroupmember -email $lehrer[$c.ID_LEHRER].email -id $sfgroups[$c.KNAME].id 
+                        }
+                    }
+                    $sfgroups[$c.KNAME].memberIst.remove($lehrer[$c.ID_LEHRER].email);
+                    
+                }
+            }
+        }
+
+        
         Write-Verbose "Lösche die Teilnehmer aus den Kursen, die im Kurs noch sind, aber weder in cohorts noch als Lehrer dort eingetragen sind"
         
+        foreach ($course in $sfgroups) {
+            Write-Verbose "Folgende Teilnehmer müssen aus der Gruppe $course gelöscht werden!"
+            $course.memberIst;
+        }
+
+        <#
         foreach ($u in $moodelCourses.Values[0]) {   
             if (-not $whatif) {         
                 if ($moodelCourses[$u.shortname].unusedMember.Count -gt 0) {

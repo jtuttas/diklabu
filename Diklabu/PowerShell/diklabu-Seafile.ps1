@@ -7,7 +7,7 @@ $global:sftoken
 .DESCRIPTION
    Anmelden an Seafile
 .EXAMPLE
-   login-Seafile -url http://localhost/moodle -credentails (get-cretendials admin)
+   login-Seafile -url http://localhost:8000 -credentails (get-cretendials admin)
 
 #>
 function Login-Seafile
@@ -35,8 +35,8 @@ function Login-Seafile
         $data=echo "" | Select-Object -Property "username","password"
         $data.username=$credential.userName
         $data.password=$credential.GetNetworkCredential().Password  
-        $data="username=$($data.username)&password=$($data.password)"
-        $r=Invoke-RestMethod -Method POST -Uri $url -Body $data  
+        $out="username=$($data.username)&password=$($data.password)"
+        $r=Invoke-RestMethod -Method POST -Uri $url -Body $out   
         if ($r.token) {
             Write-Verbose "Login erfolgreich"
         }
@@ -259,7 +259,7 @@ function Add-SFGroupmember
     }
     Process {
         
-        $url = $global:seafile+"/api/v2.1/groups/$id/members/"
+        $url = $global:seafile+"api/v2.1/groups/$id/members/"
         $body="email=$email"
         try {
             if (-not $whatif) {
@@ -591,7 +591,7 @@ function Get-SFUsers
             $r
         }
         catch {
-            Write-Error $_
+            $null
         }
     }
 }
@@ -635,7 +635,6 @@ function Get-SFUser
             $r
         }
         catch {
-            Write-Error $_
             $null
         }
 
