@@ -8,7 +8,9 @@ Import-Module diklabu_kurswahl.psm1
 Import-Module diklabu_lehrer.psm1
 Import-Module diklabu_poll.psm1
 Import-Module diklabu_bbsplanung.psm1
-
+Import-Module diklabu-seafile.psm1
+Import-Module diklabu_moodle.psm1
+Import-Module diklabu_ldap.psm1
 
 Export-ModuleMember -Function Set-Diklabuserver
 Export-ModuleMember -Function Get-Diklabuserver
@@ -99,4 +101,34 @@ Export-ModuleMember -Function Get-BPCourses
 Export-ModuleMember -Function Get-BPCoursemember
 Export-ModuleMember -Function Export-BBSPlanung
 
+Export-ModuleMember -Function Login-Seafile
+Export-ModuleMember -Function New-SFGroup
+Export-ModuleMember -Function Get-SFGroups
+Export-ModuleMember -Function Delete-SFGroup
+Export-ModuleMember -Function Add-SFGroupmember
+Export-ModuleMember -Function Remove-SFGroupmember
+Export-ModuleMember -Function Get-SFGroupmember
+Export-ModuleMember -Function New-SFUser
+Export-ModuleMember -Function Delete-SFUser
+Export-ModuleMember -Function Get-SFUsers
+Export-ModuleMember -Function Get-SFUser
 
+Export-ModuleMember -Function Login-Moodle
+Export-ModuleMember -Function Get-MoodleCourses
+Export-ModuleMember -Function Get-MoodleCategories
+Export-ModuleMember -Function Get-MoodleCohorts
+Export-ModuleMember -Function Get-MoodleCoursemember
+Export-ModuleMember -Function Get-MoodleUser
+Export-ModuleMember -Function New-MoodleCourse
+Export-ModuleMember -Function Copy-MoodleCourse
+Export-ModuleMember -Function Delete-MoodleCourse
+Export-ModuleMember -Function Add-MoodleCourseMember
+Export-ModuleMember -Function Remove-MoodleCourseMember
+Export-ModuleMember -Function Get-MoodleCohortMember
+
+Export-ModuleMember -Function Login-LDAP
+Export-ModuleMember -Function Get-LDAPTeachers
+Export-ModuleMember -Function Get-LDAPTeacher
+Export-ModuleMember -Function Get-LDAPCourses
+Export-ModuleMember -Function Get-LDAPCourse
+Export-ModuleMember -Function Get-LDAPCourseMember

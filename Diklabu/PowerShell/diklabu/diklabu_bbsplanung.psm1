@@ -163,7 +163,9 @@ function Get-BPPupils
                     $sch.BBSID=$item.id;
                     $sch.NNAME=$item.NNAME;
                     $sch.VNAME=$item.VNAME;
-                    [datetime]$sch.GEBDAT=$item.GEBDAT
+                    if ((""+$item.GEBDAT).Length -gt 0) {
+                        [datetime]$sch.GEBDAT=$item.GEBDAT
+                    }
                     $sch.GEBORT=$item.GEBORT
                     $sch.STR=$item.STR
                     $sch.PLZ=$item.PLZ
@@ -475,7 +477,9 @@ function Get-BPCoursemember
                     $sch.BBSID=$item.id;
                     $sch.NNAME=$item.NNAME;
                     $sch.VNAME=$item.VNAME;
-                    [datetime]$sch.GEBDAT=$item.GEBDAT
+                    if ((""+$item.GEBDAT).Length -gt 0) {
+                        [datetime]$sch.GEBDAT=$item.GEBDAT
+                    }
                     $sch.GEBORT=$item.GEBORT
                     $sch.STR=$item.STR
                     $sch.PLZ=$item.PLZ
@@ -612,7 +616,7 @@ function Get-BPCoursemember
                     $a.ID_BETRIEB=$ausb.ID_BETRIEB
                 }
                 else {
-                    Write-Verbose "  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"
+                    Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"
                     $betr = findBetrieb $a.ID_BETRIEB
                     if (-not $whatif) {
                         $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
@@ -623,7 +627,7 @@ function Get-BPCoursemember
             }
             else {
                 if (!$c) {
-                    Write-Verbose "  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" 
+                    Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" 
                     $betr = findBetrieb $a.ID_BETRIEB
                     if (-not $whatif) {
                         $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
@@ -660,7 +664,7 @@ function Get-BPCoursemember
             Write-Verbose "Suche Lehrer mit Kürzel $($l.KÜRZEL)"
             $le=Get-Teacher -ID $l.KÜRZEL
             if (!$le) {
-                Write-Verbose "  Neuen Lehrer gefunden $($l.VNAME) $($l.NNAME)! Lege Lehrer an mit Kürzel $($l.KÜRZEL)!"
+                Write-Warning "  Neuen Lehrer gefunden $($l.VNAME) $($l.NNAME)! Lege Lehrer an mit Kürzel $($l.KÜRZEL)!"
                 if (-not $whatif) {
                     $nl=New-Teacher -ID $l.KÜRZEL -NNAME $l.NNAME -VNAME $l.VNAME -TELEFON $l.TELEFON -EMAIL $l.EMAIL 
                 }
@@ -680,7 +684,7 @@ function Get-BPCoursemember
             $kl=Find-Course -KNAME $k.KNAME
             $k |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
             if (!$kl) {
-                Write-Verbose "  Neue Klasse $($k.KNAME)! Lege Klasse an!" 
+                Write-Warning "  Neue Klasse $($k.KNAME)! Lege Klasse an!" 
                 if (-not $whatif) {
                     $nl=New-Course -KNAME $k.KNAME -ID_LEHRER $k.ID_LEHRER -ID_KATEGORIE 0
                     $k.diklabuID=$nl.id
@@ -698,7 +702,12 @@ function Get-BPCoursemember
         Write-Verbose "Synchonisiere Schüler" 
         $schueler = Get-BPPupils
         foreach ($s in $schueler) {
-            $gdate = get-date $s.GEBDAT -Format "yyyy-MM-dd"
+            if ($s.GEBDAT) {
+                $gdate = get-date $s.GEBDAT -Format "yyyy-MM-dd"
+            }
+            else {
+                $gdate=$null
+            }
             Write-Verbose "Suche Schüler $($s.VNAME) $($s.NNAME)  GEBDat $gdate"
             $s |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
             if ($newyear) {
@@ -715,14 +724,19 @@ function Get-BPCoursemember
                 $c=Get-Pupil -bbsplanid $s.BBSID
             }
             if (!$c) {
-                Write-Verbose "  Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" 
+                Write-Warning "  Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" 
                 $ausb = findAusbilder $s.BETRIEB_NR
                 if (-not $whatif) {
-                    $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N" -ID_AUSBILDER $ausb.diklabuID -bbsplanid $s.BBSID
+                    if ($gdate) {
+                        $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N" -ID_AUSBILDER $ausb.diklabuID -bbsplanid $s.BBSID
+                    }
+                    else {
+                       $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -ID_AUSBILDER $ausb.diklabuID -bbsplanid $s.BBSID
+                    }
                     $s.diklabuID=$np.ID
                 }
                 $s.ID_AUSBILDER=$ausb.diklabuID
-                Write-Verbose "  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein." 
+                Write-Warning "  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein." 
                 $kl=Find-Course -KNAME $s.KL_NAME
                 if (-not $whatif) {
                     $res=Add-Coursemember -id $np.id -klassenid $kl.id

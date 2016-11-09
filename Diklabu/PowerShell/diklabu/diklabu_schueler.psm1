@@ -246,7 +246,7 @@ function New-Pupil
         [String]$NNAME,
 
         # Geburtsdatum im SQL Format yyyy-mm-dd
-        [Parameter(Mandatory=$true,Position=2,ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Position=2,ValueFromPipelineByPropertyName=$true)]
         [String]$GEBDAT,
 
         # Adresse des Diklabu Servers

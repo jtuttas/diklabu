@@ -338,6 +338,7 @@ function Sync-SFCourses
         foreach ($course in $sfgroups) {
             Write-Verbose "Folgende Teilnehmer müssen aus der Gruppe $course gelöscht werden!"
             $course.memberIst;
+            $course
         }
 
         <#
