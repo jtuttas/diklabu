@@ -28,6 +28,7 @@
 #>
 function Get-Polls
 {
+    [CmdletBinding()]
     Param
     (
         # Adresse des Diklabu Servers
@@ -36,6 +37,10 @@ function Get-Polls
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;       
@@ -66,6 +71,7 @@ function Get-Polls
 #>
 function Get-Poll
 {
+    [CmdletBinding()]
     Param
     (
         # ID der umfrage
@@ -79,6 +85,10 @@ function Get-Poll
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -116,6 +126,7 @@ function Get-Poll
 #>
 function Get-Pollresults
 {
+    [CmdletBinding()]
     Param
     (
         # ID der umfrage
@@ -133,6 +144,10 @@ function Get-Pollresults
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -176,6 +191,7 @@ function Get-Pollresults
 #>
 function New-PollQuestion
 {
+    [CmdletBinding()]
     Param
     ( 
         # Frage
@@ -190,6 +206,10 @@ function New-PollQuestion
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -222,6 +242,7 @@ function New-PollQuestion
 #>
 function Set-PollQuestion
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Frage
@@ -239,6 +260,10 @@ function Set-PollQuestion
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -275,6 +300,7 @@ function Set-PollQuestion
 #>
 function Delete-PollQuestion
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Frage
@@ -289,6 +315,10 @@ function Delete-PollQuestion
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -321,6 +351,7 @@ function Delete-PollQuestion
 #>
 function Get-PollQuestion
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Frage
@@ -334,6 +365,10 @@ function Get-PollQuestion
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -361,6 +396,7 @@ function Get-PollQuestion
 #>
 function Get-PollQuestions
 {
+    [CmdletBinding()]
     Param
     ( 
         # Adresse des Diklabu Servers
@@ -370,6 +406,10 @@ function Get-PollQuestions
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -402,6 +442,7 @@ function Get-PollQuestions
 #>
 function New-PollAnswer
 {
+    [CmdletBinding()]
     Param
     ( 
         # Antwort
@@ -416,6 +457,10 @@ function New-PollAnswer
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -448,6 +493,7 @@ function New-PollAnswer
 #>
 function Set-PollAnswer
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Antwort
@@ -465,6 +511,10 @@ function Set-PollAnswer
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -501,6 +551,7 @@ function Set-PollAnswer
 #>
 function Delete-PollAnswer
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Antwort
@@ -515,6 +566,10 @@ function Delete-PollAnswer
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -547,6 +602,7 @@ function Delete-PollAnswer
 #>
 function Get-PollAnswer
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Antwort
@@ -560,6 +616,10 @@ function Get-PollAnswer
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -587,6 +647,7 @@ function Get-PollAnswer
 #>
 function Get-PollAnswers
 {
+    [CmdletBinding()]
     Param
     ( 
         # Adresse des Diklabu Servers
@@ -596,6 +657,10 @@ function Get-PollAnswers
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -627,6 +692,7 @@ function Get-PollAnswers
 #>
 function Add-PollAnswer
 {
+    [CmdletBinding()]
     Param
     ( 
         #IDFrage
@@ -646,6 +712,10 @@ function Add-PollAnswer
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -679,6 +749,7 @@ function Add-PollAnswer
 #>
 function Remove-PollAnswer
 {
+    [CmdletBinding()]
     Param
     ( 
         #IDFrage
@@ -698,6 +769,10 @@ function Remove-PollAnswer
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -729,6 +804,7 @@ function Remove-PollAnswer
 #>
 function New-Poll
 {
+    [CmdletBinding()]
     Param
     ( 
         # Titel
@@ -745,6 +821,10 @@ function New-Poll
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -780,6 +860,7 @@ function New-Poll
 #>
 function Set-Poll
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Umfrage
@@ -803,6 +884,10 @@ function Set-Poll
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -844,6 +929,7 @@ function Set-Poll
 #>
 function Delete-Poll
 {
+    [CmdletBinding()]
     Param
     ( 
         #ID der Antwort
@@ -860,6 +946,10 @@ function Delete-Poll
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -893,6 +983,7 @@ function Delete-Poll
 #>
 function Add-PollQuestion
 {
+    [CmdletBinding()]
     Param
     ( 
         #IDFrage
@@ -912,6 +1003,10 @@ function Add-PollQuestion
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -946,6 +1041,7 @@ function Add-PollQuestion
 #>
 function Remove-PollQuestion
 {
+    [CmdletBinding()]
     Param
     ( 
         #IDFrage
@@ -965,6 +1061,10 @@ function Remove-PollQuestion
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -998,6 +1098,7 @@ function Remove-PollQuestion
 #>
 function New-PollSubscriber
 {
+    [CmdletBinding()]
     Param
     ( 
         # Umfrage
@@ -1020,6 +1121,10 @@ function New-PollSubscriber
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -1070,6 +1175,7 @@ function New-PollSubscriber
 #>
 function Get-PollSubscribers
 {
+    [CmdletBinding()]
     Param
     ( 
         # Umfrage
@@ -1083,6 +1189,10 @@ function Get-PollSubscribers
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -1114,6 +1224,7 @@ function Get-PollSubscribers
 #>
 function Delete-PollSubscriber
 {
+    [CmdletBinding()]
     Param
     ( 
         # key
@@ -1129,6 +1240,10 @@ function Delete-PollSubscriber
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -1164,6 +1279,7 @@ function Delete-PollSubscriber
 #>
 function Invite-PollSubscriber
 {
+    [CmdletBinding()]
     Param
     ( 
         # KEY
@@ -1179,6 +1295,10 @@ function Invite-PollSubscriber
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;

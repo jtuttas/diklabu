@@ -358,3 +358,10 @@ function Sync-SFCourses
         #>       
     }
 }
+Write-Host "Anmeldung an Moodle"
+Login-Moodle -url https://moodle.mm-bbs.de/moodle/ -credential (Get-Credential)
+Write-Host "Anmeldung an Seafile"
+Login-Seafile -url http://service.joerg-tuttas.de:8000/ -credential (Get-Credential)
+Write-Host "Anmeldung am diklabu"
+Login-Diklabu -credential (Get-Credential)
+

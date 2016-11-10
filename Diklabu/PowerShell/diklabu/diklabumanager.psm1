@@ -16,16 +16,34 @@
 #>
 
 
-$global:server="http://localhost:8080/Diklabu/api/v1/"
-$global:auth_token="1234"
+$global:auth_token
 
-if (Test-Path "$home\diklabu.conf") {
-    [xml]$d=Get-Content "$home\diklabu.conf";
-    $global:server=$d.diklabu.server;
+function getKeys() {
+    $logins=@{}
+    if (Test-Path "$HOME\diklabu2.conf") {
+        $lf = Get-Content "$HOME\diklabu2.conf" | ConvertFrom-Json
+
+        $lf.PSObject.Properties | ForEach-Object {
+            $logins[$_.Name]=$_.Value
+        }         
+    }
+    return $logins;
 }
-else {
-    "<diklabu><server>"+$global:server+"</server></diklabu>" | Set-Content "$home\diklabu.conf"
+
+$global:logins=getKeys
+
+function setKey([String]$key,[String]$url,[PSCredential]$cred) {
+    $global:logins=getKeys   
+    $login = "" | Select-Object "location","user","password"
+    $login.location = $url
+    if ($cred -ne $null) {
+        $login.user = $cred.UserName
+        $login.password = $cred.Password | ConvertFrom-SecureString
+    }
+    $logins[$key]=$login
+    $logins | ConvertTo-Json | Set-Content "$HOME\diklabu2.conf"
 }
+
 
 <#
 .Synopsis
@@ -47,9 +65,7 @@ function Set-Diklabuserver
 
     Begin
     {
-        $global:server=$uri;
-        "<diklabu><server>"+$global:server+"</server></diklabu>" | Set-Content "$home\diklabu.conf"
-
+        setKey "diklabu" $uri $null
     }
    
 }
@@ -66,7 +82,7 @@ function Get-Diklabuserver
 {
     Begin
     {
-        return $global:server
+        return $global:logins["diklabu"].location
     }
    
 }
@@ -86,18 +102,32 @@ function Login-Diklabu
     Param
     (
         # Benutzername
-        [Parameter(Mandatory=$true,Position=0)]
+        [Parameter(Position=0)]
         [PSCredential]$credential,
 
-
         # URI des Diklabu Servers
-        [Parameter(Position=2)]
-        [String]$uri=$global:server
+        [Parameter(Position=1)]
+        [String]$uri
 
     )
 
     Begin
     {
+        if (-not $uri -or -not $credential) {
+            if ($Global:logins["diklabu"]) {
+                $uri=$Global:logins["diklabu"].location;
+                if (-not $Global:logins["diklabu"].password) {
+                    Write-Error "Bitte  credentials angeben!"
+                    break;
+                }
+                $password = $Global:logins["diklabu"].password | ConvertTo-SecureString 
+                $credential = New-Object System.Management.Automation.PsCredential($Global:logins["diklabu"].user,$password)
+            }
+            else {
+                Write-Error "Bitte uri und credentials angeben!"
+                break;
+            }
+        } 
         $data=echo "" | Select-Object -Property "benutzer","kennwort"
         $data.benutzer=$credential.userName
         $data.kennwort=$credential.GetNetworkCredential().Password        
@@ -106,7 +136,30 @@ function Login-Diklabu
         $headers["service_key"]=$user+"f80ebc87-ad5c-4b29-9366-5359768df5a1";
         $r=Invoke-RestMethod -Method Post -Uri ($uri+"auth/login") -Headers $headers -Body (ConvertTo-Json $data)
         $global:auth_token=$r.auth_token
+        $global:server=$uri
+        setKey "diklabu" $uri $credential
         return $r;
     }
 }
+
+<#
+.Synopsis
+   Abfragen der Anmeldedaten
+.DESCRIPTION
+   Abfragen der Anmeldedaten
+.EXAMPLE
+   get-diklabu 
+#>
+function Get-Diklabu
+{
+    Param
+    (
+    )
+
+    Begin
+    {
+        $Global:logins["diklabu"]
+    }
+}
+
 

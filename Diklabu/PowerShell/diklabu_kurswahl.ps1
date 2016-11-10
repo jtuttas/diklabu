@@ -35,6 +35,7 @@
 #>
 function Add-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
         # id der Klasse
@@ -50,6 +51,10 @@ function Add-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -84,6 +89,7 @@ function Add-Coursevoting
 #>
 function Remove-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
          # id der Klasse
@@ -99,6 +105,10 @@ function Remove-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
             $headers=@{}
             $headers["content-Type"]="application/json;charset=iso-8859-1"
             $headers["auth_token"]=$global:auth_token;
@@ -131,6 +141,7 @@ function Remove-Coursevoting
 #>
 function Enable-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
         # Adresse des Diklabu Servers
@@ -140,6 +151,10 @@ function Enable-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -167,6 +182,7 @@ function Enable-Coursevoting
 #>
 function Disable-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
         # Adresse des Diklabu Servers
@@ -177,6 +193,10 @@ function Disable-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -216,6 +236,7 @@ function Disable-Coursevoting
 #>
 function Reset-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
           # ID des Schülers
@@ -231,6 +252,10 @@ function Reset-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -264,6 +289,7 @@ function Reset-Coursevoting
 #>
 function Clear-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
         # force        
@@ -278,6 +304,10 @@ function Clear-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         if (!$force) {
           $s=Read-Host "Wollen Sie alle Kurswünsche zurück setzten? (J/N)"
           if ($s -eq "J") {
@@ -322,6 +352,7 @@ function Clear-Coursevoting
 #>
 function Get-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
          # ID der Klasse
@@ -343,6 +374,10 @@ function Get-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -375,6 +410,7 @@ function Get-Coursevoting
 #>
 function New-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
           # ID des Schülers
@@ -400,6 +436,10 @@ function New-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -457,6 +497,7 @@ function New-Coursevoting
 #>
 function Stop-Coursevoting
 {
+    [CmdletBinding()]
     Param
     (
           # ID des Schülers
@@ -471,6 +512,10 @@ function Stop-Coursevoting
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -501,6 +546,7 @@ function Stop-Coursevoting
 #>
 function Get-Coursevotings
 {
+    [CmdletBinding()]
     Param
     (
         # Adresse des Diklabu Servers
@@ -510,6 +556,10 @@ function Get-Coursevotings
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;

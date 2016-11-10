@@ -1,4 +1,4 @@
-﻿$global:seafile
+﻿
 $global:sftoken
 
 <#
@@ -17,20 +17,30 @@ function Login-Seafile
     Param
     (
         # URL des Moodle Systems
-        [Parameter(Mandatory=$true,
-                   Position=0)]
+        [Parameter(Position=0)]
         [String]$url,
 
         # Credentials f. das Moodle Systems
-        [Parameter(Mandatory=$true,
-                   Position=1)]
+        [Parameter(Position=1)]
         [PSCredential]$credential
 
     )
 
     Begin
     {
-        $global:seafile = $url
+
+        if (-not $url -or -not $credential) {
+            if ($Global:logins["seafile"]) {
+                $url=$Global:logins["seafile"].location;
+                $password = $Global:logins["seafile"].password | ConvertTo-SecureString 
+                $credential = New-Object System.Management.Automation.PsCredential($Global:logins["seafile"].user,$password)
+            }
+            else {
+                Write-Error "Bitte url und credentials angeben!"
+                return;
+            }
+        }
+        $base=$url
         $url = $url+"api2/auth-token/"
         $data=echo "" | Select-Object -Property "username","password"
         $data.username=$credential.userName
@@ -39,12 +49,36 @@ function Login-Seafile
         $r=Invoke-RestMethod -Method POST -Uri $url -Body $out   
         if ($r.token) {
             Write-Verbose "Login erfolgreich"
+            $global:seafile=$base
         }
         else {
             Write-Verbose "Login fehlgeschlagen"
         }  
+        setKey "seafile" $base $credential
         $global:sftoken=$r.token         
         $r
+    }
+}
+
+<#
+.Synopsis
+   Abfrage des Seafile Servers
+.DESCRIPTION
+   Abfrage des Seafile Servers
+.EXAMPLE
+   get-Seafile 
+
+#>
+function Get-Seafile
+{
+    [CmdletBinding()]   
+    Param
+    (
+    )
+
+    Begin
+    {
+        $Global:logins["seafile"]
     }
 }
 

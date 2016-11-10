@@ -14,7 +14,7 @@ function Connect-BbsPlan
     Param
     (
         # Hilfebeschreibung zu Param1
-        [Parameter(Mandatory=$true,Position=0)]
+        [Parameter(Position=0)]
         [String]$location,
 
         [String]$user_id="SCHULE",
@@ -25,6 +25,15 @@ function Connect-BbsPlan
     
     Begin
     {
+         if (-not $location) {
+            if ($Global:logins["bbsplanung"]) {
+                $location=$Global:logins["bbsplanung"].location;
+            }
+            else {
+                Write-Error "Bitte location angeben!"
+                break;
+            }
+        }
         $global:connection = new-object System.Data.OleDb.OleDbConnection
         try{
  
@@ -36,6 +45,28 @@ function Connect-BbsPlan
         catch {        
             Write-Error "Fehler beim Öffnen von BBS-Planung $($cn.InfoMessage)"
         }
+        setKey "bbsplanung" $location $null
+    }
+}
+
+<#
+.Synopsis
+    Abfrage BBSPlanung
+.DESCRIPTION
+    Abfrage BBSPlanung
+.EXAMPLE
+    Get-BbsPlan 
+#>
+function Get-BbsPlan
+{
+    [CmdletBinding()]
+    Param
+    (
+    )
+    
+    Begin
+    {
+        $Global:logins["bbsplanung"]
     }
 }
 

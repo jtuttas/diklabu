@@ -21,6 +21,7 @@
 #>
 function Find-Instructor
 {
+    [CmdletBinding()]
     Param
     (
        
@@ -35,6 +36,10 @@ function Find-Instructor
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -70,6 +75,7 @@ function Find-Instructor
 #>
 function Get-Instructor
 {
+    [CmdletBinding()]
     Param
     (
         # ID des Ausbilders
@@ -83,6 +89,10 @@ function Get-Instructor
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -112,6 +122,7 @@ function Get-Instructor
 #>
 function Get-Instructors
 {
+    [CmdletBinding()]
     Param
     (
 
@@ -122,6 +133,10 @@ function Get-Instructors
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -159,6 +174,7 @@ function Get-Instructors
 #>
 function Set-Instructor
 {
+    [CmdletBinding()]
     Param
     (
        # ID des Ausbilders
@@ -193,6 +209,10 @@ function Set-Instructor
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;        
@@ -248,6 +268,7 @@ function Set-Instructor
 #>
 function New-Instructor
 {
+    [CmdletBinding()]
     Param
     ( 
         # Name des Ausbilders
@@ -281,6 +302,10 @@ function New-Instructor
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -340,6 +365,7 @@ function New-Instructor
 #>
 function Delete-Instructor
 {
+    [CmdletBinding()]
     Param
     (
         # ID des Ausbilders
@@ -354,6 +380,10 @@ function Delete-Instructor
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;

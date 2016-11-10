@@ -25,6 +25,7 @@
 #>
 function Set-Teacher
 {
+    [CmdletBinding()]
     Param
     (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
@@ -49,6 +50,10 @@ function Set-Teacher
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
     }
     Process
     {
@@ -97,6 +102,7 @@ function Set-Teacher
 #>
 function Get-Teacher
 {
+    [CmdletBinding()]
     Param
     (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
@@ -111,6 +117,10 @@ function Get-Teacher
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
     }
     Process
     {
@@ -136,6 +146,7 @@ function Get-Teacher
 #>
 function Get-Teachers
 {
+    [CmdletBinding()]
     Param
     (
 
@@ -145,6 +156,10 @@ function Get-Teachers
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         try {
             $r=Invoke-RestMethod -Method Get -Uri ($uri+"noauth/lehrer/") -Headers $headers 
             Write-Verbose "Abfrage aller Lehrer"
@@ -172,6 +187,7 @@ function Get-Teachers
 #>
 function New-Teacher
 {
+    [CmdletBinding()]
     Param
     (
         # ID (Kürzel des Lehrers)
@@ -202,6 +218,10 @@ function New-Teacher
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
     }
     Process
     {
@@ -238,6 +258,7 @@ function New-Teacher
 #>
 function Delete-Teacher
 {
+    [CmdletBinding()]
     Param
     (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
@@ -250,6 +271,10 @@ function Delete-Teacher
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
             $headers=@{}
             $headers["content-Type"]="application/json;charset=iso-8859-1"
             $headers["auth_token"]=$global:auth_token;

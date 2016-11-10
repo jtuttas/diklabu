@@ -30,6 +30,7 @@
 #>
 function Find-Pupil
 {
+    [CmdletBinding()]
     Param
     (    
         # Vorname des Schülers
@@ -51,6 +52,10 @@ function Find-Pupil
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -87,6 +92,7 @@ function Find-Pupil
 #>
 function Search-Pupil
 {
+    [CmdletBinding()]
     Param
     (    
         # Suchstring gebildet aus VornameNachNameGebDatum des Schülers
@@ -103,6 +109,10 @@ function Search-Pupil
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -140,6 +150,7 @@ function Search-Pupil
 #>
 function Get-Pupil
 {
+    [CmdletBinding()]
     Param
     (       
         # ID des Schülers
@@ -155,6 +166,10 @@ function Get-Pupil
     )
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -189,6 +204,7 @@ function Get-Pupil
 #>
 function Get-Pupils
 {
+    [CmdletBinding()]
     Param
     (       
 
@@ -197,6 +213,10 @@ function Get-Pupils
     )
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -235,6 +255,7 @@ function Get-Pupils
 #>
 function New-Pupil
 {
+    [CmdletBinding()]
     Param
     (
         # Vorname des Schülers
@@ -283,6 +304,10 @@ function New-Pupil
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -354,6 +379,7 @@ function New-Pupil
 #>
 function Set-Pupil
 {
+    [CmdletBinding()]
     Param
     (
         # ID des Schülers
@@ -401,6 +427,10 @@ function Set-Pupil
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -469,6 +499,7 @@ function Set-Pupil
 #>
 function Delete-Pupil
 {
+    [CmdletBinding()]
     Param
     (        
         # ID des Schülers
@@ -482,6 +513,10 @@ function Delete-Pupil
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;

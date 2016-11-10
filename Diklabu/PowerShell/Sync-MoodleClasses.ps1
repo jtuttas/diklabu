@@ -224,3 +224,5 @@ function Sync-MoodleCourses
         }        
     }
 }
+Write-Host "Anmeldung an Moodle"
+Login-Moodle -url https://moodle.mm-bbs.de/moodle/ -credential (Get-Credential)

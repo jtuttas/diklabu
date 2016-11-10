@@ -9,8 +9,6 @@
 
 #>
 
-$global:ldapserver
-$global:ldapcredentials
 
 <#
 .Synopsis
@@ -28,29 +26,60 @@ function Login-LDAP
     Param
     (
         # URL des Moodle Systems
-        [Parameter(Mandatory=$true,
-                   Position=0)]
+        [Parameter(Position=0)]
         [String]$server,
 
         # Credentials f. das Moodle Systems
-        [Parameter(Mandatory=$true,
-                   Position=1)]
+        [Parameter(Position=1)]
         [PSCredential]$credential
 
     )
 
     Begin
     {
+        if (-not $server -or -not $credential) {
+            if ($Global:logins["ldap"]) {
+                $server=$Global:logins["ldap"].location;
+                $password = $Global:logins["ldap"].password | ConvertTo-SecureString 
+                $credential = New-Object System.Management.Automation.PsCredential($Global:logins["ldap"].user,$password)
+            }
+            else {
+                Write-Error "Bitte server und credentials angeben!"
+            }
+        }
         $in=Get-ADDomain -Credential $credential -Server $server
         if ($in) {
             $global:ldapserver=$server
             $global:ldapcredentials=$credential
             Write-Verbose "Login erfolgreich"
+            setKey "ldap" $server $credential
         }
         else {
             Write-Verbose "Login fehlgeschlagen"
         }  
         $in
+    }
+}
+
+<#
+.Synopsis
+   Abfragen des LDAP Servers
+.DESCRIPTION
+   Abfragen des LDAP Servers
+.EXAMPLE
+   Get-Ldap 
+
+#>
+function Get-LDAP
+{
+    [CmdletBinding()]   
+    Param
+    (
+    )
+
+    Begin
+    {
+        $Global:logins["ldap"]
     }
 }
 

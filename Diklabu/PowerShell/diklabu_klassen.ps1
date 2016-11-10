@@ -27,6 +27,7 @@
 #>
 function Find-Course
 {
+    [CmdletBinding()]
     Param
     (
         # Name der Klasse
@@ -40,6 +41,10 @@ function Find-Course
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -83,6 +88,7 @@ function Find-Course
 #>
 function Set-Course
 {
+    [CmdletBinding()]
     Param
     (
         # ID der Klasse
@@ -107,6 +113,10 @@ function Set-Course
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;       
@@ -163,6 +173,7 @@ function Set-Course
 #>
 function Get-Course
 {
+    [CmdletBinding()]
     Param
     (
         # ID der Klasse
@@ -175,6 +186,10 @@ function Get-Course
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;       
@@ -203,6 +218,7 @@ function Get-Course
 #>
 function Get-Courses
 {
+    [CmdletBinding()]
     Param
     (
         # ID Kategorie der Klasse
@@ -215,6 +231,10 @@ function Get-Courses
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;       
@@ -262,6 +282,7 @@ function Get-Courses
 #>
 function New-Course
 {
+    [CmdletBinding()]
     Param
     (
         # Name der Klasse
@@ -291,6 +312,10 @@ function New-Course
     )
      Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -353,6 +378,7 @@ function New-Course
 #>
 function Delete-Course
 {
+    [CmdletBinding()]
     Param
     (
         # id der Klasse
@@ -366,6 +392,10 @@ function Delete-Course
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;

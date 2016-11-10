@@ -25,6 +25,7 @@
 #>
 function Find-Company
 {
+    [CmdletBinding()]
     Param
     (
         # Name des Betriebes
@@ -38,6 +39,10 @@ function Find-Company
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -74,6 +79,7 @@ function Find-Company
 #>
 function Set-Company
 {
+    [CmdletBinding()]
     Param
     (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
@@ -97,6 +103,10 @@ function Set-Company
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -151,6 +161,7 @@ function Set-Company
 #>
 function Get-Company
 {
+    [CmdletBinding()]
     Param
     (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
@@ -162,6 +173,10 @@ function Get-Company
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -191,6 +206,7 @@ function Get-Company
 #>
 function Get-Companies
 {
+    [CmdletBinding()]
     Param
     (
         # Adresse des Diklabu Servers
@@ -199,6 +215,10 @@ function Get-Companies
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
           $headers=@{}
           $headers["content-Type"]="application/json;charset=iso-8859-1"
           $headers["auth_token"]=$global:auth_token;
@@ -233,6 +253,7 @@ function Get-Companies
 #>
 function New-Company
 {
+    [CmdletBinding()]
     Param
     (
         # Name des Betriebes
@@ -264,6 +285,10 @@ function New-Company
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -319,6 +344,7 @@ function New-Company
 #>
 function Delete-Company
 {
+    [CmdletBinding()]
     Param
     (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
@@ -331,6 +357,10 @@ function Delete-Company
 
     Begin
     {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
             $headers=@{}
             $headers["content-Type"]="application/json;charset=iso-8859-1"
             $headers["auth_token"]=$global:auth_token;
