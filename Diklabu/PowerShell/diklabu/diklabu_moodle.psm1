@@ -53,7 +53,7 @@ function Login-Moodle
                 $global:token=$r.token                        
             }
         }
-        setKey "moodle" $moodle $credential
+        setKey "moodle" $base $credential
         $r
     }
 }
@@ -104,7 +104,7 @@ function Get-MoodleCourses
         else {
             Write-Verbose "Get-MoodleCourses"
             $postParams = @{wstoken=$token;wsfunction='core_course_get_courses';moodlewsrestformat='json'}
-            $courses=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $courses=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             $courses
         }
     }
@@ -134,7 +134,7 @@ function Get-MoodleCategories
         else {
             Write-Verbose "Get-MoodleCategories"
             $postParams = @{wstoken=$token;wsfunction='core_course_get_categories';moodlewsrestformat='json'}
-            $courses=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $courses=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             $courses  
         }
     }
@@ -163,7 +163,7 @@ function Get-MoodleCohorts
         else {
             Write-Verbose "Get-MoodleCohorts"
             $postParams = @{wstoken=$token;wsfunction='core_cohort_get_cohorts';moodlewsrestformat='json'}
-            $courses=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $courses=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             $courses  
         }
     }
@@ -208,7 +208,7 @@ function Get-MoodleCoursemember
     {
         Write-Verbose "Get-MoodleCourseMember IDCourse=$id"
         $postParams["courseid"]=$id
-        $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
         $r
     }  
 }
@@ -280,7 +280,7 @@ function Get-MoodleUser
     End
     {
         
-        $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
         $r
     }
 }
@@ -347,7 +347,7 @@ function New-MoodleCourse
                     return;
                 }
             }
-            $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             Write-Verbose "Kurs '$fullname' ($shortname) wurde in der Kategorie mit der ID $categoryid angelegt"
             $r
         }
@@ -419,7 +419,7 @@ function Copy-MoodleCourse
                     return;
                 }
             }
-            $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             Write-Verbose "Kurs '$fullname' ($shortname) wurde in der Kategorie mit der ID $categoryid als Kopie des Kurses mit der ID $courseid angelegt!"
             $r
         }      
@@ -485,7 +485,7 @@ function Delete-MoodleCourse
                     return;
                 }
             }
-            $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             Write-Verbose "Kurse  gelöscht"
             $r
         }
@@ -565,7 +565,7 @@ function Add-MoodleCourseMember
                     return;
                 } 
             }
-            $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             Write-Verbose "Benutzer mit ID=$userid in den Kurs ID=$courseid eingeschrieben"
             $r
         }
@@ -633,7 +633,7 @@ function Remove-MoodleCourseMember
                     return;
                 } 
             }
-            $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             Write-Verbose "Benutzer mit ID=$userid aus dem Kurs ID=$courseid entfernt"
             $r
         }
@@ -687,7 +687,7 @@ function Get-MoodleCohortMember
     }  
     End
     {
-        $r=Invoke-RestMethod -Method POST -Uri $Global:logins["moodle"].location -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
         $r
     }
 }
