@@ -29,6 +29,8 @@ var klassen;
 var vertretungen;
 // Liste der Krankmeldungen
 var krankmeldungen;
+// Liste der Lehrer
+var lehrer;
 
 var inputVisible = false;
 var days = ['So.', 'Mo.', 'Di.', 'Mi.', 'Do.', 'Fr.', 'Sa.'];
@@ -58,8 +60,7 @@ $(document).ajaxComplete(function (event, request, settings) {
 
 if (sessionStorage.role == "Admin" || sessionStorage.role == "Verwaltung") {
     $("#administration").show();
-}
-else {
+} else {
     $("#administration").hide();
 }
 
@@ -82,8 +83,7 @@ $("#btnAddVertretung").click(function () {
 $("#btnSubmitVertretung").click(function () {
     if ($("#absLehrer").val() == "") {
         toastr["warning"]("Keinen absenten Lehrer ausgewählt!", "Warnung!");
-    }
-    else {
+    } else {
         error = false;
         $('.absStunde').each(function (i, obj) {
             if (obj.value == "") {
@@ -110,8 +110,7 @@ $("#btnSubmitVertretung").click(function () {
                 toastr["warning"]("Zeile " + (i + 1) + ": Keine Vertretungsaktion ausgewählt ausgewählt!", "Warnung!");
                 error = true;
                 return;
-            }
-            else if (obj.value != "entfällt") {
+            } else if (obj.value != "entfällt") {
                 if ($("#vertrBody").find("tr").eq(i).find(".vertLehrer").val() == "") {
                     toastr["warning"]("Zeile " + (i + 1) + ": Aktion Vertretung/Betreuung gewählt aber kein Vertretungslehrer angegeben!", "Warnung!");
                     error = true;
@@ -170,8 +169,7 @@ $("#btnSubmitVertretung").click(function () {
                     $("#vertrBody").empty();
                     $("#vertrBody").append(r);
                     $(".vertrKommentar").val("");
-                }
-                else {
+                } else {
                     toastr["error"](data.msg, "Fehler!");
                 }
                 if (data.warning) {
@@ -192,7 +190,7 @@ $("#btnSubmitVertretung").click(function () {
 });
 
 $(".infoUmfrage").click(function () {
-   $('#helpUmfrage').modal('show'); 
+    $('#helpUmfrage').modal('show');
 });
 
 
@@ -204,8 +202,7 @@ getKlassenliste(function () {
             getLehrerData(sessionStorage.myself);
             loggedIn();
             updateCurrentView();
-        }
-        else {
+        } else {
             showContainer(false);
         }
     })
@@ -225,32 +222,28 @@ $("#print").click(function () {
             pageTitle: "Stundenplan " + nameKlasse,
             removeInline: false
         });
-    }
-    else if (currentView == "Vertretungsplan Klasse") {
+    } else if (currentView == "Vertretungsplan Klasse") {
         $("#vertertungsplan").printThis({
             debug: false,
             printContainer: true,
             pageTitle: "Stundenplan " + nameKlasse,
             removeInline: false
         });
-    }
-    else if (currentView == "Vertretungsplan Lehrer") {
+    } else if (currentView == "Vertretungsplan Lehrer") {
         $("#lvertertungsplan").printThis({
             debug: false,
             printContainer: true,
             pageTitle: "Stundenplan " + nameKlasse,
             removeInline: false
         });
-    }
-    else if (currentView == "Stundenplan Lehrer") {
+    } else if (currentView == "Stundenplan Lehrer") {
         $("#lstundenplan").printThis({
             debug: false,
             printContainer: true,
             pageTitle: "Stundenplan " + nameKlasse,
             removeInline: false
         });
-    }
-    else if (currentView == "Bilder") {
+    } else if (currentView == "Bilder") {
         $("#tabAnwesenheitBilder").printThis({
             debug: false,
             printContainer: true,
@@ -259,8 +252,7 @@ $("#print").click(function () {
             removeInline: false
         });
 
-    }
-    else if (currentView == "Noteneintrag") {
+    } else if (currentView == "Noteneintrag") {
         $("#tabNoteneintrag").printThis({
             debug: false,
             printContainer: true,
@@ -270,8 +262,7 @@ $("#print").click(function () {
             formValues: true
         });
 
-    }
-    else if (currentView == "Mail") {
+    } else if (currentView == "Mail") {
         $("#mailContainer").printThis({
             debug: false,
             printContainer: true,
@@ -281,8 +272,7 @@ $("#print").click(function () {
             formValues: true
         });
 
-    }
-    else if (currentView == "Schülerbemerkungen") {
+    } else if (currentView == "Schülerbemerkungen") {
         $("#bemerkungContainer").printThis({
             debug: false,
             printContainer: true,
@@ -292,8 +282,7 @@ $("#print").click(function () {
             formValues: true
         });
 
-    }
-    else if (currentView == "Betriebe anschreiben") {
+    } else if (currentView == "Betriebe anschreiben") {
         $("#emailBetriebeSubjectContainer").printThis({
             debug: false,
             printContainer: true,
@@ -303,8 +292,7 @@ $("#print").click(function () {
             formValues: true
         });
 
-    }
-    else if (currentView == "Beteiligung") {
+    } else if (currentView == "Beteiligung") {
         $("#tabBeteiligung").printThis({
             debug: false,
             printContainer: true,
@@ -314,8 +302,7 @@ $("#print").click(function () {
             formValues: true
         });
 
-    }
-    else if (currentView == "Einreichen") {
+    } else if (currentView == "Einreichen") {
         $("#vertrContainer").printThis({
             debug: false,
             printContainer: true,
@@ -325,8 +312,7 @@ $("#print").click(function () {
             formValues: true
         });
 
-    }
-    else if (currentView == "Auswertung") {
+    } else if (currentView == "Auswertung") {
         $("#tabAuswertung").printThis({
             debug: false,
             printContainer: true,
@@ -344,8 +330,7 @@ $("#eigeneEintraege").click(function () {
     log("Eigene Einträge Click");
     if ($("#eigeneEintraege").is(':checked')) {
         $("#dokufilter1").val("eigeneEintraege")
-    }
-    else {
+    } else {
         $("#dokufilter1").val("alle")
     }
     refreshVerlauf(nameKlasse);
@@ -409,8 +394,7 @@ $(document).on('keyup', '#klassenfilter', function () {
             if (first == "") {
                 first = $(this).val();
             }
-        }
-        else {
+        } else {
             $(this).hide();
             //log("show "+$(this).val());
 
@@ -430,8 +414,7 @@ $(document).on('click', '.btn-delete-krankmeldung', function () {
     deleteKrankmeldung(id, dat, function (e) {
         if (e.success == false) {
             toastr["error"](e.msg, "Fehler!");
-        }
-        else {
+        } else {
             toastr["success"](e.msg, "Information!");
             getFehltage($("#atestSchueler option:selected").attr("atid"), $("#startDate").val(), $("#endDate").val(), function (data) {
                 updateKrankmeldungen(data);
@@ -439,6 +422,87 @@ $(document).on('click', '.btn-delete-krankmeldung', function () {
         }
     });
 });
+Date.prototype.getWeekNumber = function(){
+    var d = new Date(+this);
+    d.setHours(0,0,0,0);
+    d.setDate(d.getDate()+4-(d.getDay()||7));
+    return Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
+};
+function displayPlan(kw,nname) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/noauth/plan/stundenplanlehrer/"+kw+"/" + nname,
+        type: "GET",
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            $("#planContent").empty();
+            $("#planContent").append(data);
+            $('#planInfo').modal('show');
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Stundenplan für " + nname + " nicht Laden!", "Fehler!");
+        }
+    });
+
+}
+function displaykPlan(kw,nname) {
+    $.ajax({
+        url: SERVER + "/Diklabu/api/v1/noauth/plan/stundenplan/"+kw+"/" + nname,
+        type: "GET",
+        contentType: "application/json; charset=UTF-8",
+        success: function (data) {
+            $("#planContent").empty();
+            $("#planContent").append(data);
+            $('#planInfo').modal('show');
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("kann Stundenplan für " + nname + " nicht Laden!", "Fehler!");
+        }
+    });
+}
+
+$(document).on('change', '.vertLehrer', function () {
+    log("change State  vertLehrer  vertLehrer=" + lehrer[$(this).prop('selectedIndex')].NNAME);
+    $(this).parent("div").find(".selectable").attr("itemid",lehrer[$(this).prop('selectedIndex')].NNAME);
+});
+$(document).on('change', '.vertKlassen', function () {
+    log("change State  vertKlassen =" + klassen[$(this).prop('selectedIndex')-1].KNAME);
+    $(this).parent("div").find(".selectable").attr("itemid",klassen[$(this).prop('selectedIndex')-1].KNAME);
+});
+$(document).on('change', '#absLehrer', function () {
+    log("change State  absLehrer  al=" + $("#absLehrer :selected").attr("label"));
+    $("#alstdplan").attr("itemid", $("#absLehrer :selected").attr("label"));
+});
+
+$(document).on('click', '.displaylplan', function () {
+    log("plan click");
+    if ($(this).attr("itemid") != undefined && $(this).attr("itemid") != "") {
+        log("Zeige Lehrer Plan für " + $(this).attr("itemid"));
+        log("absabsDate="+$("#absDate").val());
+        if ($("#absDate").val()=="") {
+            d=new Date();  
+        }
+        else {
+            d = new Date($("#absDate").val());
+        }
+        log ("kw ="+ d.getWeekNumber());
+        displayPlan(d.getWeekNumber(),$(this).attr("itemid"));
+    }
+})
+$(document).on('click', '.displaykplan', function () {
+    log("plan click");
+    if ($(this).attr("itemid") != undefined && $(this).attr("itemid") != "") {
+        log("Zeige Klassen Plan für " + $(this).attr("itemid"));
+        if ($("#absDate").val()=="") {
+            d=new Date();  
+        }
+        else {
+            d = new Date($("#absDate").val());
+        }
+        log ("kw ="+ d.getWeekNumber());
+        displaykPlan(d.getWeekNumber(),$(this).attr("itemid"));
+    }
+})
+
 
 
 $(document).on('change', '.attestCheck', function () {
@@ -456,8 +520,7 @@ function enableUploadButton() {
     log("Checkboxes checked=" + $('.attestCheck:checked').length);
     if ($("#fileAtest").val() != "" && $('.attestCheck:checked').length > 0) {
         $("#uploadPdfButton").removeClass("disabled");
-    }
-    else {
+    } else {
         $("#uploadPdfButton").addClass("disabled");
     }
 }
@@ -498,8 +561,7 @@ function updateKrankmeldungen(data) {
                 }
                 if (eintr.KRANKMELDUNG != undefined) {
                     $("#atestTable").append('<tr><td><a href="' + SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + eintr.KRANKMELDUNG + '" target="_blank"><img src="../img/document.png"></a></td><td>' + dat + '</td><td>' + eintr.VERMERK + '</td><td>' + bem + '</td><td><button atestId="' + eintr.ID_SCHUELER + "_" + dat + '" type="button" class="btn btn-warning btn-delete-krankmeldung">Delete</button></td></tr>');
-                }
-                else {
+                } else {
                     $("#atestTable").append('<tr><td><label><input type="checkbox" acid="' + eintr.ID_SCHUELER + "_" + dat + '" class="attestCheck" value=""></label></td><td>' + dat + '</td><td>' + eintr.VERMERK + '</td><td>' + bem + '</td><td></td></tr>');
                 }
 
@@ -532,8 +594,7 @@ $('#atestUploadForm').on('submit', (function (e) {
                     setKrankmeldung(da[0], da[1], data.msg, function (data) {
                         if (data.success == true) {
 
-                        }
-                        else {
+                        } else {
                             toastr["error"](data.msg, "Fehler!");
                         }
                     });
@@ -545,8 +606,7 @@ $('#atestUploadForm').on('submit', (function (e) {
                     updateKrankmeldungen(data);
                     enableUploadButton();
                 });
-            }
-            else {
+            } else {
                 toastr["error"](data.msg, "Fehler!");
             }
         },
@@ -596,9 +656,9 @@ $('#bildUploadForm').on('submit', (function (e) {
         url: SERVER + "/Diklabu/api/v1/schueler/bild/" + idSchueler,
         data: formData,
         headers: {
-                "service_key": sessionStorage.service_key,
-                "auth_token": sessionStorage.auth_token
-            },
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
         cache: false,
         contentType: false,
         processData: false,
@@ -609,8 +669,7 @@ $('#bildUploadForm').on('submit', (function (e) {
                 getSchuelerBild(idSchueler, "#infoBild");
                 $("#fileBild").replaceWith($("#fileBild").val('').clone(true));
                 $("#bildWahl").text("");
-            }
-            else {
+            } else {
                 toastr["error"](data.msg, "Fehler!");
                 $("#uploadBildButton").show();
             }
@@ -691,31 +750,24 @@ $("#absendenEMailBetrieb").click(function () {
     }
     if (error == true) {
 
-    }
-    else if (!isValidEmailAddress($("#fromLehrerBetriebMail").val())) {
+    } else if (!isValidEmailAddress($("#fromLehrerBetriebMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse! (" + $("#fromLehrerBetriebMail").val() + ")", "Mail Service");
         //event.preventDefault();
-    }
-    else if (!isValidEmailAddress($("#toBetriebMail").val())) {
+    } else if (!isValidEmailAddress($("#toBetriebMail").val())) {
         toastr["warning"]("Keine gültige EMail Adresse! (" + $("#toBetriebMail").val() + ")", "Mail Service");
         //event.preventDefault();
-    }
-
-    else if ($("#emailBetriebBetreff").val().length == 0) {
+    } else if ($("#emailBetriebBetreff").val().length == 0) {
         toastr["warning"]("Kein Betreff angegeben!", "Mail Service");
         //event.preventDefault();
-    }
-    else if ($("#emailBetriebInhalt").val().length == 0) {
+    } else if ($("#emailBetriebInhalt").val().length == 0) {
         toastr["warning"]("Kein EMail Inhalt angegeben!", "Mail Service");
         //event.preventDefault();
-    }
-    else {
+    } else {
 
         $.post('../MailServlet', $('#emailFormBetriebe').serialize(), function (data) {
             if (data.success) {
                 toastr["success"]("EMail wird versendet via BCC an Betriebe", "Mail Service");
-            }
-            else {
+            } else {
                 toastr["error"](data.msg, "Mail Service");
             }
         });
@@ -738,27 +790,21 @@ $("#absendenEMailKlasse").click(function () {
     }
     if (error == true) {
 
-    }
-    else if (!isValidEmailAddress($("#fromLehrerKlasseMail").val())) {
+    } else if (!isValidEmailAddress($("#fromLehrerKlasseMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerKlasseMail").val(), "Mail Service");
         //event.preventDefault();
-    }
-
-    else if ($("#emailKlasseBetreff").val().length == 0) {
+    } else if ($("#emailKlasseBetreff").val().length == 0) {
         toastr["warning"]("Kein Betreff angegeben!", "Mail Service");
         //event.preventDefault();
-    }
-    else if ($("#emailKlasseInhalt").val().length == 0) {
+    } else if ($("#emailKlasseInhalt").val().length == 0) {
         toastr["warning"]("Kein EMail Inhalt angegeben!", "Mail Service");
         //event.preventDefault();
-    }
-    else {
+    } else {
 
         $.post('../MailServlet', $('#emailFormKlasse').serialize(), function (data) {
             if (data.success) {
                 toastr["success"]("EMail wird versendet via CC an Klasse " + nameKlasse, "Mail Service");
-            }
-            else {
+            } else {
                 toastr["error"](data.msg, "Mail Service");
             }
         });
@@ -773,20 +819,16 @@ $("#absendenEMailSchueler").click(function (event) {
     if (!isValidEmailAddress($("#fromLehrerMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!" + $("#fromLehrerMail").val(), "Mail Service");
         //event.preventDefault();
-    }
-    else if (!isValidEmailAddress($("#toSchuelerMail").val())) {
+    } else if (!isValidEmailAddress($("#toSchuelerMail").val())) {
         toastr["warning"]("Keine gültige Adress EMail Adresse!" + $("#toSchuelerMail").val(), "Mail Service");
         //event.preventDefault();
-    }
-    else if ($("#emailSchuelerBetreff").val().length == 0) {
+    } else if ($("#emailSchuelerBetreff").val().length == 0) {
         toastr["warning"]("Kein Betreff angegeben!", "Mail Service");
         //event.preventDefault();
-    }
-    else if ($("#emailSchuelerInhalt").val().length == 0) {
+    } else if ($("#emailSchuelerInhalt").val().length == 0) {
         toastr["warning"]("Kein EMail Inhalt angegeben!", "Mail Service");
         //event.preventDefault();
-    }
-    else {
+    } else {
         toastr["success"]("EMail wird versendet an " + $("#toSchuelerMail").val(), "Mail Service");
         $('#mailSchueler').modal('hide');
         //$("#emailFormSchueler").ajaxSubmit({url: '/Diklabu/MailServlet', type: 'post'})
@@ -800,20 +842,16 @@ $("#emailForm").submit(function (event) {
     if (!isValidEmailAddress($("#fromMail").val())) {
         toastr["warning"]("Keine gültige Absender EMail Adresse!", "Mail Service");
         event.preventDefault();
-    }
-    else if (!isValidEmailAddress($("#toMail").val())) {
+    } else if (!isValidEmailAddress($("#toMail").val())) {
         toastr["warning"]("Keine gültige Adress EMail Adresse!", "Mail Service");
         event.preventDefault();
-    }
-    else if ($("#subjectMail").val().length == 0) {
+    } else if ($("#subjectMail").val().length == 0) {
         toastr["warning"]("Kein Betreff angegeben!", "Mail Service");
         event.preventDefault();
-    }
-    else if ($("#emailBody").val().length == 0) {
+    } else if ($("#emailBody").val().length == 0) {
         toastr["warning"]("Kein EMail Inhalt angegeben!", "Mail Service");
         event.preventDefault();
-    }
-    else {
+    } else {
         toastr["success"]("EMail wird versendet an " + $("#toMail").val() + "! Bitte warten auf den Bericht.", "Mail Service");
         return;
     }
@@ -892,17 +930,14 @@ function handelKeyEvents(e) {
             //inputTd.text(txt);  
             if (inputTd.attr("bem") != undefined) {
                 inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - ' + inputTd.attr("bem") + '">' + txt + '&nbsp;<img src="../img/flag.png"></a>');
-            }
-            else {
+            } else {
                 inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + txt + '</a>');
             }
             anwesenheitsEintrag(inputTd, txt);
-        }
-        else {
+        } else {
             if (inputTd.attr("bem") != undefined) {
                 inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + ' - ' + inputTd.attr("bem") + '">' + oldText + '&nbsp;<img src="../img/flag.png"></a>');
-            }
-            else {
+            } else {
                 inputTd.append('<a href="#" data-toggle="tooltip" title="' + sessionStorage.myself + '">' + oldText + '</a>');
             }
         }
@@ -928,8 +963,7 @@ function handelKeyEvents(e) {
                 inputTd.empty();
                 inputTd.append('<input class="inputAnwesenheit" id="anwesenheitsInput" maxlength="12" size="4" type="text" value="' + t + '"></input>');
                 $("#anwesenheitsInput").focus();
-            }
-            else {
+            } else {
                 $('body').off('keydown', "#anwesenheitsInput");
             }
         }
@@ -954,13 +988,11 @@ $("#notenlernfelder").change(function () {
                 $("#No" + sch.id).val(note.WERT);
                 if (note.ID_LK == sessionStorage.myself) {
                     $("#No" + sch.id).removeAttr("disabled");
-                }
-                else {
+                } else {
                     $("#No" + sch.id).attr("disabled", "disabled");
                 }
 
-            }
-            else {
+            } else {
                 $("#No" + sch.id).removeAttr("disabled");
                 $("#No" + sch.id).val("");
             }
@@ -981,8 +1013,7 @@ $('body').on('focusout', ".notenTextfeld", function (e) {
     log("focus out");
     if ($(this).val() != "") {
         submitNote(lfid, $(this).attr("sid"), $(this).val());
-    }
-    else {
+    } else {
         deleteNote(lfid, $(this).attr("sid"));
         log("Note löschen!");
     }
@@ -1250,8 +1281,7 @@ function submitAnwesenheit(eintr, success) {
             success: function (data) {
                 if (data != null) {
                     toastr["info"]("Anwesenheitseintrag gelöscht!", "Info!");
-                }
-                else {
+                } else {
                     toastr["error"]("Anwesenheitseintrag konnte nicht gelöscht werden!", "Fehler!");
                 }
                 success(data);
@@ -1263,8 +1293,7 @@ function submitAnwesenheit(eintr, success) {
                 }
             }
         });
-    }
-    else {
+    } else {
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/anwesenheit/",
             type: "POST",
@@ -1343,12 +1372,10 @@ function refreshVerlauf(kl) {
                     if ($("#lernfelderFilter").val() == "alle" || $("#lernfelderFilter").val() == data[i].ID_LERNFELD) {
                         $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' class='success'><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
                     }
-                }
-                else {
+                } else {
                     if ($("#eigeneEintraege").is(':checked')) {
 
-                    }
-                    else {
+                    } else {
                         if ($("#lernfelderFilter").val() == "alle" || $("#lernfelderFilter").val() == data[i].ID_LERNFELD) {
                             $("#tabelleVerlauf").append("<tr dbid='" + data[i].ID + "' index='" + i + "' ><td>" + datum + "</td><td>" + data[i].ID_LEHRER + "</td><td>" + data[i].ID_LERNFELD + "</td><td>" + data[i].STUNDE + "</td><td>" + data[i].INHALT + "</td><td>" + data[i].BEMERKUNG + "</td><td>" + data[i].AUFGABE + "</td></tr>");
                         }
@@ -1565,8 +1592,7 @@ function deleteNote(lf, ids) {
         success: function (data) {
             if (data.success) {
                 toastr["info"](data.msg, "Info!");
-            }
-            else {
+            } else {
                 toastr["error"](data.msg, "Fehler!");
             }
 
@@ -1872,7 +1898,7 @@ function loadUmfragen(callback) {
  * @returns {undefined}
  */
 function loadResults(id, klassefilter, callback) {
-    log("--> getAuswertung id="+id+" klassenfilter="+klassefilter);
+    log("--> getAuswertung id=" + id + " klassenfilter=" + klassefilter);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/umfrage/auswertung/" + id + "/" + encodeURIComponent(klassefilter),
         type: "GET",
@@ -1882,7 +1908,7 @@ function loadResults(id, klassefilter, callback) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
-            log("load Results data="+JSON.stringify(data));
+            log("load Results data=" + JSON.stringify(data));
             callback(data);
         },
         error: function () {
@@ -2128,15 +2154,13 @@ function toSQLString(d) {
     s += d.getFullYear() + "-";
     if (d.getMonth() + 1 > 9) {
         s += (d.getMonth() + 1);
-    }
-    else {
+    } else {
         s += "0" + (d.getMonth() + 1);
     }
     s += "-";
     if (d.getDate() > 9) {
         s += d.getDate();
-    }
-    else {
+    } else {
         s += "0" + d.getDate();
     }
 
@@ -2169,8 +2193,7 @@ function showContainer(b) {
         $("#stundenplan").show();
         $("#vertertungsplan").show();
         $("#verlaufsFilter").show();
-    }
-    else {
+    } else {
         $("#kuerzelContainer").show();
         $("#kennwortContainer").show();
         $("#tabelle").hide();
@@ -2266,8 +2289,7 @@ function anwesenheitsEintrag(td, txt) {
             "VERMERK": txt,
             "BEMERKUNG": td.attr("bem")
         };
-    }
-    else {
+    } else {
         var eintr = {
             "DATUM": dat + "T00:00:00",
             "ID_LEHRER": sessionStorage.myself,
@@ -2281,8 +2303,7 @@ function anwesenheitsEintrag(td, txt) {
         if (data.parseError) {
             toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
             td.addClass("parseError");
-        }
-        else {
+        } else {
             td.removeClass("parseError");
         }
 
@@ -2301,8 +2322,7 @@ function generateAnwesenheitsTable(termine) {
             termin = new Date(termine[j].milliseconds);
             if (termin.getDay() == 0 || termin.getDay() == 6) {
                 tab += "<td class=\"anwesenheit wochenende\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(termin) + "\" >&nbsp;</td>";
-            }
-            else {
+            } else {
                 tab += "<td class=\"anwesenheit\" align=\"center\" index=\"" + i + "\" id=\"" + schueler[i].id + "_" + toSQLString(termin) + "\" >&nbsp;</td>";
             }
         }
@@ -2323,8 +2343,7 @@ function generateAnwesenheitsTable(termine) {
             $("#anwesenheitsInput").focus();
             $("#anwesenheitsInput")[0].setSelectionRange(t.length - 1, t.length - 1);
             $('body').on('keydown', "#anwesenheitsInput", handelKeyEvents);
-        }
-        else {
+        } else {
             inputVisible = true;
             $('body').off('keydown', "#anwesenheitsInput");
             var txt = $("#anwesenheitsInput").val();
@@ -2582,13 +2601,11 @@ function buildNoteneintrag(data) {
             $("#No" + sch.id).val(note.WERT);
             if (note.ID_LK == sessionStorage.myself) {
                 $("#No" + sch.id).removeAttr("disabled");
-            }
-            else {
+            } else {
                 $("#No" + sch.id).attr("disabled", "disabled");
             }
 
-        }
-        else {
+        } else {
             $("#No" + sch.id).removeAttr("disabled");
             $("#No" + sch.id).val("");
         }
@@ -2624,8 +2641,7 @@ function performLogin() {
 
                 if (jsonObj.role == "Schueler") {
                     window.location.replace("index.html");
-                }
-                else {
+                } else {
 
                     sessionStorage.auth_token = jsonObj.auth_token;
                     log("Thoken = " + jsonObj.auth_token);
@@ -2651,8 +2667,7 @@ function performLogin() {
                 }
             }
         });
-    }
-    else {
+    } else {
         var myData = {
             "benutzer": $("#lehrer").val(),
             "kennwort": $("#kennwort").val()
@@ -2777,8 +2792,7 @@ function refreshKlassenliste(kl, callback) {
         if (callback != undefined) {
             callback(schueler);
         }
-    }
-    else {
+    } else {
         $.ajax({
             url: SERVER + "/Diklabu/api/v1/klasse/" + kl,
             type: "GET",
@@ -2803,8 +2817,7 @@ function refreshKlassenliste(kl, callback) {
                     $("#tabelleBeteiligung").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '&nbsp;<img src="../img/mail.png" ids="' + data[i].id + '" class="mailIcon"></td><td class="rowBeteiligung" id="U' + data[i].id + '"></td></tr>');
                     if (data[i].INFO != undefined) {
                         $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" name="' + data[i].id + '" type="text" class="form-control bemerkung" value="' + data[i].INFO + '"></td></tr>');
-                    }
-                    else {
+                    } else {
                         $("#tabelleBemerkungen").append('<tr><td><img src="../img/Info.png" ids="' + data[i].id + '" class="infoIcon"> ' + data[i].VNAME + " " + data[i].NNAME + '</td><td><input id="bem' + data[i].id + '" sid="' + data[i].id + '" name="' + data[i].id + '" type="text" class="form-control bemerkung" value=""></td></tr>');
                     }
                     $("#atestSchueler").append('<option atid="' + data[i].id + '">' + data[i].VNAME + " " + data[i].NNAME + '</option>');
@@ -2908,11 +2921,13 @@ function updateCurrentView() {
         case "Einreichen":
             getLehrer(function (data) {
                 $("#absLehrer").empty();
-                $(".vertLehrer").empty();
+                $(".vertLehrer").empty();                
+                //console.log("Empfange:"+JSON.stringify(data));
+                lehrer = data;
                 for (i = 0; i < data.length; i++) {
                     l = data[i];
-                    $("#absLehrer").append("<option>" + l.id + "</option>");
-                    $(".vertLehrer").append("<option>" + l.id + "</option>");
+                    $("#absLehrer").append("<option value=\"" + l.id + "\"  label=\"" + l.NNAME + "\"></option>");
+                    $(".vertLehrer").append("<option value=\"" + l.id + "\"  label=\"" + l.NNAME + "\"></option>");
                 }
                 $(".vertKlassen").empty();
                 $(".vertKlassen").append("<option></option>");
@@ -3119,8 +3134,8 @@ function updateCurrentView() {
             $("#dokumentationContainer").show();
             $("#printContainer").hide();
             $("#dokumentationType").val("UmfrageAuswertung");
-            
-            $('#updateUmfrage').modal('show'); 
+
+            $('#updateUmfrage').modal('show');
             loadUmfragen(function (data) {
                 umfragen = data;
                 log("empfange:" + JSON.stringify(data));
@@ -3135,7 +3150,7 @@ function updateCurrentView() {
 
                 loadResults(umfrage.id, nameKlasse, function (data) {
                     log("empfange Results:" + JSON.stringify(data));
-                    
+
                     updateAuswertung(data);
                     drawResults(data, 1);
                     drawResults(data, 2);
@@ -3145,8 +3160,8 @@ function updateCurrentView() {
                     $("#anwfilter2").val($('option:selected', $("#gruppe2Umfrage")).attr('uid'));
                     $("#dokufilter1").val($("#gruppe1Filter").val());
                     $("#dokufilter2").val($("#gruppe2Filter").val());
-                    
-                    $('#updateUmfrage').modal('hide'); 
+
+                    $('#updateUmfrage').modal('hide');
                 });
 
 
@@ -3158,7 +3173,7 @@ function updateCurrentView() {
 
 
 function drawResults(results, col) {
-    found=false;
+    found = false;
     for (i = 0; i < results.length; i++) {
 
         var result = results[i];
@@ -3196,9 +3211,8 @@ function drawResults(results, col) {
         if ($("#chart" + col + result.id).length) {
             var chart = new google.visualization.PieChart(document.getElementById('chart' + col + result.id));
             chart.draw(data, options);
-            found=true;
-        }
-        else {
+            found = true;
+        } else {
             log("Container existiert nicht!");
         }
     }
@@ -3227,15 +3241,15 @@ function updateAuswertungsFilter(data) {
         var keyCode = e.keyCode || e.which;
         log("key Pressed gruppe1Filer" + keyCode);
         if (keyCode == 13) {
-            $('#updateUmfrage').modal('show'); 
+            $('#updateUmfrage').modal('show');
             uid = $('option:selected', "#gruppe1Umfrage").attr('uid');
-            log("Umfrage1 ID = "+uid);
+            log("Umfrage1 ID = " + uid);
             loadResults(uid, $("#gruppe1Filter").val(), function (data) {
                 log("empfange:" + JSON.stringify(data));
 
                 drawResults(data, 1);
                 $("#dokufilter1").val($("#gruppe1Filter").val());
-                $('#updateUmfrage').modal('hide'); 
+                $('#updateUmfrage').modal('hide');
             });
         }
     });
@@ -3245,13 +3259,13 @@ function updateAuswertungsFilter(data) {
         log("key Pressed gruppe2Filer" + keyCode);
         if (keyCode == 13) {
             uid = $('option:selected', "#gruppe2Umfrage").attr('uid');
-            log("Umfrage2 ID = "+uid);
-            $('#updateUmfrage').modal('show'); 
+            log("Umfrage2 ID = " + uid);
+            $('#updateUmfrage').modal('show');
             loadResults(uid, $("#gruppe2Filter").val(), function (data) {
                 log("empfange:" + JSON.stringify(data));
                 drawResults(data, 2);
                 $("#dokufilter2").val($("#gruppe2Filter").val());
-                $('#updateUmfrage').modal('hide'); 
+                $('#updateUmfrage').modal('hide');
             });
 
         }
@@ -3265,7 +3279,7 @@ function updateAuswertungsFilter(data) {
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
-        $('#updateUmfrage').modal('show'); 
+        $('#updateUmfrage').modal('show');
         $("#dokufilter1").val($("#gruppe1Filter").val());
         $("#dokufilter2").val($("#gruppe2Filter").val());
         log("Setze anwfilter1 auf " + $('option:selected', $("#gruppe1Umfrage")).attr('uid'));
@@ -3281,12 +3295,12 @@ function updateAuswertungsFilter(data) {
             loadResults($('option:selected', "#gruppe2Umfrage").attr('uid'), $('#gruppe2Filter').val(), function (data) {
                 //updateAuswertung(data);
                 log("empfange 2:" + JSON.stringify(data));
-                if (data.length==0) {
+                if (data.length == 0) {
                     toastr["warning"]("Gewählte Umfrage enthält keine Fragen!", "Achtung!");
-                    $('#updateUmfrage').modal('hide'); 
+                    $('#updateUmfrage').modal('hide');
                 }
                 drawResults(data, 2);
-                $('#updateUmfrage').modal('hide'); 
+                $('#updateUmfrage').modal('hide');
             });
 
         });
@@ -3301,7 +3315,7 @@ function updateAuswertungsFilter(data) {
         if (umfrage.active == 1) {
             toastr["warning"]("Gewählte Umfrage ist noch aktiv!", "Achtung!");
         }
-        $('#updateUmfrage').modal('show'); 
+        $('#updateUmfrage').modal('show');
         $("#dokufilter1").val($("#gruppe1Filter").val());
         $("#dokufilter2").val($("#gruppe2Filter").val());
         log("Setze anwfilter1 auf " + $('option:selected', $("#gruppe1Umfrage")).attr('uid'));
@@ -3310,13 +3324,12 @@ function updateAuswertungsFilter(data) {
         $("#anwfilter2").val($('#gruppe2Umfrage option:selected').attr('uid'));
         loadResults(uid, $('#gruppe2Filter').val(), function (data) {
             log("empfange :" + JSON.stringify(data));
-            if (data.length==0) {
+            if (data.length == 0) {
                 toastr["warning"]("Gewählte Umfrage enthält keine Fragen!", "Achtung!");
-                $('#updateUmfrage').modal('hide'); 
-            }
-            else {
+                $('#updateUmfrage').modal('hide');
+            } else {
                 drawResults(data, 2);
-                $('#updateUmfrage').modal('hide'); 
+                $('#updateUmfrage').modal('hide');
             }
         });
     });
@@ -3337,10 +3350,9 @@ function getUmfrage(id) {
 function updateAuswertung(data) {
     $("#tabelleUmfrageAuswertung").empty();
     log("upodate Auswertung data=" + JSON.stringify(data));
-    if (data.length ==0) {
+    if (data.length == 0) {
         toastr["warning"]("Die Umfrage enthält keine Fragen!", "Warnung!");
-    }
-    else {
+    } else {
         for (i = 0; i < data.length; i++) {
             log("Update Auswertung frage=" + data[i].frage + " id=" + data[i].id);
             $("#tabelleUmfrageAuswertung").append('<tr><td>' + data[i].frage + '</td><td><div id="chart1' + data[i].id + '"></div></td><td><div id="chart2' + data[i].id + '"></div></td></tr>')
@@ -3402,8 +3414,7 @@ function updatePortfolio(data) {
                         if (course.kategorie == 1 && wpk == false) {
                             value.spalten = value.spalten + 2;
                             wpk = true;
-                        }
-                        else if (course.kategorie != 1) {
+                        } else if (course.kategorie != 1) {
                             value.spalten++;
                         }
                     }
@@ -3436,8 +3447,7 @@ function updatePortfolio(data) {
                     head += '<th>WPK</th><th>Note</th>';
                     wpk = true;
                 }
-            }
-            else {
+            } else {
                 head += '<th>' + value.kname + ' (Note)';
             }
         });
@@ -3463,8 +3473,7 @@ function updatePortfolio(data) {
                     body += '<td id="NameYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
                     body += '<td id="WertYear' + indexYear + 'kursidwpk' + '_' + schueler[i].id + '">&nbsp;</td>';
                     wpk = true;
-                }
-                else if (value.kategorie != 1) {
+                } else if (value.kategorie != 1) {
                     body += '<td id="WertYear' + indexYear + 'kursid' + index + '_' + schueler[i].id + '">&nbsp;</td>';
                 }
             });
@@ -3486,8 +3495,7 @@ function updatePortfolio(data) {
                 log("Suche ID=#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler);
                 $("#NameYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler).text(eintrag.KName);
                 $("#WertYear" + eintrag.schuljahr + "kursidwpk" + "_" + data[i].ID_Schueler).text(eintrag.wert);
-            }
-            else {
+            } else {
                 //log("Suche ID=#WertYear" + eintrag.schuljahr + "kursid" + eintrag.IDKlasse + "_" + data[i].ID_Schueler);
                 $("#WertYear" + eintrag.schuljahr + "kursid" + eintrag.IDKlasse + "_" + data[i].ID_Schueler).text(eintrag.wert);
             }
@@ -3511,8 +3519,7 @@ function updateBetriebeMails() {
             }
             $("#emailsBetrieb").val(adr);
         });
-    }
-    else {
+    } else {
         //log("Betriebe=" + betriebe)
         for (i = 0; i < betriebe.length; i++) {
             adr = adr + betriebe[i].email + ";";
@@ -3548,13 +3555,11 @@ function renderBilder() {
             tr += '<td align="center" class="anwesend" id="atd' + schueler[i - 1].id + '" ><div><h4>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</h4><div>';
             tr += '<div class="row"><div class="col-sm-4"><label for="ex1' + schueler[i - 1].id + '">Vermerk</label><input class="form-control anwesenheitTextFeld" id="ex1' + schueler[i - 1].id + '" type="text" value="' + status + '"></div><div class="col-sm-8">  <label for="ex2' + schueler[i - 1].id + '">Bemerkung</label>  <input class="form-control bemerkungTextFeld" id="ex2' + schueler[i - 1].id + '" type="text" value="' + bemerkung + '"></div></div>';
             tr += '<div class="row"><br/><img width="150" id="bild' + schueler[i - 1].id + '" src="../img/anonym.gif"></div></td>';
-        }
-        else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
+        } else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
             tr += '<td align="center" class="fehlend" id="atd' + schueler[i - 1].id + '"><div><h4>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</h4><div>';
             tr += '<div class="row"><div class="col-sm-4"><label for="ex1' + schueler[i - 1].id + '">Vermerk</label><input class="form-control anwesenheitTextFeld" id="ex1' + schueler[i - 1].id + '" type="text" value="' + status + '"></div><div class="col-sm-8">  <label for="ex2' + schueler[i - 1].id + '">Bemerkung</label>  <input class="form-control bemerkungTextFeld" id="ex2' + schueler[i - 1].id + '" type="text" value="' + bemerkung + '"></div></div>';
             tr += '<div class="row"><br/><img  width="150" id="bild' + schueler[i - 1].id + '" src="../img/anonym.gif"></div></td>';
-        }
-        else {
+        } else {
             tr += '<td align="center" class="unbekannt" id="atd' + schueler[i - 1].id + '"><div><h4>' + schueler[i - 1].VNAME + " " + schueler[i - 1].NNAME + '</h4><div>';
             tr += '<div class="row"><div class="col-sm-4"><label for="ex1' + schueler[i - 1].id + '">Vermerk</label><input class="form-control anwesenheitTextFeld" id="ex1' + schueler[i - 1].id + '" type="text" value="' + status + '"></div><div class="col-sm-8">  <label for="ex2' + schueler[i - 1].id + '">Bemerkung</label>  <input class="form-control bemerkungTextFeld" id="ex2' + schueler[i - 1].id + '" type="text" value="' + bemerkung + '"></div></div>';
             tr += '<div class="row"><br/><img  width="150" id="bild' + schueler[i - 1].id + '" src="../img/anonym.gif"></div></td>';
@@ -3587,8 +3592,7 @@ function renderBilder() {
             submitAnwesenheit(eintr, function (data) {
                 if (data.parseError) {
                     toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
-                }
-                else {
+                } else {
                 }
                 refreshAnwesenheit(nameKlasse, function () {
                     updateRenderBilder();
@@ -3614,8 +3618,7 @@ function renderBilder() {
                     "VERMERK": $(this).val(),
                     "BEMERKUNG": txt
                 };
-            }
-            else {
+            } else {
                 var eintr = {
                     "DATUM": $("#endDate").val() + "T00:00:00",
                     "ID_LEHRER": sessionStorage.myself,
@@ -3627,8 +3630,7 @@ function renderBilder() {
             submitAnwesenheit(eintr, function (data) {
                 if (data.parseError) {
                     toastr["warning"]("Der Eintrag enthält Formatierungsfehler!", "Warnung!");
-                }
-                else {
+                } else {
                 }
                 refreshAnwesenheit(nameKlasse, function () {
                     updateRenderBilder();
@@ -3658,11 +3660,9 @@ function updateRenderBilder() {
         $("#atd" + schueler[i - 1].id).removeClass("unbekannt");
         if (status.charAt(0) == "a" || status.charAt(0) == "v") {
             $("#atd" + schueler[i - 1].id).addClass("anwesend");
-        }
-        else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
+        } else if (status.charAt(0) == "f" || status.charAt(0) == "e") {
             $("#atd" + schueler[i - 1].id).addClass("fehlend");
-        }
-        else {
+        } else {
             $("#atd" + schueler[i - 1].id).addClass("unbekannt");
         }
         $("#ex1" + schueler[i - 1].id).val(status);
@@ -3780,8 +3780,7 @@ function buildeAnwesenheitstabelle(data) {
             current = new Date(termine[i].milliseconds);
             if (current.getDay() == 0 || current.getDay() == 6) {
                 tab += '<th class="wochenende">&nbsp; ' + days[current.getDay()] + "<br>" + current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
-            }
-            else {
+            } else {
                 tab += '<th>&nbsp; ' + days[current.getDay()] + "<br>" + current.getDate() + "." + (current.getMonth() + 1) + "." + current.getFullYear() + '&nbsp; </th>';
             }
         }
@@ -3801,8 +3800,7 @@ function buildeAnwesenheitstabelle(data) {
                 //$("#" + id).text(eintraege[j].VERMERK);
                 if (eintraege[j].BEMERKUNG != undefined) {
                     $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + ' - ' + eintraege[j].BEMERKUNG + '">' + eintraege[j].VERMERK + '&nbsp;<img src="../img/flag.png"></a>');
-                }
-                else {
+                } else {
                     $("#" + id).append('<a href="#" data-toggle="tooltip" title="' + eintraege[j].ID_LEHRER + '">' + eintraege[j].VERMERK + '</a>');
                 }
 

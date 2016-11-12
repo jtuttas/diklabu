@@ -94,6 +94,11 @@ public class StundenplanUtil {
      * @return Das Plan Objekt
      */
     public PlanObject getPlanObject(String identifier, PlanType pt) {
+        return getPlanObject(-1,identifier, pt);
+    }
+
+    
+     public PlanObject getPlanObject(int kw,String identifier, PlanType pt) {
         PlanObject po = new PlanObject();
 
         HashMap theMap = null;
@@ -131,14 +136,14 @@ public class StundenplanUtil {
             po.setMsg(planType + " geladen");
             int id = (int) theMap.get(identifier);
             Log.d("Generate URL for id="+id);
-            po.setUrl(generatePlanUrl( id, basicUrl,seperator));
+            po.setUrl(generatePlanUrl(kw, id, basicUrl,seperator));
         } else {
             Log.d(" Kann "+identifier+" nicht finden");
             po.setSuccess(false);
             po.setMsg("Kann " + planType + " von " + identifier + " nicht finden!");
         }
         return po;
-    }
+     }
 
     /**
      * Plan als HTML abfragen
@@ -156,6 +161,23 @@ public class StundenplanUtil {
         return null;
     }
 
+    /**
+     * Plan als HTML abfragen
+     * @param kw Kalendar Woche
+     * @param identifier Lehrerkürzel oder Klassenbezeichnung
+     * @param pt Die Art des Plans
+     * @return Der HTML Code des Plans
+     */
+    public String getPlan(int kw, String identifier, PlanType pt) {
+        PlanObject po = getPlanObject(kw,identifier, pt);
+        try {
+            return filterHtml(po.getUrl());
+        } catch (IOException ex) {
+            Logger.getLogger(StundenplanUtil.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
     private HashMap generateKlassMap(String url,String sPattern) throws MalformedURLException, IOException {
         URL oracle = new URL(url);
         BufferedReader in = new BufferedReader(
@@ -183,7 +205,15 @@ public class StundenplanUtil {
         return null;
     }
 
-    private String generatePlanUrl(int id, String u,char c) {        
+    /**
+     * Erzeugen der URL
+     * @param weekOfYeak Kalendarwoche (-1 = aktuelle Kalenderwoche)
+     * @param id
+     * @param u
+     * @param c
+     * @return 
+     */
+    private String generatePlanUrl(int weekOfYear,int id, String u,char c) {        
         id++;
         String sid = "";
         if (id < 10) {
@@ -193,10 +223,14 @@ public class StundenplanUtil {
         } else {
             sid = c+"00" + id;
         }
-        Calendar cal = Calendar.getInstance();
-        // unsere Kalenderwoche beginnt am Fr. um 17:00
-        cal.setTime(new Date (cal.getTime().getTime()+1000*60*60*(48+7)));        
-        int kw = cal.get(Calendar.WEEK_OF_YEAR);
+        
+        int kw=weekOfYear;
+        if (weekOfYear == -1) {
+            Calendar cal = Calendar.getInstance();
+            // unsere Kalenderwoche beginnt am Fr. um 17:00
+            cal.setTime(new Date (cal.getTime().getTime()+1000*60*60*(48+7)));        
+            kw = cal.get(Calendar.WEEK_OF_YEAR);
+        }
         String skw = "" + kw;
         if (kw < 10) {
             skw = "0" + skw;

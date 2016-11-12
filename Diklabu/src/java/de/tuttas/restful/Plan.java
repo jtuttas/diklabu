@@ -48,6 +48,19 @@ public class Plan {
         Log.d("Get Stundenplan HTML für Lehrer " + lehrerName);
         return StundenplanUtil.getInstance().getPlan(lehrerName,PlanType.STDPlanLehrer);
     }
+    
+    /**
+     * Stundenplan eines Lehrer abfragen
+     * @param lehrerName Name des Lehrers 
+     * @return HTML Code des Stundenplans
+     */
+    @GET
+    @Path("/stundenplanlehrer/{kw}/{lehrerName}")
+    @Produces("text/html")
+    public String getLehrerStundenplanHtml(@PathParam("kw") int kw,@PathParam("lehrerName") String lehrerName) {
+        Log.d("Get Stundenplan HTML für Lehrer " + lehrerName+" kw="+kw);
+        return StundenplanUtil.getInstance().getPlan(kw,lehrerName,PlanType.STDPlanLehrer);
+    }
 
     /**
      * Vertertungsplan eines Lehrer Abfragen
@@ -74,6 +87,20 @@ public class Plan {
     public String getStundenplanHtml(@PathParam("klasse") String kl) {
         Log.d("Get Stundenplan HTML von Klasse " + kl);
         return StundenplanUtil.getInstance().getPlan(kl,PlanType.STDPlanSchueler);
+    }
+
+     /**
+     * Stundenplan einer Klasse abfragen
+     * @param kw Kalender Woche
+     * @param kl Name der Klasse
+     * @return HTML Code des Stundenplans
+     */
+    @GET
+    @Path("/stundenplan/{kw}/{klasse}")
+    @Produces("text/html")
+    public String getStundenplanHtml(@PathParam("kw") int kw,@PathParam("klasse") String kl) {
+        Log.d("Get Stundenplan HTML von Klasse " + kl+" für kw="+kw);
+        return StundenplanUtil.getInstance().getPlan(kw,kl,PlanType.STDPlanSchueler);
     }
 
     /**
