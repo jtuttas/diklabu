@@ -287,17 +287,17 @@
                                     <thead>
                                         <tr>
                                             <th rowspan="2" width="25%"><h3>Name</h3></th>
-                                    <th colspan="2"><h3>Fehltage</h3></th>
-                                    <th colspan="2"><h3>Verspätungen</h3></th>
-                                    <th rowspan="2">Eintragsfehler</th>
-                                    </tr>
-                                    <tr>
+                                            <th colspan="2"><h3>Fehltage</h3></th>
+                                            <th colspan="2"><h3>Verspätungen</h3></th>
+                                            <th rowspan="2">Eintragsfehler</th>
+                                        </tr>
+                                        <tr>
 
-                                        <td>gesamt / entschuldigt</td>
-                                        <td>Tage</td>
-                                        <td>Anzahl (Minuten)</td>
-                                        <td>Minuten entschuldigt</td>          
-                                    </tr>
+                                            <td>gesamt / entschuldigt</td>
+                                            <td>Tage</td>
+                                            <td>Anzahl (Minuten)</td>
+                                            <td>Minuten entschuldigt</td>          
+                                        </tr>
                                     </thead>
                                     <tbody id="verspaetungenTabelle">
 
@@ -485,8 +485,8 @@
                                             <tr>
                                                 <th width="20%"><h3>Name</h3></th>
 
-                                        <th>Bemerkung</th>
-                                        </tr>
+                                                <th>Bemerkung</th>
+                                            </tr>
                                         </thead>
                                         <tbody id="tabelleBemerkungen">
 
@@ -535,12 +535,12 @@
                                         <thead>
                                             <tr>
                                                 <th width="20%"><h3>Name</h3></th>
-                                        <th>Frima</th>
-                                        <th>Ansprechpartner</th>
-                                        <th>Email</th>
-                                        <th>Telefon</th>
-                                        <th>Fax</th>
-                                        </tr>
+                                                <th>Frima</th>
+                                                <th>Ansprechpartner</th>
+                                                <th>Email</th>
+                                                <th>Telefon</th>
+                                                <th>Fax</th>
+                                            </tr>
                                         </thead>
                                         <tbody id="tabelleBetriebe">
 
@@ -624,8 +624,8 @@
                                         <tr>
                                             <th width="20%"><h3>Name</h3></th>
 
-                                    <th><h3>beantwortete Fragen</h3></th>
-                                    </tr>
+                                            <th><h3>beantwortete Fragen</h3></th>
+                                        </tr>
                                     </thead>
                                     <tbody id="tabelleBeteiligung">
 
@@ -635,21 +635,21 @@
                             <div id="tabAuswertung" class="tab-pane fade in">
 
                                 <div class="row">
-                                   
+
                                 </div>
                                 <table class="table table-striped table-hover">
                                     <thead>
 
                                     <th width="33%" rowspan="2">
 
-<h2>Fragen</h2>
+                                        <h2>Fragen</h2>
                                     </th>
 
 
                                     <th width="33%"><h3 id="textHautpgruppe">Hauptgruppe</h3></th>
                                     <th width="33%"><h3 id="textVergleichgruppe">Vergleichsgruppe</h3></th>
                                     </tr>
-                                     <tr>
+                                    <tr>
                                         <th>
                                             <label for="gruppe1Umfrage">Umfrage:</label>
                                             <select class="form-control" id="gruppe1Umfrage">
@@ -663,10 +663,9 @@
                                             </select>
                                             <label for="gruppe2Filter">Filter: <img class="infoUmfrage" src="../img/Info.png"></label>
                                             <input type="text" class="form-control" id="gruppe2Filter" />
-                                    <div id="chart_div"></div>
-                                    </th>
+                                            <div id="chart_div"></div>
+                                        </th>
                                     </tr>
-
                                     </thead>
                                     <tbody id="tabelleUmfrageAuswertung">
 
@@ -685,22 +684,25 @@
                                 <div id="vertrContainer">
                                     <div class="row">
                                         <div class="col-md-2"> <p>&nbsp;</p> <p>&nbsp;</p>
-                                            <label for="absLehrer">Absenz von:</label>
-                                            <select class="form-control" id="absLehrer">
-                                            </select>    
-                                            <p>&nbsp;</p>
-                                            <div class="form-group">
-                                                <label for="absDate">Absenz am:</label>
-                                                <div class="input-group date">
-                                                    <input type="text" class="form-control" id="absDate"/>
-                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                                                <label for="absLehrer">Absenz von:</label>
+                                                <div class="input-group pull-right" >                                                  
+                                                    <span class="input-group-addon"><span id="alstdplan" itemid="" class="glyphicon glyphicon-calendar selectable displaylplan"></span></span>
+                                                    <select  class="form-control lplan" id="absLehrer">
+                                                    </select>
                                                 </div>
-                                            </div>
-                                            <p>&nbsp;</p>
-                                            <label for="absKommentar">Kommentar:</label>
-                                            <textarea class="form-control" rows="5" id="absKommentar"></textarea>
-                                            <p>&nbsp;</p>
-                                            <button  style="display: block; width: 100%;" type="button" id="btnSubmitVertretung" class="btn btn-danger">Absenden</button>
+                                                <p>&nbsp;</p>
+                                                <div class="form-group">
+                                                    <label for="absDate">Absenz am:</label>
+                                                    <div class="input-group date">
+                                                        <input type="text" class="form-control" id="absDate"/>
+                                                        <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
+                                                    </div>
+                                                </div>
+                                                <p>&nbsp;</p>
+                                                <label for="absKommentar">Kommentar:</label>
+                                                <textarea class="form-control" rows="5" id="absKommentar"></textarea>
+                                                <p>&nbsp;</p>
+                                                <button  style="display: block; width: 100%;" type="button" id="btnSubmitVertretung" class="btn btn-danger">Absenden</button>
                                         </div>
                                         <div class="col-md-10">
                                             <table class="table table-hover">
@@ -709,7 +711,7 @@
                                                         <th width="7%">Stunde</th>
                                                         <th width="15%">Klasse</th>
                                                         <th width="15%">Aktion</th>
-                                                        <th width="10%">Vertreter</th>
+                                                        <th width="15%">Vertreter</th>
                                                         <th>Kommentar</th>
                                                         <th>Löschen</th>
                                                     </tr>
@@ -734,8 +736,11 @@
                                                             </select>    
                                                         </td>
                                                         <td>
-                                                            <select class="form-control vertKlassen">
-                                                            </select>    
+                                                <div class="input-group pull-right" >                                                  
+                                                    <span class="input-group-addon "><span class="glyphicon glyphicon-calendar selectable displaykplan"></span></span>
+                                                    <select  class="form-control vertKlassen">
+                                                    </select>
+                                                </div>
                                                         </td>
                                                         <td> 
                                                             <select class="form-control vertAktion">
@@ -745,9 +750,15 @@
                                                                 <option>Betreuung</option>
                                                             </select>    
                                                         </td>
-                                                        <td><select class="form-control vertLehrer">
+                                                        <td>
+                                                <div class="input-group pull-right" >                                                  
+                                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar selectable displaylplan"></span></span>
+                                                            <select class="form-control vertLehrer">
 
-                                                            </select></td>
+                                                            </select>
+                                                </div>
+                                                            
+                                                        </td>
                                                         <td>
                                                             <input type="text" class="form-control vertrKommentar"/>
                                                         </td>
@@ -924,34 +935,7 @@
                 </div>
             </div>
         </div>
-         <!-- Modal Info Dialog-->
-        <div id="helpUmfrage" class="modal fade" role="dialog">
-            <div class="modal-dialog">
-
-                <!-- Modal content-->
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                        <h4 class="modal-title" id="dvHead" >Filter für Ergebnisse einer Umfrage</h4>
-
-                    </div>
-                    <div class="modal-body">
-                        <p>Umfragen können in der Haupt- und Vergleichsgruppe nach Klassen gefiltert werden. Geben Sie hier die
-                        Klassenbezeichnung ein, so erhalten Sie die Umfrageergebnisse der Klasse. Mehrere
-                        Klassen können durch ";" getrennt werden. Das "%" Zeichen dient als Wildcard.</p>
-                        <hr>
-                        <h4>Beispiele</h4>
-                        <ul>
-                            <li>FISI14A;FISI14B <strong>Es werden die Ergebnisse der Klassen FISI14A und FISI14B angezeigt.</strong></li>
-                            <li>FIAE% <strong>Es werden die Ergebnisse aller FIAE Klassen angezeigt.</strong></li>
-                            <li>SYK14%;IFK14% <strong>Es werden die Ergebnisse der Klassen SYK14 und IFK14 angezeigt.</strong></li>
-                            <li>% <strong>Es werden die alle Ergebnisse der Umfrage angezeigt.</strong></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-          <!-- Modal Info Dialog-->
+        <!-- Modal Info Dialog-->
         <div id="updateUmfrage" class="modal fade" role="dialog">
             <div class="modal-dialog">
 
@@ -966,7 +950,43 @@
                 </div>
             </div>
         </div>
+        <!-- Modal Info Dialog-->
+        <div id="helpUmfrage" class="modal fade" role="dialog">
+            <div class="modal-dialog">
 
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title" id="dvHead" >Filter für Ergebnisse einer Umfrage</h4>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>Umfragen können in der Haupt- und Vergleichsgruppe nach Klassen gefiltert werden. Geben Sie hier die
+                            Klassenbezeichnung ein, so erhalten Sie die Umfrageergebnisse der Klasse. Mehrere
+                            Klassen können durch ";" getrennt werden. Das "%" Zeichen dient als Wildcard.</p>
+                        <hr>
+                        <h4>Beispiele</h4>
+                        <ul>
+                            <li>FISI14A;FISI14B <strong>Es werden die Ergebnisse der Klassen FISI14A und FISI14B angezeigt.</strong></li>
+                            <li>FIAE% <strong>Es werden die Ergebnisse aller FIAE Klassen angezeigt.</strong></li>
+                            <li>SYK14%;IFK14% <strong>Es werden die Ergebnisse der Klassen SYK14 und IFK14 angezeigt.</strong></li>
+                            <li>% <strong>Es werden die alle Ergebnisse der Umfrage angezeigt.</strong></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="planInfo" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div id="planContent" class="modal-body">
+                    </div>
+                </div>
+            </div>
+        </div>
         <!-- jQuery -->
         <script src="../js/jquery.js"></script>
         <!-- Bootstrap Core JavaScript -->
