@@ -113,20 +113,24 @@ function Login-Diklabu
 
     Begin
     {
-        if (-not $uri -or -not $credential) {
+        if (-not $uri) {
             if ($Global:logins["diklabu"]) {
                 $uri=$Global:logins["diklabu"].location;
-                if (-not $Global:logins["diklabu"].password) {
-                    Write-Error "Bitte  credentials angeben!"
-                    break;
-                }
-                $password = $Global:logins["diklabu"].password | ConvertTo-SecureString 
-                $credential = New-Object System.Management.Automation.PsCredential($Global:logins["diklabu"].user,$password)
             }
             else {
-                Write-Error "Bitte uri und credentials angeben!"
+                Write-Error "Bitte uri und oder Serveradresse mittels Set-DiklabuServer angeben!"
                 break;
             }
+        }
+        if (-not $credential) {
+            if (-not $Global:logins["diklabu"].password) {
+                Write-Error "Bitte  credentials angeben!"
+                break;
+            }
+            else {
+                $password = $Global:logins["diklabu"].password | ConvertTo-SecureString 
+                $credential = New-Object System.Management.Automation.PsCredential($Global:logins["diklabu"].user,$password)
+            }    
         } 
         $data=echo "" | Select-Object -Property "benutzer","kennwort"
         $data.benutzer=$credential.userName
@@ -134,6 +138,7 @@ function Login-Diklabu
         $headers=@{}
         $headers["content-Type"]="application/json"
         $headers["service_key"]=$user+"f80ebc87-ad5c-4b29-9366-5359768df5a1";
+        Write-Verbose "Anmelden am Diklabuserver unter $uri"
         $r=Invoke-RestMethod -Method Post -Uri ($uri+"auth/login") -Headers $headers -Body (ConvertTo-Json $data)
         $global:auth_token=$r.auth_token
         $global:server=$uri

@@ -10,6 +10,7 @@ import de.tuttas.util.Log;
 import de.tuttas.util.PlanType;
 import de.tuttas.util.StundenplanUtil;
 import javax.ejb.Stateless;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -43,7 +44,8 @@ public class Plan {
      */
     @GET
     @Path("/stundenplanlehrer/{lehrerName}")
-    @Produces("text/html")
+    @Consumes("application/json;  charset=UTF-8")
+    @Produces("text/html;charset=UTF-8")
     public String getLehrerStundenplanHtml(@PathParam("lehrerName") String lehrerName) {
         Log.d("Get Stundenplan HTML für Lehrer " + lehrerName);
         return StundenplanUtil.getInstance().getPlan(lehrerName,PlanType.STDPlanLehrer);
@@ -56,7 +58,7 @@ public class Plan {
      */
     @GET
     @Path("/stundenplanlehrer/{kw}/{lehrerName}")
-    @Produces("text/html")
+    @Produces("text/html;charset=UTF-8")
     public String getLehrerStundenplanHtml(@PathParam("kw") int kw,@PathParam("lehrerName") String lehrerName) {
         Log.d("Get Stundenplan HTML für Lehrer " + lehrerName+" kw="+kw);
         return StundenplanUtil.getInstance().getPlan(kw,lehrerName,PlanType.STDPlanLehrer);
