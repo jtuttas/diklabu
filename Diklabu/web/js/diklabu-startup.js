@@ -582,6 +582,10 @@ $('#atestUploadForm').on('submit', (function (e) {
         type: 'POST',
         url: SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + idSchueler,
         data: formData,
+          headers: {
+            "service_key": sessionStorage.service_key,
+            "auth_token": sessionStorage.auth_token
+        },
         cache: false,
         contentType: false,
         processData: false,
