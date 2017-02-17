@@ -172,6 +172,265 @@ function Get-MoodleCohorts
 
 <#
 .Synopsis
+   Fügt einen Benutzer der globalen Gruppe hinzu
+.DESCRIPTION
+   Fügt einen Benutzer der globalen Gruppe hinzu
+.EXAMPLE
+   Add-MoodleCohortmember -cohortid 12 -userid 23
+   Add the User wirh ID 23 to the cohort group id 12
+.EXAMPLE
+   474,473 | Add-MoodleCohortMember -cohortid 9 
+   Adds the users with id 474 and 473 to the cohort with id 9
+
+#>
+function Add-MoodleCohortMember
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Cohort ID
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        [int]$cohortid,
+
+         # ID der Benutzers
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeLine=$true,
+                   Position=1)]
+        [int]$userid,
+        [switch]$force,
+        [switch]$whatif
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+            break;
+        }
+        else {            
+            $postParams = @{wstoken=$token;wsfunction='core_cohort_add_cohort_members';moodlewsrestformat='json'}
+        }
+        $n=0
+        
+    }    
+    Process
+    {
+        if (!$force) {
+            $q=Read-Host "Soll der Benutzer mit der ID $userid in die globale Gruppe mit der ID $cohortid aufgenommen werden? (J/N)"
+            if ($q -eq "J") {
+                Write-Verbose "Benutzer mit ID $userid wird in globale Gruppe mit ID $cohortid aufgenommen" 
+                $postParams['members['+$n+'][cohorttype][type]']="id"
+                $postParams['members['+$n+'][cohorttype][value]']=$cohortid
+                $postParams['members['+$n+'][usertype][type]']="id"
+                $postParams['members['+$n+'][usertype][value]']=$userid
+                $n++;
+            }
+        }
+        else {
+            Write-Verbose "Benutzer mit ID $userid wird in globale Gruppe mit ID $cohortid aufgenommen" 
+            $postParams['members['+$n+'][cohorttype][type]']="id"
+            $postParams['members['+$n+'][cohorttype][value]']=$cohortid
+            $postParams['members['+$n+'][usertype][type]']="id"
+            $postParams['members['+$n+'][usertype][value]']=$userid
+            $n++;
+        }
+    }  
+    End {
+        if (!$whatif) {
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            
+            if ($r.warnings) {
+                foreach ($w in $r.warnings) {
+                    Write-Warning $w.message
+                }
+            }
+        }
+    }
+}
+
+<#
+.Synopsis
+   Synchonisiert die Moodle Benutzer mit der globalen Gruppe.
+.DESCRIPTION
+   Synchronisiert die Moodle Benutzer mit der globalen Gruppe, d.h. Wenn Benutzer bereits in der Gruppe ist wird nichts
+   unternommen. Ist der Benutzer nicht in der globalen Gruppe, wird er eingetragen. Benutzer die in der globalen 
+   Gruppe sind, jedoch nicht hinzugefügt wurden, werden gelöscht.
+.EXAMPLE
+   Sync-MoodleCohortmember -cohortid 12 -userids 23,24,25
+   Die globale Gruppe mit der ID 12 enthält die Benutzer mit den IDs 23,24,25
+.EXAMPLE
+   474,473 | Sync-MoodleCohortMember -cohortid 9 
+   Die globale Gruppe mit der ID 9 enthält die Benutzer mit den IDs 474,473
+
+#>
+function Sync-MoodleCohortMember
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Cohort ID
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        [int]$cohortid,
+
+         # ID der Benutzers
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeLine=$true,
+                   Position=1)]
+        [int[]]$userids,
+        [switch]$force,
+        [switch]$whatif
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+            break;
+        }
+        else {            
+            $postParams = @{wstoken=$token;wsfunction='core_cohort_add_cohort_members';moodlewsrestformat='json'}
+        }
+        $n=0
+        $iMember = Get-MoodleCohortMember -cohortid $cohortid        
+        if ([bool]($iMember.PSobject.Properties.name -match "message")) {
+            Write-Error $iMember.message;
+            break;
+        }
+        else {
+            $istMember = @{};
+            foreach ($m in $iMember.userids) {
+                $istMember["$m"]=$m
+            }
+        }
+    }    
+    Process
+    {
+        $userids | ForEach-Object {
+            $userid = $_
+            if ($istMember["$userid"]) {
+                Write-Verbose "Der Benutzer mit der ID $userid befindet sich bereits in der gloablen Gruppe mit der ID $cohortid"
+                $istMember.Remove("$userid")
+            }
+            else {
+                if (!$force) {
+                    $q=Read-Host "Soll der Benutzer mit der ID $userid in die globale Gruppe mit der ID $cohortid aufgenommen werden? (J/N)"
+                    if ($q -eq "J") {
+                        Write-Verbose "Benutzer mit ID $userid wird in globale Gruppe mit ID $cohortid aufgenommen" 
+                        $postParams['members['+$n+'][cohorttype][type]']="id"
+                        $postParams['members['+$n+'][cohorttype][value]']=$cohortid
+                        $postParams['members['+$n+'][usertype][type]']="id"
+                        $postParams['members['+$n+'][usertype][value]']=$userid
+                        $n++;
+                    }
+                }
+                else {
+                    Write-Verbose "Benutzer mit ID $userid wird in globale Gruppe mit ID $cohortid aufgenommen" 
+                    $postParams['members['+$n+'][cohorttype][type]']="id"
+                    $postParams['members['+$n+'][cohorttype][value]']=$cohortid
+                    $postParams['members['+$n+'][usertype][type]']="id"
+                    $postParams['members['+$n+'][usertype][value]']=$userid
+                    $n++;
+                }
+            }
+        }
+    }  
+    End {
+        if (!$whatif) {
+            if ($n -ne 0) {
+                $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"                 
+                if ($r.warnings) {
+                    foreach ($w in $r.warnings) {
+                        Write-Warning "Sync-MoodleCohortMember: $($w.message)"
+                    }
+                }            
+            }
+            if ($istMember.Count -ne 0) {
+                if ($force) {
+                   $istMember.Values | Remove-MoodleCohortMember -cohortid $cohortid -force
+                }
+                else {
+                   $istMember.Values | Remove-MoodleCohortMember -cohortid $cohortid
+                }
+            }
+        }
+    }
+}
+
+<#
+.Synopsis
+   Löscht einen Benutzer aus einer globalen Gruppe 
+.DESCRIPTION
+   Löscht einen Benutzer aus einer globalen Gruppe 
+.EXAMPLE
+   Remove-MoodleCohortmember -cohortid 12 -userid 23
+   Removes the User wirh ID 23 from the cohort group id 12
+.EXAMPLE
+   474,473 | Remove-MoodleCohortMember -cohortid 9 
+   Removes the users with id 474 and 473 from the cohort with id 9
+
+#>
+function Remove-MoodleCohortMember
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Cohort ID
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        [int]$cohortid,
+
+         # ID der Benutzers
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeLine=$true,
+                   Position=1)]
+        [int]$userid,
+        [switch]$force,
+        [switch]$whatif
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+            break;
+        }
+        else {            
+            $postParams = @{wstoken=$token;wsfunction='core_cohort_delete_cohort_members';moodlewsrestformat='json'}
+        }
+        $n=0
+        
+    }    
+    Process
+    {
+        if (!$force) {
+            $q=Read-Host "Soll der Benutzer mit der ID $userid aus der globale Gruppe mit der ID $cohortid entfernt werden? (J/N)"
+            if ($q -eq "J") {
+                Write-Verbose "Benutzer mit ID $userid wird aus der globalen Gruppe mit ID $cohortid entfernt" 
+                $postParams['members['+$n+'][cohortid]']=$cohortid
+                $postParams['members['+$n+'][userid]']=$userid
+                $n++;
+            }
+        }
+        else {
+            Write-Verbose "Benutzer mit ID $userid wird aus der globale Gruppe mit ID $cohortid entfernt" 
+            $postParams['members['+$n+'][cohortid]']=$cohortid
+            $postParams['members['+$n+'][userid]']=$userid
+            $n++;
+        }
+    }  
+    End {
+        if (!$whatif) {
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            if ($r -ne "null") {
+                foreach ($w in $r) {
+                    Write-Warning $w.message
+                }
+            }
+        }
+    }
+}
+
+<#
+.Synopsis
    Liste der Mitglieder einer Kurses
 .DESCRIPTION
    Liste der Mitglieder einer Kurses
@@ -350,6 +609,97 @@ function New-MoodleCourse
             $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
             Write-Verbose "Kurs '$fullname' ($shortname) wurde in der Kategorie mit der ID $categoryid angelegt"
             $r
+        }
+    }
+}
+
+
+<#
+.Synopsis
+   Neue gloable Gruppe anlegen
+.DESCRIPTION
+   Neue gloable Gruppe anlegen
+.EXAMPLE
+   New-MoodleCohort -name "ttest" -idnumber "t2" -description "Ein Test"
+   Legt neue globale Gruppe in Moodle an, mit dem Namen "ttest" und der globalen Gruppen id t2
+#>
+function New-MoodleCohort
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Name des Cohorts
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [String]$name,
+
+        # cohort idnumber
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=1)]
+        [String]$idnumber,
+
+        # Beschreibung des Cohorts
+        [Parameter(ValueFromPipelineByPropertyName=$true,
+                   Position=2)]
+        [String]$description,
+        [switch]$force,
+        [switch]$whatif
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+            break;
+        }
+        else {
+            $postParams = @{wstoken=$token;wsfunction='core_cohort_create_cohorts';moodlewsrestformat='json'}
+        }
+        $n=0
+
+    }
+    Process
+    {
+        if (-not $force) {
+            $q = Read-Host ("Soll die gloable Gruppe mit dem Namen $name angelegt werden? (J/N)")
+            if ($q -eq "J") {
+                Write-Verbose "New Moodle Course fullname=$fullname shortname=$shortname categoryId=$categoryid"
+                $postParams['cohorts['+$n+'][categorytype][type]']="system"
+                $postParams['cohorts['+$n+'][categorytype][value]']="0"
+                $postParams['cohorts['+$n+'][name]']=$name
+                $postParams['cohorts['+$n+'][idnumber]']=$idnumber
+                $postParams['cohorts['+$n+'][description]']=$description
+                $postParams['cohorts['+$n+'][descriptionformat]']=1
+                $postParams['cohorts['+$n+'][visible]']=1
+                $n++
+            }
+        }
+        else {
+            Write-Verbose "New Moodle Course fullname=$fullname shortname=$shortname categoryId=$categoryid"
+            $postParams['cohorts['+$n+'][categorytype][type]']="system"
+            $postParams['cohorts['+$n+'][categorytype][value]']="0"
+            $postParams['cohorts['+$n+'][name]']=$name
+            $postParams['cohorts['+$n+'][idnumber]']=$idnumber
+            $postParams['cohorts['+$n+'][description]']=$description
+            $postParams['cohorts['+$n+'][descriptionformat]']=1
+            $postParams['cohorts['+$n+'][visible]']=1
+            $n++
+        }
+    }  
+    End
+    {
+        if (-not $whatif) {
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            
+            if ([bool]($r.PSobject.Properties.name -match "message")) {
+                foreach ($w in $r) {
+                    Write-Warning "$($w.message) $($r.debuginfo)"
+                }
+            }
+            else {
+                $r
+            }
         }
     }
 }
