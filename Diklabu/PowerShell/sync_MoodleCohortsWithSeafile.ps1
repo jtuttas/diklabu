@@ -1,10 +1,9 @@
 ﻿function getTeamObject() {
-    $g=Invoke-WebRequest https://seafile.mm-bbs.de/f/3c7639b1d1/?raw=1 | ConvertFrom-Csv
+    $g=Invoke-WebRequest https://seafile.mm-bbs.de/f/5f11890fe8/?raw=1 | ConvertFrom-Csv
     $teams=@{}
     foreach ($e in $g) {
         $teacher=$e.Email
-        $e.psobject.Properties | Where-Object {$_.name -ne "Email"} | ForEach-Object {
-            
+        $e.psobject.Properties | Where-Object {$_.name -ne "Email"} | ForEach-Object {           
             if ($teams.ContainsKey($_.name) -eq $false) {
                 $teams[$_.name]=@();
             }
