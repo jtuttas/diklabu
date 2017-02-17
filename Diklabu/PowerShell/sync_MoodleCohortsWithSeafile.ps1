@@ -1,18 +1,17 @@
 ﻿function getTeamObject() {
-    $g=Invoke-RestMethod https://spreadsheets.google.com/feeds/list/188sB_q19eaRHv8EDNjqKj14qVOwQb-PfTGHqC9OBfgY/od6/public/basic?alt=json
+    $g=Invoke-WebRequest https://seafile.mm-bbs.de/f/3c7639b1d1/?raw=1 | ConvertFrom-Csv
     $teams=@{}
-    foreach ($e in $g.feed.entry) {
-        $teacher=$e.title.'$t'
-        $t = $e.content.'$t'.Split(",");
-        foreach ($te in $t) {
-            $te = $te.Trim()
-            $te = $te.ToUpper()
-            $te = $te.Substring(0,$te.IndexOf(":"));
-            if ($teams.ContainsKey($te) -eq $false) {
-                $teams[$te]=@();
+    foreach ($e in $g) {
+        $teacher=$e.Email
+        $e.psobject.Properties | Where-Object {$_.name -ne "Email"} | ForEach-Object {
+            
+            if ($teams.ContainsKey($_.name) -eq $false) {
+                $teams[$_.name]=@();
             }
-            $teams[$te]+=$teacher;        
-        }    
+            if ($_.value -eq "x") {
+                $teams[$_.name]+=$teacher;        
+            }
+        }
     }
     $teams
 }
