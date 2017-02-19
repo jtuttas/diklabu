@@ -314,13 +314,13 @@ function Add-SFGroupmember
         catch {
             $errorcode = $_.Exception.Response.StatusCode.value__ 
             if ($errorcode -eq 400) {
-                Write-Error "400: Die Gruppe mit der ID $id existiert nicht, oder Benutzer mit EMail $email nicht gefunden";
+                Write-Error "400: Die Gruppe mit der ID $id existiert nicht, oder Benutzer mit EMail $email nicht gefunden, oder ist bereits in der Gruppe";
             }
             elseif ($errorcode -eq 403) {
                 Write-Error "403: Nur Administratoren können Gruppenmitglieder hinzufügen";
             }
             elseif ($errorcode -eq 404) {
-                Write-Error "400: Die Gruppe mit der ID $id existiert nicht, oder Benutzer mit EMail $email nicht gefunden";
+                Write-Error "404: Die Gruppe mit der ID $id existiert nicht, oder Benutzer mit EMail $email nicht gefunden";
             }
             else {
                 Write-Error $_
@@ -672,5 +672,98 @@ function Get-SFUser
             $null
         }
 
+    }
+}
+
+<#
+.Synopsis
+   Synchonisiert die Seafilebenutzer mit einer Gruppe
+.DESCRIPTION
+   Synchronisiert die Seafile Benutzer mit der Gruppe, d.h. Wenn Benutzer bereits in der Gruppe ist wird nichts
+   unternommen. Ist der Benutzer nicht in der , wird er eingetragen. Benutzer die in der Gruppe sind, jedoch 
+   nicht hinzugefügt wurden, werden gelöscht.
+.EXAMPLE
+   Sync-SFGroupMenber -groupid 12 -usermails tuttas@mmbbs.de,hecht@mmbbs.de
+   Die  Gruppe mit der ID 12 enthält die Benutzer tuttas und hecht
+.EXAMPLE
+   "tuttas@mmbbs.de","hecht@mmbbs.de" | Sync-SFGroupMember -groupid 9 
+   Die Gruppe mit der ID 9 enthält die Benutzer tuttas und hecht
+
+#>
+function Sync-SFGroupMember
+{
+    [CmdletBinding()]     
+    Param
+    (
+        # Cohort ID
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        [int]$groupid,
+
+         # ID der Benutzers
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeLine=$true,
+                   Position=1)]
+        [String[]]$usermails,
+        [switch]$force,
+        [switch]$whatif
+    )    
+    Begin
+    {
+       
+        if (-not $global:sftoken) {
+            Write-Error "Sie sind nicht an Seafile angemeldet, veruchen Sie es mit Login-Seafile"
+            break;
+        }
+        $headers=@{}      
+        $headers["content-Type"]="application/x-www-form-urlencoded"  
+        $headers["Authorization"]="TOKEN "+$global:sftoken;
+
+        try {
+            $members= Get-SFGroupmember -id $groupid | where-Object {-not $_.is_admin}| Select-Object -Property email | Get-SFUser
+            $istMember = @{};
+            foreach ($m in $members) {
+                $istMember[$m.email]=$m
+            }
+        }
+        catch {
+            Write-Error "$($_.Exception.GetType().FullName) $($_.Exception.Message)"
+            break;
+        }
+    }    
+    Process
+    {
+        $usermails | ForEach-Object {
+            $usermail = $_
+            if ($istMember[$usermail]) {
+                Write-Verbose "Der Benutzer mit der Email $usermail befindet sich bereits in der Gruppe mit der ID $groupid"
+                $istMember.Remove($usermail)
+            }
+            else {
+                if (!$force) {
+                    $q=Read-Host "Soll der Benutzer mit der EMail $usermail in die Gruppe mit der ID $groupid aufgenommen werden? (J/N)"
+                    if ($q -eq "J") {
+                        Write-Verbose "Benutzer mit EMail $usermail wird in Gruppe mit ID $groupid aufgenommen" 
+                        $r=Add-SFGroupmember -email $usermail -id $groupid -force
+                    }
+                }
+                else {
+                    Write-Verbose "Benutzer mit EMail $usermail wird in Gruppe mit ID $groupid aufgenommen" 
+                    $r=Add-SFGroupmember -email $usermail -id $groupid -force
+                }
+            }
+        }
+    }  
+    End {
+        if (!$whatif) {
+            if ($istMember.Count -ne 0) {
+                if ($force) {
+                   $r=$istMember.Values | Remove-SFGroupmember -id $groupid -force
+                }
+                else {
+                   $r=$istMember.Values | Remove-SFGroupmember -id $groupid
+                }
+            }
+        }
     }
 }
