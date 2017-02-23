@@ -2,6 +2,7 @@
 . "$PSScriptRoot/send-Mail.ps1"
 . "$PSScriptRoot/sync_lehrer.ps1"
 . "$PSScriptRoot/set-emails.ps1"
+. "$PSScriptRoot/sync_MoodleCohortsWithSeafile.ps1"
 
 Set-Diklabuserver -uri https://diklabu.mm-bbs.de:8080/Diklabu/api/v1/
 # Anmelden am Diklabu Server
@@ -25,5 +26,10 @@ $body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
 $body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
 $body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
 $r2.msg > "$PSScriptRoot/../../../out_schueler.txt"
+
+## Moodle gloable gruppe Sync
+Login-Moodle
+Sync-MoodleTeams -url https://seafile.mm-bbs.de/f/a743d75f83/?raw=1 -Verbose
+
 
 send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$PSScriptRoot/../../../out_lehrer.txt","$PSScriptRoot/../../../out_schueler.txt"

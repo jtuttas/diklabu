@@ -40,8 +40,8 @@ function setKey([String]$key,[String]$url,[PSCredential]$cred) {
         $login.user = $cred.UserName
         $login.password = $cred.Password | ConvertFrom-SecureString
     }
-    $logins[$key]=$login
-    $logins | ConvertTo-Json | Set-Content "$HOME\diklabu2.conf"
+    $global:logins[$key]=$login
+    $global:logins | ConvertTo-Json -Compress | Set-Content "$HOME\diklabu2.conf"
 }
 
 
