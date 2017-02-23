@@ -249,13 +249,14 @@ function Get-BPCompanies
                 $out=$adapter.Fill($dataset)
                 $betriebe=@();
                 foreach ($item in $dataset.Tables[0]) {
-                    $bet="" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID"
+                    $bet="" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID","BETRIEB_NR"
 
                     $bet.NAME=$item.BETRNAM1;
                     $bet.STRASSE=$item.BETRSTR;
                     $bet.PLZ=$item.BETRPLZ;
                     $bet.ORT=$item.BETRORT;
-                    $bet.ID=$item.id;
+                    $bet.ID=$item.ID;
+                    $bet.BETRIEB_NR=$item.BETRIEB_NR;
 
                     $betriebe+=$bet;
                 } 
@@ -410,10 +411,13 @@ function Get-BPTeachers
                 $out=$adapter.Fill($dataset)
                 $lehrer=@();
                 foreach ($item in $dataset.Tables[0]) {
-                    $leh="" | Select-Object -Property "NNAME","VNAME","KÜRZEL"
+                    $leh="" | Select-Object -Property "NNAME","VNAME","KÜRZEL","TELEFON","FAX","EMAIL"
                     $leh.NNAME=$item.NNAME;
                     $leh.VNAME=$item.VNAME;
                     $leh.Kürzel=$item.NKURZ;
+                    $leh.TELEFON=$item.TEL1;
+                    $leh.FAX=$item.FAX;
+                    $leh.EMAIL=$item.ONLINE;
                     $lehrer+=$leh;
                 }
                 Write-Verbose "Insgesammt $($lehrer.Length) Lehrer eingelesen!"
@@ -566,8 +570,9 @@ function Get-BPCoursemember
          # Schülerinnen und Schüler werden anhand des Vornamens, Nachnamens und Geb. Datum gesucht
          [switch]$newyear=$false,
          # Schülerinnen und Schüler werden gelöscht, die nicht in BBS PLanung enthalten sind
-         [switch]$deletepupil=$false
-         
+         [switch]$deletepupil=$false,
+         # Es wird ein LOG Protokoll erzeugt
+         [switch]$log=$false
          
      ) 
      Begin
@@ -589,33 +594,46 @@ function Get-BPCoursemember
         }
 
         Write-Verbose "Synchonisiere Betriebe" 
+        if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
         foreach ($b in $betriebe) {
             Write-Verbose "Suche Betrieb '$($b.NAME)' ID = $($b.ID)."
             $b |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
             if ((""+$b.NAME).Length -eq 0 ) {
                 Write-Warning "Achtung der Betrieb mit der ID $($b.id) hat einen leeren Namen"
+                if ($log) {"WARNUNG: Achtung der Betrieb mit der ID $($b.id) hat einen leeren Namen"}
             }
             else {            
                 $c=Find-Company -NAME $b.NAME
                 if (!$c) {
                     Write-Verbose " +Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!" 
+                    if ($log) {"Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!"}
                     if (-not $whatif) {
                         $nc= New-Company  -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR 
                         $b.diklabuID=$nc.ID    
                     }
                 }
                 else {
-                    Write-Verbose " -Bekannten Betrieb gefunden $($b.NAME)! Aktualisiere Einträge!" 
-                    if (-not $whatif) {
-                        $sc= Set-Company -ID $c.ID -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR 
-                        $b.diklabuID=$c.ID    
+                    Write-Verbose " -Bekannten Betrieb gefunden $($b.NAME)!" 
+                    if ($c.NAME -ne $b.NAME -or 
+                        $c.PLZ -ne $b.PLZ -or
+                        $c.ORT -ne $b.ORT -or
+                        $c.STRASSE -ne $b.STRASSE -or
+                        $c.NR -ne $b.NR) {
+
+                        Write-Verbose "  Daten unterscheiden sich, aktualisiere Betriebsdaten";
+                        if ($log) {" Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)"}
+                        if (-not $whatif) {
+                            $sc= Set-Company -ID $c.ID -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR                              
+                        }
                     }
+                    $b.diklabuID=$c.ID  
                 }
             }
         }     
         
         Write-Verbose "Synchonisiere Ausbilder" 
+        if ($log) {"== Synchonisiere Ausbilder == "};
         $ausbilder = Get-BPInstructors
         foreach ($a in $ausbilder) {
             Write-Verbose "Suche Ausbilder '$($a.NNAME)' EMail ist $($a.EMAIL)."
@@ -623,13 +641,14 @@ function Get-BPCoursemember
             if ((""+$a.NNAME).Length -eq 0 ) {
                 $betr = findBetrieb $a.ID_BETRIEB
                 Write-Warning "Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen $($betr.NAME)"
+                if ($log) {"WARNUNG: Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen $($betr.NAME)"}
                 $a.NNAME=$betr.NAME
-                Write-Verbose "Suche Ausbilder '$($a.NNAME)' EMail ist $($a.EMAIL)."
+                #Write-Verbose "Suche Ausbilder '$($a.NNAME)' EMail ist $($a.EMAIL)."
             }
-            
             $c=Find-Instructor -NNAME $a.NNAME 
             if ($c.length -gt 1) {
                 Write-Warning "Mehr als einen Ausbilder mit dem Namen $($a.NNAME) gefunden! Weitere Identifikation über EMAIL Adresse " 
+                if ($log) {"WARNUNG: Mehr als einen Ausbilder mit dem Namen $($a.NNAME) gefunden! Weitere Identifikation über EMAIL Adresse "}
                 $found=$false;
                 foreach ($ausb in $c) {
                     if ($ausb.EMAIL -eq $a.EMAIL) {
@@ -638,16 +657,26 @@ function Get-BPCoursemember
                     }
                 }
                 if ($found) {
-                    Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL) ! Aktualisiere Einträge!" 
+                    Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL) !" 
+                    if ($log) {"  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL) !" }
                     $betr = findBetrieb $ausb.ID_BETRIEB
-                    if (-not $whatif) {
-                        $na= Set-Instructor -ID $ausb.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
+                    if ($a.NNAME -ne $ausb.NNAME -or
+                        $a.EMAIL -ne "" -and $a.EMAIL -ne $ausb.EMAIL -or
+                        [bool]($ausb.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $ausb.FAX -or
+                        [bool]($ausb.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $ausb.TELEFEON) {
+
+                        Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
+                        if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON) auf  NNAME=$($ausb.NNAME) EMAIL=$($ausb.EMAIL) FAX=$($ausb.FAX) TELEFON=$($ausb.TELEFON)"}
+                        if (-not $whatif) {
+                            $na= Set-Instructor -ID $ausb.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
+                        }
                     }
                     $a.diklabuID=$ausb.ID
                     $a.ID_BETRIEB=$ausb.ID_BETRIEB
                 }
                 else {
                     Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"
+                    if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"}
                     $betr = findBetrieb $a.ID_BETRIEB
                     if (-not $whatif) {
                         $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
@@ -659,6 +688,7 @@ function Get-BPCoursemember
             else {
                 if (!$c) {
                     Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" 
+                    if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" }
                     $betr = findBetrieb $a.ID_BETRIEB
                     if (-not $whatif) {
                         $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
@@ -668,16 +698,25 @@ function Get-BPCoursemember
                 }
                 else {
                     if ($a.EMAIL -eq $c.EMAIL) {
-                        Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)! Aktualisiere Einträge!" 
+                        Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)!" 
                         $betr = findBetrieb $a.ID_BETRIEB
-                        if (-not $whatif) {
-                            $na= Set-Instructor -ID $c.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
+                        if ($a.NNAME -ne $c.NNAME -or
+                            $a.EMAIL -ne "" -and $a.EMAIL -ne $c.EMAIL -or
+                            [bool]($c.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $c.FAX -or
+                            [bool]($c.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $c.TELEFEON) {
+                            Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
+                            if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
+
+                            if (-not $whatif) {
+                                $na= Set-Instructor -ID $c.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
+                            }
                         }
                         $a.diklabuID=$c.ID
                         $a.ID_BETRIEB=$c.ID_BETRIEB
                     }
                     else {
-                        Write-Verbose "  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse $($c.EMAIL)! Als neuen Ausbilder angesehen!" 
+                        Write-Verbose "  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse von $($c.EMAIL) auf $($a.EMAIL)! Als neuen Ausbilder angesehen!" 
+                        if ($log) {"  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse von $($c.EMAIL) auf $($a.EMAIL)! Als neuen Ausbilder angesehen!" }
                         $betr = findBetrieb $a.ID_BETRIEB
                         if (-not $whatif) {
                             $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
@@ -690,25 +729,35 @@ function Get-BPCoursemember
          }
 
         Write-Verbose "Synchonisiere Lehrer" 
+        if ($log) {"== Synchronisiere Lehrer =="}
         $lehrer = Get-BPTeachers
         foreach ($l in $lehrer) {
             Write-Verbose "Suche Lehrer mit Kürzel $($l.KÜRZEL)"
             $le=Get-Teacher -ID $l.KÜRZEL
             if (!$le) {
                 Write-Warning "  Neuen Lehrer gefunden $($l.VNAME) $($l.NNAME)! Lege Lehrer an mit Kürzel $($l.KÜRZEL)!"
+                if ($log) {"  Neuen Lehrer gefunden $($l.VNAME) $($l.NNAME)! Lege Lehrer an mit Kürzel $($l.KÜRZEL)!"}
                 if (-not $whatif) {
                     $nl=New-Teacher -ID $l.KÜRZEL -NNAME $l.NNAME -VNAME $l.VNAME -TELEFON $l.TELEFON -EMAIL $l.EMAIL 
                 }
             }
             else {
-                Write-Verbose "  Bekannten Lehrer gefunden $($l.VNAME) $($l.NNAME)! Aktualisiere Einträge!" 
-                if (-not $whatif) {
-                   $nl=Set-Teacher -ID $l.KÜRZEL -NNAME $l.NNAME -VNAME $l.VNAME -TELEFON $l.TELEFON -EMAIL $l.EMAIL       
+                Write-Verbose "  Bekannten Lehrer gefunden $($l.VNAME) $($l.NNAME)!" 
+                if ([bool]($l.PSobject.Properties.name  -match "NNAME") -and $le.NNAME -ne $l.NNAME -or
+                    [bool]($l.PSobject.Properties.name  -match "VNAME") -and $le.VNAME -ne $l.VNAME -or
+                    [bool]($l.PSobject.Properties.name  -match "TELEFON") -and $le.TELEFON -ne $l.TELEFON -or
+                    [bool]($l.PSobject.Properties.name  -match "EMAIL") -and $le.EMAIL -ne $l.EMAIL) {
+                    Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge";
+                    if ($log) {"Daten unterscheiden sich aktualisiere Lehrer $($l.KÜRZEL) von NNAME=$($le.NNAME) VNAME=$($le.VNAME) TELEFON=$($le.TELEFON) EMAIL=$($le.EMAIL) auf NNAME=$($l.NNAME) VNAME=$($l.VNAME) TELEFON=$($l.TELEFON) EMAIL=$($l.EMAIL)"}
+                    if (-not $whatif) {
+                       $nl=Set-Teacher -ID $l.KÜRZEL -NNAME $l.NNAME -VNAME $l.VNAME -TELEFON $l.TELEFON -EMAIL $l.EMAIL       
+                    }
                 }
             }
         }
 
         Write-Verbose "Synchonisiere Klassen" 
+        if ($log) {"== Synchonisiere Klassen == "}
         $klassen = Get-BPCourses
         foreach ($k in $klassen) {
             Write-Verbose "Suche Klasse $($k.KNAME)"
@@ -716,21 +765,27 @@ function Get-BPCoursemember
             $k |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
             if (!$kl) {
                 Write-Warning "  Neue Klasse $($k.KNAME)! Lege Klasse an!" 
+                if ($log) {"WARNUNG: Neue Klasse $($k.KNAME)! Lege Klasse an!" };
                 if (-not $whatif) {
                     $nl=New-Course -KNAME $k.KNAME -ID_LEHRER $k.ID_LEHRER -ID_KATEGORIE 0
                     $k.diklabuID=$nl.id
                 }
             }
             else {
-                Write-Verbose "  Bekannte Klasse $($kl.KNAME)! Aktualisiere Einträge!" 
-                if (-not $whatif) {
-                    $nl=Set-Course -id $kl.id -ID_LEHRER $k.ID_LEHRER
-                    $k.diklabuID=$nl.id
+                Write-Verbose "  Bekannte Klasse $($kl.KNAME)!" 
+                if ($kl.ID_LEHRER -ne $k.ID_LEHRER) {
+                    Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)";
+                    if ($log) {"  Daten unterscheiden sich, aktualisiere Einträge von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)"};
+                    if (-not $whatif) {
+                        $nl=Set-Course -id $kl.id -ID_LEHRER $k.ID_LEHRER
+                        $k.diklabuID=$nl.id
+                    }
                 }
             }
         }
 
         Write-Verbose "Synchonisiere Schüler" 
+        if ($log) {"== Synchonisiere Schüler =="}
         $schueler = Get-BPPupils
         foreach ($s in $schueler) {
             if ($s.GEBDAT) {
@@ -740,8 +795,9 @@ function Get-BPCoursemember
                 $gdate=$null
             }
             Write-Verbose "Suche Schüler $($s.VNAME) $($s.NNAME)  GEBDat $gdate"
-            $s |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
+            $s | Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
             if ($newyear) {
+                # Schüler werden gesucht anhand von Vorname, Nachname und Geburtsdatum und Levensthein Distanz
                 $cc=Search-Pupil -VNAMENNAMEGEBDAT ($s.VNAME+$s.NNAME+$gdate) -LDist 3
                 if ($cc) {
                     $p=Get-Pupil -id $cc.id
@@ -752,10 +808,12 @@ function Get-BPCoursemember
                 }
             }
             else {
+                # Schüler werden anahand der BBS Planungs ID gesucht
                 $c=Get-Pupil -bbsplanid $s.BBSID
             }
             if (!$c) {
                 Write-Warning "  Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" 
+                if ($log) {"WARNUNG: Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" }
                 $ausb = findAusbilder $s.BETRIEB_NR
                 if (-not $whatif) {
                     if ($gdate) {
@@ -768,22 +826,29 @@ function Get-BPCoursemember
                 }
                 $s.ID_AUSBILDER=$ausb.diklabuID
                 Write-Warning "  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein." 
+                if ($log) {"WARNUNG:  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein."}
                 $kl=Find-Course -KNAME $s.KL_NAME
                 if (-not $whatif) {
                     $res=Add-Coursemember -id $np.id -klassenid $kl.id
                     if ($res.success -ne $True) {
                         Write-Warning "Fehler beim Zuweisen des Schülers $($s.VNAME) $($s.NNAME) zur Klasse $($s.KL_NAME):  $($res.msg)"
+                        if ($log) {"FEHLER: Fehler beim Zuweisen des Schülers $($s.VNAME) $($s.NNAME) zur Klasse $($s.KL_NAME):  $($res.msg)"}
                     }
                     else {
                         Write-Verbose $res.msg 
                     }
                 }
             }
-            else {
-                
-                Write-Verbose "  Bekannten Schüler gefunden $($s.VNAME) $($s.NNAME) diklabu ID $($c.id)! Aktualisiere Einträge!" 
-                if (-not $whatif) {
-                    $out=Set-Pupil -id $c.id -VNAME $s.VNAME -NNAME $s.NNAME -EMAIL $s.EMAIL -bbsplanid $s.bbspl -GEBDAT $gdate
+            else {                
+                Write-Verbose "  Bekannten Schüler gefunden $($s.VNAME) $($s.NNAME) diklabu ID $($c.id)!" 
+                if ($c.VNAME -ne $s.VNAME -or 
+                    $c.NNAME -ne $s.NNAME -or
+                    $c.GEBDAT -ne $gdate) {
+                    Write-Verbose "  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gebdat"
+                    if ($log) {"  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gebdat"}
+                    if (-not $whatif) {
+                        $out=Set-Pupil -id $c.id -VNAME $s.VNAME -NNAME $s.NNAME -EMAIL $s.EMAIL -bbsplanid $s.bbspl -GEBDAT $gdate
+                    }
                 }
                 $s.diklabuID=$c.id
                 $kl = Get-Coursemembership $c.id
@@ -791,6 +856,7 @@ function Get-BPCoursemember
                     if ($k.ID_Kategorie -eq 0) {
                         if ($s.KL_NAME -ne $k.KNAME) {
                             Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) hat die Klasse gewechselt! Aus der Klasse $($k.KNAME) in die Klasse $($s.KL_NAME)"
+                            if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) hat die Klasse gewechselt! Aus der Klasse $($k.KNAME) in die Klasse $($s.KL_NAME)"}
                             if (-not $whatif) {
                                 $out=Remove-Coursemember -id $s.diklabuID -klassenid $k.ID
                             }
@@ -805,8 +871,11 @@ function Get-BPCoursemember
                 $ausb=Get-Instructor -ID $c.ID_AUSBILDER
                 $ausb2=findAusbilder $s.BETRIEB_NR
                 
+               
+
                 if ($ausb.ID -ne $ausb2.diklabuID) {
                     Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) hat einen neuen Ausbildungsbetrieb / Ausbilder" 
+                    if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) hat einen neuen Ausbildungsbetrieb / Ausbilder" }
                     if (-not $whatif) {
                         $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $ausb2.diklabuID
                     }
@@ -816,6 +885,7 @@ function Get-BPCoursemember
 
         if ($mode -eq "SYNC") {
             Write-Verbose "Lösche Klassen die nicht in BBS PLanung enthalten sind"
+            if ($log) {"== Lösche Klassen die nicht in BBS PLanung enthalten sind =="}
             $courses = Get-Courses -id_kategorie 0
             foreach ($c in $courses) {
                 $found=$false;
@@ -827,6 +897,7 @@ function Get-BPCoursemember
                 }                
                 if (-not $found) {
                     Write-Warning "Lösche Klasse $($c.KNAME) ID=$($c.id)"
+                    if ($log) {"Lösche Klasse $($c.KNAME) ID=$($c.id)"}
                     if (-not $whatif) {
                         # Schüler aus der Klasse entfernen
                         $out=Get-Coursemember -id $c.id | Remove-Coursemember -klassenid $c.id
@@ -836,7 +907,7 @@ function Get-BPCoursemember
             }
 
             Write-Verbose "Entferne Schüler aus Klassen, die nicht in den Klassen von BBS Planung enthalten sind"
-            
+            if ($log) {"== Entferne Schüler aus Klassen, die nicht in den Klassen von BBS Planung enthalten sind =="}
             $courses = Get-Courses
             foreach ($c in $courses) {
                 $member = Get-Coursemember -id $c.id
@@ -844,6 +915,7 @@ function Get-BPCoursemember
                     $tst = Test-BPCoursemember -KNAME $c.KNAME -BBSID $m.ID_MMBBS
                     if (-not $tst) {
                         Write-Warning "Entferne Schüler $($m.VNAME) $($m.NNAME) aus Klasse $($c.KNAME)"
+                        if ($log) {"Entferne Schüler $($m.VNAME) $($m.NNAME) aus Klasse $($c.KNAME)"}
                         if (-not $whatif) {
                             $out=Remove-Coursemember -id $m.id -klassenid $c.id
                         }
@@ -854,10 +926,12 @@ function Get-BPCoursemember
             
             if ($deletepupil) {
                 Write-Verbose "Lösche Schüler die in BBS Planung nicht enthalten sind"
+                if ($log) {"==  Lösche Schüler die in BBS Planung nicht enthalten sind  =="}
                 $pupil = Get-Pupils
                 foreach ($p in $pupil) {
                     if (-not $p.ID_MMBBS) {
                         Write-Warning "Lösche Schüler $($p.VNAME) $($p.NNAME), da keine ID aus BBSPLANUNG"
+                        if ($log) {"Lösche Schüler $($p.VNAME) $($p.NNAME), da keine ID aus BBSPLANUNG"}
                         if (-not $whatif) {
                             $out=Delete-Pupil  -id $p.id 
                         }
@@ -871,6 +945,7 @@ function Get-BPCoursemember
                         }
                         if (-not $found) {
                             Write-Warning "Lösche Schüler $($p.VNAME) $($p.NNAME)"
+                            if ($log) {"Lösche Schüler $($p.VNAME) $($p.NNAME)"}
                             if (-not $whatif) {
                                 $out=Delete-Pupil  -id $p.id 
                             }
