@@ -368,7 +368,7 @@ function Get-BPInstructors
                     $aus.FAX=$item.BETRFAX;
                     $aus.EMAIL=$item.BETRONLINE
                     $aus.ID_BETRIEB=$item.id
-                    $aus.BETRIEB_NR=$item.id
+                    $aus.BETRIEB_NR=$item.BETRIEB_NR
                     $ausbilder+=$aus;
                 } 
                 Write-Verbose "Insgesammt $($ausbilder.Length) Ausbilder eingelesen!"
@@ -869,6 +869,7 @@ function Get-BPCoursemember
                 }
 
                 $ausb=Get-Instructor -ID $c.ID_AUSBILDER
+
                 $ausb2=findAusbilder $s.BETRIEB_NR
                 
                
