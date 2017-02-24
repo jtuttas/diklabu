@@ -45,7 +45,7 @@ function Connect-BbsPlan
         catch {        
             Write-Error "Fehler beim Öffnen von BBS-Planung $($cn.InfoMessage)"
         }
-        setKey "bbsplanung" $location $null
+        Set-Keystore -key "bbsplanung" -server $location
     }
 }
 

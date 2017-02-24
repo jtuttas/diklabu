@@ -54,7 +54,7 @@ function Login-Seafile
         else {
             Write-Verbose "Login fehlgeschlagen"
         }  
-        setKey "seafile" $base $credential
+        Set-Keystore -key "seafile" -server $base -credential $credential       
         $global:sftoken=$r.token         
         $r
     }

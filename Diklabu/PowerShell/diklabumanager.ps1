@@ -17,32 +17,87 @@
 
 
 $global:auth_token
+<#
+.Synopsis
+   Liest die Server, Benutzernamen und Kennworte aus
+.DESCRIPTION
+   Liest die Server, Benutzernamen und Kennworte aus
+.EXAMPLE
+   Get-Keystore
+.EXAMPLE
+   Get-Keystore -file c:\Temp\keys
+#>
+function Get-Keystore
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Hilfebeschreibung zu Param1
+        [Parameter(Position=0)]
+        $file="$HOME\diklabu2.conf"
 
-function getKeys() {
-    $logins=@{}
-    if (Test-Path "$HOME\diklabu2.conf") {
-        $lf = Get-Content "$HOME\diklabu2.conf" | ConvertFrom-Json
+    )
 
-        $lf.PSObject.Properties | ForEach-Object {
-            $logins[$_.Name]=$_.Value
-        }         
+    Begin
+    {
+        $logins=@{}
+        if (Test-Path $file) {
+            $lf = Get-Content "$HOME\diklabu2.conf" | ConvertFrom-Json
+
+            $lf.PSObject.Properties | ForEach-Object {
+                $logins[$_.Name]=$_.Value
+            }         
+        }
+        $logins;
     }
-    return $logins;
 }
 
-$global:logins=getKeys
+$global:logins=Get-Keystore
 
-function setKey([String]$key,[String]$url,[PSCredential]$cred) {
-    $global:logins=getKeys   
-    $login = "" | Select-Object "location","user","password"
-    $login.location = $url
-    if ($cred -ne $null) {
-        $login.user = $cred.UserName
-        $login.password = $cred.Password | ConvertFrom-SecureString
+<#
+.Synopsis
+   Setzte einen Schlüssel bestehend aus Server, Benutzernamen und Kennworte aus
+.DESCRIPTION
+   Setzte einen Schlüssel bestehend aus Server, Benutzernamen und Kennworte aus
+.EXAMPLE
+   Set-Keystore -url http://xyz.de -credential $cred -key seafile
+.EXAMPLE
+   Set-Keystore -file keys.txt -url http://xyz.de -credential $cred -key seafile
+#>
+function Set-Keystore
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Hilfebeschreibung zu Param1
+        [Parameter(Position=0)]
+        $file="$HOME\diklabu2.conf",
+
+        [Parameter(Mandatory=$true,
+                   Position=1)]
+        $key,
+        [Parameter(Mandatory=$true,
+                   Position=2)]
+        $server,
+
+        [Parameter(Position=3)]
+        [PSCredential]$credential
+
+
+    )
+
+    Begin
+    {
+        $global:logins=Get-Keystore -file $file
+        $login = "" | Select-Object "location","user","password"
+        $login.location = $server
+        $login.user =  $credential.UserName
+        $login.password = $credential.Password | ConvertFrom-SecureString
+        $global:logins[$key]=$login
+        $global:logins | ConvertTo-Json -Compress | Set-Content $file
     }
-    $logins[$key]=$login
-    $logins | ConvertTo-Json | Set-Content "$HOME\diklabu2.conf"
 }
+
 
 
 <#
@@ -65,7 +120,7 @@ function Set-Diklabuserver
 
     Begin
     {
-        setKey "diklabu" $uri $null
+        Set-Keystore -key "diklabu" -server $uri
     }
    
 }
@@ -132,18 +187,23 @@ function Login-Diklabu
                 $credential = New-Object System.Management.Automation.PsCredential($Global:logins["diklabu"].user,$password)
             }    
         } 
-        $data=echo "" | Select-Object -Property "benutzer","kennwort"
-        $data.benutzer=$credential.userName
-        $data.kennwort=$credential.GetNetworkCredential().Password        
-        $headers=@{}
-        $headers["content-Type"]="application/json"
-        $headers["service_key"]=$user+"f80ebc87-ad5c-4b29-9366-5359768df5a1";
-        Write-Verbose "Anmelden am Diklabuserver unter $uri"
-        $r=Invoke-RestMethod -Method Post -Uri ($uri+"auth/login") -Headers $headers -Body (ConvertTo-Json $data)
-        $global:auth_token=$r.auth_token
-        $global:server=$uri
-        setKey "diklabu" $uri $credential
-        return $r;
+        try {
+            $data=echo "" | Select-Object -Property "benutzer","kennwort"
+            $data.benutzer=$credential.userName
+            $data.kennwort=$credential.GetNetworkCredential().Password        
+            $headers=@{}
+            $headers["content-Type"]="application/json"
+            $headers["service_key"]=$user+"f80ebc87-ad5c-4b29-9366-5359768df5a1";
+            Write-Verbose "Anmelden am Diklabuserver unter $uri"
+            $r=Invoke-RestMethod -Method Post -Uri ($uri+"auth/login") -Headers $headers -Body (ConvertTo-Json $data)
+            $global:auth_token=$r.auth_token
+            $global:server=$uri
+            Set-Keystore -key "diklabu" -server $uri -credential $credential
+            return $r;
+        }
+        catch {
+            Write-Error $_.Exception.Message
+        }
     }
 }
 
