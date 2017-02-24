@@ -16,7 +16,7 @@
     "smtphost": "smtp.uni-hannover.de",
     "port": "587",
     "user": "user",
-    "pass": "pass",
+    "pass": "geheim",
     "clientConfig" : {
         "SERVER": "",        
         "WEBSOCKET": "ws://",
