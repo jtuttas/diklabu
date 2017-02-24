@@ -159,6 +159,7 @@ function Get-Pupil
 
         # BBS-PLan ID des Schülers
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0,ParameterSetName = "Set 2")]
+         [alias("ID_MMBBS")]
         [int]$bbsplanid,
 
         # Adresse des Diklabu Servers

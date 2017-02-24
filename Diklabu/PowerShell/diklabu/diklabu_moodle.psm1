@@ -53,7 +53,7 @@ function Login-Moodle
                 $global:token=$r.token                        
             }
         }
-        setKey "moodle" $base $credential
+        Set-Keystore -key "moodle" -server $base -credential $credential
         $r
     }
 }

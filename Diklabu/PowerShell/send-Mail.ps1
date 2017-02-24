@@ -34,19 +34,69 @@ function send-mailreport
 
     Begin
     {
+        if (-not $global:logins["smtp"]) {
+            Write-Error "Keine SMTP Server Konfigurations gefunden, bitte zunächst Login-SMTP ausführen";
+            break;
+        }
         # Email Senden via Powershell
-        $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
-        $password = $config.pass | ConvertTo-SecureString -asPlainText -Force
-        $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $config.user, $password
+        $password = $global:logins["smtp"].password | ConvertTo-SecureString 
+        $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $($global:logins["smtp"].user), $password
         $utf8 = New-Object System.Text.utf8encoding
+        $server = ($global:logins["smtp"].location).Split(":");
+        
         if ($attachment) {
-            Send-MailMessage -Encoding $utf8 -Body $body -From $from -To $to -SmtpServer $config.smtphost -Credential $credentials -Subject $subject -UseSsl -Port $config.port -Attachments $attachment
+            Send-MailMessage -Encoding $utf8 -Body $body -From $from -To $to -SmtpServer $server[0] -Credential $credentials -Subject $subject -UseSsl -Port $server[1] -Attachments $attachment
         }
         else {
-            Send-MailMessage -Encoding $utf8 -Body $body -From $from -To $to -SmtpServer $config.smtphost -Credential $credentials -Subject $subject -UseSsl -Port $config.port
+            Send-MailMessage -Encoding $utf8 -Body $body -From $from -To $to -SmtpServer $server[0] -Credential $credentials -Subject $subject -UseSsl -Port $server[1] 
 
         }
+    }
+}
 
 
+<#
+.Synopsis
+   Anmelden am SMTP Server
+.DESCRIPTION
+   Anmelden am SMTP Server. Dabei werden die Credentials im diklabu key store gespeichert.
+.EXAMPLE
+   Login-SMTP -url smtp.mmbbs.de:27 -user tuttas -password xyz
+#>
+function Login-SMTP
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Adresse des SMTP Servers
+        [Parameter(Mandatory=$true,
+                   Position=0)]
+        $url,
+
+        # Benutername
+        [Parameter(Mandatory=$true,
+                   Position=1)]
+        $user,
+
+        # Benutername
+        [Parameter(Mandatory=$true,
+                   Position=1)]
+        $kennwort
+
+    )
+
+    Begin
+    {
+        $password = $kennwort | ConvertTo-SecureString -asPlainText -Force
+        $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $password
+        $adr = $url.split(":");
+        $utf8 = New-Object System.Text.utf8encoding
+        try {
+            Send-MailMessage -Encoding $utf8 -Body "works" -From "tuttas@mmbbs.de" -To "jtuttas@gmx.net" -SmtpServer $adr[0] -Credential $credentials -Subject "testmail" -UseSsl -Port $adr[1]
+            Set-Keystore -key "smtp" -server $url -credential $credentials
+        }
+        catch {
+            Write-Error $_.Exception.Message;
+        }    
     }
 }
