@@ -34,25 +34,34 @@ function Get-Keystore
     (
         # Hilfebeschreibung zu Param1
         [Parameter(Position=0)]
-        $file="$HOME\diklabu2.conf"
+        $file=$Global:keystore
 
     )
 
     Begin
     {
         $logins=@{}
+        if ($file -ne $Global:keystore) {
+            if (-not $global:keystore -and -not $file) {
+                $file = Read-Host "Bitte Keystore file angeben"
+            }
+            $global:logins.Clear()
+            $global:keystore=$file
+            $file
+        }
         if (Test-Path $file) {
-            $lf = Get-Content "$HOME\diklabu2.conf" | ConvertFrom-Json
+            $lf = Get-Content $global:keystore | ConvertFrom-Json
 
             $lf.PSObject.Properties | ForEach-Object {
                 $logins[$_.Name]=$_.Value
             }         
         }
+        $global:logins=$logins;
         $logins;
     }
 }
 
-$global:logins=Get-Keystore
+$global:logins=Get-Keystore -file "$env:TEMP\keystore.json"
 
 <#
 .Synopsis
@@ -71,7 +80,7 @@ function Set-Keystore
     (
         # Hilfebeschreibung zu Param1
         [Parameter(Position=0)]
-        $file="$HOME\diklabu2.conf",
+        $file=$global:keystore,
 
         [Parameter(Mandatory=$true,
                    Position=1)]
@@ -95,6 +104,7 @@ function Set-Keystore
         $login.password = $credential.Password | ConvertFrom-SecureString
         $global:logins[$key]=$login
         $global:logins | ConvertTo-Json -Compress | Set-Content $file
+        $file
     }
 }
 

@@ -52,7 +52,7 @@ function Login-LDAP
             $global:ldapserver=$server
             $global:ldapcredentials=$credential
             Write-Verbose "Login erfolgreich"
-            setKey "ldap" $server $credential
+            Set-Keystore -key "ldap" -server $server -credential $credential
         }
         else {
             Write-Verbose "Login fehlgeschlagen"

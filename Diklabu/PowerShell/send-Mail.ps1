@@ -76,24 +76,19 @@ function Login-SMTP
         # Benutername
         [Parameter(Mandatory=$true,
                    Position=1)]
-        $user,
+        [PSCredential]$credential
 
-        # Benutername
-        [Parameter(Mandatory=$true,
-                   Position=1)]
-        $kennwort
 
     )
 
     Begin
     {
-        $password = $kennwort | ConvertTo-SecureString -asPlainText -Force
-        $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $user, $password
+       
         $adr = $url.split(":");
         $utf8 = New-Object System.Text.utf8encoding
         try {
-            Send-MailMessage -Encoding $utf8 -Body "works" -From "tuttas@mmbbs.de" -To "jtuttas@gmx.net" -SmtpServer $adr[0] -Credential $credentials -Subject "testmail" -UseSsl -Port $adr[1]
-            Set-Keystore -key "smtp" -server $url -credential $credentials
+            Send-MailMessage -Encoding $utf8 -Body "works" -From "tuttas@mmbbs.de" -To "jtuttas@gmx.net" -SmtpServer $adr[0] -Credential $credential -Subject "testmail" -UseSsl -Port $adr[1]
+            Set-Keystore -key "smtp" -server $url -credential $credential
         }
         catch {
             Write-Error $_.Exception.Message;

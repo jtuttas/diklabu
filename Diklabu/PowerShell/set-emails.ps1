@@ -121,27 +121,28 @@ function Measure-StringDistance {
 #>
 function set-emails
 {
+ [CmdletBinding()]
     Param
     (
         [switch]$whatif,
-        [switch]$force,
-        [switch]$verbose
+        [switch]$force
     )
 
     Begin
     {
-        
+        if (-not $Global:logins["ldap"]) {
+            Write-Error "Keine LDAP Credentials gefunden, Bitte via Login-LDAP anmelden!"
+            break;
+        }
+
         $res="" | Select-Object "total","update","error","msg"
         $res.total=0;
         $res.update=0;
         $res.error=0;
         $res.msg="";
-        $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
-        
-        $password = $config.bindpassword | ConvertTo-SecureString -asPlainText -Force
-        
-        $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList "ldap-user", $password
         #$u=get-aduser -Properties mail -Credential $credentials -Server 172.31.0.1 -LDAPFilter “(Cn=FIAE15H.*)" -SearchBase  "DC=mmbbs,DC=local"
+        $password = $Global:logins["ldap"].password | ConvertTo-SecureString 
+        $credential = New-Object System.Management.Automation.PsCredential($Global:logins["ldap"].user,$password)
 
         $course = get-courses -id_kategorie 0
         
@@ -152,7 +153,7 @@ function set-emails
             
             $cn=“(Cn="+$c.KNAME+".*)"
             #try {
-                $member=get-aduser -Properties mail -Credential $credentials -Server 172.31.0.1 -LDAPFilter $cn -SearchBase  "DC=mmbbs,DC=local"
+                $member=get-aduser -Properties mail -Credential $credential -Server $Global:logins["ldap"].location -LDAPFilter $cn -SearchBase  "DC=mmbbs,DC=local"
    
                 $p=Get-Coursemember -id $c.id
                 foreach ($schueler in $p) {
