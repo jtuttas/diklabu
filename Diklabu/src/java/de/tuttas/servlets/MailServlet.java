@@ -97,10 +97,9 @@ public class MailServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String auth = request.getParameter("auth_token");
-        String service = request.getParameter("service_key");
         Log.d("MailServlet doPost: auth_token=" + auth);
 
-        if (Config.getInstance().debug || service != null && auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(auth)) {
+        if (Config.getInstance().debug || auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(auth)) {
             response.setContentType("application/json;charset=UTF-8");
             ResultObject result = new ResultObject();
             // reads form fields
