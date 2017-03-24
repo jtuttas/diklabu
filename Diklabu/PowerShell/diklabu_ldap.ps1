@@ -356,7 +356,7 @@ function Get-LDAPCourseMember
    "kemmries@tuttas.de","bahrke@tuttas.de" | Add-LDAPCourseMember -KNAME FIAE14H
 
 #>
-function add-LDAPCourseMember
+function Add-LDAPCourseMember
 {
     [CmdletBinding()]
    
@@ -387,8 +387,13 @@ function add-LDAPCourseMember
             Write-Warning "Can not find User with EMail $EMAIL"
         }
         else {
-            $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
-            $user
+            try {
+                $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
+                $user
+            }
+            catch {
+                Write-Error $_.Exception.Message
+            }
         }
     }
 }
@@ -435,11 +440,101 @@ function Remove-LDAPCourseMember
             Write-Warning "Can not find User with EMail $EMAIL"
         }
         else {
-            $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
-            $user
+            try {
+                $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
+                $user
+            }
+            catch {
+                Write-Error $_.Exception.Message
+            }
         }
     }
 }
+
+<#
+.Synopsis
+   Synchronisiert die Benutzer in einer LDAP Gruppe
+.DESCRIPTION
+   Synchronisiert die Benutzer in einer LDAP Gruppe
+.EXAMPLE
+   Sync-LDAPCourseMember -KNAME FIAE14H -EMAIL "kemmries@tuttas.de","barke@tuttas.de"
+.EXAMPLE
+   "kemmries@tuttas.de","bahrke@tuttas.de" | Sync-LDAPCourseMember -KNAME FIAE14H 
+
+#>
+function Sync-LDAPCourseMember
+{
+    [CmdletBinding()]
+   
+    Param
+    (
+        # Name der Klasse
+        [Parameter(Mandatory=$true,Position=0)]
+        [String]$KNAME,
+
+        # EMail Adressen der User
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=1)]
+        [String[]]$EMAIL,
+        # Searchbase (Unterordner in denen sich die Klassen befinden)
+        [Parameter(Position=2)]
+        [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
+        [switch]$force,
+        [switch]$whatif
+
+    )
+    Begin
+    {
+        if (-not $global:ldapcredentials) {
+            Write-Error "Sie sind nicht am LDAP angemeldet, versuchen Sie Login-LDAP"
+            break
+        }
+        $gm = Get-LDAPCourseMember -KNAME $KNAME
+        $ist=@{}
+        foreach ($m in $gm) {
+            $ist[$m.EMAIL]=$m
+        }
+    }
+    Process {
+        $EMAIL | ForEach-Object {
+            if (-not $ist[$_]) {
+                Write-Verbose "Der Benutzer $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"
+                if (-not $whatif) {
+                    if (-not $force) {
+                        $q=Read-Host "Soll der Benutzer $_ in die Gruppe $KNAME aufgenommen werden? (J/N)"
+                        if ($q -eq "j") {
+                            $u=add-LDAPCourseMember -KNAME $KNAME -EMAIL $_
+                        }
+                    }
+                    else {
+                        $u=add-LDAPCourseMember -KNAME $KNAME -EMAIL $_
+                    }
+                }
+            }
+            else {
+                Write-Verbose "Der Benutzer $_ existiert bereits in der Gruppe $KNAME!"
+            }
+            $ist.Remove($_)
+        }
+    }
+    End {
+        $ist.Keys | ForEach-Object {
+            $b=$ist.Item($_)
+            Write-Verbose "Der Benutzer $($b.EMAIL) wird aus der Gruppe $KNAME entfernt!"          
+            if (-not $whatif) {
+                if (-not $force) {
+                    $q = Read-Host "Soll der Benutzer $($b.EMAIL) aus der Gruppe $KNAME entfernt werden? (J/N)"          
+                    if ($q -eq "j") {
+                        $u=Remove-LDAPCourseMember -KNAME $KNAME -EMAIL $b.EMAIL
+                    }
+                }
+                else {
+                    $u=Remove-LDAPCourseMember -KNAME $KNAME -EMAIL $b.EMAIL
+                }
+            }
+        }
+    }
+}
+
 
 
 
