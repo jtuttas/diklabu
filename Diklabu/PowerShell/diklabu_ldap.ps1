@@ -125,6 +125,7 @@ function Get-LDAPTeachers
     }
 }
 
+
 <#
 .Synopsis
    Abfrage eines Lehrers
@@ -167,6 +168,53 @@ function Get-LDAPTeacher
         $teacher.VNAME = $in.GivenName
         $teacher.NNAME = $in.Name
         $teacher
+    }
+}
+
+
+<#
+.Synopsis
+   Abfrage eines Users
+.DESCRIPTION
+   Abfrage eines Users
+.EXAMPLE
+   Get-LDAPUser -EMAIL FIAE14H.Dell@mm-bbs.de
+   Abfrage des Users mit der EMAIL tuttas@mmbbs.de
+.EXAMPLE
+   Get-LDAPUser -EMAIL FIAE14H*
+   Abfrage der User deren Email Adressen mit FIAE14H beginnen
+.EXAMPLE
+   "fiae14h.dell@mm-bbs.de","fiae14h.Hoelzer@mm-bbs.de" | Get-LDAPUser
+   Abfrage der User mit den Email Adressen
+#>
+function Get-LDAPUser
+{
+    [CmdletBinding()]
+   
+    Param
+    (
+        # EMail des Users
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [String]$EMAIL
+
+    )
+
+    Begin
+    {
+        if (-not $global:ldapcredentials) {
+            Write-Error "Sie sind nicht am LDAP angemeldet, versuchen Sie Login-LDAP"
+            break
+        }
+    }
+    Process {
+        $in=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {EmailAddress -like $EMAIL} -Properties EmailAddress,GivenName,Surname
+        foreach ($i in $in) {
+            $user = "" | Select-Object -Property "EMAIL","VNAME","NNAME"
+            $user.EMAIL = $i.EmailAddress
+            $user.VNAME = $i.GivenName
+            $user.NNAME = $i.Surname
+            $user
+        }
     }
 }
 
@@ -296,5 +344,102 @@ function Get-LDAPCourseMember
         $pupils
     }
 }
+
+<#
+.Synopsis
+   Einen User zu einer Gruppe hinzufügen
+.DESCRIPTION
+   Einen User zu einer Gruppe hinzufügen
+.EXAMPLE
+   Add-LDAPCourseMember -KNAME FIAE14H -EMAIL kemmries@tuttas.de
+.EXAMPLE
+   "kemmries@tuttas.de","bahrke@tuttas.de" | Add-LDAPCourseMember -KNAME FIAE14H
+
+#>
+function add-LDAPCourseMember
+{
+    [CmdletBinding()]
+   
+    Param
+    (
+        # Name der Klasse
+        [Parameter(Mandatory=$true,Position=0)]
+        [String]$KNAME,
+
+        # EMail Adresse des Users
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=1)]
+        [String]$EMAIL,
+        # Searchbase (Unterordner in denen sich die Klassen befinden)
+        [Parameter(Position=2)]
+        [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local"
+
+    )
+    Begin
+    {
+        if (-not $global:ldapcredentials) {
+            Write-Error "Sie sind nicht am LDAP angemeldet, versuchen Sie Login-LDAP"
+            break
+        }
+    }
+    Process {
+        $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {EmailAddress -like $EMAIL} 
+        if ($user -eq $null) {
+            Write-Warning "Can not find User with EMail $EMAIL"
+        }
+        else {
+            $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
+            $user
+        }
+    }
+}
+
+<#
+.Synopsis
+   Einen User aus einer Gruppe entfernen
+.DESCRIPTION
+   Einen User aus einer Gruppe entfernen
+.EXAMPLE
+   Remove-LDAPCourseMember -KNAME FIAE14H -EMAIL kemmries@tuttas.de 
+.EXAMPLE
+   "kemmries@tuttas.de","bahrke@tuttas.de" | Remove-LDAPCourseMember -KNAME FIAE14H 
+
+#>
+function Remove-LDAPCourseMember
+{
+    [CmdletBinding()]
+   
+    Param
+    (
+        # Name der Klasse
+        [Parameter(Mandatory=$true,Position=0)]
+        [String]$KNAME,
+
+        # EMail Adresse des Users
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=1)]
+        [String]$EMAIL,
+        # Searchbase (Unterordner in denen sich die Klassen befinden)
+        [Parameter(Position=2)]
+        [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local"
+
+    )
+    Begin
+    {
+        if (-not $global:ldapcredentials) {
+            Write-Error "Sie sind nicht am LDAP angemeldet, versuchen Sie Login-LDAP"
+            break
+        }
+    }
+    Process {
+        $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {EmailAddress -like $EMAIL} 
+        if ($user -eq $null) {
+            Write-Warning "Can not find User with EMail $EMAIL"
+        }
+        else {
+            $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
+            $user
+        }
+    }
+}
+
 
 
