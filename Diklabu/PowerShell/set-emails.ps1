@@ -180,12 +180,11 @@ function set-emails
                             $mail=$mail.Trim()
                             $m=$mail.Split(" ");
                             $mail=$m[0]
-                            #Write-Host $mail
-                            if ($schueler.EMAIL -ne $mail) {
+                            if ($schueler.EMAIL -ne $mail -and $mail.Length -gt 1) {
                                 if (-not $whatif) {
                                     $np=Set-Pupil -id $schueler.id -EMAIL $mail
                                 }
-                                Write-Warning "+- EMail Adresse für "$schueler.VNAME$schueler.NNAME" geändert von $($schueler.EMAIL) auf "$mail 
+                                Write-Warning "+- EMail Adresse für $($schueler.VNAME) $($schueler.NNAME) geändert von $($schueler.EMAIL) auf "$mail 
                                 $res.msg += "+- EMail Adresse für "+$schueler.VNAME+" "+$schueler.NNAME+" geändert von $($schueler.EMAIL) auf "+$mail+"`n"
                                 $res.update++;
                             }

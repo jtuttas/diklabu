@@ -89,7 +89,7 @@ $(document).ready(function () {
             //event.preventDefault();
         }
         else {
-            
+            $("#mail_auth_token").attr("value",localStorage.auth_token);
             $.post('../MailServlet', $('#emailFormKlasse').serialize(),function (data) {
               if (data.success) {
                 toast("EMail wird versendet via CC an Klasse " + localStorage.nameKlasse);
