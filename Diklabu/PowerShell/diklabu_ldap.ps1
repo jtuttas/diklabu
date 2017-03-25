@@ -371,7 +371,10 @@ function Add-LDAPCourseMember
         [String]$EMAIL,
         # Searchbase (Unterordner in denen sich die Klassen befinden)
         [Parameter(Position=2)]
-        [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local"
+        [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
+        [switch]$force,
+        [switch]$whatif
+
 
     )
     Begin
@@ -388,8 +391,19 @@ function Add-LDAPCourseMember
         }
         else {
             try {
-                $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
-                $user
+                Write-Verbose "Der Benutzer $EMAIL wird zur Gruppe $KNAME hinzugefügt"
+                if (-not $whatif) {
+                    if (-not $force) {
+                        $q = Read-Host "Soll der Benutzer $EMAIL zur Gruppe $KNAME hinzugefügt werden? (J/N)"
+                        if ($q -eq "j") {
+                            $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
+                        }
+                    }
+                    else {
+                        $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
+                    }
+                    $user
+                }
             }
             catch {
                 Write-Error $_.Exception.Message
@@ -424,7 +438,9 @@ function Remove-LDAPCourseMember
         [String]$EMAIL,
         # Searchbase (Unterordner in denen sich die Klassen befinden)
         [Parameter(Position=2)]
-        [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local"
+        [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
+        [switch]$force,
+        [switch]$whatif
 
     )
     Begin
@@ -441,8 +457,19 @@ function Remove-LDAPCourseMember
         }
         else {
             try {
-                $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
-                $user
+                Write-Verbose "Benutzer $EMAIL aus der Gruppe $KNAME entfernt"
+                if (-not $whatif) {
+                    if (-not $force) {
+                        $q = Read-Host "Soll der Benutzer $EMAIL aus der Gruppe $KNAME entfernt werden? (J/N)"
+                        if ($q -eq "j") {
+                            $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
+                        }
+                    }
+                    else {
+                        $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
+                    }
+                    $user
+                }
             }
             catch {
                 Write-Error $_.Exception.Message
