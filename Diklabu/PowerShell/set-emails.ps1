@@ -180,7 +180,7 @@ function set-emails
                             $mail=$mail.Trim()
                             $m=$mail.Split(" ");
                             $mail=$m[0]
-                            if ($schueler.EMAIL -ne $mail -and $mail.Length -gt 1) {
+                            if ($schueler.EMAIL -ne $mail -and $mail.Length -gt 0) {
                                 if (-not $whatif) {
                                     $np=Set-Pupil -id $schueler.id -EMAIL $mail
                                 }
