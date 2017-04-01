@@ -4,7 +4,7 @@
 . "$PSScriptRoot/set-emails.ps1"
 . "$PSScriptRoot/sync_MoodleCohortsWithSeafile.ps1"
 
-$ks=Get-Keystore "$PSScriptRoot/keys.txt"
+$ks=Get-Keystore "C:\Users\tuttas\diklabu\Diklabu\PowerShell\keys.txt"
 
 $body="Das Synchronisationsscript ist am "+(Get-Date)+" durchgelaufen!! `r`n";
 try {
