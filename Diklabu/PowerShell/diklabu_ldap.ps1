@@ -1219,6 +1219,7 @@ function Sync-LDAPCourseMember
         $ID | ForEach-Object {
             if (-not $ist[$_]) {
                 Write-Verbose "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"
+                Write-Warning "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"
                 if (-not $whatif) {
                     if (-not $force) {
                         $q=Read-Host "Soll der Benutzer mit ID $_ in die Gruppe $KNAME aufgenommen werden? (J/N)"
@@ -1238,6 +1239,13 @@ function Sync-LDAPCourseMember
                 $in | Set-ADUser -UserPrincipalName $name.LoginName -EmailAddress "$($name.LoginName)@$maildomain"
                 $in | Rename-ADObject -NewName $name.LoginName -Credential $global:ldapcredentials -Server $global:ldapserver
             }
+            $in=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase                
+            $pupil = "" | Select-Object -Property "EMAIL","NNAME","VNAME","ID"
+            $pupil.VNAME=$in.GivenName
+            $pupil.NNAME=$in.Surname
+            $pupil.EMAIL=$in.EmailAddress
+            $pupil.id=$in.Pager
+            $pupil
             $ist.Remove($_)
         }
     }
@@ -1245,6 +1253,7 @@ function Sync-LDAPCourseMember
         $ist.Keys | ForEach-Object {
             $b=$ist.Item($_)
             Write-Verbose "Der Benutzer $($b.ID) wird aus der Gruppe $KNAME entfernt!"          
+            Write-Warning "Der Benutzer $($b.ID) wird aus der Gruppe $KNAME entfernt!"          
             if (-not $whatif) {
                 if (-not $force) {
                     $q = Read-Host "Soll der Benutzer $($b.ID) aus der Gruppe $KNAME entfernt werden? (J/N)"          

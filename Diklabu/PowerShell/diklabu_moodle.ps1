@@ -502,7 +502,7 @@ function Get-MoodleUser
         [Parameter(Mandatory=$true,
                    Position=1)]
        
-        [ValidateSet('EMAIL','USERNAME',"ID")]
+        [ValidateSet('EMAIL','USERNAME',"ID","IDNUMBER")]
         [String]$PROPERTYTYPE
     )
     Begin
@@ -534,6 +534,11 @@ function Get-MoodleUser
             $postParams['values['+$n+']']=$property
             $n++;
         }
+         elseif ($PROPERTYTYPE -eq "IDNUMBER") {
+            $postParams['field']='idnumber'
+            $postParams['values['+$n+']']=$property
+            $n++;
+        }
         Write-Verbose "Get-MoodleUser property=$property"
     }  
     End
@@ -544,6 +549,58 @@ function Get-MoodleUser
     }
 }
 
+<#
+.Synopsis
+   Einen Moodle Teilnehmer neue Attribute zuweisen
+.DESCRIPTION
+   Einen Moodle Teilnehmer neue Attribute zuweisen
+.EXAMPLE
+   Set-MoodleUser -moodleid 1234 -username tuttas
+#>
+function Set-MoodleUser
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Moodle ID des Benutzers
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+         [Alias("id")]
+        [int]$moodleid,
+
+
+        # username des Benutzers
+        [Parameter(Position=1,
+                   ValueFromPipelineByPropertyName=$true
+                    )]
+        [String]$username,
+
+        # email des Benutzers
+        [Parameter(Position=0,
+                   ValueFromPipelineByPropertyName=$true
+                    )]
+        [String]$email
+
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+            break;
+        }
+        else {
+            $postParams = @{wstoken=$token;wsfunction='core_user_update_users';moodlewsrestformat='json'}
+        }
+        $postParams['users[0][username]']=$username
+        $postParams['users[0][id]']=$moodleid
+        $postParams['users[0][email]']= $email
+        #$postParams
+        $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        Write-Verbose "Set-MoodleUser moodleID=$moodleid username=$username"
+        #$r
+    }
+}
 <#
 .Synopsis
    Neuen Moodle Kurs anlegen
