@@ -101,7 +101,9 @@ function Set-Keystore
         $login = "" | Select-Object "location","user","password"
         $login.location = $server
         $login.user =  $credential.UserName
-        $login.password = $credential.Password | ConvertFrom-SecureString
+        if ($credential.password) {
+            $login.password = $credential.Password | ConvertFrom-SecureString
+        }
         $global:logins[$key]=$login
         $global:logins | ConvertTo-Json -Compress | Set-Content $file
         $file

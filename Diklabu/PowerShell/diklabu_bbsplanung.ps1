@@ -690,6 +690,8 @@ function Get-BPCoursemember
                     Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" 
                     if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" }
                     $betr = findBetrieb $a.ID_BETRIEB
+                    $betr
+                    $a
                     if (-not $whatif) {
                         $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
                         $a.diklabuID=$na.ID
@@ -700,10 +702,15 @@ function Get-BPCoursemember
                     if ($a.EMAIL -eq $c.EMAIL) {
                         Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)!" 
                         $betr = findBetrieb $a.ID_BETRIEB
+                        #$a
+                        #$c
                         if ($a.NNAME -ne $c.NNAME -or
                             $a.EMAIL -ne "" -and $a.EMAIL -ne $c.EMAIL -or
-                            [bool]($c.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $c.FAX -or
-                            [bool]($c.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $c.TELEFEON) {
+                            [bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $c.FAX -or 
+                            [bool]($a.PSobject.Properties.name  -match "FAX") -and -not $c.FAX -or 
+                            [bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $c.TELEFEON -or
+                            [bool]($a.PSobject.Properties.name  -match "TELEFON") -and -not $c.TELEFEON
+                            ) {
                             Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
                             if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
 

@@ -326,8 +326,8 @@ function New-Instructor
           if ($ID_BETRIEB -ne 0) {
             $ausbilder.ID_BETRIEB=$ID_BETRIEB
           }
-          if ($TEL) {
-            $ausbilder.TELEFON=$TEL
+          if ($TELEFON) {
+            $ausbilder.TELEFON=$TELEFON
           }
           if ($NNAME) {
             $ausbilder.NNAME=$NNAME      

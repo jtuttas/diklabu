@@ -471,7 +471,7 @@ function New-LDAPPupil
         
         # Kennwort des Schülers
         [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=4)]
-        [String]$PASSWORD="Gehe1m1!",
+        [String]$PASSWORD=" ",
 
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local"
 
