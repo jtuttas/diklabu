@@ -3,6 +3,7 @@
     "auth": false,
     "IMAGE_FILE_PATH": "c:\\Temp\\",
     "adminusers":["TU","TUTTAS","KEMMRIES"],
+    "verwaltung":["TU"],
     "AUTH_TOKE_TIMEOUT" : 432000000,
         
     "ldaphost": "ldap://192.168.178.147:389",
@@ -15,7 +16,8 @@
     "user": "joerg.tuttas@ifbe.uni-hannover.de",
     "pass": "d0dd7426b45e",
     "clientConfig" : {
-        "SERVER": "http://localhost:8080",        
+        "SERVER": "http://localhost:8080",     
+        "DWO": "http://service.joerg-tuttas.de:8082/dwoRest/webresources/",
         "WEBSOCKET": "ws://",
         "DIKLABUNAME":"DiKlaBu@localhost"
     }

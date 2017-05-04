@@ -422,15 +422,15 @@ $(document).on('click', '.btn-delete-krankmeldung', function () {
         }
     });
 });
-Date.prototype.getWeekNumber = function(){
+Date.prototype.getWeekNumber = function () {
     var d = new Date(+this);
-    d.setHours(0,0,0,0);
-    d.setDate(d.getDate()+4-(d.getDay()||7));
-    return Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
+    return Math.ceil((((d - new Date(d.getFullYear(), 0, 1)) / 8.64e7) + 1) / 7);
 };
-function displayPlan(kw,nname) {
+function displayPlan(kw, nname) {
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/noauth/plan/stundenplanlehrer/"+kw+"/" + nname,
+        url: SERVER + "/Diklabu/api/v1/noauth/plan/stundenplanlehrer/" + kw + "/" + nname,
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -444,9 +444,9 @@ function displayPlan(kw,nname) {
     });
 
 }
-function displaykPlan(kw,nname) {
+function displaykPlan(kw, nname) {
     $.ajax({
-        url: SERVER + "/Diklabu/api/v1/noauth/plan/stundenplan/"+kw+"/" + nname,
+        url: SERVER + "/Diklabu/api/v1/noauth/plan/stundenplan/" + kw + "/" + nname,
         type: "GET",
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
@@ -462,11 +462,11 @@ function displaykPlan(kw,nname) {
 
 $(document).on('change', '.vertLehrer', function () {
     log("change State  vertLehrer  vertLehrer=" + lehrer[$(this).prop('selectedIndex')].NNAME);
-    $(this).parent("div").find(".selectable").attr("itemid",lehrer[$(this).prop('selectedIndex')].NNAME);
+    $(this).parent("div").find(".selectable").attr("itemid", lehrer[$(this).prop('selectedIndex')].NNAME);
 });
 $(document).on('change', '.vertKlassen', function () {
-    log("change State  vertKlassen =" + klassen[$(this).prop('selectedIndex')-1].KNAME);
-    $(this).parent("div").find(".selectable").attr("itemid",klassen[$(this).prop('selectedIndex')-1].KNAME);
+    log("change State  vertKlassen =" + klassen[$(this).prop('selectedIndex') - 1].KNAME);
+    $(this).parent("div").find(".selectable").attr("itemid", klassen[$(this).prop('selectedIndex') - 1].KNAME);
 });
 $(document).on('change', '#absLehrer', function () {
     log("change State  absLehrer  al=" + $("#absLehrer :selected").attr("label"));
@@ -477,29 +477,27 @@ $(document).on('click', '.displaylplan', function () {
     log("plan click");
     if ($(this).attr("itemid") != undefined && $(this).attr("itemid") != "") {
         log("Zeige Lehrer Plan für " + $(this).attr("itemid"));
-        log("absabsDate="+$("#absDate").val());
-        if ($("#absDate").val()=="") {
-            d=new Date();  
-        }
-        else {
+        log("absabsDate=" + $("#absDate").val());
+        if ($("#absDate").val() == "") {
+            d = new Date();
+        } else {
             d = new Date($("#absDate").val());
         }
-        log ("kw ="+ d.getWeekNumber());
-        displayPlan(d.getWeekNumber(),$(this).attr("itemid"));
+        log("kw =" + d.getWeekNumber());
+        displayPlan(d.getWeekNumber(), $(this).attr("itemid"));
     }
 })
 $(document).on('click', '.displaykplan', function () {
     log("plan click");
     if ($(this).attr("itemid") != undefined && $(this).attr("itemid") != "") {
         log("Zeige Klassen Plan für " + $(this).attr("itemid"));
-        if ($("#absDate").val()=="") {
-            d=new Date();  
-        }
-        else {
+        if ($("#absDate").val() == "") {
+            d = new Date();
+        } else {
             d = new Date($("#absDate").val());
         }
-        log ("kw ="+ d.getWeekNumber());
-        displaykPlan(d.getWeekNumber(),$(this).attr("itemid"));
+        log("kw =" + d.getWeekNumber());
+        displaykPlan(d.getWeekNumber(), $(this).attr("itemid"));
     }
 })
 
@@ -582,7 +580,7 @@ $('#atestUploadForm').on('submit', (function (e) {
         type: 'POST',
         url: SERVER + "/Diklabu/api/v1/anwesenheit/schueler/" + idSchueler,
         data: formData,
-          headers: {
+        headers: {
             "service_key": sessionStorage.service_key,
             "auth_token": sessionStorage.auth_token
         },
@@ -1350,12 +1348,143 @@ function setKrankmeldung(id, dat, file, callback) {
     });
 }
 
+
+function dwoEnable() {
+    $("#dwoProdukt").removeClass("disabled");
+    $("#dwoInhalt").removeClass("disabled");
+    $("#dwoKompetenzen").removeClass("disabled");
+    $("#dwoSzenario").removeClass("disabled");
+    $("#dwoOrganisation").removeClass("disabled");
+
+    $("#dwoMaterial").removeClass("disabled");
+}
+
+function dwoDisable() {
+    $("#dwoProdukt").addClass("disabled");
+    $("#dwoInhalt").addClass("disabled");
+    $("#dwoKompetenzen").addClass("disabled");
+    $("#dwoSzenario").addClass("disabled");
+    $("#dwoMaterial").addClass("disabled");
+    $("#dwoOrganisation").addClass("disabled");
+}
+
+function getDwoLeansituation(id,callback) {
+    console.log("Lade Lernsituation mit ID="+id);
+    $.ajax({
+        url: DWO + "lernsituation/"+id+"/jsonp",
+        dataType: 'JSONP',
+        jsonpCallback: 'callback',
+        type: 'GET',
+        success: function (data) {
+            console.log(data);
+            $("#dwoLfLSnr").text("LS "+data.lfNr+"."+data.lsnr+" Unterrichtsstunden:"+data.UStunden+" von:"+data.von+" bis:"+data.bis);
+            $("#dwoLsName").text(data.name); 
+            $("#dwoErsteller").text("erstellt von "+data.ersteller+" am "+data.erstelltam);
+            callback(data);
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Keine Verbinndung zum DWO Server! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
+
+$("#dwoMaterial").click(function () {
+    getDwoLeansituation($('#dwols option:selected').attr('idls'),function (data) {
+         $("#dwoContent").empty();
+         $("#dwoContent").append("<h2>Material</h2>");
+        $("#dwoContent").append(data.umaterial); 
+        $('#dwoInfo').modal('show');
+    })
+});
+
+
+$("#dwoOrganisation").click(function () {
+    getDwoLeansituation($('#dwols option:selected').attr('idls'),function (data) {
+         $("#dwoContent").empty();
+         $("#dwoContent").append("<h2>Organisation</h2>");
+        $("#dwoContent").append(data.organisation); 
+        $('#dwoInfo').modal('show');
+    })
+});
+
+
+$("#dwoSzenario").click(function () {
+    getDwoLeansituation($('#dwols option:selected').attr('idls'),function (data) {
+         $("#dwoContent").empty();
+         $("#dwoContent").append("<h2>Szenario</h2>");
+        $("#dwoContent").append(data.szenario); 
+        $('#dwoInfo').modal('show');
+    })
+});
+
+
+$("#dwoKompetenzen").click(function () {
+    getDwoLeansituation($('#dwols option:selected').attr('idls'),function (data) {
+         $("#dwoContent").empty();
+         $("#dwoContent").append("<h2>Kompetenzen</h2>");
+        $("#dwoContent").append(data.kompetenzen); 
+        $('#dwoInfo').modal('show');
+    })
+});
+
+$("#dwoInhalt").click(function () {
+    getDwoLeansituation($('#dwols option:selected').attr('idls'),function (data) {
+         $("#dwoContent").empty();
+         $("#dwoContent").append("<h2>Inhalte</h2>");
+        $("#dwoContent").append(data.inhalte); 
+        $('#dwoInfo').modal('show');
+    })
+});
+
+$("#dwoProdukt").click(function () {
+    getDwoLeansituation($('#dwols option:selected').attr('idls'),function (data) {
+         $("#dwoContent").empty();
+         $("#dwoContent").append("<h2>Handlungsprodukt</h2>");
+        $("#dwoContent").append(data.handlungsprodukt); 
+        $('#dwoInfo').modal('show');
+    })
+});
+
+function getDwoLearningsituations(kl) {
+    log("--> Lade Lernsituationen  f. Klasse " + kl);
+    $("#dwols").empty();
+    $.ajax({
+        url: DWO + "beruf/klasse/%25" + kl + "%25/lernsituation",
+        dataType: 'JSONP',
+        jsonpCallback: 'callback',
+        type: 'GET',
+        success: function (data) {
+            console.log(data);
+            if (data.length == 0) {
+                dwoDisable();
+                toastr["warning"]("Kann für Klasse "+kl+" keine Lernsituationen laden!", "Warnung!");
+                $("#lernsituationVerlauf").val("");
+            } else {
+                dwoEnable();
+                for (i = 0; i < data.length; i++) {                    
+                    if (data[i].deleted=="false") {
+                        $("#dwols").append('<option idls='+data[i].id+'>' + data[i].lf + "." + data[i].lsnr + ":" + data[i].name + '</option>');
+                    }
+                }
+                $("#lernsituationVerlauf").val(data[0].lf + "." + data[0].lsnr + ":" + data[0].name);
+                $( "#dwols" ).change(function() {
+                    $("#lernsituationVerlauf").val($("#dwols").val());                    
+                });
+            }
+        },
+        error: function (xhr, textStatus, errorThrown) {
+            toastr["error"]("Keine Verbinndung zum DWO Server! Status Code=" + xhr.status, "Fehler!");
+        }
+    });
+}
+
 /**
  * Verlauf einer Klasse vom Server laden und eintragen
  * @param {type} kl die Klassenbezeichnung
  */
 function refreshVerlauf(kl) {
-    log("--> Refresh Verlauf f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
+    log("-->! Refresh Verlauf f. Klasse " + kl + " von " + $("#startDate").val() + " bis " + $("#endDate").val());
+    getDwoLearningsituations(kl);
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/verlauf/" + kl + "/" + $("#startDate").val() + "/" + $("#endDate").val(),
         type: "GET",
@@ -1366,6 +1495,7 @@ function refreshVerlauf(kl) {
         },
         contentType: "application/json; charset=UTF-8",
         success: function (data) {
+
             verlauf = data;
             $("#tabelleVerlauf").empty();
             log("Filter eigene Einträege=" + $("#eigeneEintraege").is(':checked'));
@@ -2925,7 +3055,7 @@ function updateCurrentView() {
         case "Einreichen":
             getLehrer(function (data) {
                 $("#absLehrer").empty();
-                $(".vertLehrer").empty();                
+                $(".vertLehrer").empty();
                 //console.log("Empfange:"+JSON.stringify(data));
                 lehrer = data;
                 for (i = 0; i < data.length; i++) {

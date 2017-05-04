@@ -151,13 +151,30 @@
                                         </div>
                                     </div>
                                     <div class="col-md-9">
-                                        <div class="form-group">
-                                            <label for="lernsituationVerlauf" >
-                                                Lernsituation
-                                            </label>
-
-                                            <input type="text" class="form-control" id="lernsituationVerlauf"/>
-
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="lernsituationVerlauf" >
+                                                        Lernsituation
+                                                    </label>
+                                                    <input type="text" class="form-control" id="lernsituationVerlauf"/>
+                                                </div>                                                
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="dwols" >
+                                                        DWO Lernsituationen
+                                                    </label>
+                                                    <select class="form-control" id="dwols">
+                                                    </select>
+                                                </div>
+                                                <button id="dwoProdukt" type="button" class="btn btn-primary btn-xs disabled">Handlungsprodukt</button>
+                                                <button id="dwoInhalt" type="button" class="btn btn-primary btn-xs disabled">Inhalte</button>
+                                                <button id="dwoKompetenzen" type="button" class="btn btn-primary btn-xs disabled">Kompetenzen</button>
+                                                <button  id="dwoOrganisation" type="button" class="btn btn-primary btn-xs disabled">Organisation</button>
+                                                <button  id="dwoSzenario" type="button" class="btn btn-primary btn-xs disabled">Szenario</button>
+                                                <button  id="dwoMaterial" type="button" class="btn btn-primary btn-xs disabled">Material</button>
+                                            </div>                                                 
                                         </div>
                                         <div class="form-group">
 
@@ -690,25 +707,25 @@
                                 <div id="vertrContainer">
                                     <div class="row">
                                         <div class="col-md-2"> <p>&nbsp;</p> <p>&nbsp;</p>
-                                                <label for="absLehrer">Absenz von:</label>
-                                                <div class="input-group pull-right" >                                                  
-                                                    <span class="input-group-addon"><span id="alstdplan" itemid="" class="glyphicon glyphicon-calendar selectable displaylplan"></span></span>
-                                                    <select  class="form-control lplan" id="absLehrer">
-                                                    </select>
+                                            <label for="absLehrer">Absenz von:</label>
+                                            <div class="input-group pull-right" >                                                  
+                                                <span class="input-group-addon"><span id="alstdplan" itemid="" class="glyphicon glyphicon-calendar selectable displaylplan"></span></span>
+                                                <select  class="form-control lplan" id="absLehrer">
+                                                </select>
+                                            </div>
+                                            <p>&nbsp;</p>
+                                            <div class="form-group">
+                                                <label for="absDate">Absenz am:</label>
+                                                <div class="input-group date">
+                                                    <input type="text" class="form-control" id="absDate"/>
+                                                    <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
                                                 </div>
-                                                <p>&nbsp;</p>
-                                                <div class="form-group">
-                                                    <label for="absDate">Absenz am:</label>
-                                                    <div class="input-group date">
-                                                        <input type="text" class="form-control" id="absDate"/>
-                                                        <span class="input-group-addon"><i class="glyphicon glyphicon-th"></i></span>
-                                                    </div>
-                                                </div>
-                                                <p>&nbsp;</p>
-                                                <label for="absKommentar">Kommentar:</label>
-                                                <textarea class="form-control" rows="5" id="absKommentar"></textarea>
-                                                <p>&nbsp;</p>
-                                                <button  style="display: block; width: 100%;" type="button" id="btnSubmitVertretung" class="btn btn-danger">Absenden</button>
+                                            </div>
+                                            <p>&nbsp;</p>
+                                            <label for="absKommentar">Kommentar:</label>
+                                            <textarea class="form-control" rows="5" id="absKommentar"></textarea>
+                                            <p>&nbsp;</p>
+                                            <button  style="display: block; width: 100%;" type="button" id="btnSubmitVertretung" class="btn btn-danger">Absenden</button>
                                         </div>
                                         <div class="col-md-10">
                                             <table class="table table-hover">
@@ -742,11 +759,11 @@
                                                             </select>    
                                                         </td>
                                                         <td>
-                                                <div class="input-group pull-right" >                                                  
-                                                    <span class="input-group-addon "><span class="glyphicon glyphicon-calendar selectable displaykplan"></span></span>
-                                                    <select  class="form-control vertKlassen">
-                                                    </select>
-                                                </div>
+                                                            <div class="input-group pull-right" >                                                  
+                                                                <span class="input-group-addon "><span class="glyphicon glyphicon-calendar selectable displaykplan"></span></span>
+                                                                <select  class="form-control vertKlassen">
+                                                                </select>
+                                                            </div>
                                                         </td>
                                                         <td> 
                                                             <select class="form-control vertAktion">
@@ -757,13 +774,13 @@
                                                             </select>    
                                                         </td>
                                                         <td>
-                                                <div class="input-group pull-right" >                                                  
-                                                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar selectable displaylplan"></span></span>
-                                                            <select class="form-control vertLehrer">
+                                                            <div class="input-group pull-right" >                                                  
+                                                                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar selectable displaylplan"></span></span>
+                                                                <select class="form-control vertLehrer">
 
-                                                            </select>
-                                                </div>
-                                                            
+                                                                </select>
+                                                            </div>
+
                                                         </td>
                                                         <td>
                                                             <input type="text" class="form-control vertrKommentar"/>
@@ -989,6 +1006,25 @@
                 <!-- Modal content-->
                 <div class="modal-content">
                     <div id="planContent" class="modal-body">
+                    </div>
+                </div>
+            </div>
+        </div>
+       <!-- Modal Info Dialog-->
+        <div id="dwoInfo" class="modal fade " role="dialog">
+            <div class="modal-dialog modal-lg">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="dwoLfLSnr" >LF 4 Nr. 2</h5>
+                        <h4 class="modal-title" id="dwoLsName" >Name der Lernsituation</h4>
+                    </div>
+                    <div class="modal-body" id="dwoContent">
+                        Inhalt
+                    </div>
+                    <div class="modal-footer">
+                        <h5 id="dwoErsteller"></h5>
                     </div>
                 </div>
             </div>
