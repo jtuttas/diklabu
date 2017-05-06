@@ -45,7 +45,9 @@ function Get-Keystore
             if (-not $global:keystore -and -not $file) {
                 $file = Read-Host "Bitte Keystore file angeben"
             }
-            $global:logins.Clear()
+            if ($global:logins) {
+                $global:logins.Clear()
+            }
             $global:keystore=$file
             $file
         }
