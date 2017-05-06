@@ -1,5 +1,18 @@
 ﻿$out=[System.Data.OleDb.OleDbConnection]$global:connection
 
+
+function TelEqTel([String]$tel1,[String]$tel2) {
+    $tel1=$tel1.Trim()
+    $tel2=$tel2.Trim()
+    $tel1=$tel1.Replace("-","");
+    $tel2=$tel2.Replace("-","");
+    $tel1=$tel1.Replace(" ","");
+    $tel2=$tel2.Replace(" ","");
+    $tel1=$tel1.Replace("/","");
+    $tel2=$tel2.Replace("/","");
+    return $tel1 -eq $tel2
+}
+
 <#
 .Synopsis
     Verbindung zu BBS PLanung Herstellen
@@ -44,6 +57,7 @@ function Connect-BbsPlan
         }
         catch {        
             Write-Error "Fehler beim Öffnen von BBS-Planung $($cn.InfoMessage)"
+            $_
         }
         Set-Keystore -key "bbsplanung" -server $location
     }
@@ -606,7 +620,7 @@ function Get-BPCoursemember
             else {            
                 $c=Find-Company -NAME $b.NAME
                 if (!$c) {
-                    Write-Verbose " +Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!" 
+                    Write-warning " +Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!" 
                     if ($log) {"Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!"}
                     if (-not $whatif) {
                         $nc= New-Company  -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR 
@@ -615,13 +629,15 @@ function Get-BPCoursemember
                 }
                 else {
                     Write-Verbose " -Bekannten Betrieb gefunden $($b.NAME)!" 
-                    if ($c.NAME -ne $b.NAME -or 
-                        $c.PLZ -ne $b.PLZ -or
-                        $c.ORT -ne $b.ORT -or
-                        $c.STRASSE -ne $b.STRASSE -or
-                        $c.NR -ne $b.NR) {
+                    if ($c.Name -notlike $null -and $c.NAME -ne $b.NAME -or 
+                        $c.PLZ -notlike $null -and $c.PLZ -ne $b.PLZ -or
+                        $c.ORT -notlike $null -and $c.ORT -ne $b.ORT -or
+                        $c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE -or
+                        $c.NR -notlike $null -and $c.NR -ne $b.NR) {
 
-                        Write-Verbose "  Daten unterscheiden sich, aktualisiere Betriebsdaten";
+                        $c
+                        $b
+                        Write-Warning "  Daten unterscheiden sich, aktualisiere Betriebsdaten: Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)";
                         if ($log) {" Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)"}
                         if (-not $whatif) {
                             $sc= Set-Company -ID $c.ID -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR                              
@@ -640,49 +656,59 @@ function Get-BPCoursemember
             $a |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
             if ((""+$a.NNAME).Length -eq 0 ) {
                 $betr = findBetrieb $a.ID_BETRIEB
-                Write-Warning "Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen $($betr.NAME)"
-                if ($log) {"WARNUNG: Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen $($betr.NAME)"}
+                Write-Warning "Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen ($($betr.NAME))"
+                #if ($log) {"WARNUNG: Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen ($($betr.NAME))"}
                 $a.NNAME=$betr.NAME
                 #Write-Verbose "Suche Ausbilder '$($a.NNAME)' EMail ist $($a.EMAIL)."
+                if ($betr.NAME -like $null) {
+                    Write-Warning "Betrieb hat keinen Namen, Wähle ID";
+                    $a.NNAME=$betr.ID;
+                }
             }
             $c=Find-Instructor -NNAME $a.NNAME 
             if ($c.length -gt 1) {
-                Write-Warning "Mehr als einen Ausbilder mit dem Namen $($a.NNAME) gefunden! Weitere Identifikation über EMAIL Adresse " 
-                if ($log) {"WARNUNG: Mehr als einen Ausbilder mit dem Namen $($a.NNAME) gefunden! Weitere Identifikation über EMAIL Adresse "}
-                $found=$false;
-                foreach ($ausb in $c) {
-                    if ($ausb.EMAIL -eq $a.EMAIL) {
-                        $found=$true
-                        break;
-                    }
+                Write-Warning "Mehr als einen Ausbilder mit dem Namen $($a.NNAME) gefunden! Weitere Identifikation über EMAIL($($a.EMAIL)),FAX($($a.FAX)),TEL($($a.TEL)) " 
+                if ($a.EMAIL -like $null -and $a.FAX -like $null -and $a.TELEFON -like $null ) {
+                    Write-Warning "ACHTUNG: Der Ausbilder hat keine Kontaktdaten! (skipped)"
+                    #if ($log) {"WARNUNG: Achtung der Ausbilder $($ausb.NNAME) hat keine Kontaktdaten (skipped)"}
                 }
-                if ($found) {
-                    Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL) !" 
-                    if ($log) {"  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL) !" }
-                    $betr = findBetrieb $ausb.ID_BETRIEB
-                    if ($a.NNAME -ne $ausb.NNAME -or
-                        $a.EMAIL -ne "" -and $a.EMAIL -ne $ausb.EMAIL -or
-                        [bool]($ausb.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $ausb.FAX -or
-                        [bool]($ausb.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $ausb.TELEFEON) {
-
-                        Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
-                        if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON) auf  NNAME=$($ausb.NNAME) EMAIL=$($ausb.EMAIL) FAX=$($ausb.FAX) TELEFON=$($ausb.TELEFON)"}
-                        if (-not $whatif) {
-                            $na= Set-Instructor -ID $ausb.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
+                else { 
+                    $found=$false;
+                    foreach ($ausb in $c) {
+                        if (([bool]($ausb.PSobject.Properties.name  -match "EMAIL") -and $ausb.EMAIL -notlike $null  -and $ausb.EMAIL -eq $a.EMAIL) -or 
+                            ([bool]($ausb.PSobject.Properties.name  -match "TELEFON") -and $ausb.TELEFON -notlike $null -and $ausb.TELEFON -eq $a.TELEFON) -or
+                            ([bool]($ausb.PSobject.Properties.name  -match "FAX") -and $ausb.FAX -notlike $null -and $ausb.FAX -eq $a.FAX) ) {
+                            $found=$true
+                            break;
                         }
                     }
-                    $a.diklabuID=$ausb.ID
-                    $a.ID_BETRIEB=$ausb.ID_BETRIEB
-                }
-                else {
-                    Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"
-                    if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"}
-                    $betr = findBetrieb $a.ID_BETRIEB
-                    if (-not $whatif) {
-                        $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
-                        $a.diklabuID=$na.id
+                    if ($found) {
+                        Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)  !" 
+                        $betr = findBetrieb $ausb.ID_BETRIEB
+
+                        if ($a.NNAME -ne $ausb.NNAME -or
+                            $a.EMAIL -notlike $null -and $a.EMAIL -ne $ausb.EMAIL -or
+                            [bool]($ausb.PSobject.Properties.name  -match "FAX") -and -not (TelEqTel $a.FAX $ausb.FAX) -or
+                            [bool]($ausb.PSobject.Properties.name  -match "TELEFON") -and  -not (TelEqTel $a.TELEFON $ausb.TELEFON)) {
+                            Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
+                            if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON) auf  NNAME=$($ausb.NNAME) EMAIL=$($ausb.EMAIL) FAX=$($ausb.FAX) TELEFON=$($ausb.TELEFON)"}
+                            if (-not $whatif) {
+                                $na= Set-Instructor -ID $ausb.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
+                            }
+                        }
+                        $a.diklabuID=$ausb.ID
+                        $a.ID_BETRIEB=$ausb.ID_BETRIEB
                     }
-                    $a.ID_BETRIEB=$betr.diklabuID
+                    else {
+                        Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"
+                        if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"}
+                        $betr = findBetrieb $a.ID_BETRIEB
+                        if (-not $whatif) {
+                            $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
+                            $a.diklabuID=$na.id
+                        }
+                        $a.ID_BETRIEB=$betr.diklabuID
+                    }
                 }
             }
             else {
@@ -690,8 +716,6 @@ function Get-BPCoursemember
                     Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" 
                     if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" }
                     $betr = findBetrieb $a.ID_BETRIEB
-                    $betr
-                    $a
                     if (-not $whatif) {
                         $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
                         $a.diklabuID=$na.ID
@@ -705,13 +729,11 @@ function Get-BPCoursemember
                         #$a
                         #$c
                         if ($a.NNAME -ne $c.NNAME -or
-                            $a.EMAIL -ne "" -and $a.EMAIL -ne $c.EMAIL -or
-                            [bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $c.FAX -or 
-                            [bool]($a.PSobject.Properties.name  -match "FAX") -and -not $c.FAX -or 
-                            [bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $c.TELEFEON -or
-                            [bool]($a.PSobject.Properties.name  -match "TELEFON") -and -not $c.TELEFEON
-                            ) {
-                            Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
+                            $a.EMAIL -notlike $null -and $a.EMAIL -ne $c.EMAIL -or
+                            [bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -notlike $null -and -not (TelEqTel $a.FAX $c.FAX) -or 
+                            [bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -notlike $null -and -not (TelEqTel $a.TELEFON $c.TELEFON) ) {
+
+                            Write-warning "  Daten unterscheiden sich, aktualisiere Einträge von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)";
                             if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
 
                             if (-not $whatif) {
@@ -721,8 +743,8 @@ function Get-BPCoursemember
                         $a.diklabuID=$c.ID
                         $a.ID_BETRIEB=$c.ID_BETRIEB
                     }
-                    else {
-                        Write-Verbose "  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse von $($c.EMAIL) auf $($a.EMAIL)! Als neuen Ausbilder angesehen!" 
+                    elseif ($a.EMAIL -notlike $null -and $a.EMAIL.Length -gt 0) {
+                        Write-warning "  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse von $($c.EMAIL) auf $($a.EMAIL)! Als neuen Ausbilder angesehen!" 
                         if ($log) {"  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse von $($c.EMAIL) auf $($a.EMAIL)! Als neuen Ausbilder angesehen!" }
                         $betr = findBetrieb $a.ID_BETRIEB
                         if (-not $whatif) {
@@ -731,10 +753,13 @@ function Get-BPCoursemember
                         }
                         $a.ID_BETRIEB=$betr.diklabuID
                     }
+                    else {
+                        $a
+                    }
                 }
             }
          }
-
+         
         Write-Verbose "Synchonisiere Lehrer" 
         if ($log) {"== Synchronisiere Lehrer =="}
         $lehrer = Get-BPTeachers
@@ -752,7 +777,7 @@ function Get-BPCoursemember
                 Write-Verbose "  Bekannten Lehrer gefunden $($l.VNAME) $($l.NNAME)!" 
                 if ([bool]($l.PSobject.Properties.name  -match "NNAME") -and $le.NNAME -ne $l.NNAME -or
                     [bool]($l.PSobject.Properties.name  -match "VNAME") -and $le.VNAME -ne $l.VNAME -or
-                    [bool]($l.PSobject.Properties.name  -match "TELEFON") -and $le.TELEFON -ne $l.TELEFON -or
+                    [bool]($l.PSobject.Properties.name  -match "TELEFON") -and -not (TelEqTel $le.TELEFON $l.TELEFON) -or
                     [bool]($l.PSobject.Properties.name  -match "EMAIL") -and $le.EMAIL -ne $l.EMAIL) {
                     Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge";
                     if ($log) {"Daten unterscheiden sich aktualisiere Lehrer $($l.KÜRZEL) von NNAME=$($le.NNAME) VNAME=$($le.VNAME) TELEFON=$($le.TELEFON) EMAIL=$($le.EMAIL) auf NNAME=$($l.NNAME) VNAME=$($l.VNAME) TELEFON=$($l.TELEFON) EMAIL=$($l.EMAIL)"}
