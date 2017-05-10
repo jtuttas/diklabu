@@ -282,11 +282,11 @@ function Sync-LDAPPupil
                     if (-not $force) {
                         $q = Read-Host "Doll der Benutzer mit ID $_  ($($VNAME[$n]) $($NNAME[$n])) angelegt werden? (J/N)"
                         if ($q -eq "j") {
-                            $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose
+                            $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose -PASSWORD "M00dle1!" 
                         }
                     }
                     else {
-                        $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose
+                        $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose -PASSWORD "M00dle1!"
                     }
                 }
             }
@@ -1000,23 +1000,28 @@ function Rename-LDAPCourseMember
         $pupils=@()
         foreach ($i in $in) {
             #$i
-            $name = Get-LDAPAccount -ID $i.Pager -NNAME $i.Surname -VNAME $i.givenName -KNAME $KNAME
-            Write-Verbose "Anpassung von $( $i.givenName) $($i.Surname) and Klassenname $KNAME"
-            if (-not $whatif) {
-                if (-not $force) {
-                    $q = Read-Host "Soll der Benutzer $( $i.givenName) $($i.Surname) and Klassenname $KNAME angepasst werden (J/N)?"
-                    if ($q -eq "j") {
+            if (-not $i.Pager) {
+                Write-Warning "Eintrage $($i.givenName) $($i.Surname) in Klasse $KNAME hat keinen ID / Pager Eintrag!"
+            }
+            else {
+                $name = Get-LDAPAccount -ID $i.Pager -NNAME $i.Surname -VNAME $i.givenName -KNAME $KNAME
+                Write-Verbose "Anpassung von $( $i.givenName) $($i.Surname) and Klassenname $KNAME"
+                if (-not $whatif) {
+                    if (-not $force) {
+                        $q = Read-Host "Soll der Benutzer $( $i.givenName) $($i.Surname) and Klassenname $KNAME angepasst werden (J/N)?"
+                        if ($q -eq "j") {
+                            $i | Rename-ADObject -NewName $name.LoginName -Server $global:ldapserver -Credential $global:ldapcredentials 
+                            $user = Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $i.Pager} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase
+                            $user
+                            $user| Move-ADObject -TargetPath "OU=$KNAME,$searchbase" -Server $global:ldapserver -Credential $global:ldapcredentials 
+                        }
+                    }
+                    else {
                         $i | Rename-ADObject -NewName $name.LoginName -Server $global:ldapserver -Credential $global:ldapcredentials 
                         $user = Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $i.Pager} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase
-                        $user
-                        $user| Move-ADObject -TargetPath "OU=$KNAME,$searchbase" -Server $global:ldapserver -Credential $global:ldapcredentials 
+                        #$user
+                        Move-ADObject -Identity $user -TargetPath "OU=$KNAME,$searchbase" -Server $global:ldapserver -Credential $global:ldapcredentials 
                     }
-                }
-                else {
-                    $i | Rename-ADObject -NewName $name.LoginName -Server $global:ldapserver -Credential $global:ldapcredentials 
-                    $user = Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $i.Pager} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase
-                    #$user
-                    $user | Move-ADObject  -TargetPath "OU=$KNAME,$searchbase" -Server $global:ldapserver -Credential $global:ldapcredentials 
                 }
             }
             $pupil = "" | Select-Object -Property "EMAIL","NNAME","VNAME","ID"
@@ -1212,7 +1217,9 @@ function Sync-LDAPCourseMember
         $gm = Get-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase
         $ist=@{}
         foreach ($m in $gm) {
-            $ist[$m.ID]=$m
+            if ($m.ID) {
+                $ist[$m.ID]=$m
+            }
         }
     }
     Process {

@@ -408,7 +408,7 @@ function Set-Pupil
 
         # ID Des Ausbilders
         [Parameter(ValueFromPipelineByPropertyName=$true)]
-        [int]$ID_AUSBILDER=0,
+        [int]$ID_AUSBILDER=-1,
 
         # Abgang
         [Parameter(ValueFromPipelineByPropertyName=$true)]
@@ -452,7 +452,7 @@ function Set-Pupil
         if ($EMAIL) {
             $schueler.EMAIL=$EMAIL
         }
-        if ($ID_AUSBILDER -ne 0) {
+        if ($ID_AUSBILDER -ne -1) {
             $schueler.ID_AUSBILDER=$ID_AUSBILDER
         }
         if ($ABGANG) {

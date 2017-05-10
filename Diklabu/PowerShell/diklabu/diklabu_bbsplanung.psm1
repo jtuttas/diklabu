@@ -1,5 +1,18 @@
 ﻿$out=[System.Data.OleDb.OleDbConnection]$global:connection
 
+
+function TelEqTel([String]$tel1,[String]$tel2) {
+    $tel1=$tel1.Trim()
+    $tel2=$tel2.Trim()
+    $tel1=$tel1.Replace("-","");
+    $tel2=$tel2.Replace("-","");
+    $tel1=$tel1.Replace(" ","");
+    $tel2=$tel2.Replace(" ","");
+    $tel1=$tel1.Replace("/","");
+    $tel2=$tel2.Replace("/","");
+    return $tel1 -eq $tel2
+}
+
 <#
 .Synopsis
     Verbindung zu BBS PLanung Herstellen
@@ -44,6 +57,7 @@ function Connect-BbsPlan
         }
         catch {        
             Write-Error "Fehler beim Öffnen von BBS-Planung $($cn.InfoMessage)"
+            $_
         }
         Set-Keystore -key "bbsplanung" -server $location
     }
@@ -597,144 +611,100 @@ function Get-BPCoursemember
         if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
         foreach ($b in $betriebe) {
-            Write-Verbose "Suche Betrieb '$($b.NAME)' ID = $($b.ID)."
-            $b |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
-            if ((""+$b.NAME).Length -eq 0 ) {
-                Write-Warning "Achtung der Betrieb mit der ID $($b.id) hat einen leeren Namen"
-                if ($log) {"WARNUNG: Achtung der Betrieb mit der ID $($b.id) hat einen leeren Namen"}
+            if ($b.BETRIEB_NR -like $null) {
+                Write-Warning "ACHTIUNG Betrieb '$($b.NAME)' hat keine BetriebNr (skipped)" 
+                if ($log) {"ACHTIUNG Betrieb '$($b.NAME)' hat keine BetriebNr (skipped)"}
             }
-            else {            
-                $c=Find-Company -NAME $b.NAME
+            else {
+                Write-Verbose "Suche Betrieb '$($b.NAME)' ID = $($b.BETRIEB_NR)."
+                if ($b.BETRIEB_NR -eq 0) {
+                    $b.BETRIEB_NR=99999;
+                    $b.NAME=" ";
+                    $b.PLZ=" ";
+                    $b.STRASSE=" ";
+                    $b.NR=" ";
+                    $b.ORT=" ";
+                }
+                $c=Get-Company -ID $b.BETRIEB_NR
                 if (!$c) {
-                    Write-Verbose " +Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!" 
+                    Write-warning " +Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!" 
                     if ($log) {"Neuen Betrieb gefunden $($b.NAME)! Lege Betrieb an!"}
+                    
                     if (-not $whatif) {
-                        $nc= New-Company  -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR 
-                        $b.diklabuID=$nc.ID    
+                        $nc= New-Company  -ID $b.BETRIEB_NR -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR 
                     }
                 }
                 else {
                     Write-Verbose " -Bekannten Betrieb gefunden $($b.NAME)!" 
-                    if ($c.NAME -ne $b.NAME -or 
-                        $c.PLZ -ne $b.PLZ -or
-                        $c.ORT -ne $b.ORT -or
-                        $c.STRASSE -ne $b.STRASSE -or
-                        $c.NR -ne $b.NR) {
-
-                        Write-Verbose "  Daten unterscheiden sich, aktualisiere Betriebsdaten";
+                    if ($c.Name -notlike $null -and $c.NAME -ne $b.NAME -or 
+                        $c.PLZ -notlike $null -and $c.PLZ -ne $b.PLZ -or
+                        $c.ORT -notlike $null -and $c.ORT -ne $b.ORT -or
+                        $c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE ) {
+                        <#
+                        $c
+                        $b
+                        $c.Name -notlike $null -and $c.NAME -ne $b.NAME 
+                        $c.PLZ -notlike $null -and $c.PLZ -ne $b.PLZ 
+                        $c.ORT -notlike $null -and $c.ORT -ne $b.ORT
+                        $c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE
+                        
+                        #>
+                        Write-Warning "  Daten unterscheiden sich, aktualisiere Betriebsdaten: Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)";
                         if ($log) {" Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)"}
                         if (-not $whatif) {
                             $sc= Set-Company -ID $c.ID -NAME $b.NAME -PLZ $b.PLZ -ORT $b.ORT -STRASSE $b.STRASSE -NR $b.NR                              
                         }
                     }
-                    $b.diklabuID=$c.ID  
                 }
             }
         }     
-        
+
         Write-Verbose "Synchonisiere Ausbilder" 
         if ($log) {"== Synchonisiere Ausbilder == "};
         $ausbilder = Get-BPInstructors
         foreach ($a in $ausbilder) {
-            Write-Verbose "Suche Ausbilder '$($a.NNAME)' EMail ist $($a.EMAIL)."
-            $a |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
-            if ((""+$a.NNAME).Length -eq 0 ) {
-                $betr = findBetrieb $a.ID_BETRIEB
-                Write-Warning "Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen $($betr.NAME)"
-                if ($log) {"WARNUNG: Achtung der Ausbilder einen leeren Namen, wähle Betriebsnamen $($betr.NAME)"}
-                $a.NNAME=$betr.NAME
-                #Write-Verbose "Suche Ausbilder '$($a.NNAME)' EMail ist $($a.EMAIL)."
-            }
-            $c=Find-Instructor -NNAME $a.NNAME 
-            if ($c.length -gt 1) {
-                Write-Warning "Mehr als einen Ausbilder mit dem Namen $($a.NNAME) gefunden! Weitere Identifikation über EMAIL Adresse " 
-                if ($log) {"WARNUNG: Mehr als einen Ausbilder mit dem Namen $($a.NNAME) gefunden! Weitere Identifikation über EMAIL Adresse "}
-                $found=$false;
-                foreach ($ausb in $c) {
-                    if ($ausb.EMAIL -eq $a.EMAIL) {
-                        $found=$true
-                        break;
-                    }
-                }
-                if ($found) {
-                    Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL) !" 
-                    if ($log) {"  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL) !" }
-                    $betr = findBetrieb $ausb.ID_BETRIEB
-                    if ($a.NNAME -ne $ausb.NNAME -or
-                        $a.EMAIL -ne "" -and $a.EMAIL -ne $ausb.EMAIL -or
-                        [bool]($ausb.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $ausb.FAX -or
-                        [bool]($ausb.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $ausb.TELEFEON) {
-
-                        Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
-                        if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON) auf  NNAME=$($ausb.NNAME) EMAIL=$($ausb.EMAIL) FAX=$($ausb.FAX) TELEFON=$($ausb.TELEFON)"}
-                        if (-not $whatif) {
-                            $na= Set-Instructor -ID $ausb.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
-                        }
-                    }
-                    $a.diklabuID=$ausb.ID
-                    $a.ID_BETRIEB=$ausb.ID_BETRIEB
-                }
-                else {
-                    Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"
-                    if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME) mit EMAIL $($a.EMAIL)! Lege Ausbilder an!"}
-                    $betr = findBetrieb $a.ID_BETRIEB
-                    if (-not $whatif) {
-                        $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
-                        $a.diklabuID=$na.id
-                    }
-                    $a.ID_BETRIEB=$betr.diklabuID
-                }
+            if ($a.BETRIEB_NR -like $null) {
+                Write-Warning "  Achtung Ausbilder $($a.NNAME) hat keine BetriebNr!" 
+                if ($log) {"  Achtung Ausbilder $($a.NNAME) hat keine BetriebNr!"  }
             }
             else {
+                Write-Verbose "Suche Ausbilder '$($a.NNAME)' EMail ist $($a.EMAIL) ID $($a.BETRIEB_NR)"
+                if ($a.BETRIEB_NR -eq 0) {
+                    $a.BETRIEB_NR=99999
+                    $a.NNAME=" ";
+                    $a.EMAIL=" ";
+                    $a.FAX=" ";
+                    $a.TELEFON=" ";
+                }
+                $c=Get-Instructor -ID $a.BETRIEB_NR
                 if (!$c) {
-                    Write-Warning "  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" 
+                    Write-Warning "  Neuen Ausbilder gefunden ($($a.NNAME))! Lege Ausbilder an!" 
                     if ($log) {"  Neuen Ausbilder gefunden $($a.NNAME)! Lege Ausbilder an!" }
-                    $betr = findBetrieb $a.ID_BETRIEB
-                    $betr
-                    $a
                     if (-not $whatif) {
-                        $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
-                        $a.diklabuID=$na.ID
+                        if ($a.NNAME -eq "" -or $a.NNAME -like $null) {
+                            $a.NNAME=" ";
+                        }
+                        $na= New-Instructor -ID $a.BETRIEB_NR -ID_BETRIEB $a.BETRIEB_NR -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
                     }
-                    $a.ID_BETRIEB=$betr.diklabuID
                 }
                 else {
-                    if ($a.EMAIL -eq $c.EMAIL) {
-                        Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)!" 
-                        $betr = findBetrieb $a.ID_BETRIEB
-                        #$a
-                        #$c
-                        if ($a.NNAME -ne $c.NNAME -or
-                            $a.EMAIL -ne "" -and $a.EMAIL -ne $c.EMAIL -or
-                            [bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -ne $c.FAX -or 
-                            [bool]($a.PSobject.Properties.name  -match "FAX") -and -not $c.FAX -or 
-                            [bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -ne $c.TELEFEON -or
-                            [bool]($a.PSobject.Properties.name  -match "TELEFON") -and -not $c.TELEFEON
-                            ) {
-                            Write-verbose "  Daten unterscheiden sich, aktualisiere Einträge";
-                            if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
+                    Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)!" 
+                    if ($a.NNAME -ne $c.NNAME -or
+                        $a.EMAIL -notlike $null -and $a.EMAIL -ne $c.EMAIL -or
+                        [bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -notlike $null -and -not (TelEqTel $a.FAX $c.FAX) -or 
+                        [bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -notlike $null -and -not (TelEqTel $a.TELEFON $c.TELEFON) ) {
 
-                            if (-not $whatif) {
-                                $na= Set-Instructor -ID $c.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $betr.diklabuID
-                            }
-                        }
-                        $a.diklabuID=$c.ID
-                        $a.ID_BETRIEB=$c.ID_BETRIEB
-                    }
-                    else {
-                        Write-Verbose "  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse von $($c.EMAIL) auf $($a.EMAIL)! Als neuen Ausbilder angesehen!" 
-                        if ($log) {"  Ausbilder gefunden $($a.NNAME) hat andere EMail Adresse von $($c.EMAIL) auf $($a.EMAIL)! Als neuen Ausbilder angesehen!" }
-                        $betr = findBetrieb $a.ID_BETRIEB
+                        Write-warning "  Daten unterscheiden sich, aktualisiere Einträge von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)";
+                        if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
+
                         if (-not $whatif) {
-                            $na= New-Instructor -ID_BETRIEB $betr.diklabuID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON
-                            $a.diklabuID=$na.ID
+                            $na= Set-Instructor -ID $c.ID -NNAME $a.NNAME -EMAIL $a.EMAIL -FAX $a.FAX -TELEFON $a.TELEFON -ID_BETRIEB $a.BETRIEB_NR
                         }
-                        $a.ID_BETRIEB=$betr.diklabuID
                     }
                 }
             }
          }
-
+         
         Write-Verbose "Synchonisiere Lehrer" 
         if ($log) {"== Synchronisiere Lehrer =="}
         $lehrer = Get-BPTeachers
@@ -750,9 +720,11 @@ function Get-BPCoursemember
             }
             else {
                 Write-Verbose "  Bekannten Lehrer gefunden $($l.VNAME) $($l.NNAME)!" 
+                if ($l.EMAIL -like $null) {$l.EMAIL=""}    
+
                 if ([bool]($l.PSobject.Properties.name  -match "NNAME") -and $le.NNAME -ne $l.NNAME -or
                     [bool]($l.PSobject.Properties.name  -match "VNAME") -and $le.VNAME -ne $l.VNAME -or
-                    [bool]($l.PSobject.Properties.name  -match "TELEFON") -and $le.TELEFON -ne $l.TELEFON -or
+                    [bool]($l.PSobject.Properties.name  -match "TELEFON") -and -not (TelEqTel $le.TELEFON $l.TELEFON) -or
                     [bool]($l.PSobject.Properties.name  -match "EMAIL") -and $le.EMAIL -ne $l.EMAIL) {
                     Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge";
                     if ($log) {"Daten unterscheiden sich aktualisiere Lehrer $($l.KÜRZEL) von NNAME=$($le.NNAME) VNAME=$($le.VNAME) TELEFON=$($le.TELEFON) EMAIL=$($le.EMAIL) auf NNAME=$($l.NNAME) VNAME=$($l.VNAME) TELEFON=$($l.TELEFON) EMAIL=$($l.EMAIL)"}
@@ -795,6 +767,7 @@ function Get-BPCoursemember
         if ($log) {"== Synchonisiere Schüler =="}
         $schueler = Get-BPPupils
         foreach ($s in $schueler) {
+            if ($s.BETRIEB_NR -eq 0) {$s.BETRIEB_NR = 99999}
             if ($s.GEBDAT) {
                 $gdate = get-date $s.GEBDAT -Format "yyyy-MM-dd"
             }
@@ -821,17 +794,16 @@ function Get-BPCoursemember
             if (!$c) {
                 Write-Warning "  Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" 
                 if ($log) {"WARNUNG: Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" }
-                $ausb = findAusbilder $s.BETRIEB_NR
+                
                 if (-not $whatif) {
                     if ($gdate) {
-                        $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N" -ID_AUSBILDER $ausb.diklabuID -bbsplanid $s.BBSID
+                        $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N" -ID_AUSBILDER $s.BETRIEB_NR -bbsplanid $s.BBSID
                     }
                     else {
-                       $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -ID_AUSBILDER $ausb.diklabuID -bbsplanid $s.BBSID
+                       $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -ID_AUSBILDER $s.BETRIEB_NR -bbsplanid $s.BBSID
                     }
                     $s.diklabuID=$np.ID
                 }
-                $s.ID_AUSBILDER=$ausb.diklabuID
                 Write-Warning "  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein." 
                 if ($log) {"WARNUNG:  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein."}
                 $kl=Find-Course -KNAME $s.KL_NAME
@@ -846,7 +818,9 @@ function Get-BPCoursemember
                     }
                 }
             }
-            else {                
+            else {        
+                #$c   
+                #$s     
                 Write-Verbose "  Bekannten Schüler gefunden $($s.VNAME) $($s.NNAME) diklabu ID $($c.id)!" 
                 if ($c.VNAME -ne $s.VNAME -or 
                     $c.NNAME -ne $s.NNAME -or
@@ -875,17 +849,12 @@ function Get-BPCoursemember
                     }
                 }
 
-                $ausb=Get-Instructor -ID $c.ID_AUSBILDER
 
-                $ausb2=findAusbilder $s.BETRIEB_NR
-                
-               
-
-                if ($ausb.ID -ne $ausb2.diklabuID) {
+                if (-not [bool]($c.PSobject.Properties.name  -match "ID_AUSBILDER") -and $s.BETRIEB_NR -or  $c.ID_AUSBILDER -ne $s.BETRIEB_NR) {
                     Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) hat einen neuen Ausbildungsbetrieb / Ausbilder" 
                     if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) hat einen neuen Ausbildungsbetrieb / Ausbilder" }
                     if (-not $whatif) {
-                        $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $ausb2.diklabuID
+                        $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $s.BETRIEB_NR
                     }
                 }            
             }
@@ -959,6 +928,26 @@ function Get-BPCoursemember
                             }
                         }
                     }
+                }
+            }
+        }
+        elseif ($mode -eq "ONEWAY") {
+            Write-Verbose "Setze Schüler auf Abgang, die nicht in BBS Planung enthalten sind"
+            if ($log) {"== Setze Schüler auf Abgang, die nicht in BBS Planung enthalten sind =="}
+            $diklabu_pupils = get-pupils;
+            $dp=@{};
+            foreach ($p in $diklabu_pupils) {
+                $dp[$p.ID_MMBBS]=$p
+            }
+            $bbsp = Get-BPPupils;
+            foreach ($p in $bbsp) {
+                $dp.Remove($p.BBSID);
+            }
+            foreach ($p in $dp) {
+                Write-Verbose "Setze Schüler  $($p.VNAME) $($p.NNAME) auf Abgang"
+                if ($log) {"Setze Schüler  $($p.VNAME) $($p.NNAME) auf Abgang"}
+                if (-not $whatif) {
+                    set-pupil -id $p.id -ABGANG "J"
                 }
             }
         }

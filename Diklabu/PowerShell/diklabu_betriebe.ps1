@@ -277,7 +277,7 @@ function New-Company
         [String]$NR,
 
         [Parameter(ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-        [int]$ID,
+        [int]$ID=-1,
 
         [switch]$whatif
 
@@ -296,6 +296,7 @@ function New-Company
     Process
     {
         $betrieb=echo "" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID"
+
         if ($NAME) {
           $betrieb.NAME=$NAME
           }
@@ -311,10 +312,11 @@ function New-Company
         if ($NR) {
           $betrieb.NR=$NR
         }
-        if ($ID) {
+        if ($ID -ne -1) {
           $betrieb.ID=$ID
           }
         try {
+
           if (-not $whatif) {
                 $r=Invoke-RestMethod -Method Post -Uri ($uri+"betriebe/admin/") -Headers $headers -Body (ConvertTo-Json $betrieb)
           }
