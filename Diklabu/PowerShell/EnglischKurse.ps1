@@ -1,4 +1,5 @@
-﻿# erzeugt eine Excel Tabelle mit allen SuS der Englisch Kurse
+﻿# erzeugt eine Objektliste mit allen SuS der Englisch Kurse
+# BSP: exportEng | export-excel c:\Temp\eng.xlsx
 function exportEng() {
     # Hier ggf. noch Bezeichnung anpassen
     Find-Course -KNAME "IT16_Eng%" |
@@ -19,7 +20,7 @@ function exportEng() {
 }
 
 # Dieses Script noch nicht getestet
-# Importiert die sus in die neuen Kurse, diese müssen bereits angelegt worden sein!
+# Importiert die sus in die neuen Kurse, diese Kurse müssen bereits angelegt worden sein!
 function importEng($csv) {
     $e=Import-Excel $csv
     foreach ($line in $e) {
@@ -29,7 +30,7 @@ function importEng($csv) {
                 Write-Warning "Achtung Kurse $($line.New_KNAME) nicht gefunden"
             }
             else {
-                Add-Coursemember -id $line.Kid -klassenid $course.id 
+                Add-Coursemember -id $line.Kid -klassenid $course.id -Verbose
             }
         }
         else {
