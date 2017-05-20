@@ -117,8 +117,8 @@ function Get-LDAPTeachers
         $teachers=@();
 
         foreach ($i in $in) {
-            $teacher = "" | Select-Object -Property "id","EMAIL","VNAME","NNAME"
-            $teacher.id=$i.Initials
+            $teacher = "" | Select-Object -Property "TEACHER_ID","EMAIL","VNAME","NNAME"
+            $teacher.TEACHER_ID=$i.Initials
             $teacher.EMAIL = $i.Mail
             $teacher.VNAME = $i.GivenName
             $teacher.NNAME = $i.Name
@@ -148,8 +148,11 @@ function Get-LDAPTeacher
     Param
     (
         # ID des Lehrers (Kürzel)
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0,ParameterSetName=’byID’)]
         [String]$id,
+        # EMAIL des Lehrers 
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0,ParameterSetName=’byEMAIL’)]
+        [String]$email,
 
         # Name für die Lehrergruppe
         [Parameter(Position=3)]
@@ -164,9 +167,14 @@ function Get-LDAPTeacher
         }
     }
     Process {
-        $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $id}
-        $teacher = "" | Select-Object -Property "id","EMAIL","VNAME","NNAME"
-        $teacher.id=$in.Initials
+        if ($id) {
+            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $id}
+        }
+        elseif ($email) {
+            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Mail -eq $email}
+        }
+        $teacher = "" | Select-Object -Property "TEACHER_ID","EMAIL","VNAME","NNAME"
+        $teacher.TEACHER_ID=$in.Initials
         $teacher.EMAIL = $in.Mail
         $teacher.VNAME = $in.GivenName
         $teacher.NNAME = $in.Name
@@ -948,14 +956,19 @@ function Get-LDAPCourseMember
         }
     }
     Process {
-        $in=Get-ADGroupMember -Identity $KNAME -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.objectClass -ne "group"} | Get-ADUser -Properties Mail,Pager -Server $global:ldapserver -Credential $global:ldapcredentials
+        $in=Get-ADGroupMember -Identity $KNAME -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.objectClass -ne "group"} | Get-ADUser -Properties Mail,Pager,Initials -Server $global:ldapserver -Credential $global:ldapcredentials
         $pupils=@()
         foreach ($i in $in) {
             $pupil = "" | Select-Object -Property "EMAIL","NNAME","VNAME","ID"
             $pupil.VNAME=$i.GivenName
             $pupil.NNAME=$i.Surname
             $pupil.EMAIL=$i.Mail
-            $pupil.id=$i.Pager
+            if ($i.page) {
+                $pupil.id=$i.Pager
+            }
+            else {
+                $pupil.id=$i.Initials
+            }
             $pupils+=$pupil
         }
         $pupils
@@ -1036,13 +1049,19 @@ function Rename-LDAPCourseMember
 }
 <#
 .Synopsis
-   Einen User zu einer Gruppe hinzufügen
+   Einen oder mehrere User zu einer Gruppe hinzufügen
 .DESCRIPTION
-   Einen User zu einer Gruppe hinzufügen
+   Einen User oder mehrere User zu einer Gruppe hinzufügen
 .EXAMPLE
    Add-LDAPCourseMember -KNAME FIAE14H -ID 1234
 .EXAMPLE
-   1234,4567 | Add-LDAPCourseMember -KNAME FIAE14H
+   @([pscustomobject]@{ID=1234},[pscustomobject]@{ID=5678}) | Add-LDAPCourseMember -KNAME FIAE14H
+.EXAMPLE
+   Add-LDAPCourseMember -KNAME FIAE -TEACHER_ID "TU"
+.EXAMPLE
+   Add-LDAPCourseMember -KNAME FIAE -TEACHER_ID "TU","KE"
+.EXAMPLE
+   @([pscustomobject]@{TEACHER_ID="KE"},[pscustomobject]@{TEACHER_ID="TU"}) | Add-LDAPCourseMember -KNAME FIAE
 
 #>
 function Add-LDAPCourseMember
@@ -1051,13 +1070,16 @@ function Add-LDAPCourseMember
    
     Param
     (
-        # Name der Klasse
+        # Name der Klasse oder Gruppe
         [Parameter(Mandatory=$true,Position=0)]
         [String]$KNAME,
 
-        # EMail Adresse des Users
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=1)]
-        [String]$ID,
+        # IDs des Schülers
+        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1,ParameterSetName=’pupil’)]
+        [int[]]$ID,
+        # IDs des Lehrer
+        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1,ParameterSetName=’teacher’)]
+        [String[]]$TEACHER_ID,
         # Searchbase (Unterordner in denen sich die Klassen befinden)
         [Parameter(Position=2)]
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
@@ -1074,34 +1096,53 @@ function Add-LDAPCourseMember
             break
         }
     }
-    Process {
-        $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $ID} -SearchBase $searchbase        
-        if ($user -eq $null) {
-            Write-Warning "Can not find User with ID $ID"
+    Process {        
+        if ($ID) {
+            $data=$ID;
         }
-        else {
-            try {
-                Write-Verbose "Der Benutzer ID $ID ($($user.GivenName) $($user.Surname)) wird zur Gruppe $KNAME hinzugefügt!"
-                $name=Get-LDAPAccount -ID $ID -NNAME $user.Surname -VNAME $user.GivenName -KNAME $KNAME
-                if (-not $whatif) {
-                    if (-not $force) {
-                        $q = Read-Host "Soll der Benutzer ID $ID zur Gruppe $KNAME hinzugefügt werden? (J/N)"
-                        if ($q -eq "j") {
-                            $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user 
-                            $user | Set-ADUser -EmailAddress "$($name.LoginName)@$maildomain" -Credential $global:ldapcredentials -Server $global:ldapserver -UserPrincipalName $name.LoginName 
-                            #$user | Rename-ADObject -NewName $name.LoginName  -Credential $global:ldapcredentials -Server $global:ldapserver
-                        }
-                    }
-                    else {
-                        $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
-                        $user | Set-ADUser -EmailAddress "$($name.LoginName)@$maildomain" -Credential $global:ldapcredentials -Server $global:ldapserver -UserPrincipalName $name.LoginName 
-                        #$user | Rename-ADObject -NewName $name.LoginName  -Credential $global:ldapcredentials -Server $global:ldapserver 
-                    }
-                    $user
-                }
+        elseif ($TEACHER_ID) {
+            $data=$TEACHER_ID;
+        }
+        $data | ForEach-Object {
+            Write-Verbose "Suche User mit der ID $_"
+            if ($ID) {
+                $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -SearchBase $searchbase        
             }
-            catch {
-                Write-Error $_.Exception.Message
+            elseif ($TEACHER_ID) {
+                $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Initials -like $_} -SearchBase $searchbase        
+            }
+            if ($user -eq $null) {
+                Write-Warning "Can not find User with ID $_"
+            }
+            else {
+                try {
+                    Write-Verbose "Der Benutzer ID $_ ($($user.GivenName) $($user.Surname)) wird zur Gruppe $KNAME hinzugefügt!"
+                    if (-not $whatif) {
+                        if (-not $force) {
+                            $q = Read-Host "Soll der Benutzer ID $_ zur Gruppe $KNAME hinzugefügt werden? (J/N)"
+                            if ($q -eq "j") {
+                                $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user 
+                                if ($ID) {
+                                    $name=Get-LDAPAccount -ID $_ -NNAME $user.Surname -VNAME $user.GivenName -KNAME $KNAME
+                                    $user | Set-ADUser -EmailAddress "$($name.LoginName)@$maildomain" -Credential $global:ldapcredentials -Server $global:ldapserver -UserPrincipalName $name.LoginName 
+                                    #$user | Rename-ADObject -NewName $name.LoginName  -Credential $global:ldapcredentials -Server $global:ldapserver
+                                }
+                            }
+                        }
+                        else {
+                            $in=Add-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user
+                            if ($ID) {
+                                $name=Get-LDAPAccount -ID $_ -NNAME $user.Surname -VNAME $user.GivenName -KNAME $KNAME
+                                $user | Set-ADUser -EmailAddress "$($name.LoginName)@$maildomain" -Credential $global:ldapcredentials -Server $global:ldapserver -UserPrincipalName $name.LoginName 
+                                #$user | Rename-ADObject -NewName $name.LoginName  -Credential $global:ldapcredentials -Server $global:ldapserver 
+                            }
+                        }
+                        $user
+                    }
+                }
+                catch {
+                    Write-Error $_.Exception.Message
+                }
             }
         }
     }
@@ -1115,7 +1156,13 @@ function Add-LDAPCourseMember
 .EXAMPLE
    Remove-LDAPCourseMember -KNAME FIAE14H -ID 1234
 .EXAMPLE
-   1234,4567 | Remove-LDAPCourseMember -KNAME FIAE14H 
+   @([pscustomobject]@{ID=1234},[pscustomobject]@{ID=5678})  | Remove-LDAPCourseMember -KNAME FIAE14H 
+.EXAMPLE
+   Remove-LDAPCourseMember -KNAME FIAE -TEACHER_ID "TU"
+.EXAMPLE
+   Remove-LDAPCourseMember -KNAME FIAE -TEACHER_ID "TU","KE"
+.EXAMPLE
+   @([pscustomobject]@{TEACHER_ID="KE"},[pscustomobject]@{TEACHER_ID="TU"}) | Remove-LDAPCourseMember -KNAME FIAE 
 
 #>
 function Remove-LDAPCourseMember
@@ -1129,8 +1176,11 @@ function Remove-LDAPCourseMember
         [String]$KNAME,
 
         # ID des Users
-        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=1)]
-        [String]$ID,
+        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1,ParameterSetName=’pupil’)]
+        [int[]]$ID,
+        # ID des Users
+        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1,ParameterSetName=’teacher’)]
+        [String[]]$TEACHER_ID,
         # Searchbase (Unterordner in denen sich die Klassen befinden)
         [Parameter(Position=2)]
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
@@ -1146,31 +1196,44 @@ function Remove-LDAPCourseMember
         }
     }
     Process {
-        $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $ID} -SearchBase $searchbase
-        if ($user -eq $null) {
-            Write-Warning "Can not find User with ID $ID"
+        if ($ID) {
+            $data=$id
         }
-        else {
-            try {
-                Write-Verbose "Benutzer ID $ID aus der Gruppe $KNAME entfernt"
-                $name=Get-LDAPAccount -ID $ID -VNAME $user.GivenName -NNAME $user.Surname
+        elseif ($TEACHER_ID) {
+            $data=$TEACHER_ID
+        }
+        $data | ForEach-Object {
+            if ($ID) {
+                $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -SearchBase $searchbase
+            }
+            elseif ($TEACHER_ID) {
+                $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Initials -like $_} -SearchBase $searchbase
+            }
+            if ($user -eq $null) {
+                Write-Warning "Can not find User with ID $_"
+            }
+            else {
+                try {
+                    Write-Verbose "Benutzer ID $_ aus der Gruppe $KNAME entfernt"
+                    $name=Get-LDAPAccount -ID $_ -VNAME $user.GivenName -NNAME $user.Surname
 
-                if (-not $whatif) {
-                    if (-not $force) {
-                        $q = Read-Host "Soll der Benutzer ID $ID aus der Gruppe $KNAME entfernt werden? (J/N)"
-                        if ($q -eq "j") {
+                    if (-not $whatif) {
+                        if (-not $force) {
+                            $q = Read-Host "Soll der Benutzer ID $_ aus der Gruppe $KNAME entfernt werden? (J/N)"
+                            if ($q -eq "j") {
+                                $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
+                                #$user | Rename-ADObject -NewName $name.AccountName  -Credential $global:ldapcredentials -Server $global:ldapserver
+                            }
+                        }
+                        else {
                             $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
                             #$user | Rename-ADObject -NewName $name.AccountName  -Credential $global:ldapcredentials -Server $global:ldapserver
                         }
                     }
-                    else {
-                        $in=Remove-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $KNAME -Members $user  -Confirm:$false
-                        #$user | Rename-ADObject -NewName $name.AccountName  -Credential $global:ldapcredentials -Server $global:ldapserver
-                    }
                 }
-            }
-            catch {
-                Write-Error $_.Exception.Message
+                catch {
+                    Write-Error $_.Exception.Message
+                }
             }
         }
     }
@@ -1184,7 +1247,11 @@ function Remove-LDAPCourseMember
 .EXAMPLE
    Sync-LDAPCourseMember -KNAME FIAE14H -ID 1234,4567
 .EXAMPLE
-   1234,5678 | Sync-LDAPCourseMember -KNAME FIAE14H 
+   @([pscustomobject]@{ID=1234},[pscustomobject]@{ID=5678}) | Sync-LDAPCourseMember -KNAME FIAE14H 
+.EXAMPLE
+   Sync-LDAPCourseMember -KNAME FIAE1 -TEACHER_ID "KE","TU"
+.EXAMPLE
+   @([pscustomobject]@{TEACHER_ID="KE"},[pscustomobject]@{TEACHER_ID="TU"}) | Sync-LDAPCourseMember -KNAME FIAE
 
 #>
 function Sync-LDAPCourseMember
@@ -1197,9 +1264,12 @@ function Sync-LDAPCourseMember
         [Parameter(Mandatory=$true,Position=0)]
         [String]$KNAME,
 
-        # IDsder User
-        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1)]
-        [String[]]$ID,
+        # IDs der Schüler
+        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1,ParameterSetName=’pupil’)]
+        [int[]]$ID,
+        # Kürzel der Lehrer
+        [Parameter(Mandatory=$true,ValueFromPipelineByPropertyName=$true,Position=1,ParameterSetName=’teacher’)]
+        [String[]]$TEACHER_ID,
         # Searchbase (Unterordner in denen sich die Klassen befinden)
         [Parameter(Position=2)]
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
@@ -1223,7 +1293,15 @@ function Sync-LDAPCourseMember
         }
     }
     Process {
-        $ID | ForEach-Object {
+        if ($ID) {
+            $data=$ID
+            $global:pname="pupil"
+        }
+        elseif ($TEACHER_ID) {
+            $data=$TEACHER_ID
+            $global:pname="teacher"
+        }
+        $data | ForEach-Object {
             if (-not $ist[$_]) {
                 Write-Verbose "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"
                 Write-Warning "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"
@@ -1231,28 +1309,41 @@ function Sync-LDAPCourseMember
                     if (-not $force) {
                         $q=Read-Host "Soll der Benutzer mit ID $_ in die Gruppe $KNAME aufgenommen werden? (J/N)"
                         if ($q -eq "j") {
-                            $u=add-LDAPCourseMember -KNAME $KNAME -ID $_ -searchbase $searchbase -force
+                            if ($ID) {
+                                $u= add-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase -force -ID $_
+                            }
+                            elseif ($TEACHER_ID) {
+                                $u= add-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase -force -TEACHER_ID $_
+                            }
                         }
                     }
                     else {
-                        $u=add-LDAPCourseMember -KNAME $KNAME -ID $_ -searchbase $searchbase -force
+                        if ($ID) {
+                            $u= add-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase -force -ID $_
+                        }
+                        elseif ($TEACHER_ID) {
+                            $u= add-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase -force -TEACHER_ID $_
+                        }
                     }
                 }
             }
             else {
-                Write-Verbose "Der Benutzer ID $_ ($($ist[$_].VNAME) $($ist[$_].NNAME)) existiert bereits in der Gruppe $KNAME! Anpassung von EMail und Account Name"
-                $name = Get-LDAPAccount -ID $_ -NNAME $ist[$_].NNAME -VNAME $ist[$_].VNAME -KNAME $KNAME
-                $in=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase                
-                $in | Set-ADUser -UserPrincipalName $name.LoginName -EmailAddress "$($name.LoginName)@$maildomain"
-                $in | Rename-ADObject -NewName $name.LoginName -Credential $global:ldapcredentials -Server $global:ldapserver
+                if ($ID) {
+                    Write-Verbose "Der Benutzer ID $_ ($($ist[$_].VNAME) $($ist[$_].NNAME)) existiert bereits in der Gruppe $KNAME! Anpassung von EMail und Account Name"
+                    $name = Get-LDAPAccount -ID $_ -NNAME $ist[$_].NNAME -VNAME $ist[$_].VNAME -KNAME $KNAME
+                    $in=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase                
+                    $in | Set-ADUser -UserPrincipalName $name.LoginName -EmailAddress "$($name.LoginName)@$maildomain"
+                    $in | Rename-ADObject -NewName $name.LoginName -Credential $global:ldapcredentials -Server $global:ldapserver
+                }
             }
-            $in=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase                
-            $pupil = "" | Select-Object -Property "EMAIL","NNAME","VNAME","ID"
-            $pupil.VNAME=$in.GivenName
-            $pupil.NNAME=$in.Surname
-            $pupil.EMAIL=$in.EmailAddress
-            $pupil.id=$in.Pager
-            $pupil
+
+            #$in=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase                
+            #$pupil = "" | Select-Object -Property "EMAIL","NNAME","VNAME","ID"
+            #$pupil.VNAME=$in.GivenName
+            #$pupil.NNAME=$in.Surname
+            #$pupil.EMAIL=$in.EmailAddress
+            #$pupil.id=$in.Pager
+            #$pupil
             $ist.Remove($_)
         }
     }
@@ -1260,16 +1351,26 @@ function Sync-LDAPCourseMember
         $ist.Keys | ForEach-Object {
             $b=$ist.Item($_)
             Write-Verbose "Der Benutzer $($b.ID) wird aus der Gruppe $KNAME entfernt!"          
-            Write-Warning "Der Benutzer $($b.ID) wird aus der Gruppe $KNAME entfernt!"          
+            Write-Warning "Der Benutzer $($b.ID) wird aus der Gruppe $KNAME entfernt!"              
             if (-not $whatif) {
                 if (-not $force) {
                     $q = Read-Host "Soll der Benutzer $($b.ID) aus der Gruppe $KNAME entfernt werden? (J/N)"          
                     if ($q -eq "j") {
-                        Remove-LDAPCourseMember -KNAME $KNAME -ID $b.ID -searchbase $searchbase -force 
+                        if ($ID) {
+                            Remove-LDAPCourseMember -KNAME $KNAME -ID $b.ID -searchbase $searchbase -force 
+                        }
+                        elseif ($TEACHER_ID) {
+                            Remove-LDAPCourseMember -KNAME $KNAME -TEACHER_ID $b.ID -searchbase $searchbase -force 
+                        }
                     }
                 }
                 else {
-                    Remove-LDAPCourseMember -KNAME $KNAME -ID $b.ID -searchbase $searchbase -force               
+                    if ($global:pname -eq "pupil") {
+                        Remove-LDAPCourseMember -KNAME $KNAME -ID $b.ID -searchbase $searchbase -force 
+                    }
+                    elseif ($global:pname -eq "teacher") {
+                        Remove-LDAPCourseMember -KNAME $KNAME -TEACHER_ID $b.ID -searchbase $searchbase -force 
+                    }
                 }
             }
         }
