@@ -1,6 +1,9 @@
-﻿. "$PSScriptRoot/LoadModule.ps1"
+﻿$PSScriptRoot
+[Environment]::Is64BitProcess
+. "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
-Get-Keystore
+"Get Keystore"
+Get-Keystore -file C:\Users\Tuttas\keystore.json
 Connect-BbsPlan
 Login-Diklabu
 $body="Das Synchronisationsscript BBS-Planung -> Diklabu gestartet um "+(Get-Date)+"! `r`n";
@@ -19,7 +22,7 @@ angelegt, die nicht in BBS Planung vorhanden sind, daher muss das Skript wie fol
 $report=Export-BBSPlanung -mode ONEWAY -log 
 
 #>
-$report=Export-BBSPlanung -mode ONEWAY -log 
+$report=Export-BBSPlanung -mode ONEWAY -log -Verbose
 $body+="Das Synchronisationsscript BBS-Planung -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
 $report | Set-Content "$Home/syncreport.txt"
@@ -30,3 +33,4 @@ if (-not $Global:logins["smtp"]) {
 else {
     send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript BBS-Planung -> Diklabu durchgelaufen" -body $body -attachment "$Home/syncreport.txt"
 }
+sleep 30
