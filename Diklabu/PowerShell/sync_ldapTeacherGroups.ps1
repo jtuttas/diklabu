@@ -1,7 +1,7 @@
 ﻿function getTeamObject($g) {
     $teams=@{}
     foreach ($e in $g) {
-        $teacher=$e.Email
+        $teacher=$e.Email 
         $e.psobject.Properties | Where-Object {$_.name -ne "Email"} | ForEach-Object {           
             if ($teams.ContainsKey($_.name) -eq $false) {
                 $teams[$_.name]=@();
@@ -28,7 +28,7 @@
    eine Spalte gelöscht, so bleibt die Gruppe erhalten. Wird eine Zeile (ein Lehrer) gelöscht,
    so wird auch seine Zuordnung in der Gruppe gelöscht.
 .EXAMPLE
-   sync-LDAPTeams -url https://seafile.mm-bbs.de/f/5f11890fe8/?raw=1 -searchbase "OU=mmbbs,DC=tuttas,DC=de" -force -Verbose 
+   sync-LDAPTeams -url "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0e067544412cb4d2fba5ba36caf2c044d&authkey=AVUsKyPlkNqTuoaWOtMWdfE" -searchbase "ou=Lehrerguppen,ou=lehrer,OU=mmbbs,DC=tuttas,DC=de" -force -Verbose 
    Die freigegebenen CSV Datei unter der o.g. Adresse wird als Quelle genutzt
 .EXAMPLE
    Sync-LDAPTeams -csv C:\Temp\Moodle_Teamzuordnung.csv -searchbase "OU=mmbbs,DC=tuttas,DC=de" -force -Verbose 
@@ -48,7 +48,7 @@ function Sync-LDAPTeams
                    Position=0,ParameterSetName=’csv‘)]
         $csv,
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
-         [switch]$force
+        [switch]$force
     )
 
     Begin
@@ -65,7 +65,7 @@ function Sync-LDAPTeams
         }
         else {
             try {
-                $g=Invoke-WebRequest $url | ConvertFrom-Csv
+                $g=Invoke-WebRequest $url | ConvertFrom-Csv -Delimiter ";" 
                 if (-not [bool]($g[0].PSobject.Properties.name  -match "Email")) {
                     Write-Error "Notwendiges Feld 'Email' fehlt unter $url";
                     break;
@@ -78,14 +78,15 @@ function Sync-LDAPTeams
         }
         $tas = getTeamObject($g)
         foreach ($tm in $tas.GetEnumerator()) {
-            Write-Host "Synchronisiere Gruppe "$tm.Name -BackgroundColor DarkGreen
+            Write-Host "Synchronisiere Gruppe ($($tm.Name))" -BackgroundColor DarkGreen
             if (-not (Test-LDAPCourse $tm.Name -searchbase $searchbase)) {
                 Write-Verbose "Gruppe $($tm.Name) wird angelegt!"
-                $in=New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path $searchbase -Name $tm.Name
+                [String]$gname=$tm.Name
+                $in=New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path $searchbase -Name $gname
             }
             $member=@();
             foreach ($l in $tm.Value) {
-                $t = Get-LDAPTeacher -email $l  -Verbose
+                $t = Get-LDAPTeacher -email $l  -Verbose 
                 if ($t.EMAIL) {
                     $member+=$t
                 }
@@ -94,6 +95,31 @@ function Sync-LDAPTeams
                 }
             }
             $member | Sync-LDAPCourseMember -KNAME $tm.Name -searchbase $searchbase -force
+        }
+        Write-Host "Lösche Gruppen die nicht verwendet werden unter $searchbase" -BackgroundColor DarkGreen
+        $in = Get-LDAPCourses -searchbase $searchbase 
+
+        $ist=@{}
+        foreach ($i in $in) {
+            $ist[$i.KName]=$i
+        }
+        foreach ($tm in $tas.GetEnumerator()) {
+            $ist.Remove($tm.Name);
+        }
+        $ist | ForEach-Object {
+            if ($_.Values.DistinguishedName -ne $null) {
+                if (-not $force) {
+                    $q = Read-Host "Soll die Gruppe $($_.Values.KName) gelöscht werden? (J/N)"
+                    if ($q -eq "J") {
+                        Write-Verbose "Lösche die Gruppe ($_.Values.KName)"
+                        $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.Values.DistinguishedName -Confirm:$false
+                    }
+                }
+                else {
+                    Write-Verbose "Lösche die Gruppe ($_.Values.Name)"
+                    $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.Values.DistinguishedName -Confirm:$false
+                }
+            }
         }
     }
 }

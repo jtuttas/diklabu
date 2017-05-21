@@ -113,7 +113,7 @@ function Get-LDAPTeachers
             Write-Error "Sie sind nicht am LDAP angemeldet, versuchen Sie Login-LDAP"
             break
         }
-        $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials
+        $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname   | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials 
         $teachers=@();
 
         foreach ($i in $in) {
@@ -700,6 +700,7 @@ function Test-LDAPCourse
     Process {
         try {
             $in=Get-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -Filter * -SearchBase $searchbase | Where-Object {$_.name -eq $KNAME}
+            $in
             if ($in) {
                 return $true
             }
@@ -1085,7 +1086,8 @@ function Add-LDAPCourseMember
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
         [String]$maildomain="mm-bbs.de",
         [switch]$force,
-        [switch]$whatif
+        [switch]$whatif,
+        [String]$groupname="Lehrer"
 
 
     )
@@ -1109,7 +1111,8 @@ function Add-LDAPCourseMember
                 $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -SearchBase $searchbase        
             }
             elseif ($TEACHER_ID) {
-                $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Initials -like $_} -SearchBase $searchbase        
+                $ini=$_
+                $user=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $ini}                
             }
             if ($user -eq $null) {
                 Write-Warning "Can not find User with ID $_"
@@ -1185,7 +1188,9 @@ function Remove-LDAPCourseMember
         [Parameter(Position=2)]
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
         [switch]$force,
-        [switch]$whatif
+        [switch]$whatif,
+        [String]$groupname="Lehrer"
+
 
     )
     Begin
@@ -1207,7 +1212,8 @@ function Remove-LDAPCourseMember
                 $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -SearchBase $searchbase
             }
             elseif ($TEACHER_ID) {
-                $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Initials -like $_} -SearchBase $searchbase
+                $ini=$_
+                $user=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $ini}                
             }
             if ($user -eq $null) {
                 Write-Warning "Can not find User with ID $_"
@@ -1318,10 +1324,10 @@ function Sync-LDAPCourseMember
                         }
                     }
                     else {
-                        if ($ID) {
+                        if ($global:pname -eq "pupil") {
                             $u= add-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase -force -ID $_
                         }
-                        elseif ($TEACHER_ID) {
+                        elseif ($global:pname -eq "teacher") {
                             $u= add-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase -force -TEACHER_ID $_
                         }
                     }
