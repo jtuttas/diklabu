@@ -16,23 +16,31 @@
 
 <#
 .Synopsis
-   Liest die Teamzuordnung als CSV ein und Legt einsprechende Gruppen in der AD (unter Seachbase) an
+   Liest die Teamzuordnung als CSV oder Objektmodell ein und Legt einsprechende Gruppen in der AD (unter Seachbase) an
 .DESCRIPTION
    Liest die Teamzuordnung, entweder via Angabe des CSV Files oder Seafile URL, ein und synchronisietrt diese 
    mit den Gruppen in der AD. Die CSV Datei hat dabei folgendes Format:
    
-   "Email","FIAE","FISI","SYE","SYKIFK","MBT"
-   "tuttas@mmbbs.de",,,"x","x","x"
+   Email;FIAE;FISI;SYE;SYKIFK;MBT
+   tuttas@mmbbs.de;;;x,x,x
 
    Email ist ein Pflichtfeld, neue Spalten werden als globale Gruppen in der AD angelegt. Wird
    eine Spalte gelöscht, so bleibt die Gruppe erhalten. Wird eine Zeile (ein Lehrer) gelöscht,
    so wird auch seine Zuordnung in der Gruppe gelöscht.
+
 .EXAMPLE
-  sync-LDAPTeams -url "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=1e067544412cb4d2fba5ba36caf2c044d&authkey=AdRx5ft7DiervAFhbN6YyWI" -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force
+  sync-LDAPTeams -url "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=1e067544412cb4d2fba5ba36caf2c044d&authkey=AdRx5ft7DiervAFhbN6YyWI" -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force  
   Die freigegebenen CSV Datei unter der o.g. Adresse wird als Quelle genutzt
 .EXAMPLE
    Sync-LDAPTeams -csv C:\Temp\Moodle_Teamzuordnung.csv -searchbase "OU=mmbbs,DC=tuttas,DC=de" -force -Verbose 
    Die CSV Datei unter der o.g. Pfad wird als Quelle genutzt
+.EXAMPLE
+    Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de"
+    $obj ist eine Hash-Map bestehend aus KEY=Gruppe und Value ein Array aus EMail Adressen der Gruppenmitglieder, dieses kann z.B. so aus One Drive
+    generiert werden:
+
+    Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
+    $obj=Import-Excel "$env:TMP\teams.csv"
 #>
 function Sync-LDAPTeams
 {
@@ -47,6 +55,9 @@ function Sync-LDAPTeams
         [Parameter(Mandatory=$true,
                    Position=0,ParameterSetName=’csv‘)]
         $csv,
+        [Parameter(Mandatory=$true,
+                   Position=0,ParameterSetName=’obj‘)]
+        $obj,
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
         [switch]$force
     )
@@ -63,7 +74,7 @@ function Sync-LDAPTeams
                 break;
             }
         }
-        else {
+        elseif ($url) {
             try {
                 $g=Invoke-WebRequest $url | ConvertFrom-Csv -Delimiter ";" 
                 if (-not [bool]($g[0].PSobject.Properties.name  -match "Email")) {
@@ -76,8 +87,10 @@ function Sync-LDAPTeams
                 break;
             }
         }
+        else {
+            $g=$obj;
+        }
         $tas = getTeamObject($g)
-        $tas
         foreach ($tm in $tas.GetEnumerator()) {
             Write-Host "Synchronisiere Gruppe ($($tm.Name))" -BackgroundColor DarkGreen
             if (-not (Test-LDAPCourse $tm.Name -searchbase $searchbase)) {
@@ -117,7 +130,7 @@ function Sync-LDAPTeams
                     }
                 }
                 else {
-                    Write-Verbose "Lösche die Gruppe ($_.Values.Name)"
+                    Write-Verbose "Lösche die Gruppe ($_.Values.KName)"
                     $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.Values.DistinguishedName -Confirm:$false
                 }
             }
@@ -125,3 +138,6 @@ function Sync-LDAPTeams
     }
 }
 
+Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
+$obj=Import-Excel "$env:TMP\teams.csv"
+Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de" 
