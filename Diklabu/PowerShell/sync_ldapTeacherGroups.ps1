@@ -125,12 +125,12 @@ function Sync-LDAPTeams
                 if (-not $force) {
                     $q = Read-Host "Soll die Gruppe $($_.Values.KName) gelöscht werden? (J/N)"
                     if ($q -eq "J") {
-                        Write-Verbose "Lösche die Gruppe ($_.Values.KName)"
+                        Write-Verbose "Lösche die Gruppe ($($_.Values.KName))"
                         $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.Values.DistinguishedName -Confirm:$false
                     }
                 }
                 else {
-                    Write-Verbose "Lösche die Gruppe ($_.Values.KName)"
+                    Write-Verbose "Lösche die Gruppe ($($_.Values.KName))"
                     $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.Values.DistinguishedName -Confirm:$false
                 }
             }
