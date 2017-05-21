@@ -28,8 +28,8 @@
    eine Spalte gelöscht, so bleibt die Gruppe erhalten. Wird eine Zeile (ein Lehrer) gelöscht,
    so wird auch seine Zuordnung in der Gruppe gelöscht.
 .EXAMPLE
-   sync-LDAPTeams -url "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0e067544412cb4d2fba5ba36caf2c044d&authkey=AVUsKyPlkNqTuoaWOtMWdfE" -searchbase "ou=Lehrerguppen,ou=lehrer,OU=mmbbs,DC=tuttas,DC=de" -force -Verbose 
-   Die freigegebenen CSV Datei unter der o.g. Adresse wird als Quelle genutzt
+  sync-LDAPTeams -url "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=1e067544412cb4d2fba5ba36caf2c044d&authkey=AdRx5ft7DiervAFhbN6YyWI" -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force
+  Die freigegebenen CSV Datei unter der o.g. Adresse wird als Quelle genutzt
 .EXAMPLE
    Sync-LDAPTeams -csv C:\Temp\Moodle_Teamzuordnung.csv -searchbase "OU=mmbbs,DC=tuttas,DC=de" -force -Verbose 
    Die CSV Datei unter der o.g. Pfad wird als Quelle genutzt
@@ -77,6 +77,7 @@ function Sync-LDAPTeams
             }
         }
         $tas = getTeamObject($g)
+        $tas
         foreach ($tm in $tas.GetEnumerator()) {
             Write-Host "Synchronisiere Gruppe ($($tm.Name))" -BackgroundColor DarkGreen
             if (-not (Test-LDAPCourse $tm.Name -searchbase $searchbase)) {
