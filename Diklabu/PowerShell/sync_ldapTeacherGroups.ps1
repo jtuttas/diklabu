@@ -36,8 +36,8 @@
    Die CSV Datei unter der o.g. Pfad wird als Quelle genutzt
 .EXAMPLE
     Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de"
-    $obj ist eine Hash-Map bestehend aus KEY=Gruppe und Value ein Array aus EMail Adressen der Gruppenmitglieder, dieses kann z.B. so aus One Drive
-    generiert werden:
+    $obj ist eine Objekt wie aus einem CSV entstanden, so können auch andere Formate wie xlsx gelesen werden und
+    dem CMDlet zugeführt werden:
 
     Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
     $obj=Import-Excel "$env:TMP\teams.csv"
@@ -140,4 +140,4 @@ function Sync-LDAPTeams
 
 Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
 $obj=Import-Excel "$env:TMP\teams.csv"
-Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de" 
+Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" 

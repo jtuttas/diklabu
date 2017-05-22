@@ -46,7 +46,10 @@ function Sync-MoodleTeams
 
         [Parameter(Mandatory=$true,
                    Position=0,ParameterSetName=’csv‘)]
-        $csv
+        $csv,
+        [Parameter(Mandatory=$true,
+                   Position=0,ParameterSetName=’obj‘)]
+        $obj
     )
 
     Begin
@@ -61,7 +64,7 @@ function Sync-MoodleTeams
                 break;
             }
         }
-        else {
+        elseif ($url) {
             try {
                 $g=Invoke-WebRequest $url | ConvertFrom-Csv
                 if (-not [bool]($g[0].PSobject.Properties.name  -match "Email")) {
@@ -73,6 +76,9 @@ function Sync-MoodleTeams
                 Write-Error $_.Exception.Message;
                 break;
             }
+        }
+        else {
+            $g=$obj
         }
         $tas = getTeamObject($g)
 

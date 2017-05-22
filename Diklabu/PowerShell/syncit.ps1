@@ -17,12 +17,13 @@ try {
     #$body+="Es wurden "+$r1.delete+" Lehrer geloescht!`r`n";
     #$body+="Es traten "+$r1.error+" Fehler auf (siehe Protokoll im Anhang)`r`n";
     #$body+="`r`n";
-    $body+="`r`n`r`nset-emails.ps1`r`n";
-    $r2=set-emails -force -Verbose
-    $body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
-    $body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
-    $body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
-    $r2.msg > "$PSScriptRoot/../../../out_schueler.txt"
+
+    #$body+="`r`n`r`nset-emails.ps1`r`n";
+    #$r2=set-emails -force -Verbose
+    #$body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
+    #$body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
+    #$body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
+    #$r2.msg > "$PSScriptRoot/../../../out_schueler.txt"
 }
 catch {
     Write-Error $_.Exception.Message
@@ -30,10 +31,24 @@ catch {
 }
 try {
     ## Moodle gloable gruppe Sync
-    $body+="`r`n`r`nSynchronisiere Moodle Cohorts with Seafile CSV"
+    $body+="`r`n`r`nSynchronisiere Moodle Cohorts"
     Login-Moodle
     $body+="`r`nLogin Moodle OK"
-    Sync-MoodleTeams -url https://seafile.mm-bbs.de/f/a743d75f83/?raw=1 -Verbose
+    Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
+    $obj=Import-Excel "$env:TMP\teams.csv"
+    Sync-MoodleTeams -obj $obj -Verbose
+    $body+="`r`nSynchronisation erfolgt"
+}
+catch {
+    Write-Error $_.Exception.Message
+    $body+=$_.Exception.Message
+}
+try {
+    ## Gruppen in der AD Sync
+    $body+="`r`n`r`nSynchronisiere AD Gruppen"
+    Login-LDAP
+    $body+="`r`nLogin AD OK"
+    . "$PSScriptRoot/sync_ldapTeacherGroups.ps1"
     $body+="`r`nSynchronisation erfolgt"
 }
 catch {
