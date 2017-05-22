@@ -96,7 +96,7 @@ function Sync-LDAPTeams
             if (-not (Test-LDAPCourse $tm.Name -searchbase $searchbase)) {
                 Write-Verbose "Gruppe $($tm.Name) wird angelegt!"
                 [String]$gname=$tm.Name
-                $in=New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path $searchbase -Name $gname
+                $in=New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path $searchbase -Name $gname -OtherAttributes @{'Mail'="$gname@mm-bbs.de"} `
             }
             $member=@();
             foreach ($l in $tm.Value) {
