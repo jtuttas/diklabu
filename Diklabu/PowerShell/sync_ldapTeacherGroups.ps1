@@ -1,13 +1,16 @@
 ﻿function getTeamObject($g) {
     $teams=@{}
     foreach ($e in $g) {
-        $teacher=$e.Email 
-        $e.psobject.Properties | Where-Object {$_.name -ne "Email"} | ForEach-Object {           
-            if ($teams.ContainsKey($_.name) -eq $false) {
-                $teams[$_.name]=@();
+        [String]$teacher=$e.Email
+        $teacher=$teacher.Replace(" ","");
+        $e.psobject.Properties | Where-Object {$_.name -ne "Email"} | ForEach-Object {   
+            [String]$name=$_.name
+            $name=$name.Replace(" ","");
+            if ($teams.ContainsKey($name) -eq $false) {
+                $teams[$name]=@();
             }
-            if ($_.value -eq "x") {
-                $teams[$_.name]+=$teacher;        
+            if ($_.value -match "x") {
+                $teams[$name]+=$teacher;        
             }
         }
     }
@@ -29,7 +32,7 @@
    so wird auch seine Zuordnung in der Gruppe gelöscht.
 
 .EXAMPLE
-  sync-LDAPTeams -url "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=1e067544412cb4d2fba5ba36caf2c044d&authkey=AdRx5ft7DiervAFhbN6YyWI" -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force  
+  sync-LDAPTeams -url "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=123&authkey=456" -searchbase "OU=lehrerg,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force  
   Die freigegebenen CSV Datei unter der o.g. Adresse wird als Quelle genutzt
 .EXAMPLE
    Sync-LDAPTeams -csv C:\Temp\Moodle_Teamzuordnung.csv -searchbase "OU=mmbbs,DC=tuttas,DC=de" -force -Verbose 
@@ -39,8 +42,8 @@
     $obj ist eine Objekt wie aus einem CSV entstanden, so können auch andere Formate wie xlsx gelesen werden und
     dem CMDlet zugeführt werden:
 
-    Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
-    $obj=Import-Excel "$env:TMP\teams.csv"
+    Invoke-WebRequest -Uri "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=123&authkey=789" -OutFile "$env:TMP\teams.xlsx"
+    $obj=Import-Excel "$env:TMP\teams.xlsx"
 #>
 function Sync-LDAPTeams
 {
@@ -58,6 +61,9 @@ function Sync-LDAPTeams
         [Parameter(Mandatory=$true,
                    Position=0,ParameterSetName=’obj‘)]
         $obj,
+        [Parameter(Mandatory=$true,
+                   Position=0,ParameterSetName=’map‘)]
+        [System.Collections.Hashtable]$map,
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
         [switch]$force
     )
@@ -87,10 +93,16 @@ function Sync-LDAPTeams
                 break;
             }
         }
-        else {
+        elseif ($obj) {
             $g=$obj;
         }
-        $tas = getTeamObject($g)
+        if ($map) {
+            $tas=$map
+
+        }
+        else {
+            $tas = getTeamObject($g)
+        }
         foreach ($tm in $tas.GetEnumerator()) {
             Write-Host "Synchronisiere Gruppe ($($tm.Name))" -BackgroundColor DarkGreen
             if (-not (Test-LDAPCourse $tm.Name -searchbase $searchbase)) {
@@ -100,15 +112,30 @@ function Sync-LDAPTeams
             }
             $member=@();
             foreach ($l in $tm.Value) {
-                $t = Get-LDAPTeacher -email $l  -Verbose 
-                if ($t.EMAIL) {
-                    $member+=$t
+                if ($map) {
+                    if ($l -ne "") {
+                        $t = Get-LDAPTeacher -id $l  -Verbose 
+                        if ($t.EMAIL) {
+                            $member+=$t
+                        }
+                        else {
+                            Write-Warning "Kann Lehrer mit ID $($l) nicht in der AD finden!"
+                        }
+                    }
                 }
                 else {
-                    Write-Warning "Kann Lehrer mit EMail $($l) nicht in der AD finden!"
+                    $t = Get-LDAPTeacher -email $l  -Verbose 
+                    if ($t.EMAIL) {
+                        $member+=$t
+                    }
+                    else {
+                        Write-Warning "Kann Lehrer mit EMail $($l) nicht in der AD finden!"
+                    }
                 }
             }
-            $member | Sync-LDAPCourseMember -KNAME $tm.Name -searchbase $searchbase -force
+            if ($member) {
+                $member | Sync-LDAPCourseMember -KNAME $tm.Name -searchbase $searchbase -force  
+            }
         }
         Write-Host "Lösche Gruppen die nicht verwendet werden unter $searchbase" -BackgroundColor DarkGreen
         $in = Get-LDAPCourses -searchbase $searchbase 
@@ -120,24 +147,20 @@ function Sync-LDAPTeams
         foreach ($tm in $tas.GetEnumerator()) {
             $ist.Remove($tm.Name);
         }
-        $ist | ForEach-Object {
-            if ($_.Values.DistinguishedName -ne $null) {
+        $ist.Values | ForEach-Object {
+            if ($_.DistinguishedName -ne $null) {
                 if (-not $force) {
-                    $q = Read-Host "Soll die Gruppe $($_.Values.KName) gelöscht werden? (J/N)"
+                    $q = Read-Host "Soll die Gruppe $($_.KName) gelöscht werden? (J/N)"
                     if ($q -eq "J") {
-                        Write-Verbose "Lösche die Gruppe ($($_.Values.KName))"
-                        $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.Values.DistinguishedName -Confirm:$false
+                        Write-Verbose "Lösche die Gruppe ($($_.KName))"
+                        $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.DistinguishedName -Confirm:$false
                     }
                 }
                 else {
-                    Write-Verbose "Lösche die Gruppe ($($_.Values.KName))"
-                    $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.Values.DistinguishedName -Confirm:$false
+                    Write-Verbose "Lösche die Gruppe ($($_.KName))"
+                    $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.DistinguishedName -Confirm:$false
                 }
             }
         }
     }
 }
-
-Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
-$obj=Import-Excel "$env:TMP\teams.csv"
-Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" 

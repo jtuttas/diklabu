@@ -18,43 +18,77 @@ try {
     #$body+="Es traten "+$r1.error+" Fehler auf (siehe Protokoll im Anhang)`r`n";
     #$body+="`r`n";
 
-    #$body+="`r`n`r`nset-emails.ps1`r`n";
-    #$r2=set-emails -force -Verbose
-    #$body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
-    #$body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
-    #$body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
-    #$r2.msg > "$PSScriptRoot/../../../out_schueler.txt"
+    $body+="`r`n`r`nset-emails.ps1`r`n";
+    $r2=set-emails -force -Verbose
+    $body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
+    $body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
+    $body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
+    $r2.msg > "$PSScriptRoot/../../../out_schueler.txt"
 }
 catch {
     Write-Error $_.Exception.Message
     $body+=$_.Exception.Message
 }
-try {
-    ## Moodle gloable gruppe Sync
-    $body+="`r`n`r`nSynchronisiere Moodle Cohorts"
-    Login-Moodle
-    $body+="`r`nLogin Moodle OK"
-    Start-BitsTransfer -Source "https://multimediabbshannover-my.sharepoint.com/personal/tuttas_mmbbs_de/_layouts/15/download.aspx?docid=0a749b0c354e14daf9dc7193fa2c35c2c&authkey=AYsH6pkMo1ZLkEQKIh3QEns" -Destination "$env:TMP\teams.csv"
-    $obj=Import-Excel "$env:TMP\teams.csv"
-    Sync-MoodleTeams -obj $obj -Verbose
-    $body+="`r`nSynchronisation erfolgt"
+
+$body+="`r`n`r`nLade Lehrerteams.xlsx"
+if (-not $Global:logins["lehrerteams"]) {
+    $body+="`r`nAchtung keine URL für Lehrerteams im Keystore gefunden!"
+    Write-Warning "Achtung keine URL für Lehrerteams im Keystore gefunden!"
 }
-catch {
-    Write-Error $_.Exception.Message
-    $body+=$_.Exception.Message
+else {
+    try {
+        ## Moodle gloable gruppe Sync
+        $body+="`r`n`r`nSynchronisiere Moodle Cohorts"
+        Login-Moodle
+        $body+="`r`nLogin Moodle OK"
+        Invoke-WebRequest -Uri $Global:logins["lehrerteams"].location -OutFile "$env:TMP\teams.xlsx"
+        $obj=Import-Excel "$env:TMP\teams.xlsx"
+        Sync-MoodleTeams -obj $obj -Verbose
+        $body+="`r`nSynchronisation erfolgt"
+    }
+    catch {
+        Write-Error $_.Exception.Message
+        $body+=$_.Exception.Message
+    }
+    try {
+        ## Gruppen in der AD Sync
+        $body+="`r`n`r`nSynchronisiere AD Lehrer Gruppen"
+        Login-LDAP
+        $body+="`r`nLogin AD OK"
+        . "$PSScriptRoot/sync_ldapTeacherGroups.ps1"
+        $obj=Import-Excel "$env:TMP\teams.xlsx"
+        Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" 
+        $body+="`r`nSynchronisation erfolgt"
+    }
+    catch {
+        Write-Error $_.Exception.Message
+        $body+=$_.Exception.Message
+    }
 }
-try {
-    ## Gruppen in der AD Sync
-    $body+="`r`n`r`nSynchronisiere AD Gruppen"
-    Login-LDAP
-    $body+="`r`nLogin AD OK"
-    . "$PSScriptRoot/sync_ldapTeacherGroups.ps1"
-    $body+="`r`nSynchronisation erfolgt"
+
+$body+="`r`n`r`nLade Untisexport.csv"
+if (-not $Global:logins["untisexport"]) {
+    $body+="`r`nAchtung keine URL für Untisexport im Keystore gefunden!"
+    Write-Warning "Achtung keine URL für Untisexport im Keystore gefunden!"
 }
-catch {
-    Write-Error $_.Exception.Message
-    $body+=$_.Exception.Message
+else {
+    try {
+        ## Klassenteams in der AD Sync
+        $body+="`r`n`r`nSynchronisiere AD Klassenteams"
+        Login-LDAP
+        $body+="`r`nLogin AD OK"
+        . "$PSScriptRoot/gpu2ADGroups.ps1"
+        Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
+        $obj=get-classTeachersTeam -path "$env:TMP\untis.csv"
+        Sync-LDAPTeams -map $obj -Verbose -force -searchbase "OU=Klassenteams,OU=Lehrer,DC=mmbbs,DC=local"  
+        $body+="`r`nSynchronisation erfolgt"
+    }
+    catch {
+        Write-Error $_.Exception.Message
+        $body+=$_.Exception.Message
+    }
 }
+
 
 if (-not $Global:logins["smtp"]) {
     Write-Error "Keine SMTP Credentials gefunden. Bitte zunächst mit Login-SMTP Verbindung herstellen"
