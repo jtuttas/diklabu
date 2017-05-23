@@ -18,12 +18,14 @@ try {
     #$body+="Es traten "+$r1.error+" Fehler auf (siehe Protokoll im Anhang)`r`n";
     #$body+="`r`n";
 
+    <#
     $body+="`r`n`r`nset-emails.ps1`r`n";
     $r2=set-emails -force -Verbose
     $body+="Es wurden "+$r2.total+" Schueler bearbeitet`r`n";
     $body+="Es wurden "+$r2.update+" Schuelermails aktualisiert`r`n";
     $body+="Es wurden "+$r2.error+" Schueler aus dem Klassenbuch nicht in der AD gefunden!`r`n";
     $r2.msg > "$PSScriptRoot/../../../out_schueler.txt"
+    #>
 }
 catch {
     Write-Error $_.Exception.Message
@@ -80,7 +82,7 @@ else {
         . "$PSScriptRoot/gpu2ADGroups.ps1"
         Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
         $obj=get-classTeachersTeam -path "$env:TMP\untis.csv"
-        Sync-LDAPTeams -map $obj -Verbose -force -searchbase "OU=Klassenteams,OU=Lehrer,DC=mmbbs,DC=local"  
+        Sync-LDAPTeams -map $obj -Verbose -force -searchbase "OU=Klassenteams,OU=Schüler,DC=mmbbs,DC=local"  
         $body+="`r`nSynchronisation erfolgt"
     }
     catch {
