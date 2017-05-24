@@ -30,7 +30,7 @@ function importEng($csv) {
                 Write-Warning "Achtung Kurse $($line.New_KNAME) nicht gefunden"
             }
             else {
-                Add-Coursemember -id $line.Kid -klassenid $course.id -Verbose
+                Add-Coursemember -id $line.Sid -klassenid $course.id -Verbose
             }
         }
         else {

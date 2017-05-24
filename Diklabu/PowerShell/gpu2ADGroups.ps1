@@ -1,4 +1,14 @@
-﻿<#
+﻿
+function includes ($element,$array) {
+    foreach ($a in $array) {
+        if ($element -like $a) {
+            return $true
+        }
+    }
+    return $false;
+}
+
+<#
 .Synopsis
    Ein Array mit allen Klassen und den in Untis verplanten Lehrern der Klasse ermitteln
 .DESCRIPTION
@@ -30,8 +40,11 @@ function Import-Untis {
         [Parameter(Mandatory=$true,Position=0)]
         [String]$path,
         # Kurse die nicht berücksichtigt werden
-        [String[]]$blacklist=("EN-","WPK-","ITKVR","FöKu_","SPK-","CCNA","LR","VOrgMe","VOrgIT","Seminar","Linux")
-
+        [String[]]$blacklist=("EN-*","WPK-*","ITKVR*","FöKu_*","SPK-*","CCNA*","LR*","VOrgMe*","VOrgIT","Seminar*","Linux*"),
+        # Prefix des Klassennamnes
+        [String]$prefix="Klassenteam-",
+        # Wenn KuK -> Klassenzuordnungen muss dieser Schalter gesetzt werden, sonst K-> KuK zuordnung
+        [switch]$kukk
     )
 
     Process
@@ -51,15 +64,29 @@ function Import-Untis {
       
             
       $out=@{}
-      import-csv C:\Temp\GPU002-kurz.txt -Delimiter ";" | Where-Object {-not ($blacklist -contains $_.fach)} | ForEach-Object {
-        if ($out[$_.klasse] -eq $null) {
+      import-csv $path -Delimiter ";" | Where-Object {-not (includes $_.fach $blacklist)} | ForEach-Object {
+          if ($kukk) {
+            $key=$_.lol;
+            $value=$_.klasse
+          }
+          else {
+            [String]$key=$prefix+$_.klasse
+            $key=$key.Replace(" ","");
+            [String]$value=$_.lol
+            $value=$value.Replace(" ","");
+          }
+
+
+
+        if ($out[$key] -eq $null) {
             $data=@();
-            $data+=$_.lol;
-            $out[$_.klasse]=$data
+            $data+=$value;
+            $out[$key]=$data
         }
-        elseif (-not ($out[$_.klasse] -contains $_.lol)) {
-            $data+=$_.lol;
-            $out[$_.klasse]=$data
+        elseif (($out[$key] -notcontains $value)) {
+            $data=$out[$key];
+            $data+=$value;
+            $out[$key]=$data
         }
       }
       $out
