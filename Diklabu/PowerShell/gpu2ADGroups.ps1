@@ -10,9 +10,9 @@ function ElementinArray ($element,$array) {
 
 <#
 .Synopsis
-   Ein Array mit allen Klassen und den in Untis verplanten Lehrern der Klasse ermitteln
+   Ein Array mit allen Klassen und den in Untis verplanten Lehrern der Klasse ermitteln, oder alle Lehrer und den Verplanten Klassen erzeugen
 .DESCRIPTION
-   Aus einer von Untis exportierten Textdatei werden aus allen Klassen die Lehrer aufgelistet
+   Aus einer von Untis exportierten Textdatei werden aus allen Klassen die Lehrer aufgelistet bzw. alle Lehre und Klassen aufgelistet (siehe Schalter Kukk)
    Erzeugen der Untis-Datei:
     Datei-Import/Export-Export TXT Datei (CSV, DIF)-Schnittstellen-Unterricht
     Im Fenster "Export DIF-Datei Unterricht" als Trennzeichen ";" angeben und UTF-8 Checkbox aktivieren
@@ -28,7 +28,11 @@ function ElementinArray ($element,$array) {
 
 
 .EXAMPLE
-   get-classTeachersTeam <Pfad GP Untis Datei>
+   Import-Untis <Pfad GP Untis Datei>
+   Erzeugt einer Hashmap mit KEY = Präfix+Klassenbezeichnung und Value Array der Lehrerkürzel
+.EXAMPLE
+   Import-Untis <Pfad GP Untis Datei> -kukk
+   Erzeugt einer Hashmap mit KEY = Lehrerkürzel und Value = Array der Klassenbezeichnungen 
 
 #>
 
@@ -39,7 +43,7 @@ function Import-Untis {
         # Pfad- und Dateiname der aus GP Untis exportierten Datei
         [Parameter(Mandatory=$true,Position=0)]
         [String]$path,
-        # Kurse die nicht berücksichtigt werden
+        # Kurse die nicht berücksichtigt werden (* ist Wildcard)
         [String[]]$blacklist=("EN-*","WPK-*","ITKVR*","FöKu_*","SPK-*","CCNA*","LR*","VOrgMe*","VOrgIT","Seminar*","Linux*"),
         # Prefix des Klassennamnes
         [String]$prefix="Klassenteam-",
@@ -78,16 +82,16 @@ function Import-Untis {
 
 
 
-        if ($out[$key] -eq $null) {
+          if ($out[$key] -eq $null) {
             $data=@();
             $data+=$value;
             $out[$key]=$data
-        }
-        elseif (($out[$key] -notcontains $value)) {
+          }
+          elseif (($out[$key] -notcontains $value)) {
             $data=$out[$key];
             $data+=$value;
             $out[$key]=$data
-        }
+          }
       }
       $out
       
@@ -95,5 +99,3 @@ function Import-Untis {
 
 }#ende get-classTeachersTeam function
 
-#cls
-#get-classteachersteam "$PSSCRIPTROOT\gpu002.txt"
