@@ -1,5 +1,5 @@
 ﻿
-function includes ($element,$array) {
+function ElementinArray ($element,$array) {
     foreach ($a in $array) {
         if ($element -like $a) {
             return $true
@@ -64,7 +64,7 @@ function Import-Untis {
       
             
       $out=@{}
-      import-csv $path -Delimiter ";" | Where-Object {-not (includes $_.fach $blacklist)} | ForEach-Object {
+      import-csv $path -Delimiter ";" | Where-Object {-not (ElementInArray $_.fach $blacklist)} | ForEach-Object {
           if ($kukk) {
             $key=$_.lol;
             $value=$_.klasse
