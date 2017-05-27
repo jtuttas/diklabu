@@ -932,9 +932,9 @@ function Get-BPCoursemember
             }
         }
         elseif ($mode -eq "ONEWAY") {
-            Write-Verbose "Setze Schüler auf Abgang, die nicht in BBS Planung enthalten sind"
-            if ($log) {"== Setze Schüler auf Abgang, die nicht in BBS Planung enthalten sind =="}
-            $diklabu_pupils = get-pupils;
+            Write-Verbose "Setze Schüler auf Abgang, die im Diklabu eine BBS Planungs ID haben, aber nicht mehr in BBS Planung enthalten sind"
+            if ($log) {"== Setze Schüler auf Abgang, die im Diklabu eine BBS Planungs ID haben, aber nicht mehr in BBS Planung enthalten sind =="}
+            $diklabu_pupils = get-pupils | Where-Object {$_.ABGANG -ne "J" -and $_.ID_MMBBS -ne $null};
             $dp=@{};
             foreach ($p in $diklabu_pupils) {
                 $dp[$p.ID_MMBBS]=$p
@@ -943,11 +943,11 @@ function Get-BPCoursemember
             foreach ($p in $bbsp) {
                 $dp.Remove($p.BBSID);
             }
-            foreach ($p in $dp) {
-                Write-Verbose "Setze Schüler  $($p.VNAME) $($p.NNAME) auf Abgang"
-                if ($log) {"Setze Schüler  $($p.VNAME) $($p.NNAME) auf Abgang"}
+            foreach ($p in $dp.GetEnumerator()) {
+                Write-Verbose "Setze Schüler ID=$($p.Value.ID) ($($p.Value.VNAME) $($p.Value.NNAME)) auf Abgang"
+                if ($log) {"Setze Schüler ID=$($p.Value.ID)  ($($p.Value.VNAME) $($p.Value.NNAME)) auf Abgang"}
                 if (-not $whatif) {
-                    set-pupil -id $p.id -ABGANG "J"
+                    set-pupil -id $p.Value.id -ABGANG "J"
                 }
             }
         }
