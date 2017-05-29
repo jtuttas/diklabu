@@ -1,6 +1,6 @@
 ﻿<#
 .Synopsis
-   Importiert Kurse aus einer CSV Datei. Die Datei hat dabei folgende Attribute:
+   Importiert Kurse aus einer CSV oder XLSX Datei. Die Datei hat dabei folgende Attribute:
     "ID_KATEGORIE","ID_LEHRER","KNAME","NOTIZ","TITEL"
     "0","TU","WPK_TU_lila","Ein super WPK","Handy Programmierung"
 .DESCRIPTION
@@ -41,6 +41,8 @@
    Import-Courses -csv "c:\Users\jtutt_000\Seafile\Seafile\Meine Bibliothek\Orga\diklabu_kurse.csv"
 .EXAMPLE
    Import-Courses -url https://seafile.mm-bbs.de/f/3a3b68cd62/?raw=1
+.EXAMPLE
+   Import-Courses -xslx c:\Temp\Klassenliste.xlsx -
 #>
 function Import-Courses
 {
@@ -58,6 +60,15 @@ function Import-Courses
                    ParameterSetName=’seafile‘,
                    Position=0)]
         $url,
+        #XSLX
+        [Parameter(Mandatory=$true,                   
+                   ParameterSetName=’xlsx‘,
+                   Position=0)]
+        $xlsx,
+        [Parameter(Mandatory=$true,                   
+                   ParameterSetName=’xlsx‘,
+                   Position=1)]
+        $WorkSheetname,
         [switch]$force,
         [switch]$whatif
     )
@@ -72,10 +83,13 @@ function Import-Courses
                 break;
             }
         }
-        else {
+        elseif ($url) {
             $p=Invoke-WebRequest $url 
             $enc = [system.Text.Encoding]::UTF8
             $data = $enc.GetString($p.Content) | ConvertFrom-Csv            
+        }
+        else {
+            $data = Import-Excel $xlsx -WorkSheetname $WorkSheetname
         }
         
         if ((Get-Member -inputobject $data[0] -name "ID_KATEGORIE" -Membertype Properties) -eq "") {
