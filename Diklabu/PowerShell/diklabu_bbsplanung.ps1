@@ -636,10 +636,13 @@ function Get-BPCoursemember
                 }
                 else {
                     Write-Verbose " -Bekannten Betrieb gefunden $($b.NAME)!" 
-                    if ($c.Name -notlike $null -and $c.NAME -ne $b.NAME -or 
-                        $c.PLZ -notlike $null -and $c.PLZ -ne $b.PLZ -or
-                        $c.ORT -notlike $null -and $c.ORT -ne $b.ORT -or
-                        $c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE ) {
+                    #Write-Verbose $c
+                    #Write-Verbose $b
+                    #Write-Verbose $($c.Name -notlike $null -and $c.NAME -ne $b.NAME)
+                    if (($c.NAME -notlike $null -and $c.NAME -ne $b.NAME) -or 
+                        ($c.PLZ -notlike $null -and $c.PLZ -ne $b.PLZ) -or
+                        ($c.ORT -notlike $null -and $c.ORT -ne $b.ORT) -or
+                        ($c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE) ) {
                         <#
                         $c
                         $b
@@ -649,6 +652,7 @@ function Get-BPCoursemember
                         $c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE
                         
                         #>
+                        #Write-Verbose "  Daten unterscheiden sich, aktualisiere Betriebsdaten: Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)";
                         Write-Warning "  Daten unterscheiden sich, aktualisiere Betriebsdaten: Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)";
                         if ($log) {" Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)"}
                         if (-not $whatif) {
@@ -690,9 +694,9 @@ function Get-BPCoursemember
                 else {
                     Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)!" 
                     if ($a.NNAME -ne $c.NNAME -or
-                        $a.EMAIL -notlike $null -and $a.EMAIL -ne $c.EMAIL -or
-                        [bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -notlike $null -and -not (TelEqTel $a.FAX $c.FAX) -or 
-                        [bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -notlike $null -and -not (TelEqTel $a.TELEFON $c.TELEFON) ) {
+                        ($a.EMAIL -notlike $null -and $a.EMAIL -ne $c.EMAIL) -or
+                        ([bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -notlike $null -and -not (TelEqTel $a.FAX $c.FAX)) -or 
+                        ([bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -notlike $null -and -not (TelEqTel $a.TELEFON $c.TELEFON)) ) {
 
                         Write-warning "  Daten unterscheiden sich, aktualisiere Einträge von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)";
                         if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
