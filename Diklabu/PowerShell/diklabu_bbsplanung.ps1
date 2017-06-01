@@ -1,15 +1,16 @@
 ﻿$out=[System.Data.OleDb.OleDbConnection]$global:connection
 
+function FormatTel([String]$in) {
+    $in=$in.Trim()
+    $in=$in.Replace("-","");
+    $in=$in.Replace(" ","");
+    $in=$in.Replace("/","");
+    return $in
+}
 
 function TelEqTel([String]$tel1,[String]$tel2) {
-    $tel1=$tel1.Trim()
-    $tel2=$tel2.Trim()
-    $tel1=$tel1.Replace("-","");
-    $tel2=$tel2.Replace("-","");
-    $tel1=$tel1.Replace(" ","");
-    $tel2=$tel2.Replace(" ","");
-    $tel1=$tel1.Replace("/","");
-    $tel2=$tel2.Replace("/","");
+    $tel1=FormatTel $tel1
+    $tel2=FormatTel $tel2
     return $tel1 -eq $tel2
 }
 
@@ -606,7 +607,7 @@ function Get-BPCoursemember
             Write-Error "Die Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             return
         }
-
+        
         Write-Verbose "Synchonisiere Betriebe" 
         if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
@@ -643,15 +644,7 @@ function Get-BPCoursemember
                         ($c.PLZ -notlike $null -and $c.PLZ -ne $b.PLZ) -or
                         ($c.ORT -notlike $null -and $c.ORT -ne $b.ORT) -or
                         ($c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE) ) {
-                        <#
-                        $c
-                        $b
-                        $c.Name -notlike $null -and $c.NAME -ne $b.NAME 
-                        $c.PLZ -notlike $null -and $c.PLZ -ne $b.PLZ 
-                        $c.ORT -notlike $null -and $c.ORT -ne $b.ORT
-                        $c.Strasse -notlike $null -and $c.STRASSE -ne $b.STRASSE
                         
-                        #>
                         #Write-Verbose "  Daten unterscheiden sich, aktualisiere Betriebsdaten: Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)";
                         Write-Warning "  Daten unterscheiden sich, aktualisiere Betriebsdaten: Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)";
                         if ($log) {" Aktualisiere Daten von Name=$($c.NAME) PLZ= $($c.PLZ) ORT=$($c.ORT) STRASSE=$($c.STRASSE) NR=$($c.NR) auf Name=$($b.NAME) PLZ= $($b.PLZ) ORT=$($b.ORT) STRASSE=$($b.STRASSE) NR=$($b.NR)"}
@@ -662,7 +655,7 @@ function Get-BPCoursemember
                 }
             }
         }     
-
+        
         Write-Verbose "Synchonisiere Ausbilder" 
         if ($log) {"== Synchonisiere Ausbilder == "};
         $ausbilder = Get-BPInstructors
@@ -693,11 +686,10 @@ function Get-BPCoursemember
                 }
                 else {
                     Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)!" 
-                    if ($a.NNAME -ne $c.NNAME -or
-                        ($a.EMAIL -notlike $null -and $a.EMAIL -ne $c.EMAIL) -or
-                        ([bool]($a.PSobject.Properties.name  -match "FAX") -and $a.FAX -notlike $null -and -not (TelEqTel $a.FAX $c.FAX)) -or 
-                        ([bool]($a.PSobject.Properties.name  -match "TELEFON") -and $a.TELEFON -notlike $null -and -not (TelEqTel $a.TELEFON $c.TELEFON)) ) {
-
+                    $str1 = ""+$a.Name+$a.EMAIL+$(FormatTel $a.TELEFON)+$(FormatTel $a.FAX)
+                    $str2 = ""+$c.Name+$c.EMAIL+$(FormatTel $c.TELEFON)+$(FormatTel $c.FAX)
+                    if ($str1 -ne $str2) {
+                        Write-Host ("str1=($str1) str=($str2)") -BackgroundColor DarkRed
                         Write-warning "  Daten unterscheiden sich, aktualisiere Einträge von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)";
                         if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
 
@@ -829,8 +821,8 @@ function Get-BPCoursemember
                 if ($c.VNAME -ne $s.VNAME -or 
                     $c.NNAME -ne $s.NNAME -or
                     $c.GEBDAT -ne $gdate) {
-                    Write-Verbose "  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gebdat"
-                    if ($log) {"  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gebdat"}
+                    Write-Verbose "  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"
+                    if ($log) {"  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"}
                     if (-not $whatif) {
                         $out=Set-Pupil -id $c.id -VNAME $s.VNAME -NNAME $s.NNAME -EMAIL $s.EMAIL -bbsplanid $s.bbspl -GEBDAT $gdate
                     }
