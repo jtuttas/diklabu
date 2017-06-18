@@ -18,6 +18,7 @@
     "user": "user",
     "pass": "geheim",
     "clientConfig" : {
+        "DWO": "http://service.joerg-tuttas.de:8082/dwoRest/webresources/",
         "SERVER": "",        
         "WEBSOCKET": "ws://",
         "DIKLABUNAME":"DiKlaBu@Docker"
