@@ -4,7 +4,7 @@
 
 #Starten
 # docker run -d --name DB -p 3306:3306 -e MYSQL_DATABASE=moodle -e MYSQL_USER=moodle -e MYSQL_PASSWORD=moodle centurylink/mysql
-# docker run -d -P --name moodle --link DB:DB -e MOODLE_URL=http://localhost:8080 -p 8080:80 moodle/ldap
+# docker run -d -P --name moodle --link DB:DB -e MOODLE_URL=http://localhost:8081 -p 8081:80 moodle
 
 
 FROM ubuntu:16.04
