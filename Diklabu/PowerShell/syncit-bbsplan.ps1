@@ -7,12 +7,12 @@ Get-Keystore -file C:\Users\Tuttas\keystore.json
 Connect-BbsPlan
 Login-Diklabu
 $body="Das Synchronisationsscript BBS-Planung -> Diklabu gestartet um "+(Get-Date)+"! `r`n";
-<# Bei einem neuen Schuljahr dürfen die Schüler nicht gelöscht werden, um die Bilder zu behalten (Option NODELETE). Ferner
+<# Bei einem neuen Schuljahr dürfen die Schüler nicht gelöscht werden, um die Bilder zu behalten (Option DELETEPUPIL). Ferner
 kann es sein, dass sich die BBSPLanung ID der Schüler geändert haben, daher werden die Schüler gesucht
 nach VornameNachNameGebDatum mit Levensthein Distanz (Option NewYear).
 Daher das Script wie folgt starten:
 
-$report=Export-BBSPlanung -mode SYNC -log  -newyear -nodelete
+$report=Export-BBSPlanung -mode SYNC -log  -newyear
 
 
 
@@ -22,7 +22,7 @@ angelegt, die nicht in BBS Planung vorhanden sind, daher muss das Skript wie fol
 $report=Export-BBSPlanung -mode ONEWAY -log 
 
 #>
-$report=Export-BBSPlanung -mode ONEWAY -log -Verbose
+$report=Export-BBSPlanung -mode SYNC -log -Verbose
 $body+="Das Synchronisationsscript BBS-Planung -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
 $report | Set-Content "$Home/syncreport.txt"
