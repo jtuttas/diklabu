@@ -207,7 +207,7 @@ function Get-BPPupils
                 foreach ($item in $dataset.Tables[0]) {
                 #$item
                     $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER"
-                    $sch.BBSID=$item.id;
+                    $sch.BBSID=$item.NR_SCHÜLER;
                     $sch.NNAME=$item.NNAME;
                     $sch.VNAME=$item.VNAME;
                     if ((""+$item.GEBDAT).Length -gt 0) {
@@ -525,7 +525,7 @@ function Get-BPCoursemember
                 $schueler=@();
                 foreach ($item in $dataset.Tables[0]) {
                     $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER"
-                    $sch.BBSID=$item.id;
+                    $sch.BBSID=$item.NR_SCHÜLER;
                     $sch.NNAME=$item.NNAME;
                     $sch.VNAME=$item.VNAME;
                     if ((""+$item.GEBDAT).Length -gt 0) {
@@ -759,7 +759,7 @@ function Get-BPCoursemember
                 }
             }
         }
-        
+       
 
         Write-Verbose "Synchonisiere Schüler" 
         if ($log) {"== Synchonisiere Schüler =="}
@@ -779,8 +779,13 @@ function Get-BPCoursemember
                 # Schüler werden gesucht anhand von Vorname, Nachname und Geburtsdatum und Levensthein Distanz
                 $cc=Search-Pupil -VNAMENNAMEGEBDAT ($s.VNAME+$s.NNAME+$gdate) -LDist 3
                 if ($cc) {
-                    $p=Get-Pupil -id $cc.id
+                    $p=Get-Pupil -id $cc[0].id
                     $c=find-Pupil -VNAME $p.vorname -NNAME $p.name -GEBDAT $p.gebDatum
+                    if ($c) {
+                        Write-Verbose "Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.id)"
+                        if ($log) {"Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.id)"}
+                        $c=Set-Pupil -id $c.id -bbsplanid $s.id
+                    } 
                 }
                 else {
                     $c=$null
