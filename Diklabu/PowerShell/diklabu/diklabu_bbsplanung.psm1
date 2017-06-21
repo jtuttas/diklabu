@@ -782,9 +782,9 @@ function Get-BPCoursemember
                     $p=Get-Pupil -id $cc[0].id
                     $c=find-Pupil -VNAME $p.vorname -NNAME $p.name -GEBDAT $p.gebDatum
                     if ($c) {
-                        Write-Verbose "Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.id)"
-                        if ($log) {"Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.id)"}
-                        $c=Set-Pupil -id $c.id -bbsplanid $s.id
+                        Write-Verbose "Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"
+                        if ($log) {"Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
+                        $c=Set-Pupil -id $c.id -bbsplanid $s.BBSID
                     } 
                 }
                 else {
