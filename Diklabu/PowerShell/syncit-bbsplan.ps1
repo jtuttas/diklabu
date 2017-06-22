@@ -3,8 +3,8 @@
 . "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
 "Get Keystore"
-#Get-Keystore -file C:\Users\Tuttas\keystore.json
-Get-Keystore C:\Users\jtutt_000\diklabu2.conf
+Get-Keystore -file C:\Users\Tuttas\keystore.json
+#Get-Keystore C:\Users\jtutt_000\diklabu2.conf
 Connect-BbsPlan
 Login-Diklabu
 $body="Das Synchronisationsscript BBS-Planung -> Diklabu gestartet um "+(Get-Date)+"! `r`n";
@@ -38,7 +38,7 @@ angelegt, die nicht in BBS Planung vorhanden sind, daher muss das Skript wie fol
 $report=Export-BBSPlanung -mode ONEWAY -log 
 
 #>
-$report=Export-BBSPlanung -mode SYNC -log -newyear -Verbose
+$report=Export-BBSPlanung -mode SYNC -log -Verbose
 $body+="Das Synchronisationsscript BBS-Planung -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
 $report | Set-Content "$Home/syncreport.txt"

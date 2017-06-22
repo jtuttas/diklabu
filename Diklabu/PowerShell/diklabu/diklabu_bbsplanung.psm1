@@ -608,7 +608,7 @@ function Get-BPCoursemember
             Write-Error "Die Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             return
         }
-        
+        <#
         Write-Verbose "Synchonisiere Betriebe" 
         if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
@@ -656,7 +656,7 @@ function Get-BPCoursemember
                 }
             }
         }     
-        
+        #>
         Write-Verbose "Synchonisiere Ausbilder" 
         if ($log) {"== Synchonisiere Ausbilder == "};
         $ausbilder = Get-BPInstructors
@@ -690,8 +690,10 @@ function Get-BPCoursemember
                     #Write-Host "$a und $c"
                     $str1 = ""+$a.NNAME+$a.EMAIL+$(FormatTel $a.TELEFON)+$(FormatTel $a.FAX)
                     $str2 = ""+$c.NNAME+$c.EMAIL+$(FormatTel $c.TELEFON)+$(FormatTel $c.FAX)
+                    $str1=$str1.Replace(" ","");
+                    $str2=$str2.Replace(" ","");
                     if ($str1 -ne $str2) {
-                        #Write-Host ("str1=($str1) str=($str2)") -BackgroundColor DarkRed
+                        Write-Host ("str1=($str1) str2=($str2)") -BackgroundColor DarkRed
                         Write-warning "  Daten unterscheiden sich, aktualisiere Einträge von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)";
                         if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
 
@@ -803,10 +805,21 @@ function Get-BPCoursemember
                 
                 if (-not $whatif) {
                     if ($gdate) {
-                        $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N"  -bbsplanid $s.BBSID -ID_AUSBILDER $s.BETRIEB_NR
+                        if ($s.BETRIEB_NR.getType().Name -eq "DBNull") {
+                            $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N"  -bbsplanid $s.BBSID -ID_AUSBILDER 99999
+                        }
+                        else {
+                            $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N"  -bbsplanid $s.BBSID -ID_AUSBILDER $s.BETRIEB_NR
+                        }
                     }
                     else {
-                       $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -bbsplanid $s.BBSID -ID_AUSBILDER $s.BETRIEB_NR
+                        if ($s.BETRIEB_NR.getType().Name -eq "DBNull") {
+                            $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -bbsplanid $s.BBSID -ID_AUSBILDER 99999
+                        }
+                        else {
+                            $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -bbsplanid $s.BBSID -ID_AUSBILDER $s.BETRIEB_NR
+                        }
+                       
                     }
                     $s.diklabuID=$np.ID
                 }
