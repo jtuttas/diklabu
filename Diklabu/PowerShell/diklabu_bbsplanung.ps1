@@ -687,10 +687,11 @@ function Get-BPCoursemember
                 }
                 else {
                     Write-Verbose "  Bekannten Ausbilder gefunden $($a.NNAME) mit EMAIL $($c.EMAIL)!" 
-                    $str1 = ""+$a.Name+$a.EMAIL+$(FormatTel $a.TELEFON)+$(FormatTel $a.FAX)
-                    $str2 = ""+$c.Name+$c.EMAIL+$(FormatTel $c.TELEFON)+$(FormatTel $c.FAX)
+                    #Write-Host "$a und $c"
+                    $str1 = ""+$a.NNAME+$a.EMAIL+$(FormatTel $a.TELEFON)+$(FormatTel $a.FAX)
+                    $str2 = ""+$c.NNAME+$c.EMAIL+$(FormatTel $c.TELEFON)+$(FormatTel $c.FAX)
                     if ($str1 -ne $str2) {
-                        Write-Host ("str1=($str1) str=($str2)") -BackgroundColor DarkRed
+                        #Write-Host ("str1=($str1) str=($str2)") -BackgroundColor DarkRed
                         Write-warning "  Daten unterscheiden sich, aktualisiere Einträge von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)";
                         if ($log) {"  Daten unterscheiden sich ändere von NNAME=$($c.NNAME) EMAIL=$($c.EMAIL) FAX=$($c.FAX) TELEFON=$($c.TELEFON) auf  NNAME=$($a.NNAME) EMAIL=$($a.EMAIL) FAX=$($a.FAX) TELEFON=$($a.TELEFON)"}
 
@@ -802,10 +803,10 @@ function Get-BPCoursemember
                 
                 if (-not $whatif) {
                     if ($gdate) {
-                        $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N"  -bbsplanid $s.BBSID
+                        $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -EMAIL $s.EMAIL -ABGANG "N"  -bbsplanid $s.BBSID -ID_AUSBILDER $s.BETRIEB_NR
                     }
                     else {
-                       $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -bbsplanid $s.BBSID
+                       $np=New-Pupil -VNAME $s.VNAME -NNAME $s.NNAME  -EMAIL $s.EMAIL -ABGANG "N" -bbsplanid $s.BBSID -ID_AUSBILDER $s.BETRIEB_NR
                     }
                     $s.diklabuID=$np.ID
                 }
@@ -868,35 +869,81 @@ function Get-BPCoursemember
                 }
                 $s.diklabuID=$c.id
                 $kl = Get-Coursemembership $c.id
-                foreach ($k in $kl) {
-                    if ($k.ID_Kategorie -eq 0) {
-                        if ($s.KL_NAME -ne $k.KNAME) {
-                            Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) hat die Klasse gewechselt! Aus der Klasse $($k.KNAME) in die Klasse $($s.KL_NAME)"
-                            if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) hat die Klasse gewechselt! Aus der Klasse $($k.KNAME) in die Klasse $($s.KL_NAME)"}
-                            if (-not $whatif) {
-                                $out=Remove-Coursemember -id $s.diklabuID -klassenid $k.ID
-                            }
-                            $newKlasse = Find-Course -KNAME $s.KL_NAME
-                            if (-not $whatif) {
-                                $out=Add-Coursemember -id $s.diklabuID -klassenid $newKlasse.ID
+                if (-not $kl) {
+                    Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"
+                    if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"}
+                    if (-not $whatif) {
+                        $klasse = Find-Course $s.KL_NAME
+                        $out=Add-Coursemember -id $c.id -klassenid $klasse.id
+                    }
+                }
+                else {
+                    foreach ($k in $kl) {
+                        if ($k.ID_Kategorie -eq 0) {
+                            if ($s.KL_NAME -ne $k.KNAME) {
+                                Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) hat die Klasse gewechselt! Aus der Klasse $($k.KNAME) in die Klasse $($s.KL_NAME)"
+                                if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) hat die Klasse gewechselt! Aus der Klasse $($k.KNAME) in die Klasse $($s.KL_NAME)"}
+                                if (-not $whatif) {
+                                    $out=Remove-Coursemember -id $s.diklabuID -klassenid $k.ID
+                                }
+                                $newKlasse = Find-Course -KNAME $s.KL_NAME
+                                if (-not $whatif) {
+                                    $out=Add-Coursemember -id $s.diklabuID -klassenid $newKlasse.ID
+                                }
                             }
                         }
                     }
                 }
 
                 # $s Schüler aus BBS Planung und $c Schüler aus diklabu
-                if (-not [bool]($c.PSobject.Properties.name  -match "ID_AUSBILDER") -and $s.BETRIEB_NR -or  $c.ID_AUSBILDER -ne $s.BETRIEB_NR -and $c.ID_AUSBILDER -ne 99999) {
+                <#
+                    $s BBS Planung
+                    BBSID        : 8
+                    NNAME        : Musterfrau
+                    VNAME        : Erina
+                    GEBDAT       : 07.04.1990 00:00:00
+                    GEBORT       : 
+                    STR          : 
+                    PLZ          : 
+                    ORT          : 
+                    TEL          : 
+                    TEL_HANDY    : 
+                    EMAIL        : 
+                    GESCHLECHT   : 
+                    KL_NAME      : FIAE17B
+                    BETRIEB_NR   : 5
+                    ID_AUSBILDER : 
+
+
+                    $c DIKLABU
+                    ABGANG       : N
+                    GEBDAT       : 1990-04-07
+                    ID_AUSBILDER : 99999
+                    ID_MMBBS     : 8
+                    NNAME        : Musterfrau
+                    VNAME        : Erina
+                    id           : 15482
+                #>
+                # Der Schüler im Diklabu hat kein Attribut ID_AUSBILDER in BBS PLanung ist aber ein Ausbilder eingetragen
+                if ((-not [bool]($c.PSobject.Properties.name  -match "ID_AUSBILDER") -and $s.BETRIEB_NR) -or  
+                    # Schüler hatte keinen Betrieb und hat jetzt einen Bekommen
+                    (($c.ID_AUSBILDER -eq 99999) -and  $s.BETRIEB_NR.getType().Name -ne "DBNull") -and $s.BETRIEB_NR -ne 99999 -or
+                    # Schüler hatte einen Betrieb und hat jetzt keinen mehr
+                    (($c.ID_AUSBILDER -ne 99999) -and $s.BETRIEB_NR.getType().Name -eq "DBNull") -or
+                    # Schüler hatte einen Betrieb und hat jetzt einen neuen
+                    (($c.ID_AUSBILDER -ne 99999) -and  $s.BETRIEB_NR.getType().Name -ne "DBNull" -and ($c.ID_AUSBILDER -ne $s.BETRIEB_NR)) 
+                    ) {
                     Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) hat einen neuen Ausbildungsbetrieb / Ausbilder ID Ausbilder=($($s.BETRIEB_NR))" 
                     if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) hat einen neuen Ausbildungsbetrieb / Ausbilder ID Ausbilder=($($s.BETRIEB_NR))" }
                     #Write-Host "C:$c"
                     #Write-Host "S:$s"
                     if (-not $whatif) {
-                        $bn=$s.BETRIEB_NR
-                        if ($bn -eq 0) {$bn = 99999}
-                        if ($bn -eq $null) {$bn = 99999}
-                        if ($bn -eq "") {$bn=99999;}
-                        if (-not [bool]($s.PSobject.Properties.name  -match "BETRIEB_NR")) {$bn=99999;}
-                        $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $bn
+                        try {
+                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $s.BETRIEB_NR -Verbose
+                        }
+                        catch {
+                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER 99999 -Verbose
+                        }
                     }
                 }            
             }

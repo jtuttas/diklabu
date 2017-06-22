@@ -3,13 +3,29 @@
 . "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
 "Get Keystore"
-Get-Keystore -file C:\Users\Tuttas\keystore.json
+#Get-Keystore -file C:\Users\Tuttas\keystore.json
+Get-Keystore C:\Users\jtutt_000\diklabu2.conf
 Connect-BbsPlan
 Login-Diklabu
 $body="Das Synchronisationsscript BBS-Planung -> Diklabu gestartet um "+(Get-Date)+"! `r`n";
-<# Bei einem neuen Schuljahr dürfen die Schüler nicht gelöscht werden, um die Bilder zu behalten (Option DELETEPUPIL). Ferner
+<# Bei einem neuen Schuljahr dürfen die Schüler nicht gelöscht werden, um die Bilder zu behalten. Ferner
 kann es sein, dass sich die BBSPLanung ID der Schüler geändert haben, daher werden die Schüler gesucht
 nach VornameNachNameGebDatum mit Levensthein Distanz (Option NewYear).
+
+Vorher noch folgende Tabellen leeren:
+Betrieb, Ausbilder, Schueler_Klasse, Klasse
+
+z.B. mittels folgenden Codezeilen
+Get-Instructors | Delete-Instructor
+Get-Companies | Delete-Company
+get-courses | ForEach-Object {$klid=$_.id; Get-Coursemember -id $klid | Remove-Coursemember -klassenid $klid}
+Get-Courses | Delete-Course
+New-Company -ID 99999 -NAME " " -PLZ  " " -ORT " " -STRASSE " " -NR " "
+New-Instructor -ID 99999 -NNAME " " -EMAIL " " -ANREDE " " -FAX " " -TELEFON " " -ID_BETRIEB 99999
+
+Manuell müssen noch die folgenden Tabellen geleert werden:
+Anwesenheit, Noten, Verlauf
+
 Daher das Script wie folgt starten:
 
 $report=Export-BBSPlanung -mode SYNC -log  -newyear
