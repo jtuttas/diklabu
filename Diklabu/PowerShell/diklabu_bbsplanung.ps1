@@ -753,8 +753,8 @@ function Get-BPCoursemember
             else {
                 Write-Verbose "  Bekannte Klasse $($kl.KNAME)!" 
                 if ($kl.ID_LEHRER -ne $k.ID_LEHRER) {
-                    Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)";
-                    if ($log) {"  Daten unterscheiden sich, aktualisiere Einträge von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)"};
+                    Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge für $($k.KNAME) von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)";
+                    if ($log) {"  Daten unterscheiden sich, aktualisiere Einträge für $($k.KNAME) von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)"};
                     if (-not $whatif) {
                         $nl=Set-Course -id $kl.id -ID_LEHRER $k.ID_LEHRER
                         $k.diklabuID=$nl.id
@@ -763,7 +763,7 @@ function Get-BPCoursemember
             }
         }
        
-
+        
         Write-Verbose "Synchonisiere Schüler" 
         if ($log) {"== Synchonisiere Schüler =="}
         $schueler = Get-BPPupils
@@ -844,9 +844,9 @@ function Get-BPCoursemember
                 if ($c.VNAME -ne $s.VNAME -or 
                     $c.NNAME -ne $s.NNAME -or
                     $c.GEBDAT -ne $gdate ) {
-                    Write-Verbose "  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"
-                    if ($log) {"  Die Daten haben sich geändert, aktualisiere Daten von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"}
-                    if ($c.VNAME -ne $s.VNAME -and $c.NNAME -ne $s.NNAME -and -$c.GEBDAT -ne $gdate) {
+                    Write-Verbose "  Die Daten haben sich geändert, aktualisiere Daten (ID=$($c.ID) BBSID=$($c.ID_MMBBS)) von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"
+                    if ($log) {"  Die Daten haben sich geändert, aktualisiere Daten (ID=$($c.ID) BBSID=$($c.ID_MMBBS)) von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"}
+                    if (($c.VNAME -ne $s.VNAME) -and ($c.NNAME -ne $s.NNAME) -and (-$c.GEBDAT -ne $gdate)) {
                         Write-Warning "Alle drei Daten haben sich geändert, suche Schüler NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate mit Levensthein Distanz"
                         if ($log) {"Alle drei Daten haben sich geändert, suche Schüler NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate mit Levensthein Distanz"}
                         $cc=Search-Pupil -VNAMENNAMEGEBDAT ($s.VNAME+$s.NNAME+$gdate) -LDist 3

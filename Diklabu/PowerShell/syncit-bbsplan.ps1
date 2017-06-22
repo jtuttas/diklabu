@@ -12,23 +12,27 @@ $body="Das Synchronisationsscript BBS-Planung -> Diklabu gestartet um "+(Get-Dat
 kann es sein, dass sich die BBSPLanung ID der Schüler geändert haben, daher werden die Schüler gesucht
 nach VornameNachNameGebDatum mit Levensthein Distanz (Option NewYear).
 
-Vorher noch folgende Tabellen leeren:
-Betrieb, Ausbilder, Schueler_Klasse, Klasse
+Vorgehen:
+1. Neues Schuljahr in Schuljahr Anlegen
 
-z.B. mittels folgenden Codezeilen
-Get-Instructors | Delete-Instructor
-Get-Companies | Delete-Company
-get-courses | ForEach-Object {$klid=$_.id; Get-Coursemember -id $klid | Remove-Coursemember -klassenid $klid}
-Get-Courses | Delete-Course
-New-Company -ID 99999 -NAME " " -PLZ  " " -ORT " " -STRASSE " " -NR " "
-New-Instructor -ID 99999 -NNAME " " -EMAIL " " -ANREDE " " -FAX " " -TELEFON " " -ID_BETRIEB 99999
+2. Vorher noch folgende Tabellen leeren:
+    Schueler_Klasse, Klasse
 
-Manuell müssen noch die folgenden Tabellen geleert werden:
-Anwesenheit, Noten, Verlauf
+    z.B. mittels folgenden Codezeilen
+    New-Company -ID 99999 -NAME " " -PLZ  " " -ORT " " -STRASSE " " -NR " "
+    New-Instructor -ID 99999 -NNAME " " -EMAIL " " -ANREDE " " -FAX " " -TELEFON " " -ID_BETRIEB 99999
+    Get-Pupils | Set-Pupil -ID_AUSBILDER 99999
+    Get-Instructors | Delete-Instructor
+    Get-Companies | Delete-Company (ggf. Schüler Löschen die eine ID_UMSCHUL eingetragen haben)
+    get-courses | ForEach-Object {$klid=$_.id; Get-Coursemember -id $klid | Remove-Coursemember -klassenid $klid}
+    Get-Courses | Delete-Course
 
-Daher das Script wie folgt starten:
+3. Manuell müssen noch die folgenden Tabellen geleert werden:
+    Anwesenheit, Noten, Verlauf
 
-$report=Export-BBSPlanung -mode SYNC -log  -newyear
+4. Dann das Script wie folgt starten:
+
+$report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil
 
 
 
@@ -38,7 +42,7 @@ angelegt, die nicht in BBS Planung vorhanden sind, daher muss das Skript wie fol
 $report=Export-BBSPlanung -mode ONEWAY -log 
 
 #>
-$report=Export-BBSPlanung -mode SYNC -log -Verbose
+$report=Export-BBSPlanung -mode ONEWAY -log 
 $body+="Das Synchronisationsscript BBS-Planung -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
 $report | Set-Content "$Home/syncreport.txt"
