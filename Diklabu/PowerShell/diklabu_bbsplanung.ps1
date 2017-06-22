@@ -608,7 +608,7 @@ function Get-BPCoursemember
             Write-Error "Die Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             return
         }
-        <#
+        
         Write-Verbose "Synchonisiere Betriebe" 
         if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
@@ -656,7 +656,7 @@ function Get-BPCoursemember
                 }
             }
         }     
-        #>
+        
         Write-Verbose "Synchonisiere Ausbilder" 
         if ($log) {"== Synchonisiere Ausbilder == "};
         $ausbilder = Get-BPInstructors
