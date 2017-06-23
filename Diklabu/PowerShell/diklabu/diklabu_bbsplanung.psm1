@@ -734,7 +734,7 @@ function Get-BPCoursemember
                 }
             }
         }
-
+        
         Write-Verbose "Synchonisiere Klassen" 
         if ($log) {"== Synchonisiere Klassen == "}
         $klassen = Get-BPCourses
@@ -785,9 +785,9 @@ function Get-BPCoursemember
                     $p=Get-Pupil -id $cc[0].id
                     $c=find-Pupil -VNAME $p.vorname -NNAME $p.name -GEBDAT $p.gebDatum
                     if ($c) {
-                        Write-Verbose "Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"
-                        if ($log) {"Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
-                        $c=Set-Pupil -id $c.id -bbsplanid $s.BBSID
+                        Write-Verbose "Schüler ID=$($cc[0].id) gefunden ändere (NR_SCHÜLER) auf $($s.BBSID)"
+                        if ($log) {"Schüler ID=$($cc[0].id)  gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
+                        $c=Set-Pupil -id $cc[0].id -bbsplanid $s.BBSID
                     } 
                 }
                 else {
@@ -856,8 +856,9 @@ function Get-BPCoursemember
                             Write-Verbose "Schüler gefunden, aktualisiere BBS Plan ID für NNAME=$($c2.NNAME) VNAME=$($c2.VNAME)"
                             if ($log) {"Schüler gefunden, aktualisiere BBS Plan ID für NNAME=$($c2.NNAME) VNAME=$($c2.VNAME)"}
                             if (-not $whatif) {
-                                Set-Pupil -id $c2.id -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -bbsplanid $c.BBSID
+                                Set-Pupil -id $c2.id -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -bbsplanid $c.BBSID                                
                             }
+                            $s.diklabuID=$c2.ID
                         }
                         else {
                             Write-Verbose "Schüler NICHT gefunden, trage neuen Schüler  NNAME=$($s.NNAME) VNAME=$($s.VNAME) ein"
@@ -952,10 +953,10 @@ function Get-BPCoursemember
                     #Write-Host "S:$s"
                     if (-not $whatif) {
                         try {
-                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $s.BETRIEB_NR -Verbose
+                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $s.BETRIEB_NR
                         }
                         catch {
-                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER 99999 -Verbose
+                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER 99999
                         }
                     }
                 }            

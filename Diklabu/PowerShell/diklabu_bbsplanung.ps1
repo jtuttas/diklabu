@@ -608,7 +608,7 @@ function Get-BPCoursemember
             Write-Error "Die Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             return
         }
-        <#
+        
         Write-Verbose "Synchonisiere Betriebe" 
         if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
@@ -762,7 +762,7 @@ function Get-BPCoursemember
                 }
             }
         }
-       #>
+       
         
         Write-Verbose "Synchonisiere Schüler" 
         if ($log) {"== Synchonisiere Schüler =="}
@@ -785,9 +785,9 @@ function Get-BPCoursemember
                     $p=Get-Pupil -id $cc[0].id
                     $c=find-Pupil -VNAME $p.vorname -NNAME $p.name -GEBDAT $p.gebDatum
                     if ($c) {
-                        Write-Verbose "Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"
-                        if ($log) {"Schüler gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
-                        $c=Set-Pupil -id $c.id -bbsplanid $s.BBSID
+                        Write-Verbose "Schüler ID=$($cc[0].id) gefunden ändere (NR_SCHÜLER) auf $($s.BBSID)"
+                        if ($log) {"Schüler ID=$($cc[0].id)  gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
+                        $c=Set-Pupil -id $cc[0].id -bbsplanid $s.BBSID
                     } 
                 }
                 else {
@@ -953,10 +953,10 @@ function Get-BPCoursemember
                     #Write-Host "S:$s"
                     if (-not $whatif) {
                         try {
-                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $s.BETRIEB_NR -Verbose
+                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER $s.BETRIEB_NR
                         }
                         catch {
-                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER 99999 -Verbose
+                            $out=Set-Pupil -id $s.diklabuID -ID_AUSBILDER 99999
                         }
                     }
                 }            

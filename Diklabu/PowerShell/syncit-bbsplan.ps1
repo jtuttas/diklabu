@@ -15,20 +15,10 @@ nach VornameNachNameGebDatum mit Levensthein Distanz (Option NewYear).
 Vorgehen:
 1. Neues Schuljahr in Schuljahr Anlegen
 
-2. Vorher noch folgende Tabellen leeren:
-    Schueler_Klasse, Klasse
-
-    z.B. mittels folgenden Codezeilen
-    New-Company -ID 99999 -NAME " " -PLZ  " " -ORT " " -STRASSE " " -NR " "
-    New-Instructor -ID 99999 -NNAME " " -EMAIL " " -ANREDE " " -FAX " " -TELEFON " " -ID_BETRIEB 99999
-    Get-Pupils | Set-Pupil -ID_AUSBILDER 99999
-    Get-Instructors | Delete-Instructor
-    Get-Companies | Delete-Company (ggf. Schüler Löschen die eine ID_UMSCHUL eingetragen haben)
-    get-courses | ForEach-Object {$klid=$_.id; Get-Coursemember -id $klid | Remove-Coursemember -klassenid $klid}
-    Get-Courses | Delete-Course
-
-    Oder folgendes SQL Statement:
-    UPDATE SCHUELER set ID_AUSBILDER=null,ID_UMSCHUL=null;
+2. Vorher noch  Tabellen leeren:
+   
+    SQL Statement:
+    UPDATE SCHUELER set ID_AUSBILDER=null,ID_UMSCHUL=null,ID_MMBBS=null;
     DELETE FROM AUSBILDER;
     DELETE FROM BETRIEB;
     INSERT INTO BETRIEB (ID,NAME,PLZ,ORT,STRASSE,NR) Values (99999," "," "," "," "," ");
@@ -41,10 +31,8 @@ Vorgehen:
     DELETE FROM KLASSE;
     DELETE FROM NOTEN;
 
-3. Manuell müssen noch die folgenden Tabellen geleert werden (wenn nicht das SQL Statement ausgeführt wurde):
-    Anwesenheit, Noten, Verlauf
 
-4. Dann das Script wie folgt starten:
+3. Dann das Script wie folgt starten:
 
 $report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil -verbose
 
@@ -56,7 +44,7 @@ angelegt, die nicht in BBS Planung vorhanden sind, daher muss das Skript wie fol
 $report=Export-BBSPlanung -mode ONEWAY -log -verbose
 
 #>
-$report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil -verbose
+$report=Export-BBSPlanung -mode ONEWAY -log -verbose
 $body+="Das Synchronisationsscript BBS-Planung -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
 $report | Set-Content "$Home/syncreport.txt"
