@@ -608,7 +608,7 @@ function Get-BPCoursemember
             Write-Error "Die Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             return
         }
-        
+        <#
         Write-Verbose "Synchonisiere Betriebe" 
         if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
@@ -734,7 +734,7 @@ function Get-BPCoursemember
                 }
             }
         }
-
+        
         Write-Verbose "Synchonisiere Klassen" 
         if ($log) {"== Synchonisiere Klassen == "}
         $klassen = Get-BPCourses
@@ -762,7 +762,7 @@ function Get-BPCoursemember
                 }
             }
         }
-       
+       #>
         
         Write-Verbose "Synchonisiere Schüler" 
         if ($log) {"== Synchonisiere Schüler =="}
@@ -856,8 +856,9 @@ function Get-BPCoursemember
                             Write-Verbose "Schüler gefunden, aktualisiere BBS Plan ID für NNAME=$($c2.NNAME) VNAME=$($c2.VNAME)"
                             if ($log) {"Schüler gefunden, aktualisiere BBS Plan ID für NNAME=$($c2.NNAME) VNAME=$($c2.VNAME)"}
                             if (-not $whatif) {
-                                Set-Pupil -id $c2.id -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -bbsplanid $c.BBSID
+                                Set-Pupil -id $c2.id -VNAME $s.VNAME -NNAME $s.NNAME -GEBDAT $gdate -bbsplanid $c.BBSID                                
                             }
+                            $s.diklabuID=$c2.ID
                         }
                         else {
                             Write-Verbose "Schüler NICHT gefunden, trage neuen Schüler  NNAME=$($s.NNAME) VNAME=$($s.VNAME) ein"

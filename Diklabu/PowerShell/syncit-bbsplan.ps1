@@ -27,22 +27,36 @@ Vorgehen:
     get-courses | ForEach-Object {$klid=$_.id; Get-Coursemember -id $klid | Remove-Coursemember -klassenid $klid}
     Get-Courses | Delete-Course
 
-3. Manuell müssen noch die folgenden Tabellen geleert werden:
+    Oder folgendes SQL Statement:
+    UPDATE SCHUELER set ID_AUSBILDER=null,ID_UMSCHUL=null;
+    DELETE FROM AUSBILDER;
+    DELETE FROM BETRIEB;
+    INSERT INTO BETRIEB (ID,NAME,PLZ,ORT,STRASSE,NR) Values (99999," "," "," "," "," ");
+    INSERT INTO AUSBILDER (ID,ID_BETRIEB,ANREDE,NNAME,EMAIL,TELEFON,FAX) Values(99999,99999," "," "," "," "," ");
+    DELETE FROM ANWESENHEIT;
+    DELETE FROM VERLAUF;
+    DELETE FROM SCHUELER_KLASSE;
+    DELETE FROM KURSWUNSCH;
+    DELETE FROM BUCHUNGSFREIGABE;
+    DELETE FROM KLASSE;
+    DELETE FROM NOTEN;
+
+3. Manuell müssen noch die folgenden Tabellen geleert werden (wenn nicht das SQL Statement ausgeführt wurde):
     Anwesenheit, Noten, Verlauf
 
 4. Dann das Script wie folgt starten:
 
-$report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil
+$report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil -verbose
 
 
 
 Im Dauerbetrieb drüfen die Klassen (z.B. WPKs) nicht gelöscht werden, auch werden Schüler im diklabu
 angelegt, die nicht in BBS Planung vorhanden sind, daher muss das Skript wie folgt gestartet werden.
 
-$report=Export-BBSPlanung -mode ONEWAY -log 
+$report=Export-BBSPlanung -mode ONEWAY -log -verbose
 
 #>
-$report=Export-BBSPlanung -mode ONEWAY -log 
+$report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil -verbose
 $body+="Das Synchronisationsscript BBS-Planung -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
 $report | Set-Content "$Home/syncreport.txt"
