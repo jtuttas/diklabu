@@ -98,9 +98,8 @@ public class LehrerManager {
         em.getEntityManagerFactory().getCache().evictAll();
         Lehrer le = em.find(Lehrer.class, lid);
         if (le != null) {
-            if (l.getEMAIL() != null) {
-                le.setEMAIL(l.getEMAIL());
-            }
+             le.setEMAIL(l.getEMAIL());
+            
             if (l.getIdplain() != null) {
                 le.setIdplain(l.getIdplain());
             }
