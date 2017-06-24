@@ -798,10 +798,29 @@ function Get-BPCoursemember
                 # Schüler werden anahand der BBS Planungs ID gesucht
                 Write-Verbose "Suche Schüler $($s.VNAME) $($s.NNAME)  GEBDat $gdate nach BBSid=$($s.BBSID)"
                 $c=Get-Pupil -bbsplanid $s.BBSID
+
+                if (!$c) {
+                    Write-Verbose "Schüler nicht gefunden, probiere suche nach Levensthein Distanz!"
+                    $cc=Search-Pupil -VNAMENNAMEGEBDAT ($s.VNAME+$s.NNAME+$gdate) -LDist 3
+               
+                    if ($cc) {
+                        $p=Get-Pupil -id $cc[0].id
+                        $c=find-Pupil -VNAME $p.vorname -NNAME $p.name -GEBDAT $p.gebDatum
+                        if ($c) {
+                            Write-Verbose "Schüler ID=$($cc[0].id) gefunden ändere (NR_SCHÜLER) auf $($s.BBSID)"
+                            if ($log) {"Schüler ID=$($cc[0].id)  gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
+                            $c=Set-Pupil -id $cc[0].id -bbsplanid $s.BBSID
+                        } 
+                    }
+                    else {
+                        $c=$null
+                    }
+                }
             }
+            # Schüler nicht gefunden
             if (!$c) {
-                Write-Warning "  Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" 
-                if ($log) {"WARNUNG: Neuen Schüler gefunden $($s.VNAME) $($s.NNAME)! Lege Schüler an!" }
+                Write-Warning "  Neuer Schüler $($s.VNAME) $($s.NNAME)! Lege Schüler an!" 
+                if ($log) {"WARNUNG: Neuen Schüler $($s.VNAME) $($s.NNAME)! Lege Schüler an!" }
                 
                 if (-not $whatif) {
                     if ($gdate) {

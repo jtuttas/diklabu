@@ -58,15 +58,16 @@ function Set-Teacher
     Process
     {
         $lehrer=echo "" | Select-Object -Property "NNAME","VNAME","TELEFON","EMAIL"
+        $lehrer.EMAIL=$null
         if ($NNAME) {
             $lehrer.NNAME=$NNAME
         }
         if ($VNAME) {
             $lehrer.VNAME=$VNAME
         }
-        if ($EMAIL) {
+        if ($EMAIL -and $EMAIL.Length -ne 0) {
             $lehrer.EMAIL=$EMAIL
-        }
+        }        
         if ($TELEFON) {
             $lehrer.TELEFON=$TELEFON
         }
