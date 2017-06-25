@@ -720,12 +720,11 @@ function Get-BPCoursemember
             }
             else {
                 Write-Verbose "  Bekannten Lehrer gefunden $($l.VNAME) $($l.NNAME)!" 
-                if ($l.EMAIL -like $null) {$l.EMAIL=""}    
+                #if ($l.EMAIL -like $null) {$l.EMAIL=""}    
+                $str1=$l.NNAME+$l.VNAME+(FormatTel $l.TELEFON)+$l.EMAIL;
+                $str2=$le.NNAME+$le.VNAME+(FormatTel $le.TELEFON)+$le.EMAIL;
 
-                if ([bool]($l.PSobject.Properties.name  -match "NNAME") -and $le.NNAME -ne $l.NNAME -or
-                    [bool]($l.PSobject.Properties.name  -match "VNAME") -and $le.VNAME -ne $l.VNAME -or
-                    [bool]($l.PSobject.Properties.name  -match "TELEFON") -and -not (TelEqTel $le.TELEFON $l.TELEFON) -or
-                    [bool]($l.PSobject.Properties.name  -match "EMAIL") -and $le.EMAIL -ne $l.EMAIL) {
+                if ($str1 -ne $str2) {
                     Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge";
                     if ($log) {"Daten unterscheiden sich aktualisiere Lehrer $($l.KÜRZEL) von NNAME=$($le.NNAME) VNAME=$($le.VNAME) TELEFON=$($le.TELEFON) EMAIL=$($le.EMAIL) auf NNAME=$($l.NNAME) VNAME=$($l.VNAME) TELEFON=$($l.TELEFON) EMAIL=$($l.EMAIL)"}
                     if (-not $whatif) {
@@ -752,7 +751,9 @@ function Get-BPCoursemember
             }
             else {
                 Write-Verbose "  Bekannte Klasse $($kl.KNAME)!" 
-                if ($kl.ID_LEHRER -ne $k.ID_LEHRER) {
+                $str1=""+$kl.ID_LEHRER;
+                $str2=""+$k.ID_LEHRER;
+                if ($str1 -ne $str2) {
                     Write-Verbose "  Daten unterscheiden sich, aktualisiere Einträge für $($k.KNAME) von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)";
                     if ($log) {"  Daten unterscheiden sich, aktualisiere Einträge für $($k.KNAME) von ID_LEHRER=$($kl.ID_LEHRER) nach ID_LEHRER=$($k.ID_LEHRER)"};
                     if (-not $whatif) {

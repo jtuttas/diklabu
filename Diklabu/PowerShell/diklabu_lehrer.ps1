@@ -59,16 +59,20 @@ function Set-Teacher
     {
         $lehrer=echo "" | Select-Object -Property "NNAME","VNAME","TELEFON","EMAIL"
         $lehrer.EMAIL=$null
-        if ($NNAME) {
+        $lehrer.TELEFON=$null
+        $lehrer.NNAME=$null
+        $lehrer.VNAME=$null
+
+        if ($NNAME -and $NNAME.Length -ne 0) {
             $lehrer.NNAME=$NNAME
         }
-        if ($VNAME) {
+        if ($VNAME -and $VNAME.Length -ne 0) {
             $lehrer.VNAME=$VNAME
         }
         if ($EMAIL -and $EMAIL.Length -ne 0) {
             $lehrer.EMAIL=$EMAIL
         }        
-        if ($TELEFON) {
+        if ($TELEFON -and $TELEFON.Length -ne 0) {
             $lehrer.TELEFON=$TELEFON
         }
         try {
