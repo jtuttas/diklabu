@@ -98,21 +98,10 @@ public class LehrerManager {
         em.getEntityManagerFactory().getCache().evictAll();
         Lehrer le = em.find(Lehrer.class, lid);
         if (le != null) {
-            if (l.getEMAIL() != null) {
-                le.setEMAIL(l.getEMAIL());
-            }
-            if (l.getIdplain() != null) {
-                le.setIdplain(l.getIdplain());
-            }
-            if (l.getNNAME() != null) {
-                le.setNNAME(l.getNNAME());
-            }
-            if (l.getTELEFON() != null) {
-                le.setTELEFON(l.getTELEFON());
-            }
-            if (l.getVNAME() != null) {
-                le.setVNAME(l.getVNAME());
-            }
+             le.setEMAIL(l.getEMAIL());
+            le.setTELEFON(l.getTELEFON());
+            le.setNNAME(l.getNNAME());
+            le.setVNAME(l.getVNAME());
             em.merge(le);
         }
         return le;
