@@ -739,13 +739,13 @@ function Get-BPCoursemember
         $klassen = Get-BPCourses
         foreach ($k in $klassen) {
             Write-Verbose "Suche Klasse $($k.KNAME)"
-            $kl=Find-Course -KNAME $k.KNAME
+            $kl=Find-Course -KNAME $([String]$k.KNAME).ToUpper()
             $k |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
             if (!$kl) {
                 Write-Warning "  Neue Klasse $($k.KNAME)! Lege Klasse an!" 
                 if ($log) {"WARNUNG: Neue Klasse $($k.KNAME)! Lege Klasse an!" };
                 if (-not $whatif) {
-                    $nl=New-Course -KNAME $k.KNAME -ID_LEHRER $k.ID_LEHRER -ID_KATEGORIE 0
+                    $nl=New-Course -KNAME $([String]$k.KNAME).ToUpper() -ID_LEHRER $k.ID_LEHRER -ID_KATEGORIE 0
                     $k.diklabuID=$nl.id
                 }
             }
@@ -787,7 +787,7 @@ function Get-BPCoursemember
                     $c=find-Pupil -VNAME $p.vorname -NNAME $p.name -GEBDAT $p.gebDatum
                     if ($c) {
                         Write-Verbose "Schüler ID=$($cc[0].id) gefunden ändere (NR_SCHÜLER) auf $($s.BBSID)"
-                        if ($log) {"Schüler ID=$($cc[0].id)  gefunden ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
+                        if ($log) {"Schüler gefunden, Schüler $($s.VNAME) $($S.NNAME) Gebdat=$gdate ist (vermutlich) $($cc[0].vorname) $($cc[0].name) $($c.GEBDAT) mit ID=$($cc[0].id), ändere ID (NR_SCHÜLER) auf $($s.BBSID)"}
                         $c=Set-Pupil -id $cc[0].id -bbsplanid $s.BBSID
                     } 
                 }
@@ -845,7 +845,7 @@ function Get-BPCoursemember
                 }
                 Write-Warning "  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein." 
                 if ($log) {"WARNUNG:  Trage neuen Schüler $($s.VNAME) $($s.NNAME) in die Klasse $($s.KL_NAME) ein."}
-                $kl=Find-Course -KNAME $s.KL_NAME
+                $kl=Find-Course -KNAME $([String]$s.KL_NAME).ToUpper()
                 if (-not $whatif) {
                     $res=Add-Coursemember -id $np.id -klassenid $kl.id
                     if ($res.success -ne $True) {
@@ -907,7 +907,7 @@ function Get-BPCoursemember
                     Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"
                     if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"}
                     if (-not $whatif) {
-                        $klasse = Find-Course $s.KL_NAME
+                        $klasse = Find-Course $([String]$s.KL_NAME).ToUpper()
                         $out=Add-Coursemember -id $c.id -klassenid $klasse.id
                     }
                 }
