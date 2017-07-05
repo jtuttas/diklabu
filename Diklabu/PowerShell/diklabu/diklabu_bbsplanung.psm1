@@ -866,7 +866,7 @@ function Get-BPCoursemember
                     $c.GEBDAT -ne $gdate ) {
                     Write-Verbose "  Die Daten haben sich geändert, aktualisiere Daten (ID=$($c.ID) BBSID=$($c.ID_MMBBS)) von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"
                     if ($log) {"  Die Daten haben sich geändert, aktualisiere Daten (ID=$($c.ID) BBSID=$($c.ID_MMBBS)) von NNAME=$($c.NNAME) VNAME=$($c.VNAME) GEBDAT=$($c.GEBDAT) nach NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate"}
-                    if (($c.VNAME -ne $s.VNAME) -and ($c.NNAME -ne $s.NNAME) -and (-$c.GEBDAT -ne $gdate)) {
+                    if (($c.VNAME -ne $s.VNAME) -and ($c.NNAME -ne $s.NNAME) -and ($c.GEBDAT -ne $gdate)) {
                         Write-Warning "Alle drei Daten haben sich geändert, suche Schüler NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate mit Levensthein Distanz"
                         if ($log) {"Alle drei Daten haben sich geändert, suche Schüler NNAME=$($s.NNAME) VNAME=$($s.VNAME) GEBDAT=$gdate mit Levensthein Distanz"}
                         $cc=Search-Pupil -VNAMENNAMEGEBDAT ($s.VNAME+$s.NNAME+$gdate) -LDist 3

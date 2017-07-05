@@ -273,10 +273,11 @@ function Sync-LDAPPupil
             break
         }
         $ist=@{}
-        $in = Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like "*"} -Properties EmailAddress,GivenName,Surname,Pager,DistinguishedName -SearchBase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de"
+        $in = Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like "*"} -Properties EmailAddress,GivenName,Surname,Pager,DistinguishedName -SearchBase $searchbase
         foreach ($i in $in) {
             $ist[$i.pager]=$i
         }
+        
     }
     Process {
         $n=0;
@@ -964,7 +965,7 @@ function Get-LDAPCourseMember
             $pupil.VNAME=$i.GivenName
             $pupil.NNAME=$i.Surname
             $pupil.EMAIL=$i.Mail
-            if ($i.page) {
+            if ($i.pager) {
                 $pupil.id=$i.Pager
             }
             else {
@@ -1294,9 +1295,13 @@ function Sync-LDAPCourseMember
         $ist=@{}
         foreach ($m in $gm) {
             if ($m.ID) {
-                $ist[$m.ID]=$m
+                $ist[[int]$m.ID]=$m                
             }
         }
+        #Write-Host "Ende Begin"$($ist).Count
+        #Write-Host "Eintrag v. 1577 = $($ist[1577])"
+        #Write-Host "Eintrag v. 1580 = $($ist[1580])"
+
     }
     Process {
         if ($ID) {
@@ -1307,7 +1312,9 @@ function Sync-LDAPCourseMember
             $data=$TEACHER_ID
             $global:pname="teacher"
         }
+        #Write-Host "Process $data"
         $data | ForEach-Object {
+            #Write-Host "Teste [$_] ist=$($ist[$_]) map:$($ist[1577]) Length="$ist.Count
             if (-not $ist[$_]) {
                 Write-Verbose "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"
                 Write-Warning "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"

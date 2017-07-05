@@ -276,7 +276,9 @@ function Sync-MoodleCohortMember
          # ID der Benutzers
         [Parameter(Mandatory=$true,
                    ValueFromPipeLine=$true,
+                   ValueFromPipelineByPropertyName=$true,
                    Position=1)]
+        [alias(“id”)]
         [int[]]$userids,
         [switch]$force,
         [switch]$whatif
@@ -306,6 +308,7 @@ function Sync-MoodleCohortMember
     Process
     {
         $userids | ForEach-Object {
+            Write-Verbose "Bearbeite Nutzer mit ID=$userid"
             $userid = $_
             if ($istMember["$userid"]) {
                 Write-Verbose "Der Benutzer mit der ID $userid befindet sich bereits in der gloablen Gruppe mit der ID $cohortid"
@@ -495,7 +498,9 @@ function Get-MoodleUser
         # EMail des Benutzers
         [Parameter(Mandatory=$true,
                    ValueFromPipeLine=$true,
+                   ValueFromPipelineByPropertyName=$true,
                    Position=0)]
+        [alias("id")]
         $property,
 
         
@@ -520,32 +525,38 @@ function Get-MoodleUser
     Process
     {
         if ($PROPERTYTYPE -eq "EMAIL") {
+            Write-Verbose "Post Param EMAIL"
             $postParams['field']='email'
             $postParams['values['+$n+']']=$property
             $n++;
         }
         elseif ($PROPERTYTYPE -eq "USERNAME") {
+            Write-Verbose "Post Param USERNAME"
             $postParams['field']='username'
             $postParams['values['+$n+']']=$property
             $n++;
         }
         elseif ($PROPERTYTYPE -eq "ID") {
+            Write-Verbose "Post Param ID=$($property.id)"
             $postParams['field']='id'
             $postParams['values['+$n+']']=$property
             $n++;
         }
          elseif ($PROPERTYTYPE -eq "IDNUMBER") {
+            Write-Verbose "Post Param IDNUMBER=$($property.id)"
             $postParams['field']='idnumber'
-            $postParams['values['+$n+']']=$property
+            $postParams['values['+$n+']']=$property.id
             $n++;
         }
         Write-Verbose "Get-MoodleUser property=$property"
     }  
     End
     {
-        
-        $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-        $r
+        if ($property -ne $null) {
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+            Write-Verbose "Receive ($r)"
+            $r
+        }
     }
 }
 

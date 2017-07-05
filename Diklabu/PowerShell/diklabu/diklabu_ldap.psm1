@@ -700,6 +700,7 @@ function Test-LDAPCourse
     Process {
         try {
             $in=Get-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -Filter * -SearchBase $searchbase | Where-Object {$_.name -eq $KNAME}
+            $in
             if ($in) {
                 return $true
             }
@@ -963,7 +964,7 @@ function Get-LDAPCourseMember
             $pupil.VNAME=$i.GivenName
             $pupil.NNAME=$i.Surname
             $pupil.EMAIL=$i.Mail
-            if ($i.page) {
+            if ($i.pager) {
                 $pupil.id=$i.Pager
             }
             else {
