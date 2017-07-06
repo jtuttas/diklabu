@@ -1299,7 +1299,7 @@ function Sync-LDAPCourseMember
             }
         }
         #Write-Host "Ende Begin"$($ist).Count
-        #Write-Host "Eintrag v. 1577 = $($ist[1577])"
+        #Write-Host "Eintrag v. 1576 = $($ist[1576])"
         #Write-Host "Eintrag v. 1580 = $($ist[1580])"
 
     }
@@ -1314,7 +1314,7 @@ function Sync-LDAPCourseMember
         }
         #Write-Host "Process $data"
         $data | ForEach-Object {
-            #Write-Host "Teste [$_] ist=$($ist[$_]) map:$($ist[1577]) Length="$ist.Count
+            #Write-Host "Teste [$_] ist=$($ist[$_]) map:$($ist[1576]) Length="$ist.Count
             if (-not $ist[$_]) {
                 Write-Verbose "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"
                 Write-Warning "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"

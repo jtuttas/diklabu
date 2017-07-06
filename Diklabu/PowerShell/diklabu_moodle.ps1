@@ -498,9 +498,7 @@ function Get-MoodleUser
         # EMail des Benutzers
         [Parameter(Mandatory=$true,
                    ValueFromPipeLine=$true,
-                   ValueFromPipelineByPropertyName=$true,
                    Position=0)]
-        [alias("id")]
         $property,
 
         
@@ -525,27 +523,23 @@ function Get-MoodleUser
     Process
     {
         if ($PROPERTYTYPE -eq "EMAIL") {
-            Write-Verbose "Post Param EMAIL"
             $postParams['field']='email'
             $postParams['values['+$n+']']=$property
             $n++;
         }
         elseif ($PROPERTYTYPE -eq "USERNAME") {
-            Write-Verbose "Post Param USERNAME"
             $postParams['field']='username'
             $postParams['values['+$n+']']=$property
             $n++;
         }
         elseif ($PROPERTYTYPE -eq "ID") {
-            Write-Verbose "Post Param ID=$($property.id)"
             $postParams['field']='id'
             $postParams['values['+$n+']']=$property
             $n++;
         }
          elseif ($PROPERTYTYPE -eq "IDNUMBER") {
-            Write-Verbose "Post Param IDNUMBER=$($property.id)"
             $postParams['field']='idnumber'
-            $postParams['values['+$n+']']=$property.id
+            $postParams['values['+$n+']']=$property
             $n++;
         }
         Write-Verbose "Get-MoodleUser property=$property"
