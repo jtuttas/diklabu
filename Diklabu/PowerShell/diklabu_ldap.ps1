@@ -497,7 +497,7 @@ function New-LDAPPupil
     Process {        
         $name=Get-LDAPAccount -ID $ID -NNAME $NNAME -VNAME $VNAME
         try {
-            New-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver  -GivenName $VNAME -Surname $NNAME -Path $searchbase -Name $name.AccountName -OtherAttributes @{pager=$ID} -Enabled $true  -accountPassword (ConvertTo-SecureString -AsPlainText $PASSWORD -Force) -UserPrincipalName $name.LoginName
+            New-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver  -GivenName $VNAME -Surname $NNAME -Path $searchbase -Name $name.AccountName -OtherAttributes @{pager=$ID} -Enabled $true  -accountPassword (ConvertTo-SecureString -AsPlainText $PASSWORD -Force) -UserPrincipalName $name.LoginName 
             Write-Verbose "Neuer Schüler ID=$ID angelegt"
         }
         catch {
@@ -1028,12 +1028,14 @@ function Rename-LDAPCourseMember
                             $i | Rename-ADObject -NewName $name.LoginName -Server $global:ldapserver -Credential $global:ldapcredentials 
                             $user = Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $i.Pager} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase
                             $user
+                            $user | Set-ADUser -SamAccountName $name.LoginName
                             $user| Move-ADObject -TargetPath "OU=$KNAME,$searchbase" -Server $global:ldapserver -Credential $global:ldapcredentials 
                         }
                     }
                     else {
                         $i | Rename-ADObject -NewName $name.LoginName -Server $global:ldapserver -Credential $global:ldapcredentials 
                         $user = Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $i.Pager} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase $searchbase
+                        $user | Set-ADUser -SamAccountName $name.LoginName
                         #$user
                         Move-ADObject -Identity $user -TargetPath "OU=$KNAME,$searchbase" -Server $global:ldapserver -Credential $global:ldapcredentials 
                     }
