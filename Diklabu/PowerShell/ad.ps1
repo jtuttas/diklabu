@@ -1,4 +1,5 @@
-﻿Get-Keystore C:\Users\jtutt\diklabu_conf.json
+﻿Import-Module -Name "$PSScriptRoot/diklabu" -Scope Global
+Get-Keystore C:\Users\jtutt\diklabu_conf.json
 Connect-BbsPlan
 Login-Diklabu
 Login-LDAP
@@ -14,7 +15,7 @@ get-courses| Get-Coursemember  | Sync-LDAPPupil -searchbase "OU=Schüler,OU=mmbb
 Write-Host "Füge Nutzer zu AD Gruppen hinzu" -BackgroundColor DarkGreen
 get-courses | Get-Course | ForEach-Object {$kname=$_.KNAME;Get-Coursemember -id $_.id | Sync-LDAPCourseMember -KNAME $kname -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force} 
 Write-Host "Anpassung der Moodle Benutzer" -BackgroundColor DarkGreen
-get-Courses | ForEach-Object {Get-LDAPCourseMember -KNAME $_.KNAME} | ForEach-Object {$global:user=$_;Get-MoodleUser -property $_.ID -PROPERTYTYPE IDNUMBER | ForEach-Object {Set-MoodleUser -Verbose -moodleid $_.ID -email $global:user.EMAIL  -username $global:user.EMAIL.ToLower().subString(0,$global:user.EMAIL.IndexOf("@") ) }}
+get-Courses | ForEach-Object {Get-LDAPCourseMember -KNAME $_.KNAME -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de"} | ForEach-Object {$global:user=$_;if ($_.ID -ne $null) {Get-MoodleUser -property $_.ID -PROPERTYTYPE IDNUMBER | ForEach-Object {Set-MoodleUser -Verbose -moodleid $_.ID -email $global:user.EMAIL  -username $global:user.EMAIL.ToLower().subString(0,$global:user.EMAIL.IndexOf("@") ) }}}
 # Anpassen des Namens an den Gruppennamen
 Write-Host "Anpassen der Namen an den Gruppenname" -BackgroundColor DarkGreen
 get-courses | Get-Course | Where-Object {$_.ID_KATEGORIE -eq 0} | Select-Object -Property KNAME | Rename-LDAPCourseMember -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de"  -force

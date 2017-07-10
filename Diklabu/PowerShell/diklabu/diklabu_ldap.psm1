@@ -958,7 +958,7 @@ function Get-LDAPCourseMember
         }
     }
     Process {
-        $in=Get-ADGroupMember -Identity $KNAME -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.objectClass -ne "group"} | Get-ADUser -Properties Mail,Pager,Initials -Server $global:ldapserver -Credential $global:ldapcredentials
+        $in=Get-ADGroupMember -Identity $KNAME -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"} | Get-ADUser -Properties Mail,Pager,Initials -Server $global:ldapserver -Credential $global:ldapcredentials
         $pupils=@()
         foreach ($i in $in) {
             $pupil = "" | Select-Object -Property "EMAIL","NNAME","VNAME","ID"
@@ -1011,7 +1011,7 @@ function Rename-LDAPCourseMember
         }
     }
     Process {
-        $in=Get-ADGroupMember -Identity $KNAME -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.objectClass -ne "group"} | Get-ADUser -Properties Mail,Pager -Server $global:ldapserver -Credential $global:ldapcredentials
+        $in=Get-ADGroupMember -Identity $KNAME -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.objectClass -ne "group" -and $_.objectClass -ne "computer"} | Get-ADUser -Properties Mail,Pager -Server $global:ldapserver -Credential $global:ldapcredentials
         $pupils=@()
         foreach ($i in $in) {
             #$i
