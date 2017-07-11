@@ -168,10 +168,10 @@ function Get-LDAPTeacher
     }
     Process {
         if ($id) {
-            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $id}
+            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname |Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"} | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $id}
         }
         elseif ($email) {
-            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Mail -eq $email}
+            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  |Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"}| Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Mail -eq $email}
         }
         $teacher = "" | Select-Object -Property "TEACHER_ID","EMAIL","VNAME","NNAME"
         $teacher.TEACHER_ID=$in.Initials
@@ -1109,13 +1109,13 @@ function Add-LDAPCourseMember
             $data=$TEACHER_ID;
         }
         $data | ForEach-Object {
-            Write-Verbose "Suche User mit der ID $_"
+            Write-Verbose "Suche User mit der ID $_ in der AD"
             if ($ID) {
                 $user=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $_} -SearchBase $searchbase        
             }
             elseif ($TEACHER_ID) {
                 $ini=$_
-                $user=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $ini}                
+                $user=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname | Where-Object {$_.objectClass -ne "group" -and $_.objectClass -ne "computer"}  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $ini}                
             }
             if ($user -eq $null) {
                 Write-Warning "Can not find User with ID $_"
