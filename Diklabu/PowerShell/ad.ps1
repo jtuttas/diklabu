@@ -14,8 +14,10 @@ get-courses| Get-Coursemember  | Sync-LDAPPupil -searchbase "OU=Schüler,OU=mmbb
 # Schüler hinzufügen zu AD Gruppen
 Write-Host "Füge Nutzer zu AD Gruppen hinzu" -BackgroundColor DarkGreen
 get-courses | Get-Course | ForEach-Object {$kname=$_.KNAME;Get-Coursemember -id $_.id | Sync-LDAPCourseMember -KNAME $kname -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force} 
-Write-Host "Füge Klassenlehre / Kurslieter AD Gruppen hinzu" -BackgroundColor DarkGreen
-get-courses | ForEach-Object {$kname="Lehrer-"+$_.KNAME;Get-Teacher -ID $_.ID_LEHRER | ForEach-Object {Add-LDAPCourseMember -KNAME $kname -TEACHER_ID $_.idplain -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -force -Verbose}}
+Write-Host "Lösche Klassenlehrer / Kursleiter aus AD Gruppen " -BackgroundColor DarkGreen
+get-courses | ForEach-Object {$kname="Lehrer-"+$_.KNAME;Get-LDAPCourseMember -KNAME $kname | ForEach-Object {Remove-LDAPCourseMember -KNAME $kname -TEACHER_ID $_.ID -force} } 
+Write-Host "Füge Klassenlehrer / Kursleiter zu AD Gruppen hinzu" -BackgroundColor DarkGreen
+get-courses | ForEach-Object {$kname="Lehrer-"+$_.KNAME;Get-Teacher -ID $_.ID_LEHRER | ForEach-Object {$a=Add-LDAPCourseMember -KNAME $kname -TEACHER_ID $_.idplain -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -force -Verbose}}
 Write-Host "Anpassung der Moodle Benutzer" -BackgroundColor DarkGreen
 get-Courses | ForEach-Object {Get-LDAPCourseMember -KNAME $_.KNAME -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de"} | ForEach-Object {$global:user=$_;if ($_.ID -ne $null) {Get-MoodleUser -property $_.ID -PROPERTYTYPE IDNUMBER | ForEach-Object {Set-MoodleUser -Verbose -moodleid $_.ID -email $global:user.EMAIL  -username $global:user.EMAIL.ToLower().subString(0,$global:user.EMAIL.IndexOf("@") ) }}}
 # Anpassen des Namens an den Gruppennamen

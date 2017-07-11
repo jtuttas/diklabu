@@ -1216,7 +1216,7 @@ function Remove-LDAPCourseMember
             }
             elseif ($TEACHER_ID) {
                 $ini=$_
-                $user=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $ini}                
+                $user=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname | Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"}  | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $ini}                
             }
             if ($user -eq $null) {
                 Write-Warning "Can not find User with ID $_"
@@ -1297,7 +1297,11 @@ function Sync-LDAPCourseMember
         $ist=@{}
         foreach ($m in $gm) {
             if ($m.ID) {
-                $ist[[int]$m.ID]=$m                
+                try {
+                    $ist[[int]$m.ID]=$m                
+                }
+                catch {
+                }
             }
         }
         #Write-Host "Ende Begin"$($ist).Count
@@ -1363,7 +1367,7 @@ function Sync-LDAPCourseMember
         }
     }
     End {
-        $ist.Keys | ForEach-Object {
+        $ist.Keys | ForEach-Object {            
             $b=$ist.Item($_)
             Write-Verbose "Der Benutzer $($b.ID) wird aus der Gruppe $KNAME entfernt!"          
             Write-Warning "Der Benutzer $($b.ID) wird aus der Gruppe $KNAME entfernt!"              
