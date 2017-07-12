@@ -4,7 +4,9 @@ Schüler gefunden hat, wird dessen Pager Nummer auf die Klassenbuch ID des Schü
 #>
 
 Get-Courses | Where-Object {$_.idKategorie -eq 0} | foreach-Object {[String]$KNAME=$_.KNAME;Get-Coursemember -ID $_.ID} | ForEach-Object {
-    [String]$acc = "$KNAME.$([String]$_.VNAME.SubString(0,1))$([String]$_.NNAME)*"
+    #[String]$acc = "$KNAME.$([String]$_.VNAME.SubString(0,1))$([String]$_.NNAME)*"
+    [String]$acc = "$KNAME.$([String]$_.NNAME)"
+    $acc=$acc.Substring(0,$acc.Length-1)+"*"
     $acc=$acc.ToLower();
     $acc=$acc.Trim();
     $acc=$acc.Replace(" ","");      
@@ -18,7 +20,7 @@ Get-Courses | Where-Object {$_.idKategorie -eq 0} | foreach-Object {[String]$KNA
         $acc=$acc+"*";
     }
     Write-Host "Suche: $($acc)" -BackgroundColor DarkGreen
-    $u=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {SamAccountName -like $acc} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de"
+    $u=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {SamAccountName -like $acc} -Properties EmailAddress,GivenName,Surname,Pager -SearchBase "OU=Schüler,DC=mmbbs,DC=local"
     if ($u) {
         if ($u.Count -gt 1) {
             Write-Host "Mehr als einen Schüler $acc in der AD gefunden" -ForegroundColor red
@@ -31,4 +33,5 @@ Get-Courses | Where-Object {$_.idKategorie -eq 0} | foreach-Object {[String]$KNA
     else {
         Write-Host "Schüler $acc nicht in der AD gefunden" -ForegroundColor Yellow
     }
+    break;
 }
