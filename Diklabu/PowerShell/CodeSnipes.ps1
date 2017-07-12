@@ -24,3 +24,6 @@ get-courses | ForEach-Object {$kname=$_.KNAME;Get-Coursemember -id $_.id | Sync-
 
 # Anpassen des Namens an den Gruppennamen
 90263,90396 | Get-Course | Where-Object {$_.ID_KATEGORIE -eq 0} | Select-Object -Property KNAME | Rename-LDAPCourseMember -searchbase "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de" -Verbose -force
+
+# Für alle Klassen die Login Namen ausgaben
+get-courses | Where-Object {$_.idKategorie -eq 0} | ForEach-Object {$KNAME=$_.KNAME; Get-Coursemember -id $_.ID | ForEach-Object {Get-LDAPAccount -ID $_.ID -NNAME $_.NNAME -VNAME $_.VNAME -KNAME $KNAME} | Select-Object -Property LoginName | Export-Excel "C:\Temp\$KNAME.xlsx"}

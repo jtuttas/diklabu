@@ -261,6 +261,7 @@ function Sync-LDAPPupil
         [Parameter(ValueFromPipelineByPropertyName=$true,Position=2)]
         [String[]]$VNAME,
 
+        [String]$pass="mmbbs",
         [String]$searchbase="OU=Schüler,DC=mmbbs,DC=local",
         [switch]$force,
         [switch]$whatif
@@ -291,11 +292,11 @@ function Sync-LDAPPupil
                     if (-not $force) {
                         $q = Read-Host "Doll der Benutzer mit ID $_  ($($VNAME[$n]) $($NNAME[$n])) angelegt werden? (J/N)"
                         if ($q -eq "j") {
-                            $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose -PASSWORD "M00dle1!" 
+                            $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose -PASSWORD $pass 
                         }
                     }
                     else {
-                        $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose -PASSWORD "M00dle1!"
+                        $u=New-LDAPPupil -ID $_ -VNAME $VNAME[$n] -NNAME $NNAME[$n] -searchbase $searchbase -Verbose -PASSWORD $pass
                     }
                 }
             }
