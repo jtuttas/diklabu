@@ -20,7 +20,7 @@ RUN apt-get -qq update && \
        apt-get -qq -y install mc  
    #     apt-get -qq -y install net-tools 
 
-#VOLUME /var/lib/firebird/2.5/data
+VOLUME /var/lib/firebird/2.5/data
 VOLUME /var/lib/firebird/2.5/backup
 
 # SSH Installieren
@@ -79,11 +79,10 @@ RUN  mkdir /home/diklabu && \
         /glassfish4/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/glassfishpwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \
         asadmin --user=admin stop-domain 
 
-RUN cp /home/diklabu/diklabu/Diklabu/empty.GDB /var/lib/firebird/2.5/data/diklabu.GDB && \
-       cd /var/lib/firebird/2.5/data && \
-       chown firebird diklabu.GDB  && \
-       chgrp firebird diklabu.GDB && \
-       chmod +664 diklabu.GDB && \
+RUN    cd /var/lib/firebird/2.5/data && \
+       chown -R firebird *  && \
+       chgrp -R firebird * && \
+       chmod +664 * && \
        ls -la
         
 
