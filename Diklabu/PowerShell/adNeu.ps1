@@ -2,7 +2,7 @@
     Anzupassende Variablen
 #>
 # Bereich in denen die OU's und Gruppen angelegt werden
-$searchbase = "OU=Schülerneu,OU=mmbbs,DC=tuttas,DC=de"
+$searchbase = "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de"
 # Keystore (Wo sind die Kennworte gespeichert)
 $ks = "C:\Users\jtutt\diklabu_conf.json"
 # Kennwort für neue Schüler
