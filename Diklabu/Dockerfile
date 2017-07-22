@@ -2,10 +2,29 @@ FROM ubuntu:16.04
 MAINTAINER Joerg Tuttas <tuttas@mmbbs.de>
 ENV DEBIAN_FRONTEND noninteractive
 
+ENV debug false
+ENV auth true
+ENV adminusers ["TU","TUTTAS","KEMMRIES"]
+ENV verwaltung ["BÜ"]
+ENV AUTH_TOKE_TIMEOUT 432000000
+
+ENV SMTP_HOST smtp.uni-hannover.de
+ENV SMTP_PORT 587
+ENV SMTP_USER joerg.tuttas@ifbe.uni-hannover.de
+ENV SMTP_PASSWORD geheim
+ENV LDAP_SERVER ldap://10.0.75.10:389
+ENV LDAP_USER CN=admin,CN=Users,DC=tuttas,DC=de
+ENV LDAP_PASSWORD admin
+ENV LDAP_CONTEXT OU=mmbbs,DC=tuttas,DC=de
+
+ENV DWO http://localhost:8080/dwoRest/webresources/
+ENV SERVER http://localhost:8080        
+ENV WEBSOCKET ws://
+ENV DIKLABUNAME DiKlaBu@Docker
+
 #Install firebird
-RUN \
-  apt-get update && \
-  apt-get install -y firebird2.5-super && \
+RUN apt-get update && \
+	apt-get install -y firebird2.5-super && \
   sed -ri 's/RemoteBindAddress = localhost/RemoteBindAddress = /g' /etc/firebird/2.5/firebird.conf && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
@@ -21,7 +40,6 @@ RUN apt-get -qq update && \
    #     apt-get -qq -y install net-tools 
 
 VOLUME /var/lib/firebird/2.5/data
-VOLUME /var/lib/firebird/2.5/backup
 
 # SSH Installieren
 RUN apt-get install -y openssh-server
@@ -71,7 +89,34 @@ RUN  mkdir /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \        
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
-        mv diklabu/Diklabu/doc/config.json /glassfish4/glassfish/domains/domain1/ && \
+        mkdir /home/diklabu/atest && \
+        mkdir /home/diklabu/images && \
+        mkdir /home/diklabu/templates && \
+	# config-json aus Env Variablen aufbauen
+        echo "{\r\n" > /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"debug\": $debug, \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"auth\": $auth, \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"IMAGE_FILE_PATH\": \"/home/diklabu/images\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"ATEST_FILE_PATH\": \"/home/diklabu/atest\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"TEMPLATE_FILE_PATH\": \"/home/diklabu/templates\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"adminusers\": \"$adminuser\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"verwaltung\": \"$verwaltung\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"AUTH_TOKE_TIMEOUT\" : $AUTH_TOKE_TIMEOUT, \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"ldaphost\": \"$LDAP_SERVER\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"binduser\": \"$LDAP_USER\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"bindpassword\":\"LDAP_PASSWORD\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"context\": \"$LDAP_CONTEXT\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"smtphost\": \"$SMTP_HOST\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"port\": \"$SMTP_PORT\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"user\": \"$SMTP_USER\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"pass\": \"$SMTP_PASSWORD\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "\"clientConfig\" : { \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "	  \"DWO\": \"$DWO\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "    \"SERVER\": \"$SERVER\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "    \"WEBSOCKET\": \"$WEBSOCKET\", \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "    \"DIKLABUNAME\":\"$DIKLABUNAME\" \r\n" >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "}\r\n"  >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
         chmod +xxx diklabu/Diklabu/start.sh && \        
         cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
         asadmin --user=admin start-domain && \
@@ -84,8 +129,10 @@ RUN    cd /var/lib/firebird/2.5/data && \
        chgrp -R firebird * && \
        chmod +664 * && \
        ls -la
-        
-
+	   	
+VOLUME 	/home/diklabu/atest
+VOLUME  /home/diklabu/images
+VOLUME	/home/diklabu/templates
 
 EXPOSE 8080 4848 8181 3050 22
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
