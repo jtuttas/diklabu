@@ -12,9 +12,6 @@ $pattern="*17*"
 
 Import-Module -Name "$PSScriptRoot/diklabu" -Scope Global
 Get-Keystore $ks
-﻿Import-Module -Name "$PSScriptRoot/diklabu" -Scope Global
-#Get-Keystore C:\Users\jtutt\diklabu_conf.json
-Get-Keystore C:\diklabuApp\diklabu.conf
 #Connect-BbsPlan
 Login-Diklabu
 Login-LDAP
@@ -47,7 +44,6 @@ get-courses | Where-Object {$_.KNAME -like $pattern} | Get-Course | Where-Object
 
 # Moodle Cohorts anlegen und Benutzer Syncronisiren
 # Achtung hier kommt es zur Warnugen wenn der Kurs Bereits existiert
-# Achtung hier kommt es zur Warnuen wenn der Kurs Bereits existiert
 #Write-Host "Erzeuge Moodle Cohorts" -BackgroundColor DarkGreen
 #Get-Courses | foreach-Object {New-MoodleCohort -name $_.KNAME -idnumber $_.KNAME -force}
 #Write-Host "Syncronisiere Moodle Cohorts Member" -BackgroundColor DarkGreen
