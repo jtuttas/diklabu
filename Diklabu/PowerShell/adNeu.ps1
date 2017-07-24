@@ -1,5 +1,6 @@
 ﻿Import-Module -Name "$PSScriptRoot/diklabu" -Scope Global
-Get-Keystore C:\Users\jtutt\diklabu_conf.json
+#Get-Keystore C:\Users\jtutt\diklabu_conf.json
+Get-Keystore C:\diklabuApp\diklabu.conf
 #Connect-BbsPlan
 Login-Diklabu
 Login-LDAP
@@ -32,7 +33,7 @@ get-courses | Get-Course | Where-Object {$_.ID_KATEGORIE -eq 0} | Select-Object 
 
 # Moodle Cohorts anlegen und Benutzer Syncronisiren
 # Achtung hier kommt es zur Warnuen wenn der Kurs Bereits existiert
-Write-Host "Erzeuge Moodle Cohorts" -BackgroundColor DarkGreen
-Get-Courses | foreach-Object {New-MoodleCohort -name $_.KNAME -idnumber $_.KNAME -force}
-Write-Host "Syncronisiere Moodle Cohorts Member" -BackgroundColor DarkGreen
-Get-MoodleCohorts | ForEach-Object {$cid=$_.id;$kname=$_.name;Find-Course -KNAME $_.name | Get-Coursemember | Get-MoodleUser -PROPERTYTYPE IDNUMBER  | Sync-MoodleCohortMember -cohortid $cid -force -Verbose}
+#Write-Host "Erzeuge Moodle Cohorts" -BackgroundColor DarkGreen
+#Get-Courses | foreach-Object {New-MoodleCohort -name $_.KNAME -idnumber $_.KNAME -force}
+#Write-Host "Syncronisiere Moodle Cohorts Member" -BackgroundColor DarkGreen
+#Get-MoodleCohorts | ForEach-Object {$cid=$_.id;$kname=$_.name;Find-Course -KNAME $_.name | Get-Coursemember | Get-MoodleUser -PROPERTYTYPE IDNUMBER  | Sync-MoodleCohortMember -cohortid $cid -force -Verbose}
