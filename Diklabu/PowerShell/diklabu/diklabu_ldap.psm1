@@ -1298,11 +1298,7 @@ function Sync-LDAPCourseMember
         $ist=@{}
         foreach ($m in $gm) {
             if ($m.ID) {
-                try {
-                    $ist[[int]$m.ID]=$m                
-                }
-                catch {
-                }
+                $ist[""+$m.ID]=$m               
             }
         }
         #Write-Host "Ende Begin"$($ist).Count
