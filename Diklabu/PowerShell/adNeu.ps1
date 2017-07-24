@@ -1,5 +1,5 @@
 ﻿<#
-    Anzupassende Variablen
+    Anzupassende Variablen!
 #>
 # Bereich in denen die OU's und Gruppen angelegt werden
 $searchbase = "OU=Schüler,OU=mmbbs,DC=tuttas,DC=de"
