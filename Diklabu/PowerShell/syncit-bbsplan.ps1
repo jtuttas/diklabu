@@ -29,6 +29,7 @@ Vorgehen:
     DELETE FROM KURSWUNSCH;
     DELETE FROM BUCHUNGSFREIGABE;
     DELETE FROM KLASSE;
+    DELETE FROM NOTEN_ALL;
     DELETE FROM NOTEN;
 
 
@@ -54,5 +55,6 @@ if (-not $Global:logins["smtp"]) {
 }
 else {
     send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript BBS-Planung -> Diklabu durchgelaufen" -body $body -attachment "$Home/syncreport.txt"
+    send-mailreport -from tuttas@mmbbs.de -to Heinrich@mmbbs.de -subject "Synchronisationsscript BBS-Planung -> Diklabu durchgelaufen" -body $body -attachment "$Home/syncreport.txt"
 }
 sleep 30
