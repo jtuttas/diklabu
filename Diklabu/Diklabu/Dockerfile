@@ -125,7 +125,7 @@ RUN  mkdir /home/diklabu && \
         echo "    \"DIKLABUNAME\":\"$DIKLABUNAME\" " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
-        chmod +xxx diklabu/Diklabu/start.sh && \        
+        chmod +xxx diklabu/Diklabu/Diklabu/start.sh && \        
         cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
         asadmin --user=admin start-domain && \
         /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/$FIREBIRD_GDB_FILENAME:ServerName=localhost:port=3050:encoding=ISO8859_1:characterEncoding=ISO8859_1:characterSetResults=ISO8859_1 connectionPoolKlassenbuch && \
@@ -147,4 +147,4 @@ EXPOSE 8080 4848 8181 3050 22
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
 #cmd     ["/home/diklabu/diklabu/Diklabu/start.sh", "-n"]
 #cmd /home/diklabu/diklabu/Diklabu/start.sh
-CMD bash -C '/home/diklabu/diklabu/Diklabu/start.sh';'bash'
+CMD bash -C '/home/diklabu/diklabu/Diklabu/Diklabu/start.sh';'bash'
