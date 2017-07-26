@@ -1008,7 +1008,7 @@ function Get-BPCoursemember
 
             Write-Verbose "Entferne Schüler aus Klassen, die nicht in den Klassen von BBS Planung enthalten sind"
             if ($log) {"== Entferne Schüler aus Klassen, die nicht in den Klassen von BBS Planung enthalten sind =="}
-            $courses = Get-Courses
+            $courses = Get-Courses | Where-Object {$_.idkategorie -eq 0}
             foreach ($c in $courses) {
                 $member = Get-Coursemember -id $c.id
                 foreach ($m in $member) {
