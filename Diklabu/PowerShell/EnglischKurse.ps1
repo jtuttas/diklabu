@@ -23,18 +23,30 @@ function exportEng() {
 # Importiert die sus in die neuen Kurse, diese Kurse müssen bereits angelegt worden sein!
 function importEng($csv) {
     $e=Import-Excel $csv
+    $out="";
+    $counter=0;
     foreach ($line in $e) {
         if ($line.New_KNAME) {
             $course = Find-Course $line.New_KNAME
             if (-not $course) {
-                Write-Warning "Achtung Kurse $($line.New_KNAME) nicht gefunden"
+                Write-Host "Achtung Kurs ($($line.New_KNAME)) nicht gefunden" -Backgroundcolor Darkred
+                $out += "Achtung Kurs ($($line.New_KNAME)) nicht gefunden.`r`n";
             }
             else {
-                Add-Coursemember -id $line.Sid -klassenid $course.id -Verbose
+                $p = Get-Pupil -id $line.Sid
+                if ($p) {
+                    Add-Coursemember -id $line.Sid -klassenid $course.id -Verbose 
+                    $counter++
+                }
+                else {
+                    Write-Warning "Achtung kann Schüler $($line.VNAME) $($line.NNAME) mit ID $($line.Sid) nicht gefunden"
+                }
             }
         }
         else {
         }
     }
+    Write-Host "Es wurden $counter Schüler, den Kursen zugewiesen" -BackgroundColor DarkGreen
+    return $out;
 }
 

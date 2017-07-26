@@ -4,6 +4,8 @@
 . "$PSScriptRoot/set-emails.ps1"
 . "$PSScriptRoot/sync_MoodleCohortsWithSeafile.ps1"
 
+
+
 $ks=Get-Keystore C:\diklabuApp\diklabu.conf
 
 $body="Das Synchronisationsscript ist am "+(Get-Date)+" durchgelaufen!! `r`n";
@@ -81,7 +83,7 @@ else {
         $body+="`r`nLogin AD OK"
         . "$PSScriptRoot/gpu2ADGroups.ps1"
         Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
-        $obj=get-classTeachersTeam -path "$env:TMP\untis.csv"
+        $obj=Import-Untis -path "$env:TMP\untis.csv"
         Sync-LDAPTeams -map $obj -Verbose -force -searchbase "OU=Klassenteams,OU=Schüler,DC=mmbbs,DC=local"  
         $body+="`r`nSynchronisation erfolgt"
     }

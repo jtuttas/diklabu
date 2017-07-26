@@ -111,6 +111,7 @@ function Get-Teacher
     Param
     (
         [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [alias("ID_LEHRER")]
         [String]$ID,
 
         # Adresse des Diklabu Servers
