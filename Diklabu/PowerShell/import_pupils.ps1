@@ -5,12 +5,12 @@
    Importiert Schüler aus einer CSV Datei. Die CSV Datei hat dabei folgende
    Struktur:
    
-    "GEBDAT","NNAME","VNAME","KNAME"
+    "GEBDAT","NNAME","VNAME","KNAME","ID_KATEGORIE","ID_LEHRE"
     1968-04-11,"Tuttas","Jörg",""
     1968-04-11,"Tuttas","Joerg","FIAE17A"
     1968-04-11,"Tuttas","Frank",""
 
-    Notwendige Attribute sind GEBDAT, NNAME und VNAME! Optional ist KNAME, wird KNAME angegeben, wird der Schüler gleichzeitig in die 
+    Notwendige Attribute sind GEBDAT, NNAME und VNAME! Optional ist ID_KATEGORIE,ID_LEHRER,KNAME, wird KNAME angegeben, wird der Schüler gleichzeitig in die 
     Klasse eingetragen
     
     Das Encoding sollte auf UTF8 gestellt werden!
@@ -150,13 +150,23 @@ function Import-Pupils
                         $q=Read-Host "Soll die Klasse $($line.KNAME) angelegt werden? (J/N)"
                         if ($q -eq "J") {
                             if (-not $whatif) {
-                                $kl=New-Course -KNAME $line.KNAME -ID_KATEGORIE 0
+                                if (-not $line.ID_KATEGORIE) {
+                                    $kl=New-Course -KNAME $line.KNAME -ID_KATEGORIE 0 -ID_LEHRER $line.ID_LEHRER
+                                }
+                                else {
+                                    $kl=New-Course -KNAME $line.KNAME -ID_KATEGORIE $line.ID_KATEGORIE -ID_LEHRER $line.ID_LEHRER
+                                }
                             }
                         }
                     }
                     else {
                         if (-not $whatif) {
-                            $kl=New-Course -KNAME $line.KNAME -ID_KATEGORIE 0
+                            if (-not $line.ID_KATEGORIE) {
+                                $kl=New-Course -KNAME $line.KNAME -ID_KATEGORIE 0 -ID_LEHRER $line.ID_LEHRER
+                            }
+                            else {
+                                $kl=New-Course -KNAME $line.KNAME -ID_KATEGORIE $line.ID_KATEGORIE -ID_LEHRER $line.ID_LEHRER
+                            }
                         }
                     }
                 }
