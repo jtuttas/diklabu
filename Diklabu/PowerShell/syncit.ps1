@@ -70,6 +70,7 @@ else {
     }
 }
 
+<#
 $body+="`r`n`r`nLade Untisexport.csv"
 if (-not $Global:logins["untisexport"]) {
     $body+="`r`nAchtung keine URL für Untisexport im Keystore gefunden!"
@@ -92,7 +93,7 @@ else {
         $body+=$_.Exception.Message
     }
 }
-
+#>
 
 if (-not $Global:logins["smtp"]) {
     Write-Error "Keine SMTP Credentials gefunden. Bitte zunächst mit Login-SMTP Verbindung herstellen"

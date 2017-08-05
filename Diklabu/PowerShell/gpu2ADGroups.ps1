@@ -53,22 +53,22 @@ function Import-Untis {
 
     Process
     {
-       $csvhead = "Unr;std1;std2;std3;klasse;lol;fach;raum;uebertragen;feld_j;wstd;halbj;statkuerzel;feld_n;datumstart;datumend;feld_q;SIst;LIst;raum2;uform;feld_v;feld_w;feld_x;feld_y;feld_z;feld_aa;feld_ab;feld_ac;feld_ad;feld_ae;feld_af;feld_ag;feld_ah;feld_ai;feld_aj;feld_ak;feld_al;feld_am;feld_an;feld_ao"
-       $out_delimiter="," #Trennzeichen für die Lehrerliste einer Klasse
-    
+       $csvhead = '"Unr","std1","std2","std3","klasse","lol","fach","raum","uebertragen","feld_j","wstd","halbj","statkuerzel","feld_n","datumstart","datumend","feld_q","SIst","LIst","raum2","uform","feld_v","feld_w","feld_x","feld_y","feld_z","feld_aa","feld_ab","feld_ac","feld_ad","feld_ae","feld_af","feld_ag","feld_ah","feld_ai","feld_aj","feld_ak","feld_al","feld_am","feld_an","feld_ao"'     
+       $out_delimiter="," #Trennzeichen für die Lehrerliste einer Klasse   
        if ((get-content $path -totalcount 1) -ne $csvhead) {
           #Kopfzeile einfügen falls noch nicht vorhanden
-          $ftext = get-content $path -Encoding UTF8 #alten content merken  
-          $csvhead|out-file -filepath $path -Encoding utf8
+          Write-Warning "Ergänze HEAD Zeile"
+          $ftext = get-content $path 
+          $csvhead|out-file -filepath $path 
   
-          $ftext|out-file -filepath $path -Append -Encoding utf8
+          $ftext|out-file -filepath $path -Append 
 
           # msg "Kopfzeile in GPU Exportdatei eingefügt" $s
       }
       
             
       $out=@{}
-      import-csv $path -Delimiter ";" | Where-Object {-not (ElementInArray $_.fach $blacklist)} | ForEach-Object {
+      import-csv $path -Delimiter $out_delimiter | Where-Object {-not (ElementInArray $_.fach $blacklist)} | ForEach-Object {
           if ($kukk) {
             $key=$_.lol;
             $value=$_.klasse

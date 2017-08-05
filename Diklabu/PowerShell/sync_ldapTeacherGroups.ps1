@@ -72,7 +72,7 @@ function Sync-LDAPTeams
     {
         $to=Login-LDAP
         if ($csv) {
-            if (Test-Path $csv) {
+            if (Test-Path $csv) {                
                 $g = Import-Csv -Path $csv -Delimiter ","
             }
             else {
