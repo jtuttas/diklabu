@@ -71,7 +71,7 @@ function Sync-MoodleCourses
         foreach ($c in $coh) {
             $cohorts[$c.name]=$c
         }
-        $mc = Get-MoodleCourses  | Where-Object {$_.categoryid -eq $categoryid}
+        $mc = Get-MoodleCourses -categorie $categoryid}
         $moodelCourses=@{}
         foreach ($c in $mc) {
                 $moodelCourses[$c.shortname]=$c

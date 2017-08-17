@@ -95,6 +95,9 @@ function Get-MoodleCourses
     [CmdletBinding()]
     Param
     (
+        # Moodle categorie
+        [Parameter(Position=0)]
+        [int]$categorie
     )
     Begin
     {
@@ -103,9 +106,16 @@ function Get-MoodleCourses
         }
         else {
             Write-Verbose "Get-MoodleCourses"
-            $postParams = @{wstoken=$token;wsfunction='core_course_get_courses';moodlewsrestformat='json'}
-            $courses=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-            $courses
+            if ($categorie) {
+                $postParams = @{wstoken=$token;wsfunction='core_course_get_courses_by_field';moodlewsrestformat='json';field='category';value=$categorie}
+                $courses=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+                $courses.courses
+            }
+            else {
+                $postParams = @{wstoken=$token;wsfunction='core_course_get_courses';moodlewsrestformat='json'}
+                $courses=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+                $courses
+            }
         }
     }
     
