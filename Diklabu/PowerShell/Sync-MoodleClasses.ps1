@@ -9,6 +9,8 @@
    globalen Gruppe mit dem Namen Klasse als STUDENT in den Kurs ein und fügt die Lehrer der Klasse als TEACHER
    in den Kurs ein!
 
+   Sync-MoodleCourses -untisexport C:\Temp\untis.csv -categoryid 108 -Verbose -coursematch "17" -templateid 866 -whatif
+
 #>
 function Sync-MoodleCourses
 {
@@ -25,13 +27,14 @@ function Sync-MoodleCourses
                    Position=1)]
         [String]$untisexport,
         [int]$templateid=-1,
+        [String]$coursematch="",
         [switch]$force,
         [switch]$whatif       
     )
     Begin
     {
         try {
-            $untis = Import-Csv $untisexport -Delimiter ';' 
+            $untis = Import-Csv $untisexport -Delimiter ',' 
         }
         catch {
             Write-Error "Konnte die Datei $untisexport nicht finden!"
@@ -39,15 +42,7 @@ function Sync-MoodleCourses
         }
         
         $lehrer=@{}  
-        
-              
-        $config=Get-Content "$PSScriptRoot/config.json" | ConvertFrom-json
-        $l = $config.ldaphost
-        $k=$l.Split(":");
-        $ip=$k[1].Substring(2)
-        $password = $config.bindpassword | ConvertTo-SecureString -asPlainText -Force
-        $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList "ldap-user", $password
-        $u=Get-ADGroupMember -Identity Lehrer -Server $ip -Credential $credentials | Get-ADUser -Properties Mail,Initials -Server $ip -Credential $credentials        
+        $u=Get-ADGroupMember -Identity Lehrer -Server $global:ldapserver -Credential $global:ldapcredentials | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials        
         foreach ($user in $u) {
             if ($user.Initials) {
                 Write-Verbose  "Lese ein $($user.GivenName) $($user.Name) ($($user.Initials))" 
@@ -84,16 +79,17 @@ function Sync-MoodleCourses
         
         $n=1
         foreach ($line in $untis) {
-            Write-Verbose "Bearbeite Zeile $($n): Klasse $($line.klasse)"
-            $n++;
-            if (-not $moodelCourses[$line.klasse] -and -not $moodelCourses[$line.klasse].categoryid -eq $categoryid) {
+            if ($line.klasse -match $coursematch) {
+                Write-Verbose "Bearbeite Zeile $($n): Klasse $($line.klasse)"
+                $n++;
+               if (-not $moodelCourses[$line.klasse] -and -not $moodelCourses[$line.klasse].categoryid -eq $categoryid) {
                 Write-Verbose " Klassenkurs existiert nicht in Moodle, und wird angelegt"
                 if (-not $whatif) {
                     if ($templateid -eq -1) {
-                        $c=New-MoodleCourse -fullname $line.klasse -shortname $line.klasse -categoryid $categoryid
+                        $c=New-MoodleCourse -fullname $line.klasse -shortname $line.klasse -categoryid $categoryid -force
                     }
                     else {
-                        $c=Copy-MoodleCourse -fullname $line.klasse -shortname $line.klasse -categoryid $categoryid -courseid $templateid
+                        $c=Copy-MoodleCourse -fullname $line.klasse -shortname $line.klasse -categoryid $categoryid -courseid $templateid -force
                     }
                     if (-not $c) {
                         $c = "" | Select-Object -Property id
@@ -131,7 +127,7 @@ function Sync-MoodleCourses
                     $moodelCourses[$line.klasse].unusedMember=$com2
                 }
             }
-            #$moodelCourses[$line.klasse] 
+                #$moodelCourses[$line.klasse] 
             
             if (-not $cohorts[$line.klasse].bearbeitet) {                
                 if ($cohorts[$line.klasse]) {
@@ -145,7 +141,7 @@ function Sync-MoodleCourses
                             if (-not $moodelCourses[$line.klasse].member[$id]) {
                                 Write-Verbose " Trage den Moodle Nutzer mit der ID $id in den Kurs $($moodelCourses[$line.klasse].id) ein!"
                                 if (-not $whatif) {
-                                        Add-MoodleCourseMember -userid $id -courseid $moodelCourses[$line.klasse].id -role STUDENT
+                                        Add-MoodleCourseMember -userid $id -courseid $moodelCourses[$line.klasse].id -role STUDENT -force
                                 }
                             }
                             else {
@@ -162,7 +158,7 @@ function Sync-MoodleCourses
                     $cohorts[$line.klasse]=$obj
                 }
             }
-            if (-not $moodelCourses[$line.klasse].lehrer[$line.lol]) {
+                                                                                                                                                                        if (-not $moodelCourses[$line.klasse].lehrer[$line.lol]) {
                 
                 if ($line.fach -eq "LF" -or $line.fach -eq "PO" -or $line.fach -eq "DE" -or $line.fach -eq "RE") {
                     $moodelCourses[$line.klasse].lehrer[$line.lol]=$line.lol
@@ -178,7 +174,7 @@ function Sync-MoodleCourses
                                     if (-not $moodelCourses[$line.klasse].member[$lu.id]) {
                                         Write-Verbose " Trage den Moodle Benutzer $($lehrer[$line.lol].mail) in den Kurs $($line.klasse) ein!"                
                                         if (-not $whatif) {
-                                            $r = Add-MoodleCourseMember -userid $lu.id -courseid $moodelCourses[$line.klasse].id -role TEACHER
+                                            $r = Add-MoodleCourseMember -userid $lu.id -courseid $moodelCourses[$line.klasse].id -role TEACHER -force
                                         }
                                     }
                                     else {
@@ -201,9 +197,13 @@ function Sync-MoodleCourses
                     Write-Verbose " Zeile enthält das Kursfach $($line.fach)"
                 }
             }
+                else {
+                #$moodelCourses[$line.klasse].lehrer
+                    Write-Verbose "Doppeleinsatz! Den Lehrer mit Kürzel $($line.lol) bereits für die Klasse $($line.klasse) berücksichtigt"
+                }
+            }
             else {
-            #$moodelCourses[$line.klasse].lehrer
-                Write-Verbose "Doppeleinsatz! Den Lehrer mit Kürzel $($line.lol) bereits für die Klasse $($line.klasse) berücksichtigt"
+                Write-Verbose "Klasse $($line.klasse) übersprungen"
             }
         }       
         
@@ -216,7 +216,7 @@ function Sync-MoodleCourses
                    foreach ($m in $moodelCourses[$u.shortname].unusedMember) {
                         Write-Verbose "Der Teilnehmer $($m.Values[0].firstname) $($m.Values[0].lastname) ID=$($m.Values[0].id) ist nicht mehr im Klassenkurs $($u.shortname) enthalten und kann gelöscht werden"
                         if (-not $whatif) {
-                            Remove-MoodleCourseMember -userid $m.Values[0].id -courseid $u.id
+                            Remove-MoodleCourseMember -userid $m.Values[0].id -courseid $u.id -force
                         }
                    }
                 }
@@ -224,5 +224,5 @@ function Sync-MoodleCourses
         }        
     }
 }
-Write-Host "Anmeldung an Moodle"
-Login-Moodle -url https://moodle.mm-bbs.de/moodle/ -credential (Get-Credential)
+#Write-Host "Anmeldung an Moodle"
+#Login-Moodle -url https://moodle.mm-bbs.de/moodle/ -credential (Get-Credential)
