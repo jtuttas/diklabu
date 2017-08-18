@@ -168,10 +168,10 @@ function Get-LDAPTeacher
     }
     Process {
         if ($id) {
-            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname |Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"} | Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $id}
+            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname |Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"} | Get-ADUser -Properties EmailAddress,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Initials -eq $id}
         }
         elseif ($email) {
-            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  |Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"}| Get-ADUser -Properties Mail,Initials -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.Mail -eq $email}
+            $in=Get-ADGroupMember -Credential $global:ldapcredentials -Server $global:ldapserver -Identity $groupname  |Where-Object {$_.objectClass -ne "group" -and  $_.objectClass -ne "computer"}| Get-ADUser -Properties Initials,EmailAddress -Server $global:ldapserver -Credential $global:ldapcredentials | Where-Object {$_.EmailAddress -eq $email}
         }
         $teacher = "" | Select-Object -Property "TEACHER_ID","EMAIL","VNAME","NNAME"
         $teacher.TEACHER_ID=$in.Initials

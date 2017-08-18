@@ -147,7 +147,7 @@ public class LDAPUtil {
         }
 
         String user = result.getNameInNamespace();
-
+        Log.d("User="+user);
         try {
 
             props = new Properties();
@@ -158,6 +158,7 @@ public class LDAPUtil {
 
             context = new InitialDirContext(props);
         } catch (Exception e) {
+            
             return null;
         }
         return u;

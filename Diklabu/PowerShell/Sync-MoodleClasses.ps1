@@ -245,7 +245,9 @@ function Sync-MoodleCourses {
      $unusedCourse.Keys | % { 
         
          Write-Verbose "Lösche Kurs $_ mit id=$($unusedCourse.Item($_).id)"
-         $res=Delete-MoodleCourse -id $unusedCourse.Item($_).id -force
+         if (-not $whatif) {
+            $res=Delete-MoodleCourse -id $unusedCourse.Item($_).id -force
+         }
         
      }
      
