@@ -94,12 +94,12 @@ public class AusbilderManager {
         em.getEntityManagerFactory().getCache().evictAll();
         Ausbilder a = em.find(Ausbilder.class, id);
         if (a!=null) {
-            if (aus.getANREDE()!=null) a.setANREDE(aus.getANREDE());
-            if (aus.getEMAIL()!=null) a.setEMAIL(aus.getEMAIL());
-            if (aus.getFAX()!=null) a.setFAX(aus.getFAX());
-            if (aus.getID_BETRIEB()!=null) a.setID_BETRIEB(aus.getID_BETRIEB());
-            if (aus.getNNAME()!=null) a.setNNAME(aus.getNNAME());
-            if (aus.getTELEFON()!=null) a.setTELEFON(aus.getTELEFON());
+            a.setANREDE(aus.getANREDE());
+            a.setEMAIL(aus.getEMAIL());
+            a.setFAX(aus.getFAX());
+            a.setID_BETRIEB(aus.getID_BETRIEB());
+            a.setNNAME(aus.getNNAME());
+            a.setTELEFON(aus.getTELEFON());
             em.merge(a);
         }
         return a;
