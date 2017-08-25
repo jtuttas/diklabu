@@ -57,7 +57,7 @@ public class LDAPUtil {
         LDAPUtil lpd = LDAPUtil.getInstance();
         LDAPUser u;
         try {
-            u = lpd.authenticateJndi("Fisi14a.aue", "Tuttas1!");
+            u = lpd.authenticateJndi("tuttas", "mmbbs");
             Log.d("Habe gefunden " + u);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -146,7 +146,8 @@ public class LDAPUtil {
             }
         }
 
-        String user = result.getNameInNamespace();
+        //String user = result.getNameInNamespace();
+        String user=dName;
         Log.d("User="+user);
         try {
 
