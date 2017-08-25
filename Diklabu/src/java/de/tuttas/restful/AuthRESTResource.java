@@ -125,11 +125,13 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                 }
             } else if (u.getRole().equals(Roles.toString(Roles.LEHRER)) || u.getRole().equals(Roles.toString(Roles.ADMIN)) || u.getRole().equals(Roles.toString(Roles.VERWALTUNG))) {
                 Lehrer l = em.find(Lehrer.class, u.getShortName());
+                /*
                 if (l != null && u.getEMail() != null && !l.getEMAIL().equals(u.getEMail())) {
                     Log.d("Aktualisiere EMails für Lehrer aus der AD auf " + u.getEMail());
                     l.setEMAIL(u.getEMail());
                     em.merge(l);
                 }
+                */
                 if (l==null) {
                     jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Lehrer mit Kürzel "+u.getShortName()+" in Klassenbuch DB finden!");
                     jsonObjBuilder.add("success", false);
