@@ -767,3 +767,92 @@ function Sync-SFGroupMember
         }
     }
 }
+
+<#
+.Synopsis
+   Synchonisiert die Seafile Gruppen
+.DESCRIPTION
+   Synchronisiert die Seafile Gruppe, d.h. Wenn eine Gruppe nicht existiert wird diese angeleght. Wenn eine Gruppe existiert, aber nicht mehr benötigt wird, 
+   wird diese gelöscht
+.EXAMPLE
+   Sync-SFGroups -groups FIAE17J,FIAE17K
+   Die  Gruppen FIAE17J und FIAE17K werden angelegt, falls sie nicht bereits existierem, alle anderen Gruppen werden gelöscht
+.EXAMPLE
+   "FIAE17J,FIAE17K" | Sync-SFGroupMember -nodelete
+   Die  Gruppen FIAE17J und FIAE17K werden angelegt, falls sie nicht bereits existierem, alle anderen Gruppen bleiben erhalten
+
+#>
+function Sync-SFGroups
+{
+    [CmdletBinding()]     
+    Param
+    (
+         # LIste mit Gruppennamen
+        [Parameter(Mandatory=$true,
+                   ValueFromPipeLine=$true,
+                   Position=0)]                    
+        [String[]]$groups,
+        [switch]$force,
+        [switch]$whatif,
+        [switch]$nodelete
+    )    
+    Begin
+    {
+       
+        if (-not $global:sftoken) {
+            Write-Error "Sie sind nicht an Seafile angemeldet, veruchen Sie es mit Login-Seafile"
+            break;
+        }
+        $headers=@{}      
+        $headers["content-Type"]="application/x-www-form-urlencoded"  
+        $headers["Authorization"]="TOKEN "+$global:sftoken;
+
+        try {
+            $ist= Get-SFGroups
+            $istGroups = @{};
+            foreach ($m in $ist) {
+                $istGroups[$m.id]=$m
+            }
+        }
+        catch {
+            Write-Error "$($_.Exception.GetType().FullName) $($_.Exception.Message)"
+            break;
+        }
+    }    
+    Process
+    {
+        $groups | ForEach-Object {
+            $group=$_
+            $gr=$istGroups.Keys | % { if ($istGroups.Item($_).name -eq $group) {$istGroups.Item($_)} }
+            if ($gr){
+                Write-Verbose "Die Gruppe $($gr.name) existiert bereits in Seafile mit der ID $($gr.id)"
+                $istGroups.Remove($gr.id);
+            }
+            else {
+                Write-Verbose "Die Gruppe $group existiert noch nicht in Seafile und wird dort angelegt !"
+                $g=New-SFGroup -name $group -force:$force
+            }
+        }
+    }  
+    End {
+        if (!$whatif) {
+            if (!$nodelete) {
+                Write-Verbose "Lösche Gruppen die nicht in der Soll-Liste enthalten sind"
+                if ($istGroups.Count -ne 0) {
+                    $istGroups.Keys | % {
+                        if (-not $force) {
+                            $q = Read-Host "Soll die Gruppe $($istGroups.Item($_).name) mit der id $($istGroups.Item($_).id) aus Seafile gelöscht werden? (J/N)"
+                            if ($q -eq "J") {
+                                $r=Delete-SFGroup -id $($istGroups.Item($_).id) -force 
+                            }
+                        }
+                        else {
+                            $r=Delete-SFGroup -id $($istGroups.Item($_).id) -force
+                            Write-Verbose "Lösche die Gruppe $($istGroups.Item($_).name) mit der id $($istGroups.Item($_).id) aus Seafile!"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -11,6 +11,7 @@
 
    Sync-MoodleCourses -untisexport C:\Temp\untis.csv -categoryid 108 -Verbose -coursematch "17" -templateid 866 -whatif
 
+   Sync-MoodleCourses -untisexport C:\Temp\GPU-mmbbs-sj17-18_05082017.csv -categoryid 108 -Verbose -templateid 866 
 #>
 function Sync-MoodleCourses {
     [CmdletBinding()]
