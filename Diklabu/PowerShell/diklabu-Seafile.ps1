@@ -761,7 +761,7 @@ function Sync-SFGroupMember
     Process
     {
         $usermails | ForEach-Object {
-            Start-Sleep -Milliseconds 100
+            Start-Sleep -Milliseconds 50
             $usermail = $_
             if ($istMember[$usermail]) {
                 Write-Verbose "Der Benutzer mit der Email $usermail befindet sich bereits in der Gruppe mit der ID $groupid"

@@ -423,8 +423,10 @@ function Get-SFGroupmember
     [CmdletBinding()]   
     Param
     (
-      [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
-      [int]$id
+      [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0, ParameterSetName='byId')]
+      [int]$id,
+      [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0, ParameterSetName='byName')]
+      [string]$KName
     )
 
     Begin
@@ -438,7 +440,15 @@ function Get-SFGroupmember
         $headers["Authorization"]="TOKEN "+$global:sftoken;
     }
     Process {
-        
+        if ($KName) {
+            $gr = Get-SFGroups | Where-Object {$_.name -eq $KName}
+            if (!$gr) {
+                Write-Warning "Kann die Klasse $KName nicht im SF finden !"
+            }
+            else {
+                $id=$gr.id
+            }
+        }
         $url = $global:seafile+"/api/v2.1/groups/$id/members/"
         try {
             $r=Invoke-RestMethod -Method GET -Uri $url -Headers $headers  
@@ -695,18 +705,30 @@ function Sync-SFGroupMember
     [CmdletBinding()]     
     Param
     (
-        # Cohort ID
+        # Group ID
         [Parameter(Mandatory=$true,
-                   Position=0)]
+                   Position=0,
+                   ParameterSetName='byId')]
         [int]$groupid,
+        # Group Name
+        [Parameter(Mandatory=$true,
+                   Position=0,
+                   ParameterSetName='byName')]
+        [String]$KName,
 
          # ID der Benutzers
         [Parameter(Mandatory=$true,
                    ValueFromPipeLine=$true,
+                    ValueFromPipelineByPropertyName=$true,
                    Position=1)]
+        [alias("EMAIL")]   
         [String[]]$usermails,
         [switch]$force,
-        [switch]$whatif
+        [switch]$whatif,
+        # Benutzer die nicht gefunden werden, werden angelegt
+        [switch]$createUsers=$false,
+        # Default Password,
+        [string]$password="mmbbs"
     )    
     Begin
     {
@@ -718,6 +740,11 @@ function Sync-SFGroupMember
         $headers=@{}      
         $headers["content-Type"]="application/x-www-form-urlencoded"  
         $headers["Authorization"]="TOKEN "+$global:sftoken;
+
+        if ($KName) {
+            $gr = Get-SFGroups | Where-Object {$_.name -eq $KName}
+            $groupid=$gr.id
+        }
 
         try {
             $members= Get-SFGroupmember -id $groupid | where-Object {-not $_.is_admin}| Select-Object -Property email | Get-SFUser
@@ -734,23 +761,40 @@ function Sync-SFGroupMember
     Process
     {
         $usermails | ForEach-Object {
+            Start-Sleep -Milliseconds 100
             $usermail = $_
             if ($istMember[$usermail]) {
                 Write-Verbose "Der Benutzer mit der Email $usermail befindet sich bereits in der Gruppe mit der ID $groupid"
                 $istMember.Remove($usermail)
             }
             else {
-                if (!$force) {
+                $user= Get-SFUser -email $usermail
+                if (!$user) {
+                    Write-Verbose "Der Benutzer mit der EMail $usermail existiert nicht im Seafile System";
+                    if ($createUsers) {
+                        if (!$force) {
+                            $q=Read-Host "Soll der Benutzer $usermail angelegt werden? (J/N)";
+                            if ($q -eq "J") {
+                                $user=New-SFUser -email $usermail -password $password -force:$force
+                            }
+                        }
+                        else {
+                            Write-Verbose "Der Benutzer mit der EMail $usermail wird im Seafile System angelegt";
+                            $user=New-SFUser -email $usermail -password $password -force:$force
+                        }
+                    }
+                }
+                if (!$force -and $user) {
                     $q=Read-Host "Soll der Benutzer mit der EMail $usermail in die Gruppe mit der ID $groupid aufgenommen werden? (J/N)"
                     if ($q -eq "J") {
                         Write-Verbose "Benutzer mit EMail $usermail wird in Gruppe mit ID $groupid aufgenommen" 
                         $r=Add-SFGroupmember -email $usermail -id $groupid -force
                     }
                 }
-                else {
+                elseif ($user) {
                     Write-Verbose "Benutzer mit EMail $usermail wird in Gruppe mit ID $groupid aufgenommen" 
                     $r=Add-SFGroupmember -email $usermail -id $groupid -force
-                }
+                }                
             }
         }
     }  
@@ -790,7 +834,9 @@ function Sync-SFGroups
          # LIste mit Gruppennamen
         [Parameter(Mandatory=$true,
                    ValueFromPipeLine=$true,
-                   Position=0)]                    
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)] 
+        [alias("KName")]                                      
         [String[]]$groups,
         [switch]$force,
         [switch]$whatif,
@@ -822,7 +868,9 @@ function Sync-SFGroups
     Process
     {
         $groups | ForEach-Object {
+            
             $group=$_
+            Write-Verbose "Bearbeite gruppe $group"
             $gr=$istGroups.Keys | % { if ($istGroups.Item($_).name -eq $group) {$istGroups.Item($_)} }
             if ($gr){
                 Write-Verbose "Die Gruppe $($gr.name) existiert bereits in Seafile mit der ID $($gr.id)"
