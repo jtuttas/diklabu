@@ -1170,7 +1170,7 @@ function getVertretung(callback) {
  * @returns {undefined}
  */
 function getNoten(kl, ids, callback) {
-    log("--> Noten der Klasse kl=" + kl + " für Schuljahr ID=" + ids + "laden!");
+    console.log("!--> Noten der Klasse kl=" + kl + " für Schuljahr ID=" + ids + "laden!");
     $.ajax({
         url: SERVER + "/Diklabu/api/v1/noten/" + kl + "/" + ids,
         type: "GET",
@@ -3107,7 +3107,7 @@ function updateCurrentView() {
                     for (i = 0; i < data.length; i++) {
                         $("#schuljahre").append('<option value="' + data[i].NAME + '" sid="' + data[i].ID + '">' + data[i].NAME + '</option>');
                     }
-                    console.log("Setzte aktuelles Schuljahr auf " + data[i - 1].NAME);
+                    console.log("Setzte aktuelles Schuljahr auf: " + data[i - 1].NAME);
 
 
                     $("#schuljahre").val(data[i - 1].NAME);

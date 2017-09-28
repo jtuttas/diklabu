@@ -26,7 +26,7 @@ if ($r -eq "J") {
 else {
     $r5=Read-Host "Name der CSV Datei"
     $file="$PSScriptRoot\$r5"
-    $csv=Import-Csv $file 
+    $csv=Import-Csv $file -Delimiter ","
     if ($csv) {
         $r3=Read-Host "Titel der neuen Umfrage Verbotene Zeichen (*/)"
         $r4=Read-Host "Bei privaten Umfragen das Kürzel des Lehrers angeben (sonst Return)"
@@ -36,7 +36,7 @@ else {
         else {
             $newpoll=New-Poll -TITEL $r3 
         }
-        $pops = $c[0].PSObject.Properties
+        $pops = $csv[0].PSObject.Properties
         $i=0
     
         $answers=@();
