@@ -41,12 +41,19 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet(name = "MailServlet", urlPatterns = {"/MailServlet"})
 public class MailServlet extends HttpServlet {
 
-   
     private MailSender mailSender;
 
     public void init() {
-        
+
         mailSender = MailSender.getInstance();
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Send Response
+        super.doOptions(request, response);
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Headers", "auth_token, Content-Type, X-Requested-With");
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -98,7 +105,8 @@ public class MailServlet extends HttpServlet {
             throws ServletException, IOException {
         String auth = request.getParameter("auth_token");
         Log.d("MailServlet doPost: auth_token=" + auth);
-
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Allow-Headers", "auth_token");
         if (Config.getInstance().debug || auth != null && de.tuttas.restful.auth.Authenticator.getInstance().isAuthTokenValid(auth)) {
             response.setContentType("application/json;charset=UTF-8");
             ResultObject result = new ResultObject();
@@ -112,7 +120,7 @@ public class MailServlet extends HttpServlet {
             String report = request.getParameter("report");
             String bcc = request.getParameter("bcc");
             String cc = request.getParameter("cc");
-            Log.d("MailServlet doPost: toMail=" + recipient+ " fromMail="+from+" cc="+cc+" bcc="+bcc+"subject="+subject+" emailBody="+content+" report="+report);            
+            Log.d("MailServlet doPost: toMail=" + recipient + " fromMail=" + from + " cc=" + cc + " bcc=" + bcc + "subject=" + subject + " emailBody=" + content + " report=" + report);
 
             if (subject == null || subject.length() == 0) {
                 Log.d("subject = null");
@@ -125,23 +133,26 @@ public class MailServlet extends HttpServlet {
                 try {
                     MailObject mo = new MailObject(from, subject, content);
                     mo.addRecipient(recipient);
-                    if (bcc!=null) mo.addBcc(bcc.split(";"));
-                    if (cc!=null) mo.addCC(cc.split(";"));
-                    Log.d("Mail to send:"+mo.toString());
+                    if (bcc != null) {
+                        mo.addBcc(bcc.split(";"));
+                    }
+                    if (cc != null) {
+                        mo.addCC(cc.split(";"));
+                    }
+                    Log.d("Mail to send:" + mo.toString());
                     mailSender.sendMail(mo);
                     result.setSuccess(true);
                     result.setMsg("EMail erfolgreich versandt");
-                    if (report==null || (report!=null && report.compareTo("false")!=0)) {
+                    if (report == null || (report != null && report.compareTo("false") != 0)) {
                         createPdf(response, recipient, content, klassenName, lehrerID);
-                    }
-                    else {
+                    } else {
                         response.setStatus(HttpServletResponse.SC_OK);
-                        
+
                     }
                 } catch (AddressException ex) {
                     ex.printStackTrace();
                     try (PrintWriter out = response.getWriter()) {
-                        out.println("Adress Exception:"+ex.getMessage());
+                        out.println("Adress Exception:" + ex.getMessage());
                     }
                 } catch (MailFormatException ex) {
                     ex.printStackTrace();
@@ -149,11 +160,11 @@ public class MailServlet extends HttpServlet {
                     result.setMsg(ex.getMessage());
                 }
             }
-            
+
             try (PrintWriter out = response.getWriter()) {
                 out.println(result.toString());
             }
-            
+
         } else {
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {

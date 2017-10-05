@@ -7,8 +7,8 @@ FROM ubuntu:16.04
 MAINTAINER Joerg Tuttas <tuttas@mmbbs.de>
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV debug false
-ENV auth true
+ENV debug true
+ENV auth false
 ENV adminusers [\"TU\",\"TUTTAS\",\"KEMMRIES\"]
 ENV verwaltung [\"BÜ\"]
 ENV AUTH_TOKE_TIMEOUT 432000000

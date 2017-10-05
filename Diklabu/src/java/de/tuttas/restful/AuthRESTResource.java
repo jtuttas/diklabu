@@ -17,6 +17,7 @@ import de.tuttas.restful.auth.HTTPHeaderNames;
 import de.tuttas.restful.auth.Roles;
 import de.tuttas.util.LDAPUser;
 import de.tuttas.util.Log;
+import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.util.List;
 import java.util.logging.Level;
@@ -145,6 +146,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     jsonObjBuilder.add("msg", "Login erfolgreich! Rolle ist "+u.getRole());
                     jsonObjBuilder.add("success", true);                    
                     jsonObjBuilder.add("auth_token", u.getAuthToken());
+                    jsonObjBuilder.add("email", l.getEMAIL());
                 }
             }
 
