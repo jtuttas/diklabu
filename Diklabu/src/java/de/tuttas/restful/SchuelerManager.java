@@ -454,6 +454,7 @@ public class SchuelerManager {
         ResultObject r = new ResultObject();
         String fileLocation = Config.getInstance().IMAGE_FILE_PATH + idschueler + ".jpg";
         Log.d("upload  File for " + idschueler);
+        Log.d("file Stream="+uploadedInputStream);
         try {
 
             byte[] imageBytes = IOUtils.toByteArray(uploadedInputStream);

@@ -99,7 +99,13 @@ public class DokuServlet extends HttpServlet {
      */
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
-
+  @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Send Response
+        super.doOptions(request, response);
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Headers", "auth_token, Content-Type, X-Requested-With");
+    }
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -115,6 +121,8 @@ public class DokuServlet extends HttpServlet {
         String auth = request.getParameter("auth_token");
         String service = request.getParameter("service_key");
         Log.d("auth_token=" + auth);
+          response.setHeader("Access-Control-Allow-Origin", "*");
+        response.addHeader("Access-Control-Allow-Headers", "auth_token");
         if (request.getParameter("cmd") == null || request.getParameter("idklasse") == null || request.getParameter("from") == null) {
             Log.d("Info zeigen");
             response.setContentType("text/html;charset=UTF-8");
