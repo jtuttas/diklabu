@@ -87,6 +87,7 @@ public class VerlaufManager {
                     ve.setSTUNDE(v.getSTUNDE());
                     em.merge(ve);
                     v.setSuccess(false);
+                    v.setID(ve.getID());
                     v.setMsg("Eintrag aktualisiert!");
                     return v;
                 }

@@ -146,7 +146,9 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     jsonObjBuilder.add("msg", "Login erfolgreich! Rolle ist "+u.getRole());
                     jsonObjBuilder.add("success", true);                    
                     jsonObjBuilder.add("auth_token", u.getAuthToken());
-                    jsonObjBuilder.add("email", l.getEMAIL());
+                    if (l.getEMAIL()!=null) {
+                        jsonObjBuilder.add("email", l.getEMAIL());
+                    }
                 }
             }
 

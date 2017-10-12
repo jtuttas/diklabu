@@ -58,7 +58,7 @@ public class Config {
     /**
      * Version Nummer
      */
-    public final static String VERSION="V 2.31";
+    public final static String VERSION="V 2.32";
     
     /**
      * JSON Objekt für die Client Seite
