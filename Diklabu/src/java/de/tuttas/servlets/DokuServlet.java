@@ -140,7 +140,7 @@ public class DokuServlet extends HttpServlet {
                 out.println("</html>");
             }
         } else {
-            if (Config.getInstance().debug || service != null && auth != null && Authenticator.getInstance().isAuthTokenValid(auth)) {
+            if (Config.getInstance().debug ||  auth != null && Authenticator.getInstance().isAuthTokenValid(auth)) {
                 Log.d("ID Klasse = "+request.getParameter("idklasse"));
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
