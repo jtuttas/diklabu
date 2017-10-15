@@ -236,7 +236,7 @@ function Get-Courses
             return;
         }
         $headers=@{}
-        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["content-Type"]="application/json;charset=utf-8"
         $headers["auth_token"]=$global:auth_token;       
     }
     Process

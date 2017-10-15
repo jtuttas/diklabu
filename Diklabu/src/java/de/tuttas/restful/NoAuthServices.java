@@ -70,6 +70,7 @@ public class NoAuthServices {
     @GET
     @Path("/getcourses")
     @Consumes(MediaType.APPLICATION_JSON)
+    //@Produces({"application/json; charset=iso-8859-1"})
     public List<Klasse> getVotableCourses() {
         em.getEntityManagerFactory().getCache().evictAll();
         Log.d("Webservice courseselect/booking GET:");
@@ -242,6 +243,7 @@ public class NoAuthServices {
      */
     @GET
     @Path("klassen")
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<KlasseShort> getCourses() {
         Log.d("Webservice klasse GET");
         TypedQuery<KlasseShort> query = em.createNamedQuery("findAllKlassen", KlasseShort.class);
