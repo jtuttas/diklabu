@@ -64,6 +64,9 @@ public final class Authenticator {
             usersStorage.put("FISI14A.AUE", "mmbbs"); 
             rolesStorage.put("FISI14A.AUE", Roles.toString(Roles.SCHUELER));
             // Schüler Testzugang
+            usersStorage.put("FISI15B.MUSTERFRAU", "mmbbs"); 
+            rolesStorage.put("FISI15B.MUSTERFRAU", Roles.toString(Roles.SCHUELER));
+            // Schüler Testzugang
             usersStorage.put("FISI14A.ZZZ", "mmbbs");
             rolesStorage.put("FISI14A.ZZZ", Roles.toString(Roles.SCHUELER));
         }
@@ -141,7 +144,8 @@ public final class Authenticator {
                     u.setShortName(username);
                     u.setAuthToken(authToken);
                     // Diese Daten kommen eigentlich über LDAP
-                    u.setVName("Marcel");
+                    u.setVName("Erina");
+                    u.setCourse("FISI15B");
                     u.setNName(username.substring(username.indexOf(".")+1));
                     u.setRole(rolesStorage.get(username.toUpperCase()));
                     for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
