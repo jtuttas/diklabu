@@ -132,14 +132,15 @@ public class MailServlet extends HttpServlet {
             } else {
                 try {
                     MailObject mo = new MailObject(from, subject, content);
-                    mo.addRecipient(recipient);
+                    mo.addRecipient(recipient.split(";"));
+                    
                     if (bcc != null) {
                         mo.addBcc(bcc.split(";"));
                     }
                     if (cc != null) {
                         mo.addCC(cc.split(";"));
                     }
-                    Log.d("Mail to send:" + mo.toString());
+                    System.out.println("Mail to send:" + mo.toString());
                     mailSender.sendMail(mo);
                     result.setSuccess(true);
                     result.setMsg("EMail erfolgreich versandt");
@@ -160,12 +161,14 @@ public class MailServlet extends HttpServlet {
                     result.setMsg(ex.getMessage());
                 }
             }
-
+            
             try (PrintWriter out = response.getWriter()) {
                 out.println(result.toString());
             }
+            
 
         } else {
+            Log.d("Debug Meldung !");
             response.setContentType("text/html;charset=UTF-8");
             try (PrintWriter out = response.getWriter()) {
                 out.println("<!DOCTYPE html>");
