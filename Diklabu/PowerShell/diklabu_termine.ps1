@@ -72,3 +72,30 @@ function New-Date
     {
     }
 }
+<#
+.Synopsis
+   Termindaten abfragen
+.DESCRIPTION
+   Termindaten abfragen
+.EXAMPLE
+   Get-Dates
+   Abfrage der Termincategorien
+#>
+function Get-Dates
+{
+    [CmdletBinding()]
+    Param
+    (
+    )
+    Begin
+    {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
+          $r=Invoke-RestMethod -Method Get -Uri ($Global:server+"noauth/termine") 
+        return $r;
+
+    }
+}
+
