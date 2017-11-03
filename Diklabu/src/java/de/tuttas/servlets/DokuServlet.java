@@ -69,6 +69,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.persistence.EntityManager;
@@ -837,8 +838,19 @@ public class DokuServlet extends HttpServlet {
                 parsedTo.setTime(parsedTo.getTime() + 1000);
                 while (current.before(parsedTo)) {
                     termine.add(new Termin(new Timestamp(current.getTime())));
-                    Log.d("Erzeuge neuen Termin:" + new Termin(new Timestamp(current.getTime())));
-                    current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
+                    Log.d("!Erzeuge neuen Termin:" + new Termin(new Timestamp(current.getTime())));
+                    //current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
+                    Calendar c = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+                    c.setTime(current);
+                    c.add(Calendar.DATE, 1);
+                    c.set(Calendar.HOUR, 0);
+                    c.set(Calendar.MINUTE, 0);
+                    c.set(Calendar.SECOND, 0);
+                    Log.d("Calendar is "+c);
+                    current=c.getTime();
+                    
+                    //current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
+                    
                 }
             }
         }
@@ -934,7 +946,7 @@ public class DokuServlet extends HttpServlet {
                 while (current.before(parsedTo)) {
                     termine.add(new Termin(new Timestamp(current.getTime())));
                     Log.d("Erzeuge neuen Termin:" + new Termin(new Timestamp(current.getTime())));
-                    current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
+                    current.setTime(current.getTime() + 24 * 60 * 60 * 1000);                    
                 }
             }
         }
