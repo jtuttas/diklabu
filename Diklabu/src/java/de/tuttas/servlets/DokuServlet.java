@@ -846,11 +846,7 @@ public class DokuServlet extends HttpServlet {
                     c.set(Calendar.HOUR, 0);
                     c.set(Calendar.MINUTE, 0);
                     c.set(Calendar.SECOND, 0);
-                    Log.d("Calendar is "+c);
                     current=c.getTime();
-                    
-                    //current.setTime(current.getTime() + 24 * 60 * 60 * 1000);
-                    
                 }
             }
         }
@@ -946,7 +942,15 @@ public class DokuServlet extends HttpServlet {
                 while (current.before(parsedTo)) {
                     termine.add(new Termin(new Timestamp(current.getTime())));
                     Log.d("Erzeuge neuen Termin:" + new Termin(new Timestamp(current.getTime())));
-                    current.setTime(current.getTime() + 24 * 60 * 60 * 1000);                    
+                    //current.setTime(current.getTime() + 24 * 60 * 60 * 1000);                    
+                    Calendar c = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+                    c.setTime(current);
+                    c.add(Calendar.DATE, 1);
+                    c.set(Calendar.HOUR, 0);
+                    c.set(Calendar.MINUTE, 0);
+                    c.set(Calendar.SECOND, 0);
+                    current=c.getTime();
+
                 }
             }
         }
