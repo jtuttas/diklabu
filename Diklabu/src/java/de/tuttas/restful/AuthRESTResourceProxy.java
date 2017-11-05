@@ -8,6 +8,8 @@ package de.tuttas.restful;
 import de.tuttas.restful.Data.Auth;
 import java.io.Serializable;
 import javax.ejb.Local;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,6 +32,13 @@ public interface AuthRESTResourceProxy extends Serializable {
         Auth a );
 
    
+    @POST
+    @Path( "setpin" )
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response setPin(
+            @Context HttpHeaders httpHeaders,
+            Auth a);
+
 
     @POST
     @Path( "logout" )

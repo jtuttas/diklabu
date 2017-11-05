@@ -166,7 +166,7 @@ public class DokuServlet extends HttpServlet {
                     anwFilter2 = Integer.parseInt(request.getParameter("anwfilter2"));
                 }
                 Authenticator a = Authenticator.getInstance();
-                String me = a.getUser(auth);
+                String me = a.getUser(auth).getShortName();
                 Log.d("Verlauf Filter1=" + filter1 + " Verlauf Filter2=" + filter2 + " me=" + me);
                 Log.d("Anwesenheitsfilter 1 = " + anwFilter1 + " Filter2=" + anwFilter2);
                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

@@ -80,7 +80,7 @@ public class UmfrageUtil {
             return null;
         }
         Authenticator aut = Authenticator.getInstance();
-        String user = aut.getUser(authToken);
+        String user = aut.getUser(authToken).getShortName();
 
         if (u.getOWNER() != null && (!u.getOWNER().equals(user) || !aut.getRole(authToken).equals(Roles.toString(Roles.ADMIN)))) {
             Log.d("Keine Berechtigung die Beteiligung an der Umfrage auszuwerten");

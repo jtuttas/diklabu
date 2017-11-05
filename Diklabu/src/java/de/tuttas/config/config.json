@@ -19,6 +19,7 @@
         "SERVER": "http://localhost:8080",     
         "DWO": "http://service.joerg-tuttas.de:8082/dwoRest/webresources/",
         "WEBSOCKET": "ws://",
-        "DIKLABUNAME":"DiKlaBu@localhost"
+        "DIKLABUNAME":"DiKlaBu@localhost",
+        "TWOFA": true
     }
 }

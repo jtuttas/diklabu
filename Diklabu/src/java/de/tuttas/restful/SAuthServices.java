@@ -94,7 +94,7 @@ public class SAuthServices {
         Log.d("Webservice kursbuchung POST:" + t.toString());
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator a = Authenticator.getInstance();
-        String user = a.getUser(authToken);
+        String user = a.getUser(authToken).getShortName();
         Log.d("Kursbuchug auth_token=" + authToken + " User=" + user);
 
         if (Config.getInstance().auth == true && (user == null || Integer.parseInt(user) != sid)) {
@@ -215,7 +215,7 @@ public class SAuthServices {
     public List<AnwesenheitObjekt> getAnwesenheit(@Context HttpHeaders httpHeaders, @PathParam("sid") int sid, @PathParam("from") Date from, @PathParam("to") Date to) {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator a = Authenticator.getInstance();
-        String user = a.getUser(authToken);
+        String user = a.getUser(authToken).getShortName();
         Log.d("get Anwesenheit auth_token=" + authToken + " User=" + user);
         if (Config.getInstance().auth && (user == null || Integer.parseInt(user) != sid)) {
             return null;
@@ -288,7 +288,7 @@ public class SAuthServices {
         Schueler s = em.find(Schueler.class, idschueler);
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
-        String user = aut.getUser(authToken);
+        String user = aut.getUser(authToken).getShortName();
 
         Log.d(
                 "get Anwesenheit auth_token=" + authToken + " User=" + user);
@@ -337,7 +337,7 @@ public class SAuthServices {
     public Response getImage(@Context HttpHeaders httpHeaders, @PathParam("idschueler") int idschueler) {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
-        String user = aut.getUser(authToken);
+        String user = aut.getUser(authToken).getShortName();
         Log.d("get Bild  auth_token=" + authToken + " User=" + user);
         if (Config.getInstance().auth && (user == null || Integer.parseInt(user) != idschueler)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();
@@ -362,7 +362,7 @@ public class SAuthServices {
     public BildObject getImage64(@Context HttpHeaders httpHeaders, @PathParam("idschueler") int idschueler) {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
-        String user = aut.getUser(authToken);
+        String user = aut.getUser(authToken).getShortName();
         Log.d("get Bild  auth_token=" + authToken + " User=" + user);
         if (Config.getInstance().auth && (user == null || Integer.parseInt(user) != idschueler)) {
             return null;

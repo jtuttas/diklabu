@@ -7,6 +7,7 @@ package de.tuttas.restful.auth;
 
 import de.tuttas.config.Config;
 import de.tuttas.entities.Lehrer;
+import de.tuttas.restful.Data.Auth;
 import de.tuttas.util.LDAPUser;
 import de.tuttas.util.LDAPUtil;
 import de.tuttas.util.Log;
@@ -26,25 +27,24 @@ import javax.security.auth.login.LoginException;
 
 /**
  * Authentifizierungs Klasse
+ *
  * @author Jörg
  */
 public final class Authenticator {
 
     private static Authenticator authenticator = null;
 
-    // A user storage which stores <username, password>
-    private final Map<String, String> usersStorage = new HashMap();
 
-    // An authentication token storage which stores <auth_token,  Benutzername>.
-    private final Map<String, String> authorizationTokensStorage = new HashMap();
+    // An authentication token storage which stores <auth_token,  LDAPUser>.
+    private final Map<String, LDAPUser> authorizationTokensStorage = new HashMap();
 
-    // Benutzernamen zu Rollen <Benutzername, Rolle>
-    private final Map<String, String> rolesStorage = new HashMap();
-
-    // Live time of a aut_token <auth_token, TimeStamp>
-    private final Map<String, Long> liveTimeStorage = new HashMap();
-
+    // Session ID and PIN Map
+    private final Map<String, Long> pinStorage = new HashMap();
+    private final Map<String, LDAPUser> userStorage = new HashMap();
+    
+    
     private Authenticator() {
+        /*
         if (Config.getInstance().debug) {
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("DiklabuPU");
             EntityManager em = emf.createEntityManager();
@@ -53,6 +53,12 @@ public final class Authenticator {
 
             for (Lehrer l : lehrer) {
                 Log.d("Anlegen Benutzer (" + l.getId() + ")");
+                LDAPUser lu = new LDAPUser();
+                lu.setEMail(l.getEMAIL());
+                lu.setIdPlain(l.getIdplain());
+                lu.setNName(l.getNNAME());
+                lu.setVName(l.getVNAME());
+                lu.setPhone(l.getTELEFON());
                 usersStorage.put(l.getId(), "mmbbs");
                 rolesStorage.put(l.getId(), Roles.toString(Roles.LEHRER));
             }
@@ -61,20 +67,21 @@ public final class Authenticator {
             usersStorage.put("ZZZ", "mmbbs");
             rolesStorage.put("ZZZ", Roles.toString(Roles.LEHRER));
             // Schüler Testzugang
-            usersStorage.put("FISI14A.AUE", "mmbbs"); 
+            usersStorage.put("FISI14A.AUE", "mmbbs");
             rolesStorage.put("FISI14A.AUE", Roles.toString(Roles.SCHUELER));
             // Schüler Testzugang
-            usersStorage.put("FISI15B.MUSTERFRAU", "mmbbs"); 
+            usersStorage.put("FISI15B.MUSTERFRAU", "mmbbs");
             rolesStorage.put("FISI15B.MUSTERFRAU", Roles.toString(Roles.SCHUELER));
             // Schüler Testzugang
             usersStorage.put("FISI14A.ZZZ", "mmbbs");
             rolesStorage.put("FISI14A.ZZZ", Roles.toString(Roles.SCHUELER));
         }
-
+        */
     }
 
     /**
      * Instanz der Authentifizierungsklasse abfragen
+     *
      * @return Instanz der Authentifizierungsklasse
      */
     public static Authenticator getInstance() {
@@ -87,13 +94,12 @@ public final class Authenticator {
 
     /**
      * Login einer Users
-     * @param serviceKey Service Key
      * @param username Benutzernamen
      * @param password Kennwort
      * @return Identifizierter Benutzer
      * @throws LoginException Keine Authentifizierung möglich
      */
-    public LDAPUser login(String serviceKey, String username, String password) throws LoginException {
+    public LDAPUser login(String username, String password) throws LoginException {
         if (!Config.getInstance().debug) {
             LDAPUtil ldap;
             try {
@@ -101,13 +107,14 @@ public final class Authenticator {
                 LDAPUser u = ldap.authenticateJndi(username, password);
                 if (u != null) {
                     Log.d("found User " + u.toString());
-                    serviceKey = StringUtil.removeGermanCharacters(u.getShortName()) + "f80ebc87-ad5c-4b29-9366-5359768df5a1";
-                    String authToken = UUID.randomUUID().toString();
-                    authorizationTokensStorage.put(authToken, username);
-                    liveTimeStorage.put(authToken, System.currentTimeMillis());
-
-                    u.setAuthToken(authToken);
-                    
+                    if ((Boolean)Config.getInstance().clientConfig.get("TWOFA") == false ||
+                         u.getRole().equals(Roles.toString(Roles.SCHUELER))) {
+                        String authToken = UUID.randomUUID().toString();
+                        u.setAuthToken(authToken);
+                        u.setTimestamp(System.currentTimeMillis());
+                    } else {
+                        Log.d(" Zwei Faktoren Authentifizierung ist aktiv");
+                    }
                     for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
                         if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {
                             u.setRole(Roles.toString(Roles.ADMIN));
@@ -118,52 +125,46 @@ public final class Authenticator {
                             u.setRole(Roles.toString(Roles.VERWALTUNG));
                         }
                     }
-                    Log.d("Login Successfull! u=" + u + " authToken=" + authToken+" Rolle ist "+u.getRole());
-                    rolesStorage.put(username, u.getRole());
+                    Log.d("Login Successfull! u=" + u + " authToken=" + u.getAuthToken() + " Rolle ist " + u.getRole());
+                    this.authorizationTokensStorage.put(u.getAuthToken(),u);
                     return u;
                 }
                 Log.d("u ist NULL");
                 throw new LoginException("Don't Come Here Again!");
             } catch (Exception ex) {
-                Log.d("Exception "+ex.getMessage());
+                Log.d("Exception " + ex.getMessage());
                 Logger.getLogger(Authenticator.class.getName()).log(Level.SEVERE, null, ex);
             }
             throw new LoginException("Don't Come Here Again!");
         } else {
-            Log.d("Login im Debug Mode serviceKey=" + serviceKey);
+            Log.d("Login im Debug Mode!");
+            EntityManagerFactory emf = Persistence.createEntityManagerFactory("DiklabuPU");
+            EntityManager em = emf.createEntityManager();
             
-            if (usersStorage.containsKey(username.toUpperCase())) {
-                String passwordMatch = usersStorage.get(username.toUpperCase());
-                Log.d("Benuter "+username+" im userStorage enthalten! Teste Password "+password);
-                if (passwordMatch!=null && passwordMatch.equals(password)) {
-                    
-                    String authToken = UUID.randomUUID().toString();
-                    authorizationTokensStorage.put(authToken, username.toUpperCase());
-                    liveTimeStorage.put(authToken, System.currentTimeMillis());
-                    LDAPUser u = new LDAPUser();
-                    u.setShortName(username);
-                    u.setAuthToken(authToken);
-                    // Diese Daten kommen eigentlich über LDAP
-                    u.setVName("Erina");
-                    u.setCourse("FISI15B");
-                    u.setNName(username.substring(username.indexOf(".")+1));
-                    u.setRole(rolesStorage.get(username.toUpperCase()));
-                    for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
-                        if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {
-                            u.setRole(Roles.toString(Roles.ADMIN));
-                        }
+            Lehrer l = em.find(Lehrer.class, username);
+            if (l!=null && password.equals("mmbbs")) {
+                String authToken = UUID.randomUUID().toString();
+                LDAPUser u = new LDAPUser();
+                u.setShortName(username);
+                u.setAuthToken(authToken);
+                u.setTimestamp(System.currentTimeMillis());
+                u.setVName(l.getVNAME());
+                u.setNName(l.getNNAME());
+                for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
+                    if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {
+                        u.setRole(Roles.toString(Roles.ADMIN));
                     }
-                    for (int i = 0; i < Config.getInstance().verwaltung.length; i++) {
-                        if (Config.getInstance().verwaltung[i].equals(username.toUpperCase())) {
-                            u.setRole(Roles.toString(Roles.VERWALTUNG));
-                        }
-                    }
-                    rolesStorage.put(username, u.getRole());
-                    return u;
                 }
-            }
-            else {
-                Log.d("Benutzer "+username+" nicht im userStorage enthalten!");
+                for (int i = 0; i < Config.getInstance().verwaltung.length; i++) {
+                    if (Config.getInstance().verwaltung[i].equals(username.toUpperCase())) {
+                        u.setRole(Roles.toString(Roles.VERWALTUNG));
+                    }
+                }
+                Log.d("Login Successfull! u=" + u + " authToken=" + u.getAuthToken() + " Rolle ist " + u.getRole());
+                this.authorizationTokensStorage.put(u.getAuthToken(),u);
+                return u;                
+            } else {
+                Log.d("Benutzer " + username + " nicht gefunden!");
             }
             throw new LoginException("Don't Come Here Again!");
         }
@@ -171,18 +172,19 @@ public final class Authenticator {
 
     /**
      * Prüfen ob das Auth_Token (noch) gültig ist
+     *
      * @param authToken Das auth_token
      * @return true = gültiges Token
      */
     public boolean isAuthTokenValid(String authToken) {
         if (authorizationTokensStorage.containsKey(authToken)) {
-            Long t = liveTimeStorage.get(authToken);
+            LDAPUser u = authorizationTokensStorage.get(authToken);
+            Long t = u.getTimestamp();
             if (System.currentTimeMillis() < t + Config.getInstance().AUTH_TOKE_TIMEOUT) {
                 return true;
             } else {
                 Log.d("Auth Token Timed out");
                 authorizationTokensStorage.remove(authToken);
-                liveTimeStorage.remove(authToken);
             }
         }
         return false;
@@ -190,11 +192,11 @@ public final class Authenticator {
 
     /**
      * Abmelden eines Users
-     * @param serviceKey Service Key
+     *
      * @param authToken das Auth Token
-     * @throws GeneralSecurityException  wenn etwas schief ging
+     * @throws GeneralSecurityException wenn etwas schief ging
      */
-    public void logout(String serviceKey, String authToken) throws GeneralSecurityException {
+    public void logout(String authToken) throws GeneralSecurityException {
 
         if (authorizationTokensStorage.containsKey(authToken)) {
 
@@ -210,39 +212,54 @@ public final class Authenticator {
 
     /**
      * Abfrage der Rolle für ein Auth-Token
+     *
      * @param authToken das Auth_Token
      * @return der Name der Rolle
      */
     public String getRole(String authToken) {
-        String user = authorizationTokensStorage.get(authToken);
-        Log.d("User mit token " + authToken + " ist " + user);
-        return rolesStorage.get(user);
+        LDAPUser u = authorizationTokensStorage.get(authToken);
+        Log.d("User mit token " + authToken + " ist " + u);
+        return u.getRole();
     }
-    
-    /**
-     * Rolle für einen Benutzer setzen
-     * @param username der Benutzername
-     * @param role der name der Rolle
-     */
-    public void setRole(String username,String role) {
-        rolesStorage.put(username, role);
-    }
-    
+
+  
     /**
      * Benutzer Abfragen anhand eines Auth-Tokens
+     *
      * @param authToken das Auth Tokens
      * @return Benutzername oder ID des Benutzers
      */
-    public String getUser(String authToken) {
+    public LDAPUser getUser(String authToken) {
         return authorizationTokensStorage.get(authToken);
     }
-    
-    /**
-     * Benutzer stzen anhand eines Auth Tokens
-     * @param authToken das Auth Token
-     * @param user  der Benutzer Oder ID
-     */
-    public void setUser(String authToken,String user) {
-        authorizationTokensStorage.put(authToken, user);
+
+
+    public void setPin(String sid, LDAPUser u, Auth a) {
+        Log.d("set PIN for SID="+sid+" as "+a.getPin());
+        pinStorage.put(sid, a.getPin());
+        userStorage.put(sid,u);
+    }
+
+    public LDAPUser matchPin(String uid, long pin) {
+        Log.d("Math PIN "+pin+" with SID="+uid);
+        try {
+            long tpin = pinStorage.get(uid);
+            if (tpin==pin) {
+                String authToken = UUID.randomUUID().toString();
+                LDAPUser u = userStorage.get(uid);
+                u.setAuthToken(authToken);
+                u.setTimestamp(System.currentTimeMillis());
+                this.authorizationTokensStorage.put(authToken, u);
+                return u;
+            }
+            userStorage.remove(uid);
+            pinStorage.remove(uid);
+            return null;
+        }
+        catch (java.lang.NullPointerException e) {
+            userStorage.remove(uid);
+            pinStorage.remove(uid);
+            return null;
+        }
     }
 }

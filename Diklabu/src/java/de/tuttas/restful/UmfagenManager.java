@@ -138,7 +138,7 @@ public class UmfagenManager {
     public List<ActiveUmfrage> getUmfragen(@Context HttpHeaders httpHeaders) {
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator a = Authenticator.getInstance();
-        String user = a.getUser(authToken);
+        String user = a.getUser(authToken).getShortName();
         Query query=null;
         if (!Config.getInstance().auth || a.getRole(authToken).equals(Roles.toString(Roles.ADMIN))) {
             Log.d("Umfragen abfragen User=" + user+ "Role ist ADMIN");
@@ -167,7 +167,7 @@ public class UmfagenManager {
         Log.d("Get Beteiligung f. Umfrage " + uid + " und Klasse =" + kname);
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator a = Authenticator.getInstance();
-        String user = a.getUser(authToken);
+        String user = a.getUser(authToken).getShortName();
         em.getEntityManagerFactory().getCache().evictAll();
         Umfrage u = em.find(Umfrage.class, uid);
         if (u == null) {
@@ -206,7 +206,7 @@ public class UmfagenManager {
         Log.d("Get Antworten f. Umfrage " + uid + " und Klasse(n) =" + kname);
         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
         Authenticator aut = Authenticator.getInstance();
-        String user = aut.getUser(authToken);
+        String user = aut.getUser(authToken).getShortName();
 
         String[] klassen = kname.split(";");
 

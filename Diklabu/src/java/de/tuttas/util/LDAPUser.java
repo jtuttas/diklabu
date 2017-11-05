@@ -22,6 +22,8 @@ public class LDAPUser {
     private String idPlain;
     private String role;
     private String course;
+    private String phone;
+    private long timestamp;
 
     public LDAPUser() {
     }
@@ -41,6 +43,16 @@ public class LDAPUser {
         this.idPlain=StringUtil.removeGermanCharacters(ShortName);
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    
+    
     public void setCourse(String course) {
         this.course = course;
     }
@@ -49,11 +61,19 @@ public class LDAPUser {
         return course;
     }
 
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
     
     
     @Override
     public String toString() {
-        return "NName="+NName+" VName="+VName+" EMail="+EMail+" Kürzel="+ShortName+ " Role="+role;
+        return "NName="+NName+" VName="+VName+" EMail="+EMail+" Kürzel="+ShortName+ " Role="+role+" Phone="+phone+ " auth="+authToken;
     }
 
     public void setIdPlain(String idPlan) {

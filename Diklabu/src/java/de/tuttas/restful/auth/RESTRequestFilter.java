@@ -59,7 +59,7 @@ public class RESTRequestFilter implements ContainerRequestFilter {
              log.info("found Valid Key");
              */
             // For any pther methods besides login, the authToken must be verified
-            if (!path.startsWith("/auth/login") && !path.startsWith("/auth/logout") ) {
+            if (!path.startsWith("/auth/login") && !path.startsWith("/auth/logout") && !path.startsWith("/auth/setpin") ) {
                 String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
                 Log.d("auth Token=" + authToken);
                 // if it isn't valid, just kick them out.
@@ -96,7 +96,6 @@ public class RESTRequestFilter implements ContainerRequestFilter {
                             requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
                         }
                     }
-
                 }
             }
         }

@@ -57,8 +57,9 @@ public class LDAPUtil {
         LDAPUtil lpd = LDAPUtil.getInstance();
         LDAPUser u;
         try {
-            u = lpd.authenticateJndi("tuttas", "mmbbs");
+            u = lpd.authenticateJndi("bahrke", "mmbbs");
             Log.d("Habe gefunden " + u);
+            Log.d("TWOFA="+Config.getInstance().clientConfig.get("TWOFA"));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -83,7 +84,7 @@ public class LDAPUtil {
         try {
             context = new InitialDirContext(props);
             ctrls = new SearchControls();
-            ctrls.setReturningAttributes(new String[]{"description", "mail", "sn", "initials", "givenName", "memberOf", "userPrincipalName", "distinguishedName"});
+            ctrls.setReturningAttributes(new String[]{"description", "mail", "sn", "initials", "givenName", "memberOf", "userPrincipalName", "distinguishedName","telephonenumber"});
             ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         } catch (NamingException ex) {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
@@ -127,6 +128,11 @@ public class LDAPUtil {
                     result.getAttributes().get("givenName").getAll().next().toString(),
                     result.getAttributes().get("mail").getAll().next().toString(),
                     inititials);
+        }
+        Log.d("Phone Attribute = "+result.getAttributes().get("telephoneNumber"));
+        if (result.getAttributes().get("telephoneNumber") != null) {
+            u.setPhone(result.getAttributes().get("telephoneNumber").getAll().next().toString());
+            Log.d("Phone="+result.getAttributes().get("telephoneNumber").getAll().next().toString());
         }
 
         String dName = result.getAttributes().get("distinguishedName").getAll().next().toString();

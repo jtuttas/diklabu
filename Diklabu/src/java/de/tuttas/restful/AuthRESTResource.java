@@ -20,6 +20,7 @@ import de.tuttas.util.Log;
 import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
@@ -30,6 +31,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.core.CacheControl;
@@ -65,15 +68,14 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
     public Response login(
             @Context HttpHeaders httpHeaders,
             Auth a) {
-
+        String uid = UUID.randomUUID().toString();
+        Log.d("Session="+uid);
         String username = a.getBenutzer();
         String password = a.getKennwort();
         Log.d("login post empfangen f. " + a.toString() + " debug=" + Config.getInstance().debug);
         Authenticator demoAuthenticator = Authenticator.getInstance();
-        String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
-
         try {
-            LDAPUser u = demoAuthenticator.login(serviceKey, username, password);
+            LDAPUser u = demoAuthenticator.login(username, password);
             Log.d("Rest Login u=(" + u+")");
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
             if (u.getRole().equals(Roles.toString(Roles.SCHUELER))) {
@@ -87,16 +89,12 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                 
                 if (schueler.size() != 0) {
                     u.setShortName("" + schueler.get(0).getId());
-                    demoAuthenticator.setUser(u.getAuthToken(), schueler.get(0).getId().toString());
-                    demoAuthenticator.setRole(schueler.get(0).getId().toString(), Roles.toString(Roles.SCHUELER));
-
                     Schueler s = schueler.get(0);
                     if (s != null && u.getEMail() != null && !u.getEMail().equals(s.getEMAIL())) {
                         Log.d("Aktualisiere EMails für Schüler aus der AD auf " + u.getEMail());
                         s.setEMAIL(u.getEMail());
                         em.merge(s);
-                    }
-                    
+                    }                    
                     jsonObjBuilder.add("nameKlasse", u.getCourse());
                     query = em.createNamedQuery("findKlassebyName");
                     query.setParameter("paramKName", u.getCourse().toUpperCase());
@@ -112,14 +110,14 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
 
                 } else {
                     if (u.getCourse()!=null) {
-                        jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" in Klasse "+u.getCourse()+" finden!");
+                        jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" im Diklabu in der Klasse "+u.getCourse()+" finden!");
                     }
                     else {
                         jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" hat keine Gruppenzugehörigkeit!");                        
                     }
                     jsonObjBuilder.add("success", false);
                     try {
-                        demoAuthenticator.logout("", u.getAuthToken());
+                        demoAuthenticator.logout(u.getAuthToken());
                     } catch (GeneralSecurityException ex) {
                         Logger.getLogger(AuthRESTResource.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -137,17 +135,35 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Lehrer mit Kürzel "+u.getShortName()+" in Klassenbuch DB finden!");
                     jsonObjBuilder.add("success", false);
                     try {
-                        demoAuthenticator.logout("", u.getAuthToken());
+                        demoAuthenticator.logout(u.getAuthToken());
                     } catch (GeneralSecurityException ex) {
                         Logger.getLogger(AuthRESTResource.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
                 else {
-                    jsonObjBuilder.add("msg", "Login erfolgreich! Rolle ist "+u.getRole());
-                    jsonObjBuilder.add("success", true);                    
-                    jsonObjBuilder.add("auth_token", u.getAuthToken());
-                    if (l.getEMAIL()!=null) {
-                        jsonObjBuilder.add("email", l.getEMAIL());
+                    Log.d("TWOFA="+Config.getInstance().clientConfig.get("TWOFA"));
+                    if (!(Boolean)Config.getInstance().clientConfig.get("TWOFA")) {
+                        jsonObjBuilder.add("msg", "Login erfolgreich! Rolle ist "+u.getRole());
+                        jsonObjBuilder.add("success", true);                    
+                        jsonObjBuilder.add("auth_token", u.getAuthToken());
+                        if (l.getEMAIL()!=null) {
+                            jsonObjBuilder.add("email", l.getEMAIL());
+                        }
+                    }
+                    else {
+                        if (u.getPhone()==null) {
+                            jsonObjBuilder.add("msg", "Anmeldedaten OK, aber keine Telefonnummer zur zwei Faktoren Authentifizierung hinterlegt!");
+                            jsonObjBuilder.add("success", false);                                                
+                        }
+                        else {
+                            jsonObjBuilder.add("msg", "PIN gesendet an "+u.getPhone());
+                            jsonObjBuilder.add("success", true);   
+                            jsonObjBuilder.add("uid", uid);   
+                            long pin = (long) (Math.random()*9000)+1000; 
+                            a.setPin(pin);
+                            demoAuthenticator.setPin(uid,u,a);
+                            Config.getInstance().sendSMS(u.getPhone(), "Ihre PIN f. das digitale Klassebuch lautet: "+pin);
+                        }
                     }
                 }
             }
@@ -164,11 +180,41 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
             JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
             jsonObjBuilder.add("message", "Problem matching service key, username and password");
             JsonObject jsonObj = jsonObjBuilder.build();
-
             return getNoCacheResponseBuilder(Response.Status.UNAUTHORIZED).entity(jsonObj.toString()).build();
         }
     }
-
+    
+    @Override
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response setPin(
+            @Context HttpHeaders httpHeaders,
+            Auth a) {
+        String uid = a.getUid();
+        Log.d("Session="+uid);
+        Log.d("PIN="+a.getPin());
+        Authenticator demoAuthenticator = Authenticator.getInstance();
+        JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder(); 
+        
+        LDAPUser u = demoAuthenticator.matchPin(uid,a.getPin());
+        if (u!=null) {
+            jsonObjBuilder.add("msg", "Login erfolgreich!");
+            jsonObjBuilder.add("success", true);  
+            jsonObjBuilder.add("auth_token", u.getAuthToken());
+            jsonObjBuilder.add("email", u.getEMail());
+            jsonObjBuilder.add("ID", u.getShortName());
+            jsonObjBuilder.add("idPlain", u.getIdPlain());
+            jsonObjBuilder.add("role", u.getRole());
+        }
+        else {
+            jsonObjBuilder.add("msg", "Fehlerhafte PIN");
+            jsonObjBuilder.add("success", false);                    
+        }
+        
+        JsonObject jsonObj = jsonObjBuilder.build();
+        return getNoCacheResponseBuilder(Response.Status.OK).entity(jsonObj.toString()).build();
+    }
+     
+   
     /**
      * Abmelden
      * @param httpHeaders mit auth_token zur Identifikatioon
@@ -179,10 +225,8 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
             @Context HttpHeaders httpHeaders) {
         try {
             Authenticator demoAuthenticator = Authenticator.getInstance();
-            String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
             String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-
-            demoAuthenticator.logout(serviceKey, authToken);
+            demoAuthenticator.logout(authToken);
 
             return getNoCacheResponseBuilder(Response.Status.NO_CONTENT).build();
         } catch (final GeneralSecurityException ex) {

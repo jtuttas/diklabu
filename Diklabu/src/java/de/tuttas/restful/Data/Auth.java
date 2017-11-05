@@ -5,6 +5,8 @@
  */
 package de.tuttas.restful.Data;
 
+import javax.json.JsonValue;
+
 /**
  * Authentifizierungsklasse
  * @author Jörg
@@ -12,6 +14,8 @@ package de.tuttas.restful.Data;
 public class Auth {
     String benutzer;
     String kennwort;
+    long pin;
+    String uid;
 
     public Auth() {
     }
@@ -44,14 +48,27 @@ public class Auth {
         this.kennwort = kennwort;
     }
 
-   
+    public long getPin() {
+        return pin;
+    }
 
+    public void setPin(long pin) {
+        this.pin = pin;
+    }
+
+   
     @Override
     public String toString() {
         return "Auth username="+benutzer+" kennwort="+kennwort;
     }
-    
-    
-    
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
+    }
+
     
 }
