@@ -16,6 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.simple.JSONArray;
@@ -162,7 +163,7 @@ public class Config {
 
     public boolean sendSMS(String recipient, String msg) {
         try {
-            String url = "http://192.168.178.49:9090/sendsms?phone="+recipient+"&text="+msg+"&password=mmbbs";
+            String url = "http://192.168.178.49:9090/sendsms?phone="+recipient+"&text="+URLEncoder.encode(msg, "UTF-8")+"&password=mmbbs";
             
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
