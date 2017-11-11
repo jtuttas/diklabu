@@ -25,7 +25,7 @@ public class VerspaetungsUtil {
     public static AnwesenheitObjekt parse(AnwesenheitObjekt ao) {
 
         for (AnwesenheitEintrag ae : ao.getEintraege()) {
-            String vermerk = ae.getVERMERK();
+            String vermerk = ae.getVERMERK().toLowerCase();
             vermerk = vermerk.replace((char) 160, ' ');
             vermerk = vermerk.trim();
             Log.d("parse (" + vermerk + ")");

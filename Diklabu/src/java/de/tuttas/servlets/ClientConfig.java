@@ -45,9 +45,12 @@ public class ClientConfig extends HttpServlet {
             while( keys.hasNext() ) { 
                 
                 String key = (String)keys.next();
-                
-                
+                if (key.equals("TWOFA")) {
+                    out.println("var "+key+"="+c.clientConfig.get(key)+";");                    
+                }
+                else {
                     out.println("var "+key+"=\""+c.clientConfig.get(key)+"\";");
+                }
                 
             }
             out.println("var debug="+c.debug+";");
