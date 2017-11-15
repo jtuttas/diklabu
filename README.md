@@ -17,3 +17,5 @@ Dann aufruf der Seite http://localhost:8080/Diklabu/dev2/
 ![Screenshot](Diklabu/doc/screen2.PNG)
 ### Anwesenheit
 ![Screenshot](Diklabu/doc/screen3.PNG)
+### Details
+![Screenshot](Diklabu/doc/screen4.PNG)
