@@ -122,7 +122,7 @@ RUN  mkdir /home/diklabu && \
         echo "	  \"DWO\": \"$DWO\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "    \"SERVER\": \"$SERVER\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "    \"WEBSOCKET\": \"$WEBSOCKET\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "    \"TWOFA\": \"$TWOFA\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "    \"TWOFA\": $TWOFA, " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "    \"DIKLABUNAME\":\"$DIKLABUNAME\" " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
