@@ -1,7 +1,7 @@
 # BUILD Example
 # docker build Diklabu -t "diklabu:neu"
 # START Example
-# docker run -v c:/Temp:/var/lib/firebird/2.5/data -i -t -p 8080:8080 -p 3051:3050 -p 222:22  diklabu:neu
+# docker run -v c:/Temp/diklabudb:/var/lib/firebird/2.5/data -i -t -p 8080:8080 -p 3051:3050 -p 222:22  diklabu:neu
 
 FROM ubuntu:16.04
 MAINTAINER Joerg Tuttas <tuttas@mmbbs.de>
@@ -27,6 +27,7 @@ ENV SERVER http://localhost:8080
 ENV WEBSOCKET ws://
 ENV DIKLABUNAME DiKlaBu@Docker
 ENV FIREBIRD_GDB_FILENAME diklabu.GDB
+ENV TWOFA false
     
 
 #Install firebird
@@ -97,11 +98,9 @@ RUN  mkdir /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \        
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
-        cp diklabu/Diklabu/doc/diklabu.GDB /var/lib/firebird/2.5/data/ && \
         mkdir /home/diklabu/atest && \
         mkdir /home/diklabu/images && \
         mkdir /home/diklabu/templates && \
-	# config-json aus Env Variablen aufbauen
         echo "{" > /glassfish4/glassfish/domains/domain1/config.json && \
         echo "\"debug\": $debug, " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "\"auth\": $auth, " >> /glassfish4/glassfish/domains/domain1/config.json && \
@@ -123,6 +122,7 @@ RUN  mkdir /home/diklabu && \
         echo "	  \"DWO\": \"$DWO\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "    \"SERVER\": \"$SERVER\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "    \"WEBSOCKET\": \"$WEBSOCKET\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
+        echo "    \"TWOFA\": \"$TWOFA\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "    \"DIKLABUNAME\":\"$DIKLABUNAME\" " >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
         echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
