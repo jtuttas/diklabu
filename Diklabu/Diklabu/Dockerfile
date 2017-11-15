@@ -97,6 +97,7 @@ RUN  mkdir /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \        
         mv diklabu/Diklabu/lib/* /glassfish4/glassfish/domains/domain1/lib/ext/  && \
+        cp diklabu/Diklabu/doc/diklabu.GDB /var/lib/firebird/2.5/data/ && \
         mkdir /home/diklabu/atest && \
         mkdir /home/diklabu/images && \
         mkdir /home/diklabu/templates && \
