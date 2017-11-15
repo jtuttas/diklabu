@@ -12,7 +12,7 @@ Dann aufruf der Seite http://localhost:8080/Diklabu/dev2/
 
 ## Screenshots
 ### Anmeldung
-![Screenshot](Diklabu/doc/screen1.png)
+![Screenshot](diklabu/Diklabu/doc/screen1.png)
 ### Unterrichtsverlauf
 ![Screenshot](Diklabu/doc/screen2.png)
 ### Anwesenheit
