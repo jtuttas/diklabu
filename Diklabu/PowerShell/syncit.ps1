@@ -70,7 +70,7 @@ else {
     }
 }
 
-<#
+
 $body+="`r`n`r`nLade Untisexport.csv"
 if (-not $Global:logins["untisexport"]) {
     $body+="`r`nAchtung keine URL für Untisexport im Keystore gefunden!"
@@ -92,8 +92,17 @@ else {
         Write-Error $_.Exception.Message
         $body+=$_.Exception.Message
     }
+    ## Moodle Klassen-Kurse Synchronisieren
+    $body+="`r`n`r`nSynchronisiere Moodle Klassenteams"
+    Login-Moodle
+    $body+="`r`nLogin Moodel OK"
+    . "$PSScriptRoot/SyncMoodleClasses.ps1"
+    Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
+    Sync-MoodleCourses -untisexport "$env:TMP\untis.csv" -categoryid 108 -Verbose -templateid 866 
+    $body+="`r`nSynchronisation Moodle Klassen erfolgt"
+
 }
-#>
+
 
 if (-not $Global:logins["smtp"]) {
     Write-Error "Keine SMTP Credentials gefunden. Bitte zunächst mit Login-SMTP Verbindung herstellen"
