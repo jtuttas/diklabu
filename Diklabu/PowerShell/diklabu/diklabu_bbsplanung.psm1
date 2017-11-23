@@ -33,7 +33,7 @@ function Connect-BbsPlan
 
         [String]$user_id="SCHULE",
 
-        [String]$passwort
+        [String]$passwort=""
     
     )
     
@@ -57,7 +57,7 @@ function Connect-BbsPlan
             $global:connection 
         }
         catch {        
-            Write-Error "Fehler beim Öffnen von BBS-Planung $($cn.InfoMessage)"
+            Write-Error "Fehler beim Öffnen von BBS-Planung $($_.ErrorDetails.Message)"
             $_
         }
         Set-Keystore -key "bbsplanung" -server $location
@@ -1059,13 +1059,21 @@ function Get-BPCoursemember
             if ($log) {"== Setze Schüler auf Abgang, die im Diklabu eine BBS Planungs ID haben, aber nicht mehr in BBS Planung enthalten sind =="}
             $diklabu_pupils = get-pupils | Where-Object {$_.ABGANG -ne "J" -and $_.ID_MMBBS -ne $null};
             $dp=@{};
+            $n=1;
             foreach ($p in $diklabu_pupils) {
-                $dp[$p.ID_MMBBS]=$p
+                if ($p.ID_MMBBS -eq 99999) {
+                    $dp[($p.ID_MMBBS+$n)]=$p
+                    $n++;
+                }
+                else {
+                    $dp[$p.ID_MMBBS]=$p
+                }
             }
             $bbsp = Get-BPPupils;
             foreach ($p in $bbsp) {
                 $dp.Remove($p.BBSID);
             }
+            Write-Verbose "Insgesamt werden $($dp.Count) Schüler auf abgang gesetzt!"
             foreach ($p in $dp.GetEnumerator()) {
                 Write-Verbose "Setze Schüler ID=$($p.Value.ID) ($($p.Value.VNAME) $($p.Value.NNAME)) auf Abgang"
                 if ($log) {"Setze Schüler ID=$($p.Value.ID)  ($($p.Value.VNAME) $($p.Value.NNAME)) auf Abgang"}
