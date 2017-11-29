@@ -1,1 +1,1 @@
-%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe c:\Users\Tuttas\diklabu\Diklabu\PowerShell\syncit-bbsplan.ps1
+%SystemRoot%\SysWOW64\WindowsPowerShell\v1.0\powershell.exe c:\Users\Tuttas\diklabu\Diklabu\Diklabu\PowerShell\syncit-bbsplan.ps1

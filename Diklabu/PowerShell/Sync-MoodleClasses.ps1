@@ -175,7 +175,7 @@ function Sync-MoodleCourses {
             }
             if (-not $moodelCourses[$line.klasse].lehrer[$line.lol]) {
                 # Lehrer in den Kurs Hinzufügen
-                if ($line.fach -match "LF" -or $line.fach -eq "PO" -or $line.fach -eq "DE" -or $line.fach -eq "RE") {
+                if ($line.fach -match "LF" -or $line.fach -eq "PO" -or $line.fach -eq "DE" -or $line.fach -eq "RE" -or $line.fach -eq "NTW" -or $line.fach -eq "MA") {
                     $moodelCourses[$line.klasse].lehrer[$line.lol] = $line.lol
                     if ($line.lol) {
                         Write-Verbose " Suchen den Lehrer mit dem Kürzel $($line.lol)"
@@ -209,7 +209,8 @@ function Sync-MoodleCourses {
                     }
                 }
                 else {
-                    Write-Verbose " Zeile enthält das Kursfach $($line.fach)"
+                    Write-Verbose " Zeile enthält das Kursfach $($line.fach) und wird nicht berücksichtigt!" 
+                    Write-Warning " Zeile enthält das Kursfach $($line.fach) und wird nicht berücksichtigt!"
                 }
             }
             else {
