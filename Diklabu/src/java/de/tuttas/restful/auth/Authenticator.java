@@ -150,6 +150,8 @@ public final class Authenticator {
                 u.setTimestamp(System.currentTimeMillis());
                 u.setVName(l.getVNAME());
                 u.setNName(l.getNNAME());
+                u.setEMail(l.getEMAIL());
+                u.setRole(Roles.toString(Roles.LEHRER));
                 for (int i = 0; i < Config.getInstance().adminusers.length; i++) {
                     if (Config.getInstance().adminusers[i].equals(username.toUpperCase())) {
                         u.setRole(Roles.toString(Roles.ADMIN));
