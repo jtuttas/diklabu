@@ -1363,8 +1363,10 @@ public class DokuServlet extends HttpServlet {
         int kw = -1;
         document.open();
         boolean firstPage = true;
+        boolean newPage=false;
         for (Verlauf v : verlauf) {
             String str = v.getDATUM().toString();
+            newPage=false;
             if (str.compareTo(tag) == 0) {
                 htmlString.append(v.toHTML());
             } // ein neuer Tag
@@ -1386,12 +1388,18 @@ public class DokuServlet extends HttpServlet {
                     image.scalePercent(50f);
                     document.add(image);
                     XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-                    document.newPage();
+                    System.out.println("Vertical Position is:"+writer.getVerticalPosition(false)+" next: "+writer.getVerticalPosition(true)+" page size is:"+writer.getPageSize().getHeight());
                     htmlString = new StringBuilder();
-                    htmlString.append(kopf);
-                    htmlString.append("<table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
+                    // Position zählt runter von 1000 bis 0
+                    if (writer.getVerticalPosition(false)<400.0) {
+                        newPage=true;
+                        document.newPage();
+                        htmlString.append(kopf);
+                        Log.d("weiter mit neuer Seite");
+                    }
+                    htmlString.append("<p>&nbsp;</p><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
                     htmlString.append(tagZeile);
-                    Log.d("weiter mit neuer Seite");
+                    
                 }
                 htmlString.append("<tr>");
                 htmlString.append("<td colspan=\"6\" align=\"center\" style=\"background-color: #cccccc; padding:4px;border: 1px solid black;\">KW " + v.getKw() + " / " + v.getWochentag() + " " + str.substring(0, str.indexOf(" ")) + "</td>");
@@ -1401,17 +1409,32 @@ public class DokuServlet extends HttpServlet {
                 tag = str;
             }
         }
-        htmlString.append("</table>");
-        Log.d("html String Rest=" + htmlString.toString());
-        //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
-        InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-        // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
-        Image image = Image.getInstance(url);
-        image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
-        document.add(image);
-        XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        if (newPage) {
+            htmlString.append("</table>");
+            Log.d("html String Rest=" + htmlString.toString());
+            //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
+            InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+            // Bild einfügen
+            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            Image image = Image.getInstance(url);
+            image.setAbsolutePosition(45f, 720f);
+            image.scalePercent(50f);
+            document.add(image);
+            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+        }
+        else {
+            htmlString.append("</table>");
+            Log.d("html String Rest=" + htmlString.toString());
+            //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
+            InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+            // Bild einfügen
+            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            Image image = Image.getInstance(url);
+            image.setAbsolutePosition(45f, 720f);
+            image.scalePercent(50f);
+            document.add(image);
+            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);            
+        }
         document.close();
         return document;
     }

@@ -313,6 +313,7 @@ public class SchuelerManager {
             SchuelerObject so = new SchuelerObject();
             so.setId(idschueler);
             so.setGebDatum(s.getGEBDAT());
+            Log.d("Geb Datum ist "+so.getGebDatum());
             so.setName(s.getNNAME());
             so.setVorname(s.getVNAME());
             so.setEmail(s.getEMAIL());
