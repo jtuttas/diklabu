@@ -40,6 +40,7 @@ if (-not $Global:logins["lehrerteams"]) {
     Write-Warning "Achtung keine URL für Lehrerteams im Keystore gefunden!"
 }
 else {
+
     try {
         ## Moodle gloable gruppe Sync
         $body+="`r`n`r`nSynchronisiere Moodle Cohorts"
@@ -96,7 +97,7 @@ else {
     $body+="`r`n`r`nSynchronisiere Moodle Klassenteams"
     Login-Moodle
     $body+="`r`nLogin Moodel OK"
-    . "$PSScriptRoot/SyncMoodleClasses.ps1"
+    . "$PSScriptRoot/Sync-MoodleClasses.ps1"
     Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
     Sync-MoodleCourses -untisexport "$env:TMP\untis.csv" -categoryid 108 -Verbose -templateid 866 
     $body+="`r`nSynchronisation Moodle Klassen erfolgt"
