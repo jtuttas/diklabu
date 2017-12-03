@@ -902,7 +902,8 @@ function Get-BPCoursemember
                     }
                 }
                 $s.diklabuID=$c.id
-                $kl = Get-Coursemembership $c.id
+
+                $kl = Get-Coursemembership $c.id | Where-Object {$_.ID_Kategorie -eq 0}
                 if (-not $kl) {
                     Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"
                     if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"}
