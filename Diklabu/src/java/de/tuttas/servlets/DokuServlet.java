@@ -861,7 +861,8 @@ public class DokuServlet extends HttpServlet {
             sb.add("" + DatumUtil.getWochentag(c.get(GregorianCalendar.DAY_OF_WEEK)) + ":" + c.get(GregorianCalendar.DATE) + "." + (c.get(GregorianCalendar.MONTH) + 1) + "." + c.get(GregorianCalendar.YEAR));
         }
         Log.d("Es werden " + sb.size() + " Tage dargestellt");
-        sb.add(0, "Name");
+        sb.add(0, "VName");
+        sb.add(1, "NName");
         String[] cols = new String[sb.size()];
         for (int i = 0; i < cols.length; i++) {
             cols[i] = sb.get(i);
@@ -870,8 +871,10 @@ public class DokuServlet extends HttpServlet {
         Schueler s;
         for (int y = 0; y < schueler.size(); y++) {
             s = schueler.get(y);
-            mo.setData(0, y, s.getVNAME() + " " + s.getNNAME());
-            int x = 1;
+            mo.setData(0, y, s.getVNAME());
+            mo.setData(1, y, s.getNNAME());
+           
+            int x = 2;
             for (Termin t : termine) {
                 mo.setData(x, y, findVermerk(s.getId(), t.getDate(), anwesenheit));
                 x++;

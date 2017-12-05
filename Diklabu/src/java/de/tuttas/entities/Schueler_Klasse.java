@@ -21,7 +21,7 @@ import javax.persistence.NamedQuery;
 @Entity
 @NamedQueries({
    @NamedQuery(name = "findKlassenids", query= "select sk from Schueler_Klasse sk where sk.ID_SCHUELER = :paramidSchueler "),
-   @NamedQuery(name = "findSchulerEinerKlasse", query= "select s from Schueler s inner join Schueler_Klasse sk on sk.ID_SCHUELER=s.ID  where sk.ID_KLASSE = :paramidKlasse "),
+   @NamedQuery(name = "findSchulerEinerKlasse", query= "select s from Schueler s inner join Schueler_Klasse sk on sk.ID_SCHUELER=s.ID  where sk.ID_KLASSE = :paramidKlasse ORDER BY s.NNAME"),
    @NamedQuery(name = "findSchuelerKlasse", query= "select sk from Schueler_Klasse sk where sk.ID_SCHUELER = :paramidSchueler and sk.ID_KLASSE = :paramidKlasse")        
 })
 @IdClass(Schueler_KlasseId.class)
