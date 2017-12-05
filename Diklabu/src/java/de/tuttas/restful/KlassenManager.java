@@ -10,7 +10,9 @@ import de.tuttas.config.Config;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Kategorie;
 import de.tuttas.entities.Klasse;
+import de.tuttas.entities.Lehrer_KlasseId;
 import de.tuttas.entities.Lehrer;
+import de.tuttas.entities.Lehrer_Klasse;
 import de.tuttas.entities.Schueler;
 import de.tuttas.entities.Schueler_Klasse;
 import de.tuttas.entities.Schueler_KlasseId;
@@ -46,6 +48,7 @@ import javax.ws.rs.Produces;
 
 /**
  * Manager zur Verwaltung von Klassen / Kurse
+ *
  * @author Jörg
  */
 @Path("klasse")
@@ -60,12 +63,13 @@ public class KlassenManager {
 
     /**
      * Abfrage der Schüler eine Klasse
+     *
      * @param kl Name der Klasse
      * @return Liste der Schüler eine Klasse
      */
     @GET
     @Path("/{klasse}")
-     @Produces({"application/json; charset=iso-8859-1"})
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<Schueler> getPupil(@PathParam("klasse") String kl) {
         Log.d("Webservice klasse GET: klasse=" + kl);
 
@@ -75,14 +79,16 @@ public class KlassenManager {
         Log.d("Result List:" + schueler);
         return schueler;
     }
-    
+
     /**
      * Abfragen der Klassen
-     * @param idk ID der Kategorie (0 für 'normale' Klassen, oder 1 für WPKs (siehe Tabelle KATEGORIE)
+     *
+     * @param idk ID der Kategorie (0 für 'normale' Klassen, oder 1 für WPKs
+     * (siehe Tabelle KATEGORIE)
      * @return Liste der Klassen der genannten Kategorie
      */
     @GET
-    @Path("/klassen/{idk}") 
+    @Path("/klassen/{idk}")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<Klasse> getCourses(@PathParam("idk") int idk) {
         Log.d("Webservice klasse GET: Kategorie=" + idk);
@@ -93,9 +99,10 @@ public class KlassenManager {
         Log.d("Result List:" + klassen);
         return klassen;
     }
-    
+
     /**
      * Abfrage der Schüler eine Klasse
+     *
      * @param klid id der Klasse
      * @return Liste der Schüler der Klasse
      */
@@ -103,7 +110,7 @@ public class KlassenManager {
     @Path("/member/{id}")
     @Produces({"application/json; charset=iso-8859-1"})
     public List<Schueler> getPupil(@PathParam("id") int klid) {
-        Log.d("Webservice klasse GET: klasse= (" + klid+")");
+        Log.d("Webservice klasse GET: klasse= (" + klid + ")");
 
         Query query = em.createNamedQuery("findSchulerEinerKlasse");
         query.setParameter("paramidKlasse", klid);
@@ -111,15 +118,16 @@ public class KlassenManager {
         Log.d("Result List:" + schueler);
         return schueler;
     }
-    
+
     /**
      * Abfrage von Klassen nach Namen
+     *
      * @param kl Name der Klasse (% ist Wildcard)
      * @return Liste der Klassen, die dem Kriterium entsprechen
      */
     @GET
     @Path("/info/{klasse}")
-     @Produces({"application/json; charset=iso-8859-1"})
+    @Produces({"application/json; charset=iso-8859-1"})
     public List<Klasse> getKlasse(@PathParam("klasse") String kl) {
         Log.d("Webservice klasse GET: klasse=" + kl);
         Query query = em.createNamedQuery("findKlassebyName");
@@ -128,55 +136,121 @@ public class KlassenManager {
         Log.d("Result List:" + klassen);
         return klassen;
     }
-    
+
+    @GET
+    @Path("/klassenlehrer/{idLehrer}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<Klasse> getKlassen(@PathParam("idLehrer") String lid) {
+        Log.d("Webservice Klassen eines Lehrers: ID_LEHRER=" + lid);
+        Query query = em.createNamedQuery("findKlassebyLehrer");
+        query.setParameter("paramIDLEHRER", lid);
+        List<Klasse> klassen = query.getResultList();
+        Log.d("Result List:" + klassen);
+        return klassen;
+    }
+    @GET
+    @Path("lehrer/{idKlasse}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public List<Lehrer> getLehrer(@PathParam("idKlasse") int kid) {
+        Log.d("Webservice Lehrer einer Klasse : ID_Klasse=" + kid);
+        Query query = em.createNamedQuery("findLehrerbyKlasse");
+        query.setParameter("paramIDKLASSE", kid);
+        List<Lehrer> lehrer = query.getResultList();
+        Log.d("Result List:" + lehrer);
+        return lehrer;
+    }
+    @POST
+    @Path("/verwaltung/lehrer/add")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject addLehrerToKlasse(Lehrer_Klasse lk) {
+        Log.d("Lehrer einer Klasse zuweisen:" + lk.toString());
+        Lehrer l = em.find(Lehrer.class, lk.getID_LEHRER());
+        Klasse k = em.find(Klasse.class, lk.getID_KLASSE());
+        ResultObject ro = new ResultObject();
+        if (l != null && k != null) {
+            Lehrer_Klasse le_kl = em.find(Lehrer_Klasse.class, new Lehrer_KlasseId(lk.getID_KLASSE(), lk.getID_LEHRER()));
+            if (le_kl == null) {
+                em.persist(lk);
+                ro.setMsg("Lehrer " + l.getNNAME() + " zugewiesen zur Klasse " + k.getKNAME());
+                ro.setSuccess(true);
+            } else {
+                ro.setMsg("Lehrer " + l.getNNAME() + " bereits der  Klasse " + k.getKNAME()+" zugewiesen!");
+                ro.setSuccess(false);
+            }
+        } else {
+            ro.setSuccess(false);
+            ro.setMsg("Lehrer " + l + " oder Klasse " + k + " nicht gefunden!");
+        }
+        return ro;
+
+    }
+    @DELETE
+    @Path("verwaltung/lehrer/{idlehrer}/{idklasse}")
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject removeLehrer(@PathParam("idlehrer") String lid, @PathParam("idklasse") int kid) {
+        Log.d("Webservice remove Lehrer " + lid + " von Klasse:" + kid);
+        ResultObject ro = new ResultObject();
+        Lehrer_Klasse lk = em.find(Lehrer_Klasse.class, new Lehrer_KlasseId(kid, lid));
+        if (lk != null) {
+            em.remove(lk);
+            ro.setSuccess(true);
+            ro.setMsg("Lehrer mit der id=" + lid + " aus der Klasse " + kid + " entfernt!");
+        } else {
+            ro.setMsg("Kann keine zugehörigkeit des Lehrer mit der id=" + lid + " in der Klasse " + kid + " finden");
+            ro.setSuccess(false);
+        }
+        return ro;
+    }
+
     /**
      * Abfrage einer Klasse
+     *
      * @param kid ID der Klasse
      * @return Das Klassenobjekt
      */
-     @GET
+    @GET
     @Path("/id/{id}")
-     @Produces({"application/json; charset=iso-8859-1"})
+    @Produces({"application/json; charset=iso-8859-1"})
     public Klasse getKlasse(@PathParam("id") int kid) {
-        Klasse k=em.find(Klasse.class, kid);
+        Klasse k = em.find(Klasse.class, kid);
         return k;
     }
-    
+
     /**
      * Schüler einer Klasse inzufügen
+     *
      * @param sk Schuler_Klasse Objekt mit IDs des Schülers und der Klasse
      * @return Ergebnisobjekt mit Meldungen
      */
     @POST
     @Path("verwaltung/add")
-     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject addSchuelerToKlasse(Schueler_Klasse sk) {        
-        Log.d("Schüler einer Klasse zuweisen:"+sk.toString());
+    @Produces({"application/json; charset=iso-8859-1"})
+    public ResultObject addSchuelerToKlasse(Schueler_Klasse sk) {
+        Log.d("Schüler einer Klasse zuweisen:" + sk.toString());
         Schueler s = em.find(Schueler.class, sk.getID_SCHUELER());
         Klasse k = em.find(Klasse.class, sk.getID_KLASSE());
         ResultObject ro = new ResultObject();
-        if (s!=null && k!=null) {
-            Schueler_Klasse sch_kl = em.find(Schueler_Klasse.class, new Schueler_KlasseId(sk.getID_SCHUELER(),sk.getID_KLASSE()));
-            if (sch_kl==null) {
-                em.persist(sk);        
-                ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" zugewiesen zur Klasse "+k.getKNAME());
+        if (s != null && k != null) {
+            Schueler_Klasse sch_kl = em.find(Schueler_Klasse.class, new Schueler_KlasseId(sk.getID_SCHUELER(), sk.getID_KLASSE()));
+            if (sch_kl == null) {
+                em.persist(sk);
+                ro.setMsg("Schüler " + s.getVNAME() + " " + s.getNNAME() + " zugewiesen zur Klasse " + k.getKNAME());
                 ro.setSuccess(true);
+            } else {
+                ro.setMsg("Schüler " + s.getVNAME() + " " + s.getNNAME() + " befindet sich bereits in der Klasse " + k.getKNAME());
+                ro.setSuccess(false);
             }
-            else {
-                ro.setMsg("Schüler "+s.getVNAME()+" "+s.getNNAME()+" befindet sich bereits in der Klasse "+k.getKNAME());
-                ro.setSuccess(false);                
-            }
-        }
-        else {
+        } else {
             ro.setSuccess(false);
-            ro.setMsg("Klasse "+k+" oder Schüler "+s+" nicht gefunden!");
+            ro.setMsg("Klasse " + k + " oder Schüler " + s + " nicht gefunden!");
         }
         return ro;
-       
+
     }
-    
+
     /**
      * Schüler aus einer Klasse entfernen
+     *
      * @param sid ID des Schülers
      * @param kid ID der Klasse
      * @return Ergebnisobjekt mit Meldungen
@@ -184,27 +258,27 @@ public class KlassenManager {
     @DELETE
     @Path("verwaltung/{idschueler}/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public ResultObject removeSchueler(@PathParam("idschueler") int sid,@PathParam("idklasse") int kid) {
-        Log.d("Webservice delete Schüler "+sid+" von Klasse:" + kid);
+    public ResultObject removeSchueler(@PathParam("idschueler") int sid, @PathParam("idklasse") int kid) {
+        Log.d("Webservice delete Schüler " + sid + " von Klasse:" + kid);
         ResultObject ro = new ResultObject();
         Query query = em.createNamedQuery("findSchuelerKlasse");
         query.setParameter("paramidSchueler", sid);
         query.setParameter("paramidKlasse", kid);
         List<Schueler_Klasse> sk = query.getResultList();
-        if (sk.size()!=0) {
+        if (sk.size() != 0) {
             em.remove(sk.get(0));
             ro.setSuccess(true);
-            ro.setMsg("Schüler mit der id="+sid+" aus der Klasse "+kid+" entfernt!");
-        }
-        else {
-            ro.setMsg("Kann keine zugehörigkeit des Schülers mit der id="+sid+" mit der Klasse "+kid+" finden");
+            ro.setMsg("Schüler mit der id=" + sid + " aus der Klasse " + kid + " entfernt!");
+        } else {
+            ro.setMsg("Kann keine zugehörigkeit des Schülers mit der id=" + sid + " mit der Klasse " + kid + " finden");
             ro.setSuccess(false);
         }
         return ro;
     }
-    
+
     /**
      * Eine Klasse löschen
+     *
      * @param kid ID der Klasse
      * @return ErgebnisObjekt mit Meldungen
      */
@@ -215,44 +289,43 @@ public class KlassenManager {
         Log.d("Webservice delete Klasse:" + kid);
         PsResultObject ro = new PsResultObject();
         Klasse k = em.find(Klasse.class, kid);
-        if (k!=null) {            
+        if (k != null) {
             Query query = em.createNamedQuery("findSchulerEinerKlasse");
             query.setParameter("paramidKlasse", kid);
             List<Schueler> schueler = query.getResultList();
-            if (schueler.size()!=0) {
-                ro.setMsg("Kann Klasse nicht löschen, da die Klasse "+k.getKNAME()+"("+kid+") noch Schüler hat");
+            if (schueler.size() != 0) {
+                ro.setMsg("Kann Klasse nicht löschen, da die Klasse " + k.getKNAME() + "(" + kid + ") noch Schüler hat");
                 ro.setSuccess(false);
-                 int[] ids = new int[schueler.size()];
-                for (int i=0;i<schueler.size();i++) {
-                    ids[i]=schueler.get(i).getId();                    
+                int[] ids = new int[schueler.size()];
+                for (int i = 0; i < schueler.size(); i++) {
+                    ids[i] = schueler.get(i).getId();
                 }
                 ro.setIds(ids);
-            }
-            else {
+            } else {
                 // Wenn die Klasse keine Schüler mehr hat, kann auch der Verlauf gelöscht werden!
                 query = em.createNamedQuery("findVerlaufbyKlasseId");
                 query.setParameter("paramidKlasse", kid);
-                List<Verlauf> verlauf= query.getResultList();
-                Log.d("Result LIst="+verlauf);
-                for (Verlauf v:verlauf) {
-                    Log.d("Lösche Verlauf "+v);
+                List<Verlauf> verlauf = query.getResultList();
+                Log.d("Result LIst=" + verlauf);
+                for (Verlauf v : verlauf) {
+                    Log.d("Lösche Verlauf " + v);
                     em.remove(v);
                 }
                 em.flush();
                 em.remove(k);
-                ro.setMsg("Klasse "+k.getKNAME()+" gelöscht");
+                ro.setMsg("Klasse " + k.getKNAME() + " gelöscht");
                 ro.setSuccess(true);
             }
-        }
-        else {
-            ro.setMsg("Kann Klasse mit id="+kid+" nicht finden");
+        } else {
+            ro.setMsg("Kann Klasse mit id=" + kid + " nicht finden");
             ro.setSuccess(false);
         }
         return ro;
     }
-    
+
     /**
      * Attribute einer Klasse ändern
+     *
      * @param kid ID der Klasse
      * @param k Klassenobjekt mit neuen Werten
      * @return geändertes Klassenobjekt
@@ -260,29 +333,42 @@ public class KlassenManager {
     @POST
     @Path("admin/id/{idklasse}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public Klasse setKlasse(@PathParam("idklasse") int kid,Klasse k) {
+    public Klasse setKlasse(@PathParam("idklasse") int kid, Klasse k) {
         em.getEntityManagerFactory().getCache().evictAll();
         Klasse kl = em.find(Klasse.class, kid);
-        Log.d("Setze Klasse id="+kid+" gefunden k="+k);
-        if (kl!=null) {
-            if (k.getKNAME()!=null) kl.setKNAME(k.getKNAME());
-            if (k.getID_LEHRER()!=null) kl.setID_LEHRER(k.getID_LEHRER());
-            if (k.getNOTIZ()!=null) kl.setNOTIZ(k.getNOTIZ());
-            if (k.getTITEL()!= null) kl.setTITEL(k.getTITEL());
-            if (k.getID_KATEGORIE()!=null) kl.setID_KATEGORIE(k.getID_KATEGORIE());
-            if (k.getTERMINE()!=null) kl.setTERMINE(k.getTERMINE());
-            em.merge(kl);            
+        Log.d("Setze Klasse id=" + kid + " gefunden k=" + k);
+        if (kl != null) {
+            if (k.getKNAME() != null) {
+                kl.setKNAME(k.getKNAME());
+            }
+            if (k.getID_LEHRER() != null) {
+                kl.setID_LEHRER(k.getID_LEHRER());
+            }
+            if (k.getNOTIZ() != null) {
+                kl.setNOTIZ(k.getNOTIZ());
+            }
+            if (k.getTITEL() != null) {
+                kl.setTITEL(k.getTITEL());
+            }
+            if (k.getID_KATEGORIE() != null) {
+                kl.setID_KATEGORIE(k.getID_KATEGORIE());
+            }
+            if (k.getTERMINE() != null) {
+                kl.setTERMINE(k.getTERMINE());
+            }
+            em.merge(kl);
         }
         return kl;
     }
-    
+
     /**
      * Eine neue Klasse erzeugen
+     *
      * @param k Klassenobjekt
      * @return Klassenobjekt mit vergebener ID
      */
-     @POST
-     @Path("/admin")
+    @POST
+    @Path("/admin")
     @Produces({"application/json; charset=iso-8859-1"})
     public Klasse createKlasse(Klasse k) {
         em.getEntityManagerFactory().getCache().evictAll();
@@ -290,9 +376,10 @@ public class KlassenManager {
         em.flush();
         return k;
     }
-    
+
     /**
      * Ausbilder einer Klasse abfragen
+     *
      * @param kl Name der Klasse
      * @return Liste von AusbilderObjekten
      */
@@ -310,6 +397,7 @@ public class KlassenManager {
 
     /**
      * Details zu einer Klasse abfragen inkl. Stundenplan und Vertretungsplan
+     *
      * @param id ID der Klasse
      * @return KlassenDetails Objekt
      */
@@ -325,16 +413,17 @@ public class KlassenManager {
         Lehrer l = em.find(Lehrer.class, k.getID_LEHRER());
         Log.d("Klassenlehrer = " + l.toString());
         Kategorie ka = em.find(Kategorie.class, k.getID_KATEGORIE());
-        KlasseDetails d = new KlasseDetails(k, l,ka);
-        PlanObject po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(),PlanType.STDPlanSchueler);
+        KlasseDetails d = new KlasseDetails(k, l, ka);
+        PlanObject po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(), PlanType.STDPlanSchueler);
         d.setStundenplan(po.getUrl());
-        po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(),PlanType.VERTRPlanSchueler);
-        d.setVertretungsplan(po.getUrl());        
+        po = StundenplanUtil.getInstance().getPlanObject(k.getKNAME(), PlanType.VERTRPlanSchueler);
+        d.setVertretungsplan(po.getUrl());
         return d;
     }
 
     /**
      * Klassen Attribute ändern
+     *
      * @param id ID der Klasse
      * @param k Klassenobjekt
      * @return Klassenobjekt mit geänderten Werten
@@ -357,9 +446,10 @@ public class KlassenManager {
 
     /**
      * Schülerbilder in BASE64 Encoding einer Klasse abfragen
+     *
      * @param kl Name der Klasse
      * @param height gewünschte höhe der Bilder in Pixeln
-     * @return Liste von BilderObjekten 
+     * @return Liste von BilderObjekten
      */
     @GET
     @Path("/{klasse}/bilder64/{height}")
@@ -381,19 +471,19 @@ public class KlassenManager {
                 BufferedImage img = null;
                 try {
                     img = ImageIO.read(file);
-                    if (img!=null) {
-                    Log.d("Original Width = " + img.getWidth() + " Height = " + img.getHeight());
-                    double ow = img.getWidth();
-                    double oh = img.getHeight();
-                    double ratio = (double) (height * ow) / oh;
-                    Log.d("ratio=" + ratio + " New Width=" + (int) ratio);
+                    if (img != null) {
+                        Log.d("Original Width = " + img.getWidth() + " Height = " + img.getHeight());
+                        double ow = img.getWidth();
+                        double oh = img.getHeight();
+                        double ratio = (double) (height * ow) / oh;
+                        Log.d("ratio=" + ratio + " New Width=" + (int) ratio);
 
-                    int type = img.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : img.getType();
-                    img = ImageUtil.resizeImage(img, type, (int) ratio, height);
-                    Log.d("Resized Width = " + img.getWidth() + " Height = " + img.getHeight());
-                    img = ImageUtil.cropImage(img, type, height);
-                    Log.d("Cropped Width = " + img.getWidth() + " Height = " + img.getHeight());
-                    bo.setBase64(ImageUtil.encodeToString(img, "jpeg"));
+                        int type = img.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : img.getType();
+                        img = ImageUtil.resizeImage(img, type, (int) ratio, height);
+                        Log.d("Resized Width = " + img.getWidth() + " Height = " + img.getHeight());
+                        img = ImageUtil.cropImage(img, type, height);
+                        Log.d("Cropped Width = " + img.getWidth() + " Height = " + img.getHeight());
+                        bo.setBase64(ImageUtil.encodeToString(img, "jpeg"));
                     }
                 } catch (IOException e) {
                 }
