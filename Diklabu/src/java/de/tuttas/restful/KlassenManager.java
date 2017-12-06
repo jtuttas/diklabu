@@ -24,6 +24,9 @@ import de.tuttas.restful.Data.PlanObject;
 import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
 import de.tuttas.restful.Data.SchuelerObject;
+import de.tuttas.restful.auth.Authenticator;
+import de.tuttas.restful.auth.HTTPHeaderNames;
+import de.tuttas.restful.auth.Roles;
 import de.tuttas.util.ImageUtil;
 import de.tuttas.util.Log;
 import de.tuttas.util.PlanType;
@@ -45,6 +48,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 
 /**
  * Manager zur Verwaltung von Klassen / Kurse
@@ -140,11 +145,20 @@ public class KlassenManager {
     @GET
     @Path("/klassenlehrer/{idLehrer}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<Klasse> getKlassen(@PathParam("idLehrer") String lid) {
+    public List<Klasse> getKlassen(@Context HttpHeaders httpHeaders,@PathParam("idLehrer") String lid) {
         Log.d("Webservice Klassen eines Lehrers: ID_LEHRER=" + lid);
-        Query query = em.createNamedQuery("findKlassebyLehrer");
-        query.setParameter("paramIDLEHRER", lid);
-        List<Klasse> klassen = query.getResultList();
+        List<Klasse> klassen;
+         String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
+         Log.d("Auth token ist:"+authToken);
+        if (Authenticator.getInstance().getRole(authToken).equals(Roles.toString(Roles.ADMIN)) ||Authenticator.getInstance().getRole(authToken).equals(Roles.toString(Roles.VERWALTUNG)) ) {            
+            Query query = em.createNamedQuery("findAllKlassenPlain");
+            klassen = query.getResultList();
+        }
+        else {
+            Query query = em.createNamedQuery("findKlassebyLehrer");
+            query.setParameter("paramIDLEHRER", lid);
+            klassen = query.getResultList();
+        }
         Log.d("Result List:" + klassen);
         return klassen;
     }
