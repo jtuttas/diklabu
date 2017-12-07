@@ -20,6 +20,7 @@ import de.tuttas.entities.Verlauf;
 import de.tuttas.restful.Data.AnwesenheitEintrag;
 import de.tuttas.restful.Data.AusbilderObject;
 import de.tuttas.restful.Data.BildObject;
+import de.tuttas.restful.Data.KlasseShort;
 import de.tuttas.restful.Data.PlanObject;
 import de.tuttas.restful.Data.PsResultObject;
 import de.tuttas.restful.Data.ResultObject;
@@ -143,15 +144,15 @@ public class KlassenManager {
     }
 
     @GET
-    @Path("/klassenlehrer/{idLehrer}")
+    @Path("/klassenlehrer/{idLehrer}/{ignoreAdmin}")
     @Produces({"application/json; charset=iso-8859-1"})
-    public List<Klasse> getKlassen(@Context HttpHeaders httpHeaders,@PathParam("idLehrer") String lid) {
+    public List<KlasseShort> getKlassen(@Context HttpHeaders httpHeaders,@PathParam("idLehrer") String lid, @PathParam("ignoreAdmin") boolean ignoreAdmin) {
         Log.d("Webservice Klassen eines Lehrers: ID_LEHRER=" + lid);
-        List<Klasse> klassen;
+        List<KlasseShort> klassen;
          String authToken = httpHeaders.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
          Log.d("Auth token ist:"+authToken);
-        if (Authenticator.getInstance().getRole(authToken).equals(Roles.toString(Roles.ADMIN)) ||Authenticator.getInstance().getRole(authToken).equals(Roles.toString(Roles.VERWALTUNG)) ) {            
-            Query query = em.createNamedQuery("findAllKlassenPlain");
+        if (!ignoreAdmin && (Authenticator.getInstance().getRole(authToken).equals(Roles.toString(Roles.ADMIN)) ||Authenticator.getInstance().getRole(authToken).equals(Roles.toString(Roles.VERWALTUNG))) ) {            
+            Query query = em.createNamedQuery("findAllKlassen");
             klassen = query.getResultList();
         }
         else {

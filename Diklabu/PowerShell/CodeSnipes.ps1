@@ -27,3 +27,10 @@ get-courses | ForEach-Object {$kname=$_.KNAME;Get-Coursemember -id $_.id | Sync-
 
 # Für alle Klassen die Login Namen ausgaben
 get-courses | Where-Object {$_.idKategorie -eq 0} | ForEach-Object {$KNAME=$_.KNAME; Get-Coursemember -id $_.ID | ForEach-Object {Get-LDAPAccount -ID $_.ID -NNAME $_.NNAME -VNAME $_.VNAME -KNAME $KNAME} | Select-Object -Property LoginName | Export-Excel "C:\Temp\$KNAME.xlsx"}
+
+# Alle Kurs-Lehrer als Mitglied in ihrem Kurs eintrage 
+Get-Courses | Where-Object {$_.idKategorie -ne 0 -and $_.ID_LEHRER} | ForEach-Object {Sync-CourseTeacher -ID $_.ID_LEHRER -ID_COURSE $_.id -Verbose} 
+
+# Alle Klassen-Team Lehrer aus UNTIS Export ihrer Klasse zuordnen
+$obj = Import-Untis -path C:\Temp\GPU-mmbbs-sj17-18_05082017.csv -prefix "" 
+$obj.Keys | ForEach-Object {$course=Find-Course -KNAME $_;$obj.Item($_) | Sync-CourseTeacher -ID_COURSE $course.id -Verbose }

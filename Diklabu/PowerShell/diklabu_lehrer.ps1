@@ -298,3 +298,234 @@ function Delete-Teacher
         }
     }
 }
+
+<#
+.Synopsis
+   Die Lehrer eine Klasse abfragen
+.DESCRIPTION
+   Fragt die Lehrer einer odere mehrerer KLassen ab
+.EXAMPLE
+   Get-CourseTeacher -ID 1660
+.EXAMPLE
+   Get-CourseTeacher -ID 1660 -uri http://localhost:8080/Diklabu/api/v1/
+.EXAMPLE
+   1660,1659 | Get-CourseTeacher
+
+#>
+function Get-CourseTeacher
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0)]
+        [alias("ID_COURSE")]
+        [String]$ID,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server
+    )
+
+    Begin
+    {
+          $headers=@{}
+          $headers["content-Type"]="application/json;charset=iso-8859-1"
+          $headers["auth_token"]=$global:auth_token;
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
+    }
+    Process
+    {
+        try {
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/lehrer/"+$ID) -Headers $headers 
+            Write-Verbose "Abfrage der Lehrer der Klasse mit der ID $ID"
+            return $r;
+        } catch {
+            Write-Error "Get-CourseTeacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+        }
+    }
+}
+
+<#
+.Synopsis
+   Einen Lehrer einer Klasse zuweisen
+.DESCRIPTION
+   Weist einen Lehrer eine Klasse zu
+.EXAMPLE
+   Add-CourseTeacher -ID "NM" -ID_COURSE 1660
+.EXAMPLE
+   Import-Csv lehrer.csv | Add-CourseTeacher
+
+#>
+function Add-CourseTeacher
+{
+    [CmdletBinding()]
+    Param
+    (
+        # ID (Kürzel des Lehrers)
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [String]$ID,
+
+        # ID der Klasse
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
+        [String]$ID_COURSE,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server,
+
+        [switch]$whatif
+
+    )
+
+    Begin
+    {
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
+    }
+    Process
+    {
+        $lehrer_klasse=echo "" | Select-Object -Property "ID_LEHRER","ID_KLASSE"
+        $lehrer_klasse.ID_LEHRER=$ID;
+        $lehrer_klasse.ID_KLASSE=$ID_COURSE;
+        try {
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Post -Uri ($uri+"klasse/verwaltung/lehrer/add/") -Headers $headers -Body (ConvertTo-Json $lehrer_klasse)
+                if ($r.success -eq $false) {
+                    Write-Warning $r.msg;
+                }
+            }
+            Write-Verbose "Trage Lehrer mit ID=$ID in die Klasse mit der ID=$ID_COURSE ein!"
+          return $r;
+        } catch {
+            Write-Error "Add-CourseLehrer: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+        }
+    }   
+}
+
+<#
+.Synopsis
+   Einen Lehrer aus einer Klasse entfernen
+.DESCRIPTION
+   Entfernt einen oder mehrere Lehrer aus einer Klasse
+.EXAMPLE
+   Remove-CourseTeacher -ID "NM" -ID_COURSE=1660
+#>
+function Remove-CourseTeacher
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,Position=0)]
+        [String]$ID,
+
+        [Parameter(Mandatory=$true,Position=1)]
+        [int]$ID_COURSE,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server,
+        [switch]$whatif
+    )
+
+    Begin
+    {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
+            $headers=@{}
+            $headers["content-Type"]="application/json;charset=iso-8859-1"
+            $headers["auth_token"]=$global:auth_token;
+    }
+    Process
+    {
+        try {
+            if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/verwaltung/lehrer/"+$ID+"/"+$ID_COURSE) -Headers $headers 
+                if ($r.success -eq $false) {
+                    Write-Warning $r.msg;
+                }
+
+            }
+            Write-Verbose "Entferne Lehrer mit der ID $ID aus der Klasse mit der ID=$ID_COURSE"
+          return $r;
+          } catch {
+            Write-Error "Remove-CourseTeacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+        }
+    }
+}
+
+<#
+.Synopsis
+   Synchronisert die Lehrer einer Klasse
+.DESCRIPTION
+   Synchronisiert die Lehrer einer Klasse
+.EXAMPLE
+   Sync-CourseTeacher -ID "NM","BK" -ID_COURSE=1660
+.EXAMPLE
+  "NM","BK" | Sync-CourseTeacher -ID_COURSE=1660
+#>
+function Sync-CourseTeacher
+{
+    [CmdletBinding()]
+    Param
+    (
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,Position=0)]
+        [String[]]$ID,
+
+        [Parameter(Mandatory=$true,Position=1)]
+        [int]$ID_COURSE,
+
+        # Adresse des Diklabu Servers
+        [String]$uri=$global:server,
+        [switch]$whatif
+    )
+
+    Begin
+    {
+        if (-not $global:auth_token) {
+            Write-Error "Sie sind nicht am diklabu angemeldet, versuchen Sie login-diklabu"
+            return;
+        }
+        $headers=@{}
+        $headers["content-Type"]="application/json;charset=iso-8859-1"
+        $headers["auth_token"]=$global:auth_token;
+        Write-Verbose "Abfrage der Lehrer der KLasse $ID_COURSE"
+        $in = Get-CourseTeacher -ID $ID_COURSE
+        $ist=@{};
+        foreach ($teacher in $in) {
+            $ist[$teacher.id]=$teacher;
+        }
+    }
+    Process
+    {
+        $ID | ForEach-Object {
+            if ($ist[$_]) {
+                Write-Verbose "Der Lehrer $_ befindet sich bereits im Kurs $ID_COURSE";
+                $ist.Remove($_);
+            }
+            else {
+                if (-not $whatif) {
+                    $r=Add-CourseTeacher -ID $_ -ID_COURSE $ID_COURSE
+                }
+            }
+        }
+    }
+    End
+    {
+        #Write-Verbose "Entferne Lehrer aus der Klasse $ID_COURSE"
+        $ist.Keys | % { 
+            #"key = $_ , value = " + $ist.Item($_) 
+            Write-Verbose "Entferne Lehrer $_ aus der Klasse $ID_COURSE";
+            if (-not $whatif) {
+                $r=Remove-CourseTeacher -ID $_ -ID_COURSE $ID_COURSE
+            }
+        }
+    }
+
+}

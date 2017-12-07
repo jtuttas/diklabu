@@ -17,7 +17,7 @@ import javax.persistence.NamedQuery;
  */
 @Entity
 @NamedQueries({
-   @NamedQuery(name = "findKlassebyLehrer", query= "select k from Klasse k inner join Lehrer_Klasse lk on lk.ID_KLASSE=k.ID where lk.ID_LEHRER = :paramIDLEHRER "),
+   @NamedQuery(name = "findKlassebyLehrer", query= "select NEW de.tuttas.restful.Data.KlasseShort(k.ID,k.ID_LEHRER,k.KNAME,k.ID_KATEGORIE) from Klasse k inner join Lehrer_Klasse lk on lk.ID_KLASSE=k.ID where lk.ID_LEHRER = :paramIDLEHRER "),
    @NamedQuery(name = "findLehrerbyKlasse", query= "select l from Lehrer l inner join Lehrer_Klasse lk on lk.ID_LEHRER=l.id where lk.ID_KLASSE = :paramIDKLASSE "),
 })
 @IdClass(Lehrer_KlasseId.class)
