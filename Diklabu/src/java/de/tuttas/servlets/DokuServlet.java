@@ -100,13 +100,15 @@ public class DokuServlet extends HttpServlet {
      */
     @PersistenceContext(unitName = "DiklabuPU")
     EntityManager em;
-  @Override
+
+    @Override
     protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Send Response
         super.doOptions(request, response);
         response.setHeader("Access-Control-Allow-Origin", "*");
         response.setHeader("Access-Control-Allow-Headers", "auth_token, Content-Type, X-Requested-With");
     }
+
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -122,7 +124,7 @@ public class DokuServlet extends HttpServlet {
         String auth = request.getParameter("auth_token");
         String service = request.getParameter("service_key");
         Log.d("auth_token=" + auth);
-          response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Origin", "*");
         response.addHeader("Access-Control-Allow-Headers", "auth_token");
         if (request.getParameter("cmd") == null || request.getParameter("idklasse") == null || request.getParameter("from") == null) {
             Log.d("Info zeigen");
@@ -141,8 +143,8 @@ public class DokuServlet extends HttpServlet {
                 out.println("</html>");
             }
         } else {
-            if (Config.getInstance().debug ||  auth != null && Authenticator.getInstance().isAuthTokenValid(auth)) {
-                Log.d("ID Klasse = "+request.getParameter("idklasse"));
+            if (Config.getInstance().debug || auth != null && Authenticator.getInstance().isAuthTokenValid(auth)) {
+                Log.d("ID Klasse = " + request.getParameter("idklasse"));
                 Klasse kl = em.find(Klasse.class, Integer.parseInt(request.getParameter("idklasse")));
                 String cmd = request.getParameter("cmd");
                 String type = request.getParameter("type");
@@ -189,97 +191,97 @@ public class DokuServlet extends HttpServlet {
                 Log.d("setze To auf " + new java.sql.Date(parsedTo.getTime()));
                 Log.d("type=" + type + " cmd=" + cmd + " Klasse=" + kl.getKNAME());
                 if (type.compareTo("csv") == 0) {
-                    
+
                     MyTableDataModel myModel = null;
                     if (cmd.compareTo("Betriebe") == 0) {
                         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
-                        response.setCharacterEncoding("UTF-8");                        
-                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
-                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        response.setCharacterEncoding("UTF-8");
+                        String fileName = cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName = URLEncoder.encode(fileName, "UTF-8");
                         String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
-                        response.addHeader("Content-Disposition", contentDisposition );                                           
-                        
+                        response.addHeader("Content-Disposition", contentDisposition);
+
                         myModel = getModelBetriebsliste(kl);
-                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Betriebe"}, myModel.getRows(),myModel.getCols());
-                        wb=myModel.toExcel(wb,0);
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH + cmd + ".xlsx", new String[]{"Betriebe"}, myModel.getRows(), myModel.getCols());
+                        wb = myModel.toExcel(wb, 0);
                         wb.write(response.getOutputStream());
-                    } else if (cmd.compareTo("Notenliste") == 0) {                        
+                    } else if (cmd.compareTo("Notenliste") == 0) {
                         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
-                        response.setCharacterEncoding("UTF-8");                        
-                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
-                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        response.setCharacterEncoding("UTF-8");
+                        String fileName = cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName = URLEncoder.encode(fileName, "UTF-8");
                         String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
-                        response.addHeader("Content-Disposition", contentDisposition );                                           
-                        
+                        response.addHeader("Content-Disposition", contentDisposition);
+
                         myModel = getModelNotenliste(kl, idSchuljahr);
-                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Notenliste"}, myModel.getRows(),myModel.getCols());
-                        wb=myModel.toExcel(wb,0);
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH + cmd + ".xlsx", new String[]{"Notenliste"}, myModel.getRows(), myModel.getCols());
+                        wb = myModel.toExcel(wb, 0);
                         wb.write(response.getOutputStream());
-                        
+
                     } else if (cmd.compareTo("Fehlzeiten") == 0) {
                         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
-                        response.setCharacterEncoding("UTF-8");                        
-                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
-                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        response.setCharacterEncoding("UTF-8");
+                        String fileName = cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName = URLEncoder.encode(fileName, "UTF-8");
                         String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
-                        response.addHeader("Content-Disposition", contentDisposition );                                           
-                        
+                        response.addHeader("Content-Disposition", contentDisposition);
+
                         myModel = getModelFehlzeiten(kl, parsedFrom, parsedTo);
-                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Fehlzeiten"}, myModel.getRows(),myModel.getCols());
-                        wb=myModel.toExcel(wb,0);
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH + cmd + ".xlsx", new String[]{"Fehlzeiten"}, myModel.getRows(), myModel.getCols());
+                        wb = myModel.toExcel(wb, 0);
                         wb.write(response.getOutputStream());
                     } else if (cmd.compareTo("Anwesenheit") == 0) {
                         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
-                        response.setCharacterEncoding("UTF-8");                        
-                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
-                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        response.setCharacterEncoding("UTF-8");
+                        String fileName = cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName = URLEncoder.encode(fileName, "UTF-8");
                         String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
-                        response.addHeader("Content-Disposition", contentDisposition );                                           
-                        
+                        response.addHeader("Content-Disposition", contentDisposition);
+
                         myModel = getModelAnwesenheit(kl, parsedFrom, parsedTo, anwFilter1, anwFilter2);
-                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Anwesenheit"}, myModel.getRows(),myModel.getCols());
-                        wb=myModel.toExcel(wb,0);
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH + cmd + ".xlsx", new String[]{"Anwesenheit"}, myModel.getRows(), myModel.getCols());
+                        wb = myModel.toExcel(wb, 0);
                         wb.write(response.getOutputStream());
-                        
+
                     } else if (cmd.compareTo("Verlauf") == 0) {
-                        
+
                         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
-                        response.setCharacterEncoding("UTF-8");                        
-                        String fileName= cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString()+".xlsx";
-                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        response.setCharacterEncoding("UTF-8");
+                        String fileName = cmd + "_" + kl.getKNAME() + "_" + new java.sql.Date(parsedFrom.getTime()).toString() + "-" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName = URLEncoder.encode(fileName, "UTF-8");
                         String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
-                        response.addHeader("Content-Disposition", contentDisposition );
-                        
+                        response.addHeader("Content-Disposition", contentDisposition);
+
                         myModel = getModelVerlauf(kl, parsedFrom, parsedTo, filter1, filter2, me);
-                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+cmd+".xlsx",new String[]{"Unterrichtsverlauf"}, myModel.getRows(),myModel.getCols());
-                        wb=myModel.toExcel(wb,0);
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH + cmd + ".xlsx", new String[]{"Unterrichtsverlauf"}, myModel.getRows(), myModel.getCols());
+                        wb = myModel.toExcel(wb, 0);
                         wb.write(response.getOutputStream());
-                    } else if (cmd.compareTo("UmfrageAuswertung") == 0) {                        
+                    } else if (cmd.compareTo("UmfrageAuswertung") == 0) {
                         Umfrage u = em.find(Umfrage.class, anwFilter1);
                         Umfrage u2 = em.find(Umfrage.class, anwFilter2);
                         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet; charset=UTF-8");
-                        response.setCharacterEncoding("UTF-8");                        
-                        String fileName= "Auswertung_"+u.getNAME()+"_vom_"+ new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
-                        fileName=URLEncoder.encode(fileName,"UTF-8"); 
+                        response.setCharacterEncoding("UTF-8");
+                        String fileName = "Auswertung_" + u.getNAME() + "_vom_" + new java.sql.Date(parsedTo.getTime()).toString() + ".xlsx";
+                        fileName = URLEncoder.encode(fileName, "UTF-8");
                         String contentDisposition = "attachment; filename=\"" + fileName + "\"; filename*=UTF-8''" + fileName;
-                        response.addHeader("Content-Disposition", contentDisposition );
-                        List<UmfrageResult> res1 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter1, filter1);
-                        List<UmfrageResult> res2 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter2, filter2);
-                        res2=UmfrageUtil.getComparableResultList(res1,res2);
-                        myModel = getModelUmfrageAuswertung(res1);                        
-                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH+u.getNAME()+".xlsx",new String[]{"Hauptgruppe","Vergleichsgruppe","Info"},myModel.getRows(),myModel.getCols());
-                        wb=myModel.toExcel(wb,0);
-                        myModel = getModelUmfrageAuswertung(res2);                        
-                        wb=myModel.toExcel(wb,1);
+                        response.addHeader("Content-Disposition", contentDisposition);
+                        List<UmfrageResult> res1 = UmfrageUtil.getUmfrageResult(em, auth, anwFilter1, filter1);
+                        List<UmfrageResult> res2 = UmfrageUtil.getUmfrageResult(em, auth, anwFilter2, filter2);
+                        res2 = UmfrageUtil.getComparableResultList(res1, res2);
+                        myModel = getModelUmfrageAuswertung(res1);
+                        XSSFWorkbook wb = ExcelUtil.readExcel(Config.getInstance().TEMPLATE_FILE_PATH + u.getNAME() + ".xlsx", new String[]{"Hauptgruppe", "Vergleichsgruppe", "Info"}, myModel.getRows(), myModel.getCols());
+                        wb = myModel.toExcel(wb, 0);
+                        myModel = getModelUmfrageAuswertung(res2);
+                        wb = myModel.toExcel(wb, 1);
                         XSSFSheet s = wb.getSheetAt(2);
                         XSSFRow r = s.getRow(0);
                         r.getCell(0).setCellValue(u.getNAME());
                         r.getCell(1).setCellValue(filter1);
-                        r=s.getRow(1);
+                        r = s.getRow(1);
                         r.getCell(0).setCellValue(u2.getNAME());
                         r.getCell(1).setCellValue(filter2);
-                        wb.write(response.getOutputStream());                        
-                    }else {
+                        wb.write(response.getOutputStream());
+                    } else {
                         PrintWriter out = response.getWriter();
                         response.setContentType("application/json; charset=UTF-8");
                         String r = "{\"error\":true,\"msg\":\"Kann für " + cmd + " kein Datenmodell erzeugen!\"}";
@@ -363,9 +365,9 @@ public class DokuServlet extends HttpServlet {
                             document = createBetriebsListe(myModel, kopf, out);
                         } else if (cmd.compareTo("UmfrageAuswertung") == 0) {
                             response.addHeader("Content-Disposition", "attachment; filename=UmfrageAuswertung_" + new java.sql.Date(parsedTo.getTime()).toString() + ".pdf");
-                            List<UmfrageResult> res1 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter1, filter1);
-                            List<UmfrageResult> res2 = UmfrageUtil.getUmfrageResult(em,auth, anwFilter2, filter2);
-                            res2=UmfrageUtil.getComparableResultList(res1,res2);
+                            List<UmfrageResult> res1 = UmfrageUtil.getUmfrageResult(em, auth, anwFilter1, filter1);
+                            List<UmfrageResult> res2 = UmfrageUtil.getUmfrageResult(em, auth, anwFilter2, filter2);
+                            res2 = UmfrageUtil.getComparableResultList(res1, res2);
                             if (res1 != null && res2 != null) {
                                 Log.d("erzeuge pdf Dokument");
                                 document = createUmfrageauswertung(res1, res2, anwFilter1, anwFilter2, filter1, filter2, kopf, out);
@@ -495,7 +497,7 @@ public class DokuServlet extends HttpServlet {
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(50f);
-        
+
         StringBuilder htmlString = new StringBuilder();
         htmlString.append(kopf);
         htmlString.append("<br></br>");
@@ -513,16 +515,16 @@ public class DokuServlet extends HttpServlet {
         PdfPCell qestionCell;
         PdfPCell group1Cell;
         PdfPCell group2Cell;
-        int i=0;
+        int i = 0;
         for (i = 0; i < maxRows; i++) {
-            Log.d("Print Row "+i);
+            Log.d("Print Row " + i);
             if (i % 5 == 0) {
                 if (i != 0) {
                     document.add(table);
                     document.newPage();
-                    document = printHead(writer,document, htmlString, out,image);
+                    document = printHead(writer, document, htmlString, out, image);
                 } else {
-                    document = printHead(writer,document, htmlString, out,image);
+                    document = printHead(writer, document, htmlString, out, image);
                 }
 
                 table = new PdfPTable(new float[]{1, 2, 2});
@@ -542,23 +544,26 @@ public class DokuServlet extends HttpServlet {
                 table.addCell(group2Cell);
             }
             String url1 = UmfrageUtil.getCharUrl(res1.get(i));
-            Log.d("URL1="+url1);
+            Log.d("URL1=" + url1);
             Image image1 = Image.getInstance(url1);
 
-            Image image2=null;
-            if (res2.size()>i) {
+            Image image2 = null;
+            if (res2.size() > i) {
                 String url2 = UmfrageUtil.getCharUrl(res2.get(i));
-                Log.d("URL2="+url2);
+                Log.d("URL2=" + url2);
                 image2 = Image.getInstance(url2);
             }
-            Log.d("Write to pdf:"+res1.get(i).getFrage());
+            Log.d("Write to pdf:" + res1.get(i).getFrage());
             qestionCell = new PdfPCell(new Phrase(res1.get(i).getFrage(), normalFont));
             qestionCell.setBorderWidth(1.0f);
             group1Cell = new PdfPCell(image1, true);
             group1Cell.setBorderWidth(1.0f);
             group1Cell.setPadding(10);
-            if (image2!=null) group2Cell = new PdfPCell(image2, true);
-            else group2Cell = new PdfPCell();
+            if (image2 != null) {
+                group2Cell = new PdfPCell(image2, true);
+            } else {
+                group2Cell = new PdfPCell();
+            }
             group2Cell.setBorderWidth(1.0f);
             group2Cell.setPadding(10);
 
@@ -566,8 +571,8 @@ public class DokuServlet extends HttpServlet {
             table.addCell(group1Cell);
             table.addCell(group2Cell);
         }
-        if (!(i%5==0)) {
-            document.add(table);            
+        if (!(i % 5 == 0)) {
+            document.add(table);
         }
 
         document.close();
@@ -846,7 +851,7 @@ public class DokuServlet extends HttpServlet {
                     c.set(Calendar.HOUR, 0);
                     c.set(Calendar.MINUTE, 0);
                     c.set(Calendar.SECOND, 0);
-                    current=c.getTime();
+                    current = c.getTime();
                 }
             }
         }
@@ -873,7 +878,7 @@ public class DokuServlet extends HttpServlet {
             s = schueler.get(y);
             mo.setData(0, y, s.getVNAME());
             mo.setData(1, y, s.getNNAME());
-           
+
             int x = 2;
             for (Termin t : termine) {
                 mo.setData(x, y, findVermerk(s.getId(), t.getDate(), anwesenheit));
@@ -952,7 +957,7 @@ public class DokuServlet extends HttpServlet {
                     c.set(Calendar.HOUR, 0);
                     c.set(Calendar.MINUTE, 0);
                     c.set(Calendar.SECOND, 0);
-                    current=c.getTime();
+                    current = c.getTime();
 
                 }
             }
@@ -1067,7 +1072,7 @@ public class DokuServlet extends HttpServlet {
      * @return
      */
     private MyTableDataModel getModelUmfrageAuswertung(List<UmfrageResult> res1) {
-        
+
         Log.d("res1=" + res1);
         String[] headlines;
         if (res1.size() > 0) {
@@ -1169,30 +1174,25 @@ public class DokuServlet extends HttpServlet {
 
         Log.d("Schuljahr = " + schuljahr.get(0).getNAME() + " Zeugnisdatum=" + schuljahr.get(0).getZEUGNISDATUM());
         Log.d("Noten_all=" + portfolio);
-        for (Schueler s : schueler) {
-
-            htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
-            htmlString.append("<h2 align=\"center\">der Region Hannover</h2>");
-            htmlString.append("<hr></hr>");
-            htmlString.append("<h1 align=\"center\">Portfolio</h1>");
-            htmlString.append("<h3 align=\"center\">über besuchte Zusatzkurse</h3>");
-            htmlString.append("<p align=\"center\">für " + s.getVNAME() + " " + s.getNNAME() + " geb. am " + toReadable(s.getGEBDAT()) + "</p>");
-            htmlString.append("<br></br>");
-            htmlString.append("<hr></hr>");
-            htmlString.append("<br></br>");
-            int oldSchuljahr = -1;
-            for (Noten_all p : portfolio) {
-                Log.d("Suche für Schüler ID=" + s.getId() + " einen Portfolioeintrag, found ID=" + p.getID_SCHUELER());
+        for (Noten_all p : portfolio) {
+            Log.d("Scuher Schüler mit ID="+p.getID_SCHUELER());
+            for (Schueler s : schueler) {
+                Log.d("ID ist "+s.getId());
                 if (p.getID_SCHUELER().intValue() == s.getId().intValue()) {
-
-                    Log.d("gefunden!");
+                    Log.d("Schüler gefunden!");
+                    htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
+                    htmlString.append("<h2 align=\"center\">der Region Hannover</h2>");
+                    htmlString.append("<hr></hr>");
+                    htmlString.append("<h1 align=\"center\">Portfolio</h1>");
+                    htmlString.append("<h3 align=\"center\">über besuchte Zusatzkurse</h3>");
+                    htmlString.append("<p align=\"center\">für " + s.getVNAME() + " " + s.getNNAME() + " geb. am " + toReadable(s.getGEBDAT()) + "</p>");
+                    htmlString.append("<br></br>");
+                    htmlString.append("<hr></hr>");
+                    htmlString.append("<br></br>");
                     Schuljahr sj = em.find(Schuljahr.class, p.getID_SCHULJAHR());
                     Klasse_all ka = em.find(Klasse_all.class, p.getID_KLASSEN_ALL());
                     Log.d(" Schüler gefunden sj=" + sj.getNAME() + " ka=" + ka.getTitel());
-                    if (oldSchuljahr != sj.getID()) {
-                        htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
-                        oldSchuljahr = sj.getID();
-                    }
+                    htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
                     htmlString.append("<table>");
                     htmlString.append("<tr>");
                     htmlString.append("<td width=\"70%\"><b>" + ka.getTitel() + "</b><p>" + ka.getNotiz() + "</p></td>");
@@ -1200,43 +1200,42 @@ public class DokuServlet extends HttpServlet {
                     htmlString.append("</tr>");
                     htmlString.append("</table>");
                     htmlString.append("<p>&nbsp;</p>");
+                    htmlString.append("<br></br>");
+                    htmlString.append("<br></br>");
+                    htmlString.append("<b>Hannover, " + toReadable(schuljahr.get(0).getZEUGNISDATUM()) + "</b>");
+                    htmlString.append("<br></br>");
+                    htmlString.append("<br></br>");
+                    htmlString.append("<br></br>");
+                    htmlString.append("<br></br>");
+                    htmlString.append("<table width=\"100%\" >");
+                    htmlString.append("<tr>");
+                    htmlString.append("<td style=\"font-size: 10;border-bottom: 0.5px solid #888888\" width=\"40%\" align=\"center\">&nbsp;</td>");
+                    htmlString.append("<td></td>");
+                    htmlString.append("</tr>");
+                    htmlString.append("<tr>");
+                    htmlString.append("<td style=\"font-size: 10;\" width=\"40%\" align=\"center\">Klassenlehrerin/Klassenlehrer</td>");
+                    htmlString.append("<td>&nbsp;</td>");
+                    htmlString.append("</tr>");
+                    htmlString.append("<tr>");
+                    htmlString.append("<td style=\"font-size: 9;border-top: 0.5px solid #888888\" colspan=\"2\">Noten: sehr gut (1), gut (2), befriedigend (3), ausreichend (4), mangelhaft (5), ungenügend (6)<br></br>*) Angegeben ist die durchschnittliche Unterrichtsstundenzahl pro Schuljahr.<br></br>*) In Kursen mit insgesamt 12 Unterrichtsstunden findet keine Bewertung statt.</td>");
+                    htmlString.append("</tr>");
+                    htmlString.append("</table>");
+
+                    InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+                    // Bild einfügen
+                    String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+                    Image image = Image.getInstance(url);
+                    image.setAbsolutePosition(480f, 730f);
+                    image.scalePercent(40f);
+                    Log.d("Image=" + image);
+                    document.add(image);
+                    XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+                    htmlString = new StringBuilder();
+                    document.newPage();
+                    break;
                 }
             }
-            htmlString.append("<br></br>");
-            htmlString.append("<br></br>");
-            htmlString.append("<b>Hannover, " + toReadable(schuljahr.get(0).getZEUGNISDATUM()) + "</b>");
-            htmlString.append("<br></br>");
-            htmlString.append("<br></br>");
-            htmlString.append("<br></br>");
-            htmlString.append("<br></br>");
-            htmlString.append("<table width=\"100%\" >");
-            htmlString.append("<tr>");
-            htmlString.append("<td style=\"font-size: 10;border-bottom: 0.5px solid #888888\" width=\"40%\" align=\"center\">&nbsp;</td>");
-            htmlString.append("<td></td>");
-            htmlString.append("</tr>");
-            htmlString.append("<tr>");
-            htmlString.append("<td style=\"font-size: 10;\" width=\"40%\" align=\"center\">Klassenlehrerin/Klassenlehrer</td>");
-            htmlString.append("<td>&nbsp;</td>");
-            htmlString.append("</tr>");
-            htmlString.append("<tr>");
-            htmlString.append("<td style=\"font-size: 9;border-top: 0.5px solid #888888\" colspan=\"2\">Noten: sehr gut (1), gut (2), befriedigend (3), ausreichend (4), mangelhaft (5), ungenügend (6)<br></br>*) Angegeben ist die durchschnittliche Unterrichtsstundenzahl pro Schuljahr.<br></br>*) In Kursen mit insgesamt 12 Unterrichtsstunden findet keine Bewertung statt.</td>");
-            htmlString.append("</tr>");
-
-            htmlString.append("</table>");
-
-            InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-            // Bild einfügen
-            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
-            Image image = Image.getInstance(url);
-            image.setAbsolutePosition(480f, 730f);
-            image.scalePercent(40f);
-            Log.d("Image=" + image);
-            document.add(image);
-            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-            htmlString = new StringBuilder();
-            document.newPage();
         }
-
         document.close();
         return document;
     }
@@ -1366,10 +1365,10 @@ public class DokuServlet extends HttpServlet {
         int kw = -1;
         document.open();
         boolean firstPage = true;
-        boolean newPage=false;
+        boolean newPage = false;
         for (Verlauf v : verlauf) {
             String str = v.getDATUM().toString();
-            newPage=false;
+            newPage = false;
             if (str.compareTo(tag) == 0) {
                 htmlString.append(v.toHTML());
             } // ein neuer Tag
@@ -1391,18 +1390,18 @@ public class DokuServlet extends HttpServlet {
                     image.scalePercent(50f);
                     document.add(image);
                     XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-                    System.out.println("Vertical Position is:"+writer.getVerticalPosition(false)+" next: "+writer.getVerticalPosition(true)+" page size is:"+writer.getPageSize().getHeight());
+                    System.out.println("Vertical Position is:" + writer.getVerticalPosition(false) + " next: " + writer.getVerticalPosition(true) + " page size is:" + writer.getPageSize().getHeight());
                     htmlString = new StringBuilder();
                     // Position zählt runter von 1000 bis 0
-                    if (writer.getVerticalPosition(false)<400.0) {
-                        newPage=true;
+                    if (writer.getVerticalPosition(false) < 400.0) {
+                        newPage = true;
                         document.newPage();
                         htmlString.append(kopf);
                         Log.d("weiter mit neuer Seite");
                     }
                     htmlString.append("<p>&nbsp;</p><table  align='center' width='100%' style=\"border: 2px solid black; border-collapse: collapse;\">");
                     htmlString.append(tagZeile);
-                    
+
                 }
                 htmlString.append("<tr>");
                 htmlString.append("<td colspan=\"6\" align=\"center\" style=\"background-color: #cccccc; padding:4px;border: 1px solid black;\">KW " + v.getKw() + " / " + v.getWochentag() + " " + str.substring(0, str.indexOf(" ")) + "</td>");
@@ -1424,8 +1423,7 @@ public class DokuServlet extends HttpServlet {
             image.scalePercent(50f);
             document.add(image);
             XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-        }
-        else {
+        } else {
             htmlString.append("</table>");
             Log.d("html String Rest=" + htmlString.toString());
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
@@ -1436,7 +1434,7 @@ public class DokuServlet extends HttpServlet {
             image.setAbsolutePosition(45f, 720f);
             image.scalePercent(50f);
             document.add(image);
-            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);            
+            XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
         }
         document.close();
         return document;
@@ -1564,11 +1562,11 @@ public class DokuServlet extends HttpServlet {
         return toReadableDate(gc);
     }
 
-    private Document printHead(PdfWriter writer,Document document, StringBuilder htmlString, OutputStream out, Image image) throws DocumentException, BadElementException, IOException {
+    private Document printHead(PdfWriter writer, Document document, StringBuilder htmlString, OutputStream out, Image image) throws DocumentException, BadElementException, IOException {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-        
-        Log.d("document="+document+" image="+image);
+
+        Log.d("document=" + document + " image=" + image);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
         return document;
