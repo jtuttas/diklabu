@@ -1174,25 +1174,32 @@ public class DokuServlet extends HttpServlet {
 
         Log.d("Schuljahr = " + schuljahr.get(0).getNAME() + " Zeugnisdatum=" + schuljahr.get(0).getZEUGNISDATUM());
         Log.d("Noten_all=" + portfolio);
-        for (Noten_all p : portfolio) {
-            Log.d("Scuher Schüler mit ID="+p.getID_SCHUELER());
-            for (Schueler s : schueler) {
-                Log.d("ID ist "+s.getId());
+        boolean found=false;
+        for (Schueler s : schueler) {
+            found=false;
+            htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
+            htmlString.append("<h2 align=\"center\">der Region Hannover</h2>");
+            htmlString.append("<hr></hr>");
+            htmlString.append("<h1 align=\"center\">Portfolio</h1>");
+            htmlString.append("<h3 align=\"center\">über besuchte Zusatzkurse</h3>");
+            htmlString.append("<p align=\"center\">für " + s.getVNAME() + " " + s.getNNAME() + " geb. am " + toReadable(s.getGEBDAT()) + "</p>");
+            htmlString.append("<br></br>");
+            htmlString.append("<hr></hr>");
+            htmlString.append("<br></br>");
+            int oldSchuljahr = -1;
+            for (Noten_all p : portfolio) {
+                Log.d("Suche für Schüler ID=" + s.getId() + " einen Portfolioeintrag, found ID=" + p.getID_SCHUELER());
                 if (p.getID_SCHUELER().intValue() == s.getId().intValue()) {
-                    Log.d("Schüler gefunden!");
-                    htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
-                    htmlString.append("<h2 align=\"center\">der Region Hannover</h2>");
-                    htmlString.append("<hr></hr>");
-                    htmlString.append("<h1 align=\"center\">Portfolio</h1>");
-                    htmlString.append("<h3 align=\"center\">über besuchte Zusatzkurse</h3>");
-                    htmlString.append("<p align=\"center\">für " + s.getVNAME() + " " + s.getNNAME() + " geb. am " + toReadable(s.getGEBDAT()) + "</p>");
-                    htmlString.append("<br></br>");
-                    htmlString.append("<hr></hr>");
-                    htmlString.append("<br></br>");
+
+                    Log.d("gefunden!");
+                    found=true;
                     Schuljahr sj = em.find(Schuljahr.class, p.getID_SCHULJAHR());
                     Klasse_all ka = em.find(Klasse_all.class, p.getID_KLASSEN_ALL());
                     Log.d(" Schüler gefunden sj=" + sj.getNAME() + " ka=" + ka.getTitel());
-                    htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
+                    if (oldSchuljahr != sj.getID()) {
+                        htmlString.append("<h3>Schuljahr " + sj.getNAME() + "</h3>");
+                        oldSchuljahr = sj.getID();
+                    }
                     htmlString.append("<table>");
                     htmlString.append("<tr>");
                     htmlString.append("<td width=\"70%\"><b>" + ka.getTitel() + "</b><p>" + ka.getNotiz() + "</p></td>");
@@ -1200,41 +1207,43 @@ public class DokuServlet extends HttpServlet {
                     htmlString.append("</tr>");
                     htmlString.append("</table>");
                     htmlString.append("<p>&nbsp;</p>");
-                    htmlString.append("<br></br>");
-                    htmlString.append("<br></br>");
-                    htmlString.append("<b>Hannover, " + toReadable(schuljahr.get(0).getZEUGNISDATUM()) + "</b>");
-                    htmlString.append("<br></br>");
-                    htmlString.append("<br></br>");
-                    htmlString.append("<br></br>");
-                    htmlString.append("<br></br>");
-                    htmlString.append("<table width=\"100%\" >");
-                    htmlString.append("<tr>");
-                    htmlString.append("<td style=\"font-size: 10;border-bottom: 0.5px solid #888888\" width=\"40%\" align=\"center\">&nbsp;</td>");
-                    htmlString.append("<td></td>");
-                    htmlString.append("</tr>");
-                    htmlString.append("<tr>");
-                    htmlString.append("<td style=\"font-size: 10;\" width=\"40%\" align=\"center\">Klassenlehrerin/Klassenlehrer</td>");
-                    htmlString.append("<td>&nbsp;</td>");
-                    htmlString.append("</tr>");
-                    htmlString.append("<tr>");
-                    htmlString.append("<td style=\"font-size: 9;border-top: 0.5px solid #888888\" colspan=\"2\">Noten: sehr gut (1), gut (2), befriedigend (3), ausreichend (4), mangelhaft (5), ungenügend (6)<br></br>*) Angegeben ist die durchschnittliche Unterrichtsstundenzahl pro Schuljahr.<br></br>*) In Kursen mit insgesamt 12 Unterrichtsstunden findet keine Bewertung statt.</td>");
-                    htmlString.append("</tr>");
-                    htmlString.append("</table>");
-
-                    InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
-                    // Bild einfügen
-                    String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
-                    Image image = Image.getInstance(url);
-                    image.setAbsolutePosition(480f, 730f);
-                    image.scalePercent(40f);
-                    Log.d("Image=" + image);
-                    document.add(image);
-                    XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
-                    htmlString = new StringBuilder();
-                    document.newPage();
-                    break;
                 }
             }
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<b>Hannover, " + toReadable(schuljahr.get(0).getZEUGNISDATUM()) + "</b>");
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<br></br>");
+            htmlString.append("<table width=\"100%\" >");
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"font-size: 10;border-bottom: 0.5px solid #888888\" width=\"40%\" align=\"center\">&nbsp;</td>");
+            htmlString.append("<td></td>");
+            htmlString.append("</tr>");
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"font-size: 10;\" width=\"40%\" align=\"center\">Klassenlehrerin/Klassenlehrer</td>");
+            htmlString.append("<td>&nbsp;</td>");
+            htmlString.append("</tr>");
+            htmlString.append("<tr>");
+            htmlString.append("<td style=\"font-size: 9;border-top: 0.5px solid #888888\" colspan=\"2\">Noten: sehr gut (1), gut (2), befriedigend (3), ausreichend (4), mangelhaft (5), ungenügend (6)<br></br>*) Angegeben ist die durchschnittliche Unterrichtsstundenzahl pro Schuljahr.<br></br>*) In Kursen mit insgesamt 12 Unterrichtsstunden findet keine Bewertung statt.</td>");
+            htmlString.append("</tr>");
+
+            htmlString.append("</table>");
+
+            if (found) {
+                InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
+                // Bild einfügen
+                String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+                Image image = Image.getInstance(url);
+                image.setAbsolutePosition(480f, 730f);
+                image.scalePercent(40f);
+                Log.d("Image=" + image);
+                document.add(image);
+                XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
+                document.newPage();
+            }
+            htmlString = new StringBuilder();
         }
         document.close();
         return document;
