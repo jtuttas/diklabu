@@ -1239,7 +1239,7 @@ public class DokuServlet extends HttpServlet {
                 image.setAbsolutePosition(480f, 730f);
                 image.scalePercent(40f);
                 Log.d("Image=" + image);
-                document.add(image);
+                document.add(image); 
                 XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
                 document.newPage();
             }

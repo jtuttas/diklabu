@@ -28,6 +28,7 @@ import javax.persistence.Transient;
    @NamedQuery(name = "findNoteneinesSchuelers", query= "select n from Noten_all n where n.ID_SCHUELER=:paramNameSchuelerID and n.ID_SCHULJAHR = :paramIDSchuljahr ORDER BY n.ID_LERNFELD"),    
    //@NamedQuery(name = "findPortfolioeinerKlasse", query= "select n from Noten_all n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Klasse_all ka on n.ID_KLASSE_ALL=ka.ID inner join Schueler_Klasse sk on s.ID=sk.ID_SCHUELER where sk.ID_KLASSE =:paramIdKlasse and ka.ID_KATEGORIE=1 ORDER BY n.ID_SCHUELER,n.ID_LERNFELD"), 
    @NamedQuery(name = "findPortfolio", query= "select n from Noten_all n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Klasse_all ka on n.ID_KLASSEN_ALL=ka.ID inner join Schueler_Klasse sk on s.ID=sk.ID_SCHUELER where sk.ID_KLASSE =:paramIdKlasse and ka.ID_KATEGORIE in (1,9) ORDER BY n.ID_SCHUELER,n.ID_SCHULJAHR,n.ID_LERNFELD"),  
+   @NamedQuery(name = "findPortfolioBySchueler", query= "select n from Noten_all n INNER JOIN Schueler s on n.ID_SCHUELER=s.ID INNER JOIN Klasse_all ka on n.ID_KLASSEN_ALL=ka.ID where s.ID=:paramIdSchueler and  ka.ID_KATEGORIE in (1,9) ORDER BY n.ID_SCHULJAHR,n.ID_LERNFELD"),  
 })
 @IdClass(Noten_all_Id.class)
 public class Noten_all implements Serializable {
