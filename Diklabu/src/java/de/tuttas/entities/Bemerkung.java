@@ -34,7 +34,7 @@ public class Bemerkung implements Serializable {
     private String BEMERKUNG;
     @Transient
     private boolean success;
-    @Transient
+    @Transient  
     private String msg;
 
     public Bemerkung() {

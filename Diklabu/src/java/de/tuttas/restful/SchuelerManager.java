@@ -99,7 +99,8 @@ public class SchuelerManager {
     @GET
     @Path("/portfolio/{id}")
     @Produces("application/pdf")
-    public StreamingOutput getPdf(@PathParam("id") int sid) throws Exception {
+    public StreamingOutput getPdf(@PathParam("id") int id) throws Exception {
+        final int sid=id;
         return new StreamingOutput() {
             public void write(OutputStream out) throws IOException {
                 Schueler s = em.find(Schueler.class,sid);
