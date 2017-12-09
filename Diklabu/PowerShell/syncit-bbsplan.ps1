@@ -46,12 +46,12 @@ $report=Export-BBSPlanung -mode ONEWAY -log -verbose
 
 REORGANISATION:
 Zunächst folgende SQL Anweisungen ausführen
-    UPDATE SCHUELER set ID_AUSBILDER=null,ID_UMSCHUL=null;
+    UPDATE SCHUELER set ID_AUSBILDER=null;
     UPDATE SCHUELER set ID_MMBBS=99999 where ID_MMBBS IS NOT NULL;
     DELETE FROM AUSBILDER;
     DELETE FROM BETRIEB;
-    INSERT INTO BETRIEB (ID,NAME,PLZ,ORT,STRASSE,NR) Values (99999," "," "," "," "," ");
-    INSERT INTO AUSBILDER (ID,ID_BETRIEB,ANREDE,NNAME,EMAIL,TELEFON,FAX) Values(99999,99999," "," "," "," "," ");
+    INSERT INTO BETRIEB (ID,NAME,PLZ,ORT,STRASSE,NR) Values (99999,' ',' ',' ',' ',' ');
+    INSERT INTO AUSBILDER (ID,ID_BETRIEB,ANREDE,NNAME,EMAIL,TELEFON,FAX) Values(99999,99999,' ',' ',' ',' ',' ');
     
 
 Dann das Skript wie folgt starten
