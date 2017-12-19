@@ -924,7 +924,7 @@ function Get-BPCoursemember
 
                 if (-not $reorg) {
                     $s.diklabuID=$c.id
-                    $kl = Get-Coursemembership $c.id | Where-Object {$_.ID_Kategorie -eq 0}
+                    $kl = Get-Coursemembership $c.id | Where-Object {$_.ID_Kategorie -eq 0 -or $_.ID_Kategorie -eq 17}
                     if (-not $kl) {
                         Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"
                         if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"}
@@ -1107,3 +1107,76 @@ function Get-BPCoursemember
         }
      }
  }
+
+<#
+.Synopsis
+   Sucht einen Schüler nach Vorname Nachname und Geburtsdatum
+.DESCRIPTION
+   Sucht einen Schüler nach Vorname Nachname und Geburtsdatum
+.EXAMPLE
+   Find-BPPupil -Vorname Max -Nachname Mustermann -GebDat (get-Date("4.4.1980")) -Verbose
+#>
+function Find-BPPupil
+{
+    [CmdletBinding()]
+    Param
+    (
+         [Parameter(Mandatory=$true,Position=0)]
+         [String]$Vorname,    
+         [Parameter(Mandatory=$true,Position=1)]
+         [String]$Nachname,    
+         [Parameter(Mandatory=$true,Position=2)]
+         [DateTime]$GebDat    
+    )
+    Begin
+    {
+        
+        if ($global:connection) {
+            if ($global:connection.State -eq "Open") {
+                $command = $global:connection.CreateCommand()
+
+                $gd = get-date($GebDat) -Format "dd/MM/yyyy"
+                $gd=$gd.Replace(".","/");
+	            $command.CommandText = "Select * From SIL where NNAME='$Nachname' and VNAME='$Vorname' and GEBDAT=#"+$gd+"#"
+                
+                #Write-Host "Command is:"+ $command.CommandText
+
+                Write-Verbose "Lese Datenbank SIL (Schülerdaten) ein!" 
+
+                $dataset = New-Object System.Data.DataSet
+	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                $out=$adapter.Fill($dataset)
+                $schueler=@();
+                foreach ($item in $dataset.Tables[0]) {
+                #$item
+                    $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER"
+                    $sch.BBSID=$item.NR_SCHÜLER;
+                    $sch.NNAME=$item.NNAME;
+                    $sch.VNAME=$item.VNAME;
+                    if ((""+$item.GEBDAT).Length -gt 0) {
+                        [datetime]$sch.GEBDAT=$item.GEBDAT
+                    }
+                    $sch.GEBORT=$item.GEBORT
+                    $sch.STR=$item.STR
+                    $sch.PLZ=$item.PLZ
+                    $sch.ORT=$item.ORT
+                    $sch.TEL=$item.TEL
+                    $sch.TEL_HANDY=$item.TEL_HANDY
+                    $sch.EMAIL=$item.EMAIL
+                    $sch.GESCHLECHT=$item.GESCHLECHT
+                    $sch.KL_NAME=$item.KL_NAME
+                    $sch.BETRIEB_NR=$item.BETRIEB_NR                    
+                    $schueler+=$sch;    
+                } 
+                Write-Verbose "Insgesammt $($schueler.Length) Schüler eingelesen!"
+                return $schueler
+            }
+            else {
+                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+            }
+        }
+        else {
+            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+        }
+    }
+}
