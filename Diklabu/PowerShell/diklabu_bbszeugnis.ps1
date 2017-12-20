@@ -477,38 +477,71 @@ function Set-BZGrade
             Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             return;
         }
+        $outObj = "" | Select-Object -Property "NR_SCHÜLER","success","msg","warnings","Warning_msg"
     }
     Process {
-        Write-Verbose "SET Schüler Nr=$($zeugnisObj.NR_SCHÜLER) BEM1=$($zeugnisObj.BEM1)";
+        Write-Verbose "SET Schüler Nr=$($zeugnisObj.NR_SCHÜLER) ";
+
         #Write-Host "vermerk=$VERM1"
         $command = $global:connection.CreateCommand()
+        $outObj.NR_SCHÜLER=$zeugnisObj.NR_SCHÜLER;
+        $outObj.success=$true
+        $outObj.msg="Daten des Schülers $($zeugnisObj.VNAME) $($zeugnisObj.NNAME) Klasse $($zeugnisObj.KNAME) erfolgreich importiert!"
+        $outObj.warnings=$false;
+        $outObj.Warning_msg="";
+        $tst = Get-BZGrade -NR_SCHÜLER $zeugnisObj.NR_SCHÜLER;
+        if (-not $tst) {
+            $outObj.success=$false
+            $outObj.msg="Kann NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER) nicht finden"            
+            $outObj
+            return;
+        }
         $sql = "Update SQL_NOTE SET "
         $attributes = @()
-        if ([String]$zeugnisObj.NSCHL1 -ne "") {
-            if ($($Global:grades[[String]$zeugnisObj.NSCHL1])) {
-                $attributes+="NSCHL1 = $($zeugnisObj.NSCHL1), NOTE1 = '$($Global:grades[[String]$zeugnisObj.NSCHL1])' "
-            }
-            else {
-                $attributes+="NSCHL1 = $($zeugnisObj.NSCHL1)"
-                Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Note $($zeugnisObj.NSCHL1) gefunden!"
-            }
-        }
-        if ([String]$zeugnisObj.BEM1 -ne "") {
-            if ($($Global:remarks[[String]$zeugnisObj.BEM1])) {
-                $attributes+="BSCHL1 = '$($zeugnisObj.BEM1)', BEM1 = '$($Global:remarks[[String]$zeugnisObj.BEM1])' "
-            }
-            else {
-                $attributes+="BSCHL1 = '$($zeugnisObj.BEM1)'"
-                Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Bemerkung $($zeugnisObj.BEM1) gefunden!"
+        $num=1;
+        for ($num=1;$num -le 30;$num++) {
+            if(Get-Member -inputobject $zeugnisObj -name ("NSCHL$num") -Membertype Properties ){
+                if ([String]$zeugnisObj."NSCHL$num" -ne "") {
+                    if ($($Global:grades[[String]$zeugnisObj."NSCHL$num"])) {
+                        $attributes+="NSCHL$num = $($zeugnisObj."NSCHL$num"), NOTE$num = '$($Global:grades[[String]$zeugnisObj."NSCHL$num"])' "
+                    }
+                    else {
+                        $attributes+="NSCHL$num = $($zeugnisObj."NSCHL$num")"
+                        Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Note $($zeugnisObj."FACH$num") = $($zeugnisObj."NSCHL$num") gefunden!"
+                        $outObj.warnings=$true;
+                        $outObj.Warning_msg += ":Keine Text für $($zeugnisObj."FACH$num") = Note $($zeugnisObj."NSCHL$num") gefunden!"
+                    }
+                }
             }
         }
-        if ([String]$zeugnisObj.VERM1 -ne "") {
-            if ($($Global:annotations[[String]$zeugnisObj.VERM1])) {
-                $attributes+="VSCHL1 = '$($zeugnisObj.VERM1)', VERM1 = '$($Global:annotations[[String]$zeugnisObj.VERM1])' "
+        for ($num=1;$num -le 5;$num++) {
+            if(Get-Member -inputobject $zeugnisObj -name ("BEM$num") -Membertype Properties ){
+                if ([String]$zeugnisObj."BEM$num" -ne "") {
+                    if ($($Global:remarks[[String]$zeugnisObj."BEM$num"])) {
+                        $attributes+="BSCHL$num = '$($zeugnisObj."BEM$num")', BEM$num = '$($Global:remarks[[String]$zeugnisObj."BEM$num"])' "
+                    }
+                    else {
+                        $attributes+="BSCHL$num = '$($zeugnisObj."BEM$num")'"
+                        Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Bemerkung BEM$num = $($zeugnisObj."BEM$num") gefunden!"
+                        $outObj.warnings=$true;
+                        $outObj.Warning_msg += ": Keine Text für Bemerkung BEM$num = $($zeugnisObj."BEM$num") gefunden!"
+                    }
+                }
             }
-            else {
-                $attributes+=",VSCHL1 = '$($zeugnisObj.VERM1)'"
-                Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Vermerk $($VzeugnisObj.ERM1) gefunden!"
+        }
+        for ($num=1;$num -le 4;$num++) {
+            if(Get-Member -inputobject $zeugnisObj -name ("VERM$num") -Membertype Properties ){
+                if ([String]$zeugnisObj."VERM$num" -ne "") {
+                    if ($($Global:annotations[[String]$zeugnisObj."VERM$num"])) {
+                        $attributes+="VSCHL$num = '$($zeugnisObj."VERM$num")', VERM$num = '$($Global:annotations[[String]$zeugnisObj."VERM$num"])' "
+                    }
+                    else {
+                        $attributes+="VSCHL$num = '$($zeugnisObj."VERM$num")'"
+                        Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für VERM$num = $($zeugnisObj."VERM$num") gefunden!"
+                        $outObj.warnings=$true;
+                        $outObj.Warning_msg += ": Keine Text für VERM$num = $($zeugnisObj."VERM$num") gefunden!"
+                    }
+                }
             }
         }
         if ([String]$zeugnisObj.Arbeitsverhalten -ne "") {
@@ -518,6 +551,8 @@ function Set-BZGrade
             else {
                 $attributes+="ASV = '$($zeugnisObj.Arbeitsverhalten)'"
                 Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Arbeitsverhalten $($zeugnisObj.Arbeitsverhalten) gefunden!"
+                $outObj.warnings=$true;
+                $outObj.Warning_msg +=": Keine Text für Arbeitsverhalten $($zeugnisObj.Arbeitsverhalten) gefunden!"
             }
         }
         if ([String]$zeugnisObj.Sozialverhalten -ne "") {
@@ -527,6 +562,8 @@ function Set-BZGrade
             else {
                 $attributes+="SZV = '$($zeugnisObj.Sozialverhalten)'"
                 Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Sozialverhalten $($zeugnisObj.Sozialverhalten) gefunden!"
+                $outObj.warnings=$true;
+                $outObj.Warning_msg +=": : Keine Text für Sozialverhalten $($zeugnisObj.Sozialverhalten) gefunden!"
             }
         }
         if ([String]$zeugnisObj.Fehltage_Gesamt -ne "") {
@@ -537,6 +574,8 @@ function Set-BZGrade
         }
         if ($zeugnisObj.Fehltage_Entschuldigt -gt $zeugnisObj.Fehltage_Gesamt) {
             Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER) $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Fehltage entschuldigt > Fehltage gesamt"
+            $outObj.warnings=$true;
+            $outObj.Warning_msg +=": Fehltage entschuldigt $($zeugnisObj.Fehltage_Entschuldigt) > Fehltage gesamt $($zeugnisObj.Fehltage_Gesamt) "
          }
         if ([String]$zeugnisObj.Abschluss -ne "") {
             $attributes+="ENTLABSCHLUSS = '$($zeugnisObj.Abschluss)' "
@@ -547,6 +586,12 @@ function Set-BZGrade
         else {
             $attributes+="ZART = '$($zeugnisObj.Zeugnisart)' "
         }
+        if ($Zeugnisdatum) {
+            $attributes+="DATUM = '$Zeugnisdatum' "
+        }
+        else {
+            $attributes+="DATUM = '$($zeugnisObj.Zeugnisdatum)' "
+        }
         if ([String]$zeugnisObj.Durchschnittnote -ne "") {
             if ($($Global:dnote[[String]$zeugnisObj.Durchschnittnote])) {
             
@@ -555,8 +600,11 @@ function Set-BZGrade
             else {
                 $attributes+="[NOTE] = '$($zeugnisObj.Durchschnittnote)' "
                 Write-Warning "NR_SCHÜLER=$($zeugnisObj.NR_SCHÜLER)  $($zeugnisObj.VNAME) $($zeugnisObj.NNAME): Keine Text für Durchschnitsnote $($zeugnisObj.Durchschnittnote) gefunden!"
+                $outObj.warnings=$true;
+                $outObj.Warning_msg +=": Keine Text für Durchschnitsnote $($zeugnisObj.Durchschnittnote) gefunden!"
             }
         }
+       
 
         for ($i=0;$i -lt $attributes.Length;$i++) {
             if ($i -eq 0) {
@@ -571,8 +619,15 @@ function Set-BZGrade
     	
         $command.CommandText = $sql
         Write-Verbose "$($command.CommandText)"
-        $dataset = New-Object System.Data.DataSet
-	    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
-        $out=$adapter.Fill($dataset)        
+        try {
+            $dataset = New-Object System.Data.DataSet
+	        $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+            $out=$adapter.Fill($dataset)    
+        }
+        catch {
+            $outObj.success=$false;
+            $outObj.msg=$_.Exception.Message
+        }
+        $outObj    
     }
 }
