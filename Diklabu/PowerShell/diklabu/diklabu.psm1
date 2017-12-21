@@ -11,5 +11,7 @@ Import-Module diklabu_bbsplanung.psm1
 Import-Module diklabu-seafile.psm1
 Import-Module diklabu_moodle.psm1
 Import-Module diklabu_ldap.psm1
+Import-Module diklabu_termine.psm1
+Import-Module diklabu_bbszeugnis.psm1
 
 Export-ModuleMember -Function *-*
