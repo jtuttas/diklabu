@@ -219,6 +219,7 @@ public class AnwesenheitsManager {
      */
     @POST
     public AnwesenheitEintrag addAnwesenheit(AnwesenheitEintrag ae) {
+        em.getEntityManagerFactory().getCache().evictAll();
         Log.d("POST Anwesenheitseintrag = " + ae.toString());
         Anwesenheit a = em.find(Anwesenheit.class, new AnwesenheitId(ae.getID_SCHUELER(), ae.getDATUM()));
 
