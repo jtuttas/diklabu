@@ -277,6 +277,7 @@ public class AnwesenheitsManager {
                 em.remove(fb);
             }
         }
+        em.flush();
         ae.setParseError(!VerspaetungsUtil.isValid(ae));
         return ae;
     }
