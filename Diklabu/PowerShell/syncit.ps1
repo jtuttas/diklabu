@@ -1,4 +1,5 @@
-﻿. "$PSScriptRoot/LoadModule.ps1"
+﻿Import-Module -Name ImportExcel
+. "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
 . "$PSScriptRoot/sync_lehrer.ps1"
 . "$PSScriptRoot/set-emails.ps1"
