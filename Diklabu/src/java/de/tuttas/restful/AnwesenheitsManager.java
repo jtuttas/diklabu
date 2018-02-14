@@ -478,7 +478,7 @@ public class AnwesenheitsManager {
         qb.setParameter("idList", ids);
         List<Bemerkung> bem = qb.getResultList();
         Log.d("Bemerkungen=" + bem);
-        return getData(anwesenheit, bem);
+        return getDataf(anwesenheit, bem);
     }
 
     private List<AnwesenheitObjekt> getDataf(List<AnwesenheitEintrag> anwesenheit, List<Bemerkung> bem) {
