@@ -458,7 +458,7 @@ public class AnwesenheitsManager {
     @Path("schueler/{sid}/{from}/{to}")
     public List<AnwesenheitObjekt> getAnwesenheit(@PathParam("sid") int sid, @PathParam("from") Date from, @PathParam("to") Date to) {
         to = new Date(to.getTime() + 24 * 60 * 60 * 1000);
-        Log.d("Webservice Anwesenheit GET from=" + from + " to=" + to);
+        Log.d("Webservice Anwesenheit GET from=" + from + " to=" + to+" ID Schüler="+sid);
         TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbySchueler", AnwesenheitEintrag.class
         );
         query.setParameter(
@@ -469,6 +469,7 @@ public class AnwesenheitsManager {
                 "paramToDate", to);
         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
 
+        Log.d("Anwesenheit=" + anwesenheit);
         Query qb = em.createNamedQuery("findBemerkungbyDate");
         qb.setParameter("paramFromDate", from);
         qb.setParameter("paramToDate", to);
@@ -477,7 +478,7 @@ public class AnwesenheitsManager {
         qb.setParameter("idList", ids);
         List<Bemerkung> bem = qb.getResultList();
         Log.d("Bemerkungen=" + bem);
-        return getDataf(anwesenheit, bem);
+        return getData(anwesenheit, bem);
     }
 
     private List<AnwesenheitObjekt> getDataf(List<AnwesenheitEintrag> anwesenheit, List<Bemerkung> bem) {
