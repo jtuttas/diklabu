@@ -1,0 +1,1 @@
+powershell.exe C:\diklabuApp\diklabu\Diklabu\PowerShell\syncit.ps1
