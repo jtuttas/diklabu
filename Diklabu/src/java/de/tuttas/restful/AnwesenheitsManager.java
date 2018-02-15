@@ -277,6 +277,7 @@ public class AnwesenheitsManager {
                 em.remove(fb);
             }
         }
+        em.flush();
         ae.setParseError(!VerspaetungsUtil.isValid(ae));
         return ae;
     }
@@ -457,7 +458,7 @@ public class AnwesenheitsManager {
     @Path("schueler/{sid}/{from}/{to}")
     public List<AnwesenheitObjekt> getAnwesenheit(@PathParam("sid") int sid, @PathParam("from") Date from, @PathParam("to") Date to) {
         to = new Date(to.getTime() + 24 * 60 * 60 * 1000);
-        Log.d("Webservice Anwesenheit GET from=" + from + " to=" + to);
+        Log.d("Webservice Anwesenheit GET from=" + from + " to=" + to+" ID Schüler="+sid);
         TypedQuery<AnwesenheitEintrag> query = em.createNamedQuery("findAnwesenheitbySchueler", AnwesenheitEintrag.class
         );
         query.setParameter(
@@ -468,6 +469,7 @@ public class AnwesenheitsManager {
                 "paramToDate", to);
         List<AnwesenheitEintrag> anwesenheit = query.getResultList();
 
+        Log.d("Anwesenheit=" + anwesenheit);
         Query qb = em.createNamedQuery("findBemerkungbyDate");
         qb.setParameter("paramFromDate", from);
         qb.setParameter("paramToDate", to);

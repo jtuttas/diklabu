@@ -104,7 +104,12 @@ function Set-Keystore
         $login.location = $server
         $login.user =  $credential.UserName
         if ($credential.password) {
-            $login.password = $credential.Password | ConvertFrom-SecureString
+            try {
+                $login.password = $credential.Password | ConvertFrom-SecureString
+            }
+            catch {
+                $login.password = ""
+            }
         }
         $global:logins[$key]=$login
         $global:logins | ConvertTo-Json -Compress | Set-Content $file

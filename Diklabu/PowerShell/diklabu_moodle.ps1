@@ -45,12 +45,9 @@ function Login-Moodle
         $data=echo "" | Select-Object -Property "benutzer","kennwort"
         $data.benutzer=$credential.userName
         $data.kennwort=$credential.GetNetworkCredential().Password  
-        #Write-Host "Kennwort=$($data.kennwort)"
         $kw=[System.Web.HttpUtility]::UrlEncode($($data.kennwort))
         $url=$url+"login/token.php?username=$($data.benutzer)&service=$service&password=$kw"
-         
-#        Write-Host "This is the Encoded URL" $Encode -ForegroundColor Green
-        Write-Host "URL=$url"
+        
         $r=Invoke-RestMethod -Method GET -Uri $url -ContentType "application/json; charset=iso-8859-1"             
         if ($r) {
             if ($r.token) {

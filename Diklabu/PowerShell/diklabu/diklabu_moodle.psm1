@@ -48,7 +48,6 @@ function Login-Moodle
         $kw=[System.Web.HttpUtility]::UrlEncode($($data.kennwort))
         $url=$url+"login/token.php?username=$($data.benutzer)&service=$service&password=$kw"
         
-        
         $r=Invoke-RestMethod -Method GET -Uri $url -ContentType "application/json; charset=iso-8859-1"             
         if ($r) {
             if ($r.token) {

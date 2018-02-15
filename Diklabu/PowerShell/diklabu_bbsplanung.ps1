@@ -206,7 +206,7 @@ function Get-BPPupils
                 $schueler=@();
                 foreach ($item in $dataset.Tables[0]) {
                 #$item
-                    $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER"
+                    $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER","E_ANREDE","E_NNAME","E_VNAME","E_STR","E_PLZ","E_ORT","E_TEL","E_FAX","E_EMAIL"
                     $sch.BBSID=$item.NR_SCHÜLER;
                     $sch.NNAME=$item.NNAME;
                     $sch.VNAME=$item.VNAME;
@@ -223,6 +223,15 @@ function Get-BPPupils
                     $sch.GESCHLECHT=$item.GESCHLECHT
                     $sch.KL_NAME=$item.KL_NAME
                     $sch.BETRIEB_NR=$item.BETRIEB_NR                    
+                    $sch.E_ANREDE=$item.E_ANREDE
+                    $sch.E_NNAME=$item.E_NNAME
+                    $sch.E_VNAME=$item.E_VNAME
+                    $sch.E_STR=$item.E_STR
+                    $sch.E_PLZ=$item.E_PLZ
+                    $sch.E_ORT=$item.E_ORT
+                    $sch.E_TEL=$item.E_TEL
+                    $sch.E_FAX=$item.E_FAX
+                    $sch.E_EMAIL=$item.E_EMAIL
                     $schueler+=$sch;    
                 } 
                 Write-Verbose "Insgesammt $($schueler.Length) Schüler eingelesen!"
