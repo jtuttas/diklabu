@@ -40,7 +40,7 @@ public class Anwesenheit implements Serializable {
     @Column(length=3)
     private String ID_LEHRER;
     private String VERMERK;
-    private int ID_KLASSE;
+    private Integer ID_KLASSE;
     private String KRANKMELDUNG;
  
     public Anwesenheit() {
@@ -107,11 +107,11 @@ public class Anwesenheit implements Serializable {
         return VERMERK;
     }
 
-    public void setID_KLASSE(int ID_KLASSE) {
+    public void setID_KLASSE(Integer ID_KLASSE) {
         this.ID_KLASSE = ID_KLASSE;
     }
 
-    public int getID_KLASSE() {
+    public Integer getID_KLASSE() {
         return ID_KLASSE;
     }
     
