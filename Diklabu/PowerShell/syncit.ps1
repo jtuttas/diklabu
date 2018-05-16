@@ -105,6 +105,14 @@ else {
 
 }
 
+# Alles Lehrer in Gruppe alleLul eintragen
+if (-not (Test-LDAPCourse "alleLuL" -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,dc=local")) {
+    Write-Verbose "Gruppe alleLuL wird angelegt!"
+    [String]$gname=$tm.Name
+    New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -Name "alleLul" -OtherAttributes @{'Mail'="alleLuL@@mm-bbs.de"}
+}
+Get-LDAPTeachers | Sync-LDAPCourseMember -KNAME alleLul -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -force
+
 
 if (-not $Global:logins["smtp"]) {
     Write-Error "Keine SMTP Credentials gefunden. Bitte zunächst mit Login-SMTP Verbindung herstellen"
