@@ -163,10 +163,10 @@ public class SchuelerManager {
                     htmlString.append("</table>");
 
                     // Bild einfügen
-                    String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+                    String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
                     com.itextpdf.text.Image image = com.itextpdf.text.Image.getInstance(url);
                     image.setAbsolutePosition(480f, 730f);
-                    image.scalePercent(40f);
+                    image.scalePercent(15f);
                     
                     document.add(image);
                     InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
