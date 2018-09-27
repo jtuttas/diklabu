@@ -2,7 +2,7 @@
 # BSP: exportEng | export-excel c:\Temp\eng.xlsx
 function exportEng() {
     # Hier ggf. noch Bezeichnung anpassen
-    Find-Course -KNAME "IT16_Eng%" |
+    Find-Course -KNAME "IT17_Eng%" |
     ForEach-Object {
         $kname=$_.KNAME
         $kid=$_.id

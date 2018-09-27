@@ -32,7 +32,7 @@ function Login-Seafile
         if (-not $url -or -not $credential) {
             if ($Global:logins["seafile"]) {
                 $url=$Global:logins["seafile"].location;
-                $password = $Global:logins["seafile"].password | ConvertTo-SecureString 
+                $password = $Global:logins["seafile"].password | ConvertTo-SecureString -Key $global:keys
                 $credential = New-Object System.Management.Automation.PsCredential($Global:logins["seafile"].user,$password)
             }
             else {

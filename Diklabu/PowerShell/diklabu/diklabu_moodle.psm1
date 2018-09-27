@@ -32,7 +32,7 @@ function Login-Moodle
         if (-not $url -or -not $credential) {
             if ($Global:logins["moodle"]) {
                 $url=$Global:logins["moodle"].location;
-                $password = $Global:logins["moodle"].password | ConvertTo-SecureString 
+                $password = $Global:logins["moodle"].password | ConvertTo-SecureString -Key $global:keys
                 $credential = New-Object System.Management.Automation.PsCredential($Global:logins["moodle"].user,$password)
             }
             else {

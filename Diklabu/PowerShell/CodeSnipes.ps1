@@ -34,3 +34,30 @@ Get-Courses | Where-Object {$_.idKategorie -ne 0 -and $_.ID_LEHRER} | ForEach-Ob
 # Alle Klassen-Team Lehrer aus UNTIS Export ihrer Klasse zuordnen
 $obj = Import-Untis -path C:\Temp\GPU-mmbbs-sj17-18_05082017.csv -prefix "" 
 $obj.Keys | ForEach-Object {$course=Find-Course -KNAME $_;$obj.Item($_) | Sync-CourseTeacher -ID_COURSE $course.id -Verbose }
+
+# Klassenlisten erzeugen aus XLSX Datei
+import-excel C:\Temp\WPK_18_19.xlsx | Find-Course  | ForEach-Object {$kname=$_.KNAME;Get-Coursemember -id $_.id  | ForEach-Object {Add-Member -InputObject $_ -MemberType NoteProperty -Name KNAME -Value $kname;$_ | Select-Object -Property VNAME,NNAME,KNAME}| Export-Excel "c:\Temp\Klassen\$($_.KNAME).xlsx"}
+
+import-excel C:\Temp\WPK_18_19.xlsx | Find-Course  | ForEach-Object {$wpkname=$_.KNAME;Get-Coursemember -id $_.id  | ForEach-Object {
+    $p=get-pupil -id $_.id
+    $klasse=""
+
+    foreach ($k in $p.klassen) {
+        if ($k.ID_KATEGORIE -eq 0) {
+            $Klasse=$k.KNAME
+            Write-Host "Klasse gefunden $klasse"
+        }
+    }
+    Add-Member -InputObject $_ -MemberType NoteProperty -Name KNAME -Value $Klasse;$_ | Select-Object -Property VNAME,NNAME,KNAME}| Export-Excel "c:\Temp\Klassen\$wpkname.xlsx"}
+
+get-courses | Where-Object {$_.idKategorie -eq 11}  | ForEach-Object {$wpkname=$_.KNAME;Get-Coursemember -id $_.id  | ForEach-Object {
+    $p=get-pupil -id $_.id
+    $klasse=""
+
+    foreach ($k in $p.klassen) {
+        if ($k.ID_KATEGORIE -eq 0) {
+            $Klasse=$k.KNAME
+            Write-Host "Klasse gefunden $klasse"
+        }
+    }
+    Add-Member -InputObject $_ -MemberType NoteProperty -Name KNAME -Value $Klasse;$_ | Select-Object -Property VNAME,NNAME,KNAME}| Export-Excel "c:\Temp\Klassen\$wpkname.xlsx"}

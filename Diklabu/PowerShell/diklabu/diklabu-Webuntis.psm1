@@ -5,7 +5,7 @@
 .DESCRIPTION
    Anmelden an Webuntis
 .EXAMPLE
-   login-Untis -url https://demo.webuntis.com/WebUntis/jsonrpc.do?school=demo_kb -credential (Get-Credential Goethe)
+   login-Untis -url https://borys.webuntis.com/WebUntis/jsonrpc.do?school=MMBbS%20Hannover -credential (Get-Credential Tuttas)
 
 #>
 function Login-Untis
@@ -14,7 +14,7 @@ function Login-Untis
    
     Param
     (
-        # URL des Moodle Systems
+        # URL des Webuntis  Systems
         [Parameter(Position=0)]
         [String]$url,
 
@@ -28,10 +28,10 @@ function Login-Untis
     {
 
         if (-not $url -or -not $credential) {
-            if ($Global:logins["webuntis"]) {
-                $url=$Global:logins["webuntis"].location;
-                $password = $Global:logins["webuntis"].password | ConvertTo-SecureString 
-                $credential = New-Object System.Management.Automation.PsCredential($Global:logins["webuntis"].user,$password)
+            if ($global:logins.webuntis) {
+                $url=$Global:logins.webuntis.location;
+                $password = $Global:logins.webuntis.password | ConvertTo-SecureString -Key $global:keys
+                $credential = New-Object System.Management.Automation.PsCredential($Global:logins.webuntis.user,$password)
             }
             else {
                 Write-Error "Bitte url und credentials angeben!"
@@ -100,11 +100,11 @@ function Get-UntisRooms
         $data.params=$params
         $data.jsonrpc="2.0"
 
-        ConvertTo-Json $data
+        #ConvertTo-Json $data
 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
@@ -146,11 +146,11 @@ function Get-UntisCourses
         $data.params=$params
         $data.jsonrpc="2.0"
 
-        ConvertTo-Json $data
+        #ConvertTo-Json $data
 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
@@ -185,24 +185,20 @@ function Get-UntisTeachers
             Write-Error "Sie sind nicht an WebUntis angemeldet, veruchen Sie es mit Login-Untis"
             return
         }
-        $data=echo "" | Select-Object -Property "id","method","jsonrpc","params"
-        $data.id=$Global:untistoken
-        $data.method="getTeachers"
-        $params = @{}
-        $data.params=$params
-        $data.jsonrpc="2.0"
 
-        ConvertTo-Json $data
 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
+        $url=$Global:logins.webuntis.location.Substring(0,$Global:logins.webuntis.location.LastIndexOf("/"))
+        $url=$url+"/api/public/timetable/weekly/pageconfig?type=2";
+        #Write-Host $url
+        $r=Invoke-RestMethod -Method GET -Uri $url -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
         }
         else {
-            $r.result
+            $r.data.elements
         }
         
     }
@@ -239,11 +235,11 @@ function Get-UntisStudents
         $data.params=$params
         $data.jsonrpc="2.0"
 
-        ConvertTo-Json $data
+        #ConvertTo-Json $data
 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
@@ -285,11 +281,11 @@ function Get-UntisSubjects
         $data.params=$params
         $data.jsonrpc="2.0"
 
-        ConvertTo-Json $data
+        #ConvertTo-Json $data
 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
@@ -335,7 +331,7 @@ function Get-UntisDepartments
 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data) -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
@@ -448,7 +444,7 @@ function Get-UntisTimetable
                 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data -Depth 3) -Headers $headers -websession $global:session 
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data -Depth 3) -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
@@ -526,13 +522,61 @@ function Find-UntisPerson
                 
         $headers=@{}
         $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.Values.location) -Body (ConvertTo-Json $data -Depth 3) -Headers $headers -websession $global:session 
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data -Depth 3) -Headers $headers -websession $global:session 
         #$r
         if ($r.error) {
             Write-Error $r.error.message
         }
         else {
             $r.result
+        } 
+        
+    }
+}
+
+<#
+.Synopsis
+   Mitglieder einer Klasse anzeigen
+.DESCRIPTION
+   Mitglieder einer Klasse anzeigen
+.EXAMPLE
+   Get-UntisCoursemember -id 34
+   Sucht Schüler der Klasse mit der ID34
+#>
+function Get-UntisCoursemember
+{
+    [CmdletBinding()]
+   
+    Param
+    (
+        # Elementtype 
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+        [String]$id
+    )
+
+    Begin
+    {
+        if (-not $global:untistoken) {
+            Write-Error "Sie sind nicht an WebUntis angemeldet, veruchen Sie es mit Login-Untis"
+            return
+        }
+    }
+    Process {
+        #ConvertTo-Json $data -Depth 3
+                
+        $headers=@{}
+        $headers["content-Type"]="application/json"
+        $url=$Global:logins.webuntis.location.Substring(0,$Global:logins.webuntis.location.LastIndexOf("/"))
+        $url=$url+"/api/public/timetable/weekly/pageconfig?type=5&filter.klasseOrStudentgroupId=KL$id";
+        $r=Invoke-RestMethod -Method GET -Uri $url -Headers $headers -websession $global:session 
+        #$r
+        if ($r.error) {
+            Write-Error $r.error.message
+        }
+        else {
+            $r.data.elements
         } 
         
     }

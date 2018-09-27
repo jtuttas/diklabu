@@ -32,7 +32,7 @@ function Login-Seafile
         if (-not $url -or -not $credential) {
             if ($Global:logins["seafile"]) {
                 $url=$Global:logins["seafile"].location;
-                $password = $Global:logins["seafile"].password | ConvertTo-SecureString 
+                $password = $Global:logins["seafile"].password | ConvertTo-SecureString -Key $global:keys
                 $credential = New-Object System.Management.Automation.PsCredential($Global:logins["seafile"].user,$password)
             }
             else {
@@ -761,7 +761,7 @@ function Sync-SFGroupMember
     Process
     {
         $usermails | ForEach-Object {
-            Start-Sleep -Milliseconds 100
+            Start-Sleep -Milliseconds 500
             $usermail = $_
             if ($istMember[$usermail]) {
                 Write-Verbose "Der Benutzer mit der Email $usermail befindet sich bereits in der Gruppe mit der ID $groupid"
@@ -868,7 +868,7 @@ function Sync-SFGroups
     Process
     {
         $groups | ForEach-Object {
-            
+            Start-Sleep -Milliseconds 300
             $group=$_
             Write-Verbose "Bearbeite gruppe $group"
             $gr=$istGroups.Keys | % { if ($istGroups.Item($_).name -eq $group) {$istGroups.Item($_)} }
