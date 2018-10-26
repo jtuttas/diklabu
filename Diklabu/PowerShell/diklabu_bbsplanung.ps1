@@ -33,7 +33,7 @@ function Connect-BbsPlan
 
         [String]$user_id="SCHULE",
 
-        [String]$passwort=""
+        [String]$user_password=""
     
     )
     
