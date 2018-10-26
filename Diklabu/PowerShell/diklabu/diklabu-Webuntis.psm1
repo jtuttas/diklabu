@@ -400,6 +400,7 @@ function Get-UntisTimetable
         $element = "" | Select-Object -Property "id","type"
         if ($startDate) {
             $options | Add-Member -MemberType NoteProperty -Name "startDate" -Value $startDate
+            $options | Add-Member -MemberType NoteProperty -Name "endDate" -Value $startDate
         }
         if ($endDate) {
             $options | Add-Member -MemberType NoteProperty -Name "endDate" -Value $endDate
@@ -534,14 +535,27 @@ function Find-UntisPerson
     }
 }
 
+
 <#
 .Synopsis
    Mitglieder einer Klasse anzeigen
 .DESCRIPTION
    Mitglieder einer Klasse anzeigen
 .EXAMPLE
-   Get-UntisCoursemember -id 34
-   Sucht Schüler der Klasse mit der ID34
+   Get-UntisCoursemember -id 171 -startDate "2018-10-22" -type class
+   Sucht Schüler der Klasse mit der ID 171 am 22.10.2018
+.EXAMPLE
+   Get-UntisCoursemember -id 125 -startDate "2018-10-25" -type subject
+   Sucht Schüler des Kurses mit der ID 171 am 25.10.2018
+.EXAMPLE
+   Get-UntisCoursemember -id 125 -startDate "2018-10-25","2018-10-18","2018-11-08" -type subject
+   Sucht Schüler des Kurses mit der ID 171 am 25.10.2018 (Do. block rot), 18.10.2018 (Do. block gelb) und 8.11.2018 (Do. block blau)
+.EXAMPLE
+   Get-UntisCourses | Where-Object {$_ -match "FIAE18"} | Get-UntisCoursemember -startDate "2018-10-22","2018-10-15","2018-11-05" -type class 
+   Listet alle Schüler des Jahrgangs FIAE18 auf
+.EXAMPLE
+   Get-UntisSubjects | Where-Object {$_.name -match "-TU"} | Get-UntisCoursemember  -startDate "2018-10-25","2018-10-18","2018-11-08" -type subject
+   Listet alle Schüler aus dem WPK-TU auf 
 #>
 function Get-UntisCoursemember
 {
@@ -549,11 +563,21 @@ function Get-UntisCoursemember
    
     Param
     (
-        # Elementtype 
+        # ID
         [Parameter(Mandatory=$true,
+                   ValueFromPipeline=$true,
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
-        [String]$id
+        [int]$id,
+        # Date
+        [Parameter(Mandatory=$true,
+                   Position=1)]
+        [String[]]$startDate,
+        # Type
+        [Parameter(Mandatory=$true,
+                   Position=2)]
+        [ValidateSet('class','subject')]
+        [String]$type
     )
 
     Begin
@@ -562,22 +586,122 @@ function Get-UntisCoursemember
             Write-Error "Sie sind nicht an WebUntis angemeldet, veruchen Sie es mit Login-Untis"
             return
         }
+
     }
     Process {
         #ConvertTo-Json $data -Depth 3
-                
-        $headers=@{}
-        $headers["content-Type"]="application/json"
-        $url=$Global:logins.webuntis.location.Substring(0,$Global:logins.webuntis.location.LastIndexOf("/"))
-        $url=$url+"/api/public/timetable/weekly/pageconfig?type=5&filter.klasseOrStudentgroupId=KL$id";
-        $r=Invoke-RestMethod -Method GET -Uri $url -Headers $headers -websession $global:session 
-        #$r
-        if ($r.error) {
-            Write-Error $r.error.message
-        }
-        else {
-            $r.data.elements
-        } 
+        Write-Verbose "---- Process ID($id) type($type) ----"
+        $startDate | ForEach-Object {   
+            $dateNumber=[int]$_.replace("-","")    
+            Write-Verbose "Date = $_"
+            $headers=@{}
+            $headers["content-Type"]="application/json"
+            $url=$Global:logins.webuntis.location.Substring(0,$Global:logins.webuntis.location.LastIndexOf("/"))
+            if ($type -eq "class") {
+                $reg1=$url+"/api/public/timetable/weekly/data?elementType=1&elementId=$id&date=$_&formatId=3"
+            }
+            if ($type -eq "subject") {
+                $reg1=$url+"/api/public/timetable/weekly/data?elementType=3&elementId=$id&date=$_&formatId=3"
+
+            }
+            #$reg1
+            $r=Invoke-WebRequest -Uri $reg1 -websession $global:session 
+            Write-Verbose "Status Code is $($r.StatusCode)"
+            $obj=ConvertFrom-Json $r.content
+            
+            if ($obj.isSessionTimeout -eq $true) {
+                Write-Error "Session timed out, please login again"
+                break;
+            }
+
+            $array = $obj.data.result.data.elementPeriods."$id"    
+            $lessonID=$null
+            $periodID=$null
+            foreach ($entry in $array) {
+                Write-Verbose "Date is $($entry.date)"
+                if ($entry.date -eq $dateNumber) {
+                    $lessonID=$entry.lessonId
+                    $periodID=$entry.id
+                    if ($type -eq "subject") {
+                        break;
+                    }
+                    if ($type -eq "class") {
+                        if (-not $entry.studentGroup -and -not $entry.hasPeriodText) {
+                            break;
+                        }
+                        else {
+                            if ($entry.hasPeriodText) {
+                                Write-Warning "Klasse mit ID $id am $_ mit Kommentar $($entry.periodText)"
+                            }
+                            Write-Verbose "Found Stundent Group $($entry.studentGroup) -> skipped!";
+                        }
+                    }
+                }
+            }
+            
+
+
+            if (-not $lessonID  -or -not $periodID ) {
+                Write-Warning "No LessonID or PeriodID"
+            }
+            else {
+                Write-Verbose "Found LessonID $lessonID and PeriodID $periodID"
         
-    }
+                $url=$url+"/lessonstudentlist.do?lsid="+$lessonID+"&periodId="+$periodID;
+                #$url
+
+                $r=Invoke-WebRequest $url -websession $global:session 
+       
+                if ($r.error) {
+                    Write-Error $r.error.message
+                }
+                else {
+            
+                    ## Extract the tables out of the web request
+
+                    $tables = @($r.ParsedHtml.getElementById("lessonStudentListForm.assignedStudents"))   
+                    if ($tables) {
+                        $table = $tables[0]
+                        $titles = @()
+                        $rows = @($table.Rows)
+
+                        ## Go through all of the rows in the table
+                        foreach($row in $rows)
+                        {
+                            $cells = @($row.Cells)
+
+                           ## If we've found a table header, remember its titles
+                           if($cells[0].tagName -eq "TH")
+                           {
+                                $titles = @($cells | % { ("" + $_.InnerText).Trim() })
+                                continue
+                           }
+
+                           ## If we haven't found any table headers, make up names "P1", "P2", etc.
+                           if(-not $titles)
+                           {
+                                $titles = @(1..($cells.Count + 2) | % { "P$_" })
+                           }
+
+                           ## Now go through the cells in the the row. For each, try to find the
+                           ## title that represents that column and create a hashtable mapping those
+                           ## titles to content
+
+                           $resultObject = [Ordered] @{}
+
+                           for($counter = 0; $counter -lt $cells.Count; $counter++)
+                           {
+                               $title = $titles[$counter]
+                               if(-not $title) { continue }
+                               $resultObject[$title] = ("" + $cells[$counter].InnerText).Trim()
+                           }
+
+                           ## And finally cast that hashtable to a PSCustomObject
+                           [PSCustomObject] $resultObject
+                        }
+                    }
+                }
+            }
+        }        
+    }       
 }
