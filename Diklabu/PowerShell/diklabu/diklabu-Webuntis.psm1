@@ -463,7 +463,7 @@ function Get-UntisTimetable
 .DESCRIPTION
    Suchen eines Schülers oder Lehrers 
 .EXAMPLE
-   Find-UntisPerson -elementType stunden -sn Tuttas -fn Jörg
+   tisPerson -elementType stunden -sn Tuttas -fn Jörg
    Sucht die ID des Schülers Jörg Tuttas
 #>
 function Find-UntisPerson
@@ -513,8 +513,8 @@ function Find-UntisPerson
         if ($elementtype -eq "student") {
             $params.type="5"
         }
-        $params.sn=$sn
-        $params.fn=$fn
+        $params.sn= $sn
+        $params.fn= $fn
         $params.dob=$dob
         $data.params=$params
         $data.jsonrpc="2.0"
@@ -522,8 +522,9 @@ function Find-UntisPerson
         #ConvertTo-Json $data -Depth 3
                 
         $headers=@{}
-        $headers["content-Type"]="application/json"
-        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body (ConvertTo-Json $data -Depth 3) -Headers $headers -websession $global:session 
+        $headers["content-Type"]="application/json;charset=UTF-8"
+        $body = ConvertTo-Json $data -Depth 3
+        $r=Invoke-RestMethod -Method POST -Uri $($Global:logins.webuntis.location) -Body $body -Headers $headers -websession $global:session -ContentType "application/json;charset=UTF-8"
         #$r
         if ($r.error) {
             Write-Error $r.error.message
