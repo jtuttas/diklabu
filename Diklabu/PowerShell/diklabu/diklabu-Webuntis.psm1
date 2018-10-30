@@ -616,18 +616,19 @@ function Get-UntisCoursemember
             }
 
             $array = $obj.data.result.data.elementPeriods."$id"    
-            $lessonID=$null
-            $periodID=$null
+            $matchingLessons=@{}
             foreach ($entry in $array) {
                 Write-Verbose "Date is $($entry.date)"
+                
                 if ($entry.date -eq $dateNumber) {
-                    $lessonID=$entry.lessonId
-                    $periodID=$entry.id
+                    
                     if ($type -eq "subject") {
-                        break;
+                        
+                        $matchingLessons[$($entry.studentGroup)]=$entry                        
                     }
                     if ($type -eq "class") {
                         if (-not $entry.studentGroup -and -not $entry.hasPeriodText) {
+                            $matchingLessons["$id"]=$entry
                             break;
                         }
                         else {
@@ -640,65 +641,68 @@ function Get-UntisCoursemember
                 }
             }
             
-
-
-            if (-not $lessonID  -or -not $periodID ) {
-                Write-Warning "No LessonID or PeriodID"
+            
+            if ($matchingLessons.Count -eq 0) {
+                Write-Warning "No matching lesson found!"
             }
             else {
-                Write-Verbose "Found LessonID $lessonID and PeriodID $periodID"
+                foreach ($lesson in $matchingLessons.GetEnumerator()) {
+                    $lessonID=$lesson.Value.lessonId;
+                    $periodID=$lesson.Value.id
+                    Write-Verbose "Found LessonID $lessonID and PeriodID $periodID"
         
-                $url=$url+"/lessonstudentlist.do?lsid="+$lessonID+"&periodId="+$periodID;
-                #$url
+                    $url=$url+"/lessonstudentlist.do?lsid="+$lessonID+"&periodId="+$periodID;
+                    #$url
 
-                $r=Invoke-WebRequest $url -websession $global:session 
+                    $r=Invoke-WebRequest $url -websession $global:session 
        
-                if ($r.error) {
-                    Write-Error $r.error.message
-                }
-                else {
+                    if ($r.error) {
+                        Write-Error $r.error.message
+                    }
+                    else {
             
-                    ## Extract the tables out of the web request
+                        ## Extract the tables out of the web request
+                        $tables = @($r.ParsedHtml.getElementById("lessonStudentListForm.assignedStudents"))   
+                        if ($tables) {
+                            $table = $tables[0]
+                            $titles = @()
+                            $rows = @($table.Rows)
+                            $titles += "studentGroup"
+                            ## Go through all of the rows in the table
+                            foreach($row in $rows)
+                            {
+                                $cells = @($row.Cells)
 
-                    $tables = @($r.ParsedHtml.getElementById("lessonStudentListForm.assignedStudents"))   
-                    if ($tables) {
-                        $table = $tables[0]
-                        $titles = @()
-                        $rows = @($table.Rows)
+                                ## If we've found a table header, remember its titles
+                                if($cells[0].tagName -eq "TH")
+                                {
+                                    $titles = @($cells | % { ("" + $_.InnerText).Trim() })
+                                    continue
+                                }
 
-                        ## Go through all of the rows in the table
-                        foreach($row in $rows)
-                        {
-                            $cells = @($row.Cells)
+                                ## If we haven't found any table headers, make up names "P1", "P2", etc.
+                                if(-not $titles)
+                                {
+                                    $titles = @(1..($cells.Count + 2) | % { "P$_" })
+                                }
 
-                           ## If we've found a table header, remember its titles
-                           if($cells[0].tagName -eq "TH")
-                           {
-                                $titles = @($cells | % { ("" + $_.InnerText).Trim() })
-                                continue
-                           }
+                                ## Now go through the cells in the the row. For each, try to find the
+                                ## title that represents that column and create a hashtable mapping those
+                                ## titles to content
 
-                           ## If we haven't found any table headers, make up names "P1", "P2", etc.
-                           if(-not $titles)
-                           {
-                                $titles = @(1..($cells.Count + 2) | % { "P$_" })
-                           }
+                                $resultObject = [Ordered] @{}
 
-                           ## Now go through the cells in the the row. For each, try to find the
-                           ## title that represents that column and create a hashtable mapping those
-                           ## titles to content
+                                for($counter = 0; $counter -lt $cells.Count; $counter++)
+                                {
+                                    $title = $titles[$counter]
+                                    if(-not $title) { continue }
+                                    $resultObject[$title] = ("" + $cells[$counter].InnerText).Trim()
+                                    $resultObject["stundentGroup"]=$lesson.Name
+                                }
 
-                           $resultObject = [Ordered] @{}
-
-                           for($counter = 0; $counter -lt $cells.Count; $counter++)
-                           {
-                               $title = $titles[$counter]
-                               if(-not $title) { continue }
-                               $resultObject[$title] = ("" + $cells[$counter].InnerText).Trim()
-                           }
-
-                           ## And finally cast that hashtable to a PSCustomObject
-                           [PSCustomObject] $resultObject
+                                ## And finally cast that hashtable to a PSCustomObject
+                                [PSCustomObject] $resultObject
+                            }
                         }
                     }
                 }
