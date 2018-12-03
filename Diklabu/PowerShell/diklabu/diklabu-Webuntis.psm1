@@ -650,7 +650,7 @@ function Get-UntisCoursemember
                     $lessonID=$lesson.Value.lessonId;
                     $periodID=$lesson.Value.id
                     Write-Verbose "Found LessonID $lessonID and PeriodID $periodID"
-        
+                    $url=$Global:logins.webuntis.location.Substring(0,$Global:logins.webuntis.location.LastIndexOf("/"))
                     $url=$url+"/lessonstudentlist.do?lsid="+$lessonID+"&periodId="+$periodID;
                     #$url
 
