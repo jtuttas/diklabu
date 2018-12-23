@@ -2728,4 +2728,128 @@ function remove-BPKursTN {
        } #ende process
    } # ende set-BPEngNiveau
    
-      
+   function get-BPEngNiveau {
+
+    [CmdletBinding()]
+    Param
+    (
+        # Nachname
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [String[]]$NNAME,
+
+        # Vorname
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [String[]]$VNAME,
+
+        # Klasse
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [String[]]$KLASSE,
+
+        # Optional Pfad zur schule_xp.mdb
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [String]$location=""
+    )
+
+    begin{
+        # Konfigdaten einlesen, wenn notwendig,  also logindaten vorhanden und keine location angegeben
+        if ($location -eq "" -and !$global:logins.bp) {
+            $path=(get-childitem $MyInvocation.PSCommandPath|select directoryname).directoryname
+            get-keystore -file "$path\bpconfig.json"
+            $location = $global:logins.bp.bpdbpath
+        }
+
+        # Verbindung zur Datenbank aufbauen
+        $isDBConnectionOpenFromParent=$true #am Ende die Verbindung nur schließen, wenn sie in dieser Funktion auch geöffnet wurde
+        try {
+
+            if (!$global:connection -or !($global:connection.State -eq "Open")) {
+                connect-BbsPlan -location $location
+                $isDBConnectionOpenFromParent=$false
+            }
+        }
+        catch {
+            Write-Error "Verbindung zur Datenbank BBS-Planung konnte nicht geöffnet werden in CMDlet set-BPEngniveau"
+            return
+        }
+
+    } #ende begin
+
+    Process {
+        # ********************************************* Functions **********************************
+        function prot{
+            # Ausgabe eines Kommentares in die Protokolldatei
+            param(
+            [String]$t
+            )
+            $t=(get-date -format "hh:mm:ss") +": "+ $t
+            # $t|out-file -filepath ($global:logins.bp.protpath+"\remove-BPKurs-Prot-"+$(Get-Date -Format 'yyyy-MM-dd-hh-mm-ss')+".TXT") -Append
+            $t|out-file -filepath ($psscriptroot+"\set-BPEngniveau-"+$(Get-Date -Format 'yyyy-MM-dd')+".TXT") -Append
+
+        }
+
+        function msg{
+            # Ausgabe einer Bildschirmmeldung
+            param(
+                [String]$t,
+                [datetime]$dt
+            )
+
+            if($dt){
+                # Zeitdifferenz ausgeben, wenn eine Zeit übergeben wurde (für Dauer einer Befehlsausführung)
+                [datetime]$end = get-date
+                $t+=": "
+                $t+=(new-timespan -start $dt -end $end).Seconds
+                $t+=" Sekunden"
+            }
+            prot $t
+            write-host $t
+            # Zeit nur zurückgeben, wenn keine Zeit übergeben wurde
+            if(!$dt) {return (get-date)}
+        }
+        # ********************************************* End Functions **********************************
+
+        $error.Clear()
+
+        try{
+            
+            # Datenbank vorbereiten
+            $query=$global:connection.CreateCommand()
+            $dataset = New-Object System.Data.DataSet
+            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter
+
+            #*** KENNUNG1 ist Attribut für Eng-Niveau ***
+            $query.CommandText="SELECT KENNUNG1 FROM SIL WHERE (NNAME = '$nname' AND VNAME = '$vname' AND KL_NAME = '$klasse');"
+            $adapter.SelectCommand = $query
+            $out=$adapter.Fill($dataset)
+            if ($dataset.Tables[0].rows.Count -eq 0) {
+                # keine Zeilen --> Schüler nicht gefunden
+                msg "get-BPEngNiveau: Kann Schüler $nname,$vname, $klasse nicht finden in Tabelle SIL!"
+                # throw $("set-BPEngNiveau: Kann Schüler $nname,$vname, $klasse nicht finden in Tabelle SIL!")
+                return
+            }
+            if ($dataset.Tables[0].rows.Count -gt 1) {
+                # zu viele Zeilen --> mehr als ein Schüler gefunden
+                msg "get-BPEngNiveau: Mehrere Schüler $nname,$vname, $klasse gefunden in Tabelle SIL!"
+                # throw $("set-BPEngNiveau: Mehrere Schüler $nname,$vname, $klasse gefunden in Tabelle SIL!")
+                return
+            }
+
+            # hier ist genau ein/e SoS gefunden worden, also Englischniveau zurückgeben
+            return $dataset.Tables[0].rows[0].KENNUNG1
+           
+        } 
+        catch {
+            write-host ($error|Select-Object FullyQualifiedErrorId).FullyQualifiedErrorId
+            # $error
+
+        }
+    } #ende process
+    End {
+        # Verbindung nur schließen, wenn sie offen ist und innerhalb dieses Skriptes geöffnet wurde
+        if(($isDBConnectionOpenFromParent -eq $false) -and ($global:connection.State -eq "Open")){
+            $global:connection.close()
+        }
+    }
+} # ende get-BPEngNiveau
+
+   
