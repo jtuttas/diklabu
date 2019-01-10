@@ -1,7 +1,7 @@
 
 <#
 .Synopsis
-   Anmelden an Webuntis
+   Anmelden an Webuntis !
 .DESCRIPTION
    Anmelden an Webuntis
 .EXAMPLE
