@@ -13,7 +13,7 @@ RootModule = 'diklabumanager.psm1'
 NestedModules = @("diklabu_schueler.psm1", "diklabu_klassen.psm1", "diklabu_betriebe.psm1", "diklabu_ausbilder.psm1" , "diklabu_coursemember.psm1","diklabu_kurswahl.psm1","diklabu_lehrer.psm1","diklabu_poll.psm1","diklabu_bbsplanung.psm1","diklabu-Seafile.psm1","diklabu_moodle.psm1","diklabu_ldap.psm1","diklabu_dwo.psm1","diklabu_termine.psm1","diklabu_bbszeugnis.psm1","diklabu-Webuntis.psm1")
 
 # Die Versionsnummer dieses Moduls
-ModuleVersion = '4.7.2.2'
+ModuleVersion = '4.7.2.3'
 
 # ID zur eindeutigen Kennzeichnung dieses Moduls
 GUID = 'ae83af3e-8c98-407a-a165-eb0f24c0d185'
