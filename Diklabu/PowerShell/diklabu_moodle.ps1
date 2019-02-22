@@ -566,6 +566,8 @@ function Get-MoodleUser
     }
 }
 
+
+
 <#
 .Synopsis
    Einen Moodle Teilnehmer neue Attribute zuweisen
@@ -587,17 +589,31 @@ function Set-MoodleUser
         [int]$moodleid,
 
 
-        # username des Benutzers
+        # username des Benutzers (in Kleinbuchstaben)
         [Parameter(Position=1,
                    ValueFromPipelineByPropertyName=$true
                     )]
         [String]$username,
 
-        # email des Benutzers
-        [Parameter(Position=0,
+        # Vorname des Benutzers
+        [Parameter(Position=2,
                    ValueFromPipelineByPropertyName=$true
                     )]
-        [String]$email
+        [String]$firstname,
+
+        # Nachname des Benutzers
+        [Parameter(Position=3,
+                   ValueFromPipelineByPropertyName=$true
+                    )]
+        [String]$lastname,
+
+        # email des Benutzers
+        [Parameter(Position=4,
+                   ValueFromPipelineByPropertyName=$true
+                    )]
+        [String]$email,
+
+        [switch]$whatif
 
     )
     Begin
@@ -609,15 +625,73 @@ function Set-MoodleUser
         else {
             $postParams = @{wstoken=$token;wsfunction='core_user_update_users';moodlewsrestformat='json'}
         }
-        $postParams['users[0][username]']=$username
         $postParams['users[0][id]']=$moodleid
-        $postParams['users[0][email]']= $email
-        #$postParams
-        $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-        Write-Verbose "Set-MoodleUser moodleID=$moodleid username=$username"
+        if ($username) {
+            $postParams['users[0][username]']=$username
+        }
+        if ($email) {
+            $postParams['users[0][email]']= $email
+        }
+        if ($firstname) {
+            $postParams['users[0][firstname]']= $firstname
+        }
+        if ($lastname) {
+            $postParams['users[0][lastname]']= $lastname
+        }
+                
+        if (-not $whatif) {
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        }
+        #$r
+        Write-Verbose "Set-MoodleUser moodleID=$moodleid "
         #$r
     }
 }
+
+<#
+.Synopsis
+   Einen Moodle Teilnehmer löschen
+.DESCRIPTION
+   Einen Moodle Teilnehmer löschen
+.EXAMPLE
+   Delete-MoodleUser -moodleid 1234 
+#>
+function Delete-MoodleUser
+{
+    [CmdletBinding()]
+    Param
+    (
+        # Moodle ID des Benutzers
+        [Parameter(Mandatory=$true,
+                   ValueFromPipelineByPropertyName=$true,
+                   Position=0)]
+         [Alias("id")]
+        [int]$moodleid,
+
+        [switch]$whatif
+
+
+    )
+    Begin
+    {
+        if (-not $global:token) {
+            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
+            break;
+        }
+        else {
+            $postParams = @{wstoken=$token;wsfunction='core_user_delete_users';moodlewsrestformat='json'}
+        }
+        $postParams['userids[0]']=$moodleid
+                
+        if (-not $whatif) {
+            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        }
+        Write-Verbose "Delete-MoodleUser moodleID=$moodleid "
+        #$r
+    }
+}
+
+
 <#
 .Synopsis
    Neuen Moodle Kurs anlegen
