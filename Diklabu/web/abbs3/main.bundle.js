@@ -4334,7 +4334,7 @@ var Config = (function () {
 
 Config.debug = false;
 Config.version = "2.0";
-Config.SERVER = "http://localhost:8080/";
+Config.SERVER = "http://:8080/";
 //# sourceMappingURL=Config.js.map
 
 /***/ }),
