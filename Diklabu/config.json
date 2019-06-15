@@ -1,0 +1,33 @@
+{
+    "debug": true,
+    "auth": false,
+    "IMAGE_FILE_PATH": "/home/diklabu/images",
+    "ATEST_FILE_PATH": "/home/diklabu/atest",
+    "TEMPLATE_FILE_PATH": "/home/diklabu/templates",
+    "LOGO_PRINT": "http://localhost:8080/Diklabu/assets/Logo_bitmap.gif",
+    "HEADLINE_PRINT": "BBS3 Hannover",
+    "adminusers": [
+        "TU",
+        "TUTTAS",
+        "KEMMRIES2"
+    ],
+    "verwaltung": [
+        "BU"
+    ],
+    "AUTH_TOKE_TIMEOUT": 432000000,
+    "ldaphost": "ldap://10.0.75.10:389",
+    "binduser": "CN=admin,CN=Users,DC=tuttas,DC=de",
+    "bindpassword": "admin",
+    "context": "OU=mmbbs,DC=tuttas,DC=de",
+    "smtphost": "smtp.uni-hannover.de",
+    "port": "587",
+    "user": "joerg.tuttas@ifbe.uni-hannover.de",
+    "pass": "geheim",
+    "clientConfig": {
+        "DWO": "http://service.joerg-tuttas.de:8082/dwoRest/webresources/",
+        "SERVER": "http://localhost:8080",
+        "WEBSOCKET": "ws://",
+        "TWOFA": false,
+        "DIKLABUNAME": "DiKlaBu@Docker"
+    }
+}
