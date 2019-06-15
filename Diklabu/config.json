@@ -1,7 +1,7 @@
 {
     "debug": true,
     "auth": false,
-    "IMAGE_FILE_PATH": "/home/diklabu/images",
+    "IMAGE_FILE_PATH": "/home/diklabu/images/sbild",
     "ATEST_FILE_PATH": "/home/diklabu/atest",
     "TEMPLATE_FILE_PATH": "/home/diklabu/templates",
     "LOGO_PRINT": "http://localhost:8080/Diklabu/assets/Logo_bitmap.gif",

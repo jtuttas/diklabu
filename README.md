@@ -7,12 +7,12 @@ Das diklabu wird konfiguriert über eine Datei mit dem Namen *config.json*, die 
 {
     "debug": false,
     "auth": true,
-    "IMAGE_FILE_PATH": "/home/diklabu/images",
+    "IMAGE_FILE_PATH": "/home/diklabu/images/name",
     "ATEST_FILE_PATH": "/home/diklabu/atest",
     "TEMPLATE_FILE_PATH": "/home/diklabu/templates",
     "LOGO_PRINT":"http://localhost:8080/Diklabu/assets/Logo_bitmap.gif",
     "HEADLINE_PRINT":"BBS3 Hannover",
-    "adminusers": ["TU","TUTTAS","KEMMRIES2","KirkJa"],
+    "adminusers": ["TU","TUTTAS","KEMMRIES2","KIRK"],
     "verwaltung": ["BU"],
     "AUTH_TOKE_TIMEOUT" : 432000000,
     "ldaphost": "ldap://10.0.75.10:389",
@@ -35,6 +35,7 @@ Das diklabu wird konfiguriert über eine Datei mit dem Namen *config.json*, die 
 Zu den einzelnen Einträgen:
 - *debug*: Schalter um den debug Modus ein oder aus zu schalten.
 - *auth*: Schalter für die Authentifizierung. Ist dieser auf true gesetzt erfolgt die Authentifizierung über LDAP.
+- *IMAGE_FILE_PATH*: Der Pfad ink prefix in dem Bilder gespeichert werden. Im obigen Beispiel also im Pfad /home/diklabu/images/, wobei die Bilder im Format name{id}.jpg abgelegt werden. Im Docker Container ist das Verzeichnis /home/diklabu/images als Volume zu mounten.
 
 
 ## Installations
@@ -42,7 +43,6 @@ Zunächst muss eine leere Datenbank herunter geladen werden (https://github.com/
 
 Die Konfigurationsdatei *config.json* [download](https://raw.githubusercontent.com/jtuttas/diklabu/master/Diklabu/config.json) muss auch in einem Volume gemountet werden (Hier auch in c:/Temp gespeichert).
 
-Es existiert eine Docker Installation des diklabu's.
 ```
 docker pull tuttas/diklabu
 docker run -v c:/Temp:/var/lib/firebird/2.5/data -v c:/Temp:/etc/diklabu -i -t -p 8080:8080 tuttas/diklabu
