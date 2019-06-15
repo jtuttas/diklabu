@@ -188,7 +188,17 @@ function Get-Pupil
             }
             return $r;
         } catch {
-            Write-Error "Get-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+            Login-Diklabu
+            if ($id) {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$id) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+                Write-Verbose "Suche Schüler mit der ID $id"
+            }
+            else {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/bbsplan/"+$bbsplanid) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+                Write-Verbose "Suche Schüler mit der BBS PLan ID $bbsplanid"
+            }
+            return $r;
+            #Write-Error "Get-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -229,6 +239,7 @@ function Get-Pupils
             Write-Verbose "Liste aller Schüler !"
             return $r;
         } catch {
+
             Write-Error "Get-Pupils: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }

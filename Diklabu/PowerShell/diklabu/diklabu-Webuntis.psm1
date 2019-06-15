@@ -1,7 +1,7 @@
-
+﻿
 <#
 .Synopsis
-   Anmelden an Webuntis !
+   Anmelden an Webuntis
 .DESCRIPTION
    Anmelden an Webuntis
 .EXAMPLE
@@ -570,18 +570,6 @@ function Get-UntisCoursemember
                    ValueFromPipelineByPropertyName=$true,
                    Position=0)]
         [int]$id,
-        # NAME
-        [Parameter(Mandatory=$true,
-                   ValueFromPipeline=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        [String[]]$name,
-        # longname
-        [Parameter(Mandatory=$true,
-                   ValueFromPipeline=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-        [String[]]$longname,
         # Date
         [Parameter(Mandatory=$true,
                    Position=1)]
@@ -627,15 +615,14 @@ function Get-UntisCoursemember
                 break;
             }
 
-            $array = $obj.data.result.data.elementPeriods."$id"  
-            $klehrer=  ($obj.data.result.data.elements|Where-Object {$_.type -eq 2}).name
+            $array = $obj.data.result.data.elementPeriods."$id"    
             $matchingLessons=@{}
             foreach ($entry in $array) {
-                Write-Verbose "Date is $($entry.date)"
+                Write-Verbose "Date is $($entry.date) Studen-Group $($entry.studenGroup)"
                 
-                if ($entry.date -eq $dateNumber) {
+                if ($entry.date -eq $dateNumber -and $entry.studentGroup) {
                     
-                    if ($type -eq "subject" -and ($entry.studentGroup -ne $null)) {
+                    if ($type -eq "subject") {
                         
                         $matchingLessons[$($entry.studentGroup)]=$entry                        
                     }
@@ -656,14 +643,14 @@ function Get-UntisCoursemember
             
             
             if ($matchingLessons.Count -eq 0) {
-                Write-Warning "No matching lesson found for ID $id!"
+                Write-Warning "No matching lesson found!"
             }
             else {
                 foreach ($lesson in $matchingLessons.GetEnumerator()) {
                     $lessonID=$lesson.Value.lessonId;
                     $periodID=$lesson.Value.id
                     Write-Verbose "Found LessonID $lessonID and PeriodID $periodID"
-                    $url=$Global:logins.webuntis.location.Substring(0,$Global:logins.webuntis.location.LastIndexOf("/"))        
+                    $url=$Global:logins.webuntis.location.Substring(0,$Global:logins.webuntis.location.LastIndexOf("/"))
                     $url=$url+"/lessonstudentlist.do?lsid="+$lessonID+"&periodId="+$periodID;
                     #$url
 
@@ -681,12 +668,6 @@ function Get-UntisCoursemember
                             $titles = @()
                             $rows = @($table.Rows)
                             $titles += "studentGroup"
-                            $titles += "endTime"
-                            $titles += "date"
-                            $titles += "lessonIDUntis"
-                            $titles += "knameuntis"
-                            $titles += "KTHEMA"
-                            $titles += "KLEHRER"
                             ## Go through all of the rows in the table
                             foreach($row in $rows)
                             {
@@ -716,13 +697,7 @@ function Get-UntisCoursemember
                                     $title = $titles[$counter]
                                     if(-not $title) { continue }
                                     $resultObject[$title] = ("" + $cells[$counter].InnerText).Trim()
-                                    $resultObject["studentGroup"]=$lesson.Name
-                                    $resultObject["endTime"]=[String]$lesson.value.endTime
-                                    $resultObject["date"]=[String]$dateNumber
-                                    $resultObject["lessonIDUntis"]=$lessonid
-                                    $resultObject["knameuntis"]=[String]$name
-                                    $resultObject["KTHEMA"]=[String]$longname
-                                    $resultObject["KLEHRER"]=[String]$klehrer
+                                    $resultObject["stundentGroup"]=$lesson.Name
                                 }
 
                                 ## And finally cast that hashtable to a PSCustomObject

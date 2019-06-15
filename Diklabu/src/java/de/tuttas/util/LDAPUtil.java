@@ -54,10 +54,11 @@ public class LDAPUtil {
     }
 
     public static void main(String[] args) {
+        System.out.println("Starte...");
         LDAPUtil lpd = LDAPUtil.getInstance();
         LDAPUser u;
         try {
-            u = lpd.authenticateJndi("bahrke", "mmbbs");
+            u = lpd.authenticateJndi("Kirk, James", "Test123!");
             Log.d("Habe gefunden " + u);
             Log.d("TWOFA="+Config.getInstance().clientConfig.get("TWOFA"));
         } catch (Exception ex) {
@@ -84,12 +85,13 @@ public class LDAPUtil {
         try {
             context = new InitialDirContext(props);
             ctrls = new SearchControls();
-            ctrls.setReturningAttributes(new String[]{"description", "mail", "sn", "initials", "givenName", "memberOf", "userPrincipalName", "distinguishedName","telephonenumber"});
+            ctrls.setReturningAttributes(new String[]{"description", "mail", "sn", "initials", "givenName", "memberOf", "userPrincipalName", "distinguishedName","telephonenumber","samAccountName"});
             ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            System.out.println("Bind User OK");
         } catch (NamingException ex) {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
-        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(Config.getInstance().userContext, "(cn=" + username + ")", ctrls);
+        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(Config.getInstance().userContext, "(samAccountName=" + username + ")", ctrls);
         Log.d("answers=" + answers);
         Log.d("answers=" + answers.hasMore());
 
@@ -112,19 +114,19 @@ public class LDAPUtil {
         } catch (NamingException e) {
             e.printStackTrace();
         }
-
+        System.out.println("samAccountName="+result.getAttributes().get("samAccountName").getAll().next().toString());
         String inititials = "";
         if (result.getAttributes().get("initials") != null) {
             inititials = result.getAttributes().get("initials").getAll().next().toString();
         }
         LDAPUser u;
         if (result.getAttributes().get("mail") == null) {
-            u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
+            u = new LDAPUser(result.getAttributes().get("samAccountName").getAll().next().toString(),
                     result.getAttributes().get("givenName").getAll().next().toString(),
                     "",
                     inititials);
         } else {
-            u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
+            u = new LDAPUser(result.getAttributes().get("samAccountName").getAll().next().toString(),
                     result.getAttributes().get("givenName").getAll().next().toString(),
                     result.getAttributes().get("mail").getAll().next().toString(),
                     inititials);

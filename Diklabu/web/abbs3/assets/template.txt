@@ -1,0 +1,31 @@
+[[BETRIEB_NAME]]
+[[BETRIEB_STRASSE]] 
+[[BETRIEB_PLZ]] [[BETRIEB_ORT]]
+
+Sehr geehrte(r) [[AUSBILDER_NNAME]],
+
+wir informieren Sie hiermit über die Fehlzeiten Ihres Auszubildenden
+
+[[SCHUELER_NAME]], Klasse [[SCHUELER_KLASSE]].
+
+Schulversäumnisse im Zeitraum vom  [[START_DATUM]] bis  [[END_DATUM]]
+
+Anzahl der Fehltage: [[ANZAHL_FEHLTAGE]]
+Davon entschuldigt: [[DATUM_ENTSCHULDIGT]]  
+Davon unentschuldigt:  [[DATUM_UNENTSCHULDIGT]] 
+
+Bitte gleichen Sie dies mit Ihren Informationen ab und klären Sie ggf. die unentschuldigten Fehltage.
+Entschuldigungen senden Sie bitte zur Dokumentation an die u.a. Faxnummer oder meine E-Mail Adresse.
+
+Mit freundlichen Grüßen
+gez. [[LEHRER_NNAME]]
+([[LEHRER_EMAIL]])
+
+Multi-Media Berufsbildende Schulen Hannover
+Expo Plaza 3
+30539 Hannover
+Telefon: 0511  64 61 98 -11
+Telefax: 0511  866-5081
+
+------------------------------------------
+Generiert und versendet mithilfe des digitalen Klassenbuchs der MMBBS

@@ -32,7 +32,7 @@ function Login-Moodle
         if (-not $url -or -not $credential) {
             if ($Global:logins["moodle"]) {
                 $url=$Global:logins["moodle"].location;
-                $password = $Global:logins["moodle"].password | ConvertTo-SecureString -Key $global:keys
+                $password = $Global:logins["moodle"].password | ConvertTo-SecureString 
                 $credential = New-Object System.Management.Automation.PsCredential($Global:logins["moodle"].user,$password)
             }
             else {
@@ -40,14 +40,14 @@ function Login-Moodle
                 break;
             }
         }
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $null
         $base=$url
         $moodle = $url+"webservice/rest/server.php"
         $data=echo "" | Select-Object -Property "benutzer","kennwort"
         $data.benutzer=$credential.userName
         $data.kennwort=$credential.GetNetworkCredential().Password  
         $kw=[System.Web.HttpUtility]::UrlEncode($($data.kennwort))
-        $url=$url+"login/token.php?username=$($data.benutzer)&service=$service&password=$kw"
-        
+        $url=$url+"login/token.php?username=$($data.benutzer)&service=$service&password=$kw" 
         $r=Invoke-RestMethod -Method GET -Uri $url -ContentType "application/json; charset=iso-8859-1"             
         if ($r) {
             if ($r.token) {
@@ -57,6 +57,7 @@ function Login-Moodle
         }
         Set-Keystore -key "moodle" -server $base -credential $credential
         $r
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
     }
 }
 
@@ -566,8 +567,6 @@ function Get-MoodleUser
     }
 }
 
-
-
 <#
 .Synopsis
    Einen Moodle Teilnehmer neue Attribute zuweisen
@@ -589,31 +588,17 @@ function Set-MoodleUser
         [int]$moodleid,
 
 
-        # username des Benutzers (in Kleinbuchstaben)
+        # username des Benutzers
         [Parameter(Position=1,
                    ValueFromPipelineByPropertyName=$true
                     )]
         [String]$username,
 
-        # Vorname des Benutzers
-        [Parameter(Position=2,
-                   ValueFromPipelineByPropertyName=$true
-                    )]
-        [String]$firstname,
-
-        # Nachname des Benutzers
-        [Parameter(Position=3,
-                   ValueFromPipelineByPropertyName=$true
-                    )]
-        [String]$lastname,
-
         # email des Benutzers
-        [Parameter(Position=4,
+        [Parameter(Position=0,
                    ValueFromPipelineByPropertyName=$true
                     )]
-        [String]$email,
-
-        [switch]$whatif
+        [String]$email
 
     )
     Begin
@@ -625,73 +610,15 @@ function Set-MoodleUser
         else {
             $postParams = @{wstoken=$token;wsfunction='core_user_update_users';moodlewsrestformat='json'}
         }
+        $postParams['users[0][username]']=$username
         $postParams['users[0][id]']=$moodleid
-        if ($username) {
-            $postParams['users[0][username]']=$username
-        }
-        if ($email) {
-            $postParams['users[0][email]']= $email
-        }
-        if ($firstname) {
-            $postParams['users[0][firstname]']= $firstname
-        }
-        if ($lastname) {
-            $postParams['users[0][lastname]']= $lastname
-        }
-                
-        if (-not $whatif) {
-            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-        }
-        #$r
-        Write-Verbose "Set-MoodleUser moodleID=$moodleid "
+        $postParams['users[0][email]']= $email
+        #$postParams
+        $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
+        Write-Verbose "Set-MoodleUser moodleID=$moodleid username=$username"
         #$r
     }
 }
-
-<#
-.Synopsis
-   Einen Moodle Teilnehmer löschen
-.DESCRIPTION
-   Einen Moodle Teilnehmer löschen
-.EXAMPLE
-   Delete-MoodleUser -moodleid 1234 
-#>
-function Delete-MoodleUser
-{
-    [CmdletBinding()]
-    Param
-    (
-        # Moodle ID des Benutzers
-        [Parameter(Mandatory=$true,
-                   ValueFromPipelineByPropertyName=$true,
-                   Position=0)]
-         [Alias("id")]
-        [int]$moodleid,
-
-        [switch]$whatif
-
-
-    )
-    Begin
-    {
-        if (-not $global:token) {
-            write-Error "Sie sind nicht angemeldet, probieren Sie login-moodle!"
-            break;
-        }
-        else {
-            $postParams = @{wstoken=$token;wsfunction='core_user_delete_users';moodlewsrestformat='json'}
-        }
-        $postParams['userids[0]']=$moodleid
-                
-        if (-not $whatif) {
-            $r=Invoke-RestMethod -Method POST -Uri "$($Global:logins["moodle"].location)webservice/rest/server.php" -Body $postParams -ContentType "application/x-www-form-urlencoded"     
-        }
-        Write-Verbose "Delete-MoodleUser moodleID=$moodleid "
-        #$r
-    }
-}
-
-
 <#
 .Synopsis
    Neuen Moodle Kurs anlegen

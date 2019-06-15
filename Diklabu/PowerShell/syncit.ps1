@@ -1,4 +1,7 @@
-﻿Import-Module -Name ImportExcel
+﻿
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Ssl3 -bor [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls12
+Import-Module -Name ImportExcel
 . "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
 . "$PSScriptRoot/sync_lehrer.ps1"
@@ -45,15 +48,22 @@ else {
     try {
         ## Moodle gloable gruppe Sync
         $body+="`r`n`r`nSynchronisiere Moodle Cohorts"
+        Write-Host "Synchronisiere Moodle Cohorts"
         Login-Moodle
         $body+="`r`nLogin Moodle OK"
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $null
         Invoke-WebRequest -Uri $Global:logins["lehrerteams"].location -OutFile "$env:TMP\teams.xlsx"
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
         $obj=Import-Excel "$env:TMP\teams.xlsx"
-        Sync-MoodleTeams -obj $obj -Verbose
+        Write-Host "Lehrer Teams geladen"
+
+
+        #Sync-MoodleTeams -obj $obj -Verbose
         $body+="`r`nSynchronisation erfolgt"
     }
     catch {
-        Write-Error $_.Exception.Message
+        Write-Error "Fehler:"
+        $_.Exception.Message
         $body+=$_.Exception.Message
     }
     try {

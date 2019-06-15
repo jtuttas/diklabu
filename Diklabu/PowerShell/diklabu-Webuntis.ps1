@@ -618,9 +618,9 @@ function Get-UntisCoursemember
             $array = $obj.data.result.data.elementPeriods."$id"    
             $matchingLessons=@{}
             foreach ($entry in $array) {
-                Write-Verbose "Date is $($entry.date)"
+                Write-Verbose "Date is $($entry.date) Studen-Group $($entry.studenGroup)"
                 
-                if ($entry.date -eq $dateNumber) {
+                if ($entry.date -eq $dateNumber -and $entry.studentGroup) {
                     
                     if ($type -eq "subject") {
                         

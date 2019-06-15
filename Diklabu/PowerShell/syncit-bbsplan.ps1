@@ -1,4 +1,6 @@
-﻿$PSScriptRoot
+﻿[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+
+$PSScriptRoot
 [Environment]::Is64BitProcess
 . "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"

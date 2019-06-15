@@ -618,11 +618,12 @@ function Get-BPCoursemember
             return
         }
         
-        
         Write-Verbose "Synchonisiere Betriebe" 
         if ($log) {"== Synchonisiere Betriebe == "};
         $betriebe = Get-BPCompanies
         foreach ($b in $betriebe) {
+            $cred=Login-Diklabu
+            Start-Sleep -Milliseconds 300
             if ($b.BETRIEB_NR -like $null) {
                 Write-Warning "ACHTIUNG Betrieb '$($b.NAME)' hat keine BetriebNr (skipped)" 
                 if ($log) {"ACHTIUNG Betrieb '$($b.NAME)' hat keine BetriebNr (skipped)"}
@@ -671,6 +672,8 @@ function Get-BPCoursemember
         if ($log) {"== Synchonisiere Ausbilder == "};
         $ausbilder = Get-BPInstructors
         foreach ($a in $ausbilder) {
+            $cred=Login-Diklabu
+            Start-Sleep -Milliseconds 300
             if ($a.BETRIEB_NR -like $null) {
                 Write-Warning "  Achtung Ausbilder $($a.NNAME) hat keine BetriebNr!" 
                 if ($log) {"  Achtung Ausbilder $($a.NNAME) hat keine BetriebNr!"  }
@@ -719,6 +722,8 @@ function Get-BPCoursemember
         if ($log) {"== Synchronisiere Lehrer =="}
         $lehrer = Get-BPTeachers
         foreach ($l in $lehrer) {
+            $cred=Login-Diklabu
+            Start-Sleep -Milliseconds 300
             Write-Verbose "Suche Lehrer mit Kürzel $($l.KÜRZEL)"
             $le=Get-Teacher -ID $l.KÜRZEL
             if (!$le) {
@@ -743,11 +748,13 @@ function Get-BPCoursemember
                 }
             }
         }
-        
+
         Write-Verbose "Synchonisiere Klassen" 
         if ($log) {"== Synchonisiere Klassen == "}
         $klassen = Get-BPCourses
         foreach ($k in $klassen) {
+            $cred=Login-Diklabu
+            Start-Sleep -Milliseconds 300
             Write-Verbose "Suche Klasse $($k.KNAME)"
             $kl=Find-Course -KNAME $([String]$k.KNAME).ToUpper()
             $k |Add-Member -MemberType NoteProperty -Name diklabuID -Value -1
@@ -773,12 +780,13 @@ function Get-BPCoursemember
                 }
             }
         }
-       
         
         Write-Verbose "Synchonisiere Schüler" 
         if ($log) {"== Synchonisiere Schüler =="}
         $schueler = Get-BPPupils
         foreach ($s in $schueler) {
+            $cred=Login-Diklabu
+            Start-Sleep -Milliseconds 300
             Write-Verbose "-------------------------";
             $reorg=$false;
             if ($s.BETRIEB_NR -eq 0) {$s.BETRIEB_NR = 99999}
@@ -881,7 +889,8 @@ function Get-BPCoursemember
             }
             else {        
                 #$c   
-                #$s     
+                #$s  
+                #Write-Host ($c | Format-List | Out-String)   
                 Write-Verbose "  Bekannten Schüler gefunden $($c.VNAME) $($c.NNAME) diklabu ID $($c.id) BBS ID = $($c.ID_MMBBS)!" 
                 if ($c.VNAME -ne $s.VNAME -or 
                     $c.NNAME -ne $s.NNAME -or
@@ -938,8 +947,8 @@ function Get-BPCoursemember
                         Write-Warning "Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"
                         if ($log) {"Der Schüler $($s.VNAME) $($s.NNAME) ist in keiner Klasse, trage ein in $($s.KL_NAME)!"}
                         if (-not $whatif) {
-                            $klasse = Find-Course $([String]$s.KL_NAME).ToUpper()
-                            $out=Add-Coursemember -id $c.id -klassenid $klasse.id
+                            $klasse = Find-Course $([String]$s.KL_NAME).ToUpper() -Verbose
+                            $out=Add-Coursemember -id $c.id -klassenid $klasse.id -Verbose
                         }
                     }
                     else {
