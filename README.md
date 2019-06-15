@@ -40,14 +40,14 @@ Zu den einzelnen Einträgen:
 ## Installations
 Zunächst muss eine leere Datenbank herunter geladen werden (https://github.com/jtuttas/diklabu/raw/master/Diklabu/doc/diklabu.GDB) und z.B. gespeichert werden nach **c:\Temp**
 
-Die Konfigurationsdatei *config.json* muss auch in einem Volume gemountet werden (Hier auch in c:/Temp gespeichert).
+Die Konfigurationsdatei *config.json* [download](https://raw.githubusercontent.com/jtuttas/diklabu/master/Diklabu/config.json) muss auch in einem Volume gemountet werden (Hier auch in c:/Temp gespeichert).
 
 Es existiert eine Docker Installation des diklabu's.
 ```
 docker pull tuttas/diklabu
 docker run -v c:/Temp:/var/lib/firebird/2.5/data -v c:/Temp:/etc/diklabu -i -t -p 8080:8080 tuttas/diklabu
 ```
-Dann aufruf der Seite http://localhost:8080/Diklabu/dev2/
+Dann aufruf der Seite http://localhost:8080/Diklabu/dev2/ bzw. http://localhost:8080/Diklabu/abbs3/
 
 ## Screenshots
 ### Anmeldung

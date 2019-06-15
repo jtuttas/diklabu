@@ -11,17 +11,6 @@
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/util/LDAPUser.java</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/Diklabu/Dockerfile</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/conf/MANIFEST.MF</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/config/Config.java</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/util/LDAPUtil.java</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/restful/auth/Authenticator.java</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/setup/sun-resources.xml</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/setup/glassfish-resources.xml</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/servlets/DokuServlet.java</file>
-            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/conf/persistence.xml</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>
