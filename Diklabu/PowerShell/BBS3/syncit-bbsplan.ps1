@@ -2,13 +2,13 @@
 
 $PSScriptRoot
 [Environment]::Is64BitProcess
-. "$PSScriptRoot/LoadModule.ps1"
-. "$PSScriptRoot/send-Mail.ps1"
+#. "$PSScriptRoot/LoadModule.ps1"
+#. "$PSScriptRoot/send-Mail.ps1"
 "Get Keystore"
-Get-Keystore -file C:\Users\Tuttas\keystore.json
+#Get-Keystore -file C:\Users\Tuttas\keystore.json
 #Get-Keystore C:\Users\jtutt_000\diklabu2.conf
-Connect-BbsPlan
-Login-Diklabu
+#Connect-BbsPlan
+#Login-Diklabu
 $body="Das Synchronisationsscript BBS-Planung -> Diklabu gestartet um "+(Get-Date)+"! `r`n";
 <# Bei einem neuen Schuljahr dürfen die Schüler nicht gelöscht werden, um die Bilder zu behalten. Ferner
 kann es sein, dass sich die BBSPLanung ID der Schüler geändert haben, daher werden die Schüler gesucht
@@ -63,13 +63,13 @@ Export-BBSPlanung -mode ONEWAY -log -verbose -newyear
 $report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil -verbose
 $body+="Das Synchronisationsscript BBS-Planung(neu) -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
-$report | Set-Content "$Home/syncreport.txt"
-if (-not $Global:logins["smtp"]) {
-    Write-Error "Keine SMTP Credentials gefunden. Bitte zunächst mit Login-SMTP Verbindung herstellen"
-    break;
-}
-else {
-    send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript BBS-Planung(neu) -> Diklabu durchgelaufen" -body $body -attachment "$Home/syncreport.txt"
+#$report | Set-Content "$Home/syncreport.txt"
+#if (-not $Global:logins["smtp"]) {
+    #Write-Error "Keine SMTP Credentials gefunden. Bitte zunächst mit Login-SMTP Verbindung herstellen"
+    #break;
+#}
+#else {
+    #send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript BBS-Planung(neu) -> Diklabu durchgelaufen" -body $body -attachment "$Home/syncreport.txt"
    # send-mailreport -from tuttas@mmbbs.de -to heinrich@mmbbs.de -subject "Synchronisationsscript BBS-Planung -> Diklabu durchgelaufen" -body $body -attachment "$Home/syncreport.txt"
-}
-sleep 30
+#}
+#sleep 30
