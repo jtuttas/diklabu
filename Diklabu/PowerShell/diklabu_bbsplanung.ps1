@@ -51,7 +51,7 @@ function Connect-BbsPlan
         $global:connection = new-object System.Data.OleDb.OleDbConnection
         try{
  
-            $global:connection.ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$location\schule_XP.mdb; Jet OLEDB:System Database=$location\System.mdw;User ID=$user_ID;Password=$user_password;"
+            $global:connection.ConnectionString="Provider=Microsoft.ACE.OLEDB.12.0;Data Source=$location\s_daten.mdb; Jet OLEDB:System Database=$location\System.mdw;User ID=$user_ID;Password=$user_password;"
             $global:connection.Open()
             Write-Verbose "Okay, db geöffnet"
             $global:connection 
