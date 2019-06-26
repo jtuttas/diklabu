@@ -10,7 +10,7 @@ Anschließend muss die Config in einem Verzeichnis auf dem Docker Server abgeleg
 ### Starten des Containers
 Anschließend ist der Docker Container zu starten über:
 ```
-docker run -v {Pfad zur Ordner mit diklabu.GDB}:/var/lib/firebird/2.5/data -v {Pfad zum Verzeichnis mit config.json}:/etc/diklabu -v {Pfad zum Schülerbilder Verzeichnis}:/home/diklabu/images -i -t -p 8080:8080 tuttas/diklabu
+docker run -d -i -t -v {Pfad zur Ordner mit diklabu.GDB}:/var/lib/firebird/2.5/data -v {Pfad zum Verzeichnis mit config.json}:/etc/diklabu -v {Pfad zum Schülerbilder Verzeichnis}:/home/diklabu/images -p 8080:8080 tuttas/diklabu
 ```
 ## Synchronisation über Powershell
 ### Voraussetzungen
@@ -51,6 +51,6 @@ http://{Server IP}:8080/Diklabu/diklabu/mobile.html
 ```
 ![mobile](mobile.PNG)
 ## Backup
-Zur Sicherung der INstallation muss die Datenbank **diklabu.GDB** und das Schüler-Bilderverzeichnis regelmäßig gesichrt werden!
+Zur Sicherung der Installation muss die Datenbank **diklabu.GDB** und das Schüler-Bilderverzeichnis regelmäßig gesichert werden!
 
 

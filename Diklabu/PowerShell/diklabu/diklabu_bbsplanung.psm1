@@ -179,6 +179,53 @@ function Test-BPCoursemember
 
 <#
 .Synopsis
+   Liest den Pfad zu den Schülerbilder aus BBS Planung aus
+.DESCRIPTION
+   Liest den Pfad zu den Schülerbilder aus BBS Planung aus
+.EXAMPLE
+   Get-BPPupilImages
+#>
+function Get-BPPupilImages
+{
+    [CmdletBinding()]
+    Param
+    (
+    )
+
+    Begin
+    {
+        if ($global:connection) {
+            if ($global:connection.State -eq "Open") {
+                $command = $global:connection.CreateCommand()
+	            $command.CommandText = "Select * From PASSBILD_BILDER"
+                Write-Verbose "Lese Datenbank PASSBILD_BILDER ein!" 
+
+                $dataset = New-Object System.Data.DataSet
+	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                $out=$adapter.Fill($dataset)
+                $schueler=@();
+                foreach ($item in $dataset.Tables[0]) {
+                #$item
+                    $sch="" | Select-Object -Property "BBSID","KL_NAME","BILDPFAD"
+                    $sch.BBSID=$item.id;
+                    $sch.KL_NAME=$item.KL_NAME;
+                    $sch.BILDPFAD=$item.BILDPFAD;
+                    $schueler+=$sch;    
+                } 
+                return $schueler
+            }
+            else {
+                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+            }
+        }
+        else {
+            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+        }
+    }
+}
+
+<#
+.Synopsis
    Liest die Schüler aus BBS Planung aus
 .DESCRIPTION
    Liest die Schüler aus BBS Planung aus

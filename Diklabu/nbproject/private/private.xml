@@ -12,6 +12,9 @@
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/config/Config.java</file>
+            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/servlets/MailServlet.java</file>
+            <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/servlets/MailSender.java</file>
             <file>file:/C:/Users/jtutt/Documents/NetBeansProjects/diklabu/Diklabu/src/java/de/tuttas/restful/SchuelerManager.java</file>
         </group>
     </open-files>

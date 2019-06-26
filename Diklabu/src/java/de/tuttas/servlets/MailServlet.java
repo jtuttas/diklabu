@@ -141,7 +141,7 @@ public class MailServlet extends HttpServlet {
                         mo.addCC(cc.split(";"));
                     }
                     System.out.println("Mail to send:" + mo.toString());
-                    mailSender.sendMail(mo);
+                    mailSender.sendMail(mo); 
                     result.setSuccess(true);
                     result.setMsg("EMail erfolgreich versandt");
                     if (report == null || (report != null && report.compareTo("false") != 0)) {
@@ -243,7 +243,7 @@ public class MailServlet extends HttpServlet {
             // Dokument erzeugen
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
-            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            String url = Config.getInstance().LOGO_PRINT;
             Image image;
             try {
                 image = Image.getInstance(url);
