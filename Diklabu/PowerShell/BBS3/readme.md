@@ -5,7 +5,9 @@ Zunächst muss eine leere Datenbank geladen werden, z.B. über
 ```
 wget https://github.com/jtuttas/diklabu/raw/master/Diklabu/doc/diklabu.GDB
 ```
-Anschließend muss die Config in einem Verzeichnis auf dem Docker Server abgelegt werden.
+Anschließend muss die [config.json](https://raw.githubusercontent.com/jtuttas/diklabu/master/Diklabu/config.json) in einem Verzeichnis auf dem Docker Server abgelegt werden.
+
+Ferner muss im gleichen Verzeichnis wie die config.json auch die Datei [template.txt](https://raw.githubusercontent.com/jtuttas/diklabu/master/Diklabu/web/template.txt) abgelegt werden, die das Anschreiben für die Krankmeldungen enthält.
 
 ### Starten des Containers
 Anschließend ist der Docker Container zu starten über:
