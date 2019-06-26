@@ -1,4 +1,4 @@
-﻿Write-Host "Die Verbindung zu BBS PLanung muss via Connect-BBSPlan hergestellt sein! Die Verbindung zum diklabu muss via Login-Diklabu hergestellt sein"
+﻿Write-Host "Die Verbindung zu BBS Planung muss via Connect-BBSPlan hergestellt sein! Die Verbindung zum diklabu muss via Login-Diklabu hergestellt sein!"
 if(($dest = Read-Host "Pfad zum diklabu Bilderverzeichnis [$home]") -eq ''){$dest=$home}
 if(($prefix = Read-Host "Prefix der Bilder (wie im Config.JSON angegeben) [bild]") -eq ''){$prefix="bild"}
 $src=Get-BPPupilImages

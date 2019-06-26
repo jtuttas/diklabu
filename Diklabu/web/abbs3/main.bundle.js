@@ -1242,7 +1242,7 @@ var FehlzeitenComponent = (function () {
         var _this = this;
         console.log("Send Bericht!");
         var p = __WEBPACK_IMPORTED_MODULE_13__CourseSelectComponent__["a" /* CourseSelectComponent */].getPupil(a.id_Schueler);
-        this.mailDialog.mailService.getTemplate("assets/template.txt", window.location.origin).subscribe(function (data) {
+        this.mailDialog.mailService.getTemplate("template.txt", window.location.origin).subscribe(function (data) {
             var template = data;
             _this.anwesenheitsService.fillFehlzeitenbericht(template, a, function (content, recipient) {
                 console.log("Bericht =" + content);
@@ -2404,7 +2404,7 @@ var MenuComponent = (function () {
                 { label: 'Fehlzeiten', icon: 'fa-hotel', command: function (event2) { return _this.showFehlzeiten(event2); } },
                 { label: 'Klasse/Betriebe', icon: 'fa-info-circle', command: function (event2) { return _this.showBetriebe(event2); } },
                 // {label: 'Noten', icon: 'fa-graduation-cap', command: event2 => this.showGrades(event2)},
-                { label: 'Portfolio', icon: 'fa-certificate', command: function (event2) { return _this.showPortfolio(event2); } },
+                // {label: 'Portfolio', icon: 'fa-certificate', command: event2 => this.showPortfolio(event2)},
                 {
                     label: 'Verwaltung', icon: 'fa-eye',
                     items: [
@@ -3410,7 +3410,8 @@ var _a, _b, _c, _d, _e;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_primeng_components_common_messageservice__ = __webpack_require__("../../../../primeng/components/common/messageservice.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_primeng_components_common_messageservice___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_primeng_components_common_messageservice__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_PupilDetailService__ = __webpack_require__("../../../../../src/app/services/PupilDetailService.ts");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__data_Config__ = __webpack_require__("../../../../../src/app/data/Config.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__CourseBookComponent__ = __webpack_require__("../../../../../src/app/CourseBookComponent.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__data_Config__ = __webpack_require__("../../../../../src/app/data/Config.ts");
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -3424,19 +3425,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var PupilImageComponent = (function () {
     function PupilImageComponent(pupilDetailService, messageService) {
         this.pupilDetailService = pupilDetailService;
         this.messageService = messageService;
         this.imgSrc = "../assets/anonym.gif";
-        this.uploadUrl = __WEBPACK_IMPORTED_MODULE_3__data_Config__["a" /* Config */].SERVER + "/Diklabu/api/v1/schueler/bild/";
+        this.uploadUrl = __WEBPACK_IMPORTED_MODULE_4__data_Config__["a" /* Config */].SERVER + "Diklabu/api/v1/schueler/bild/";
     }
     PupilImageComponent.prototype.getImage = function (p) {
         var _this = this;
         this.currentPupil = p;
         this.imgSrc = "../assets/anonym.gif";
         if (p.id) {
-            this.uploadUrl = __WEBPACK_IMPORTED_MODULE_3__data_Config__["a" /* Config */].SERVER + "/Diklabu/api/v1/schueler/bild/" + p.id;
+            this.uploadUrl = __WEBPACK_IMPORTED_MODULE_4__data_Config__["a" /* Config */].SERVER + "Diklabu/api/v1/schueler/bild/" + p.id;
             this.pupilDetailService.getPupilImage(p.id).subscribe(function (data) {
                 if (data) {
                     console.log("Bild vorhanden");
@@ -3450,6 +3452,10 @@ var PupilImageComponent = (function () {
                 _this.messageService.add({ severity: 'error', summary: 'Fehler', detail: err });
             });
         }
+    };
+    PupilImageComponent.prototype.onBeforeSend = function (event) {
+        console.log("On BeforeSend!");
+        event.xhr.setRequestHeader("auth_token", "" + __WEBPACK_IMPORTED_MODULE_3__CourseBookComponent__["a" /* CourseBookComponent */].courseBook.auth_token);
     };
     PupilImageComponent.prototype.onBasicUpload = function (e) {
         console.log("onBaiscUpload:" + JSON.stringify(e));
@@ -3466,7 +3472,7 @@ PupilImageComponent = __decorate([
                 '}'],
         template: ' <img width="200" alt="Pupil Image" [src]="imgSrc">' +
             '<div id="adapt">' +
-            '<p-fileUpload  name="file"  mode="basic" accept="image/*" (onUpload)="onBasicUpload($event)" [url]="uploadUrl"></p-fileUpload>' +
+            '<p-fileUpload  name="file"  mode="basic" accept="image/*" (onBeforeSend)="onBeforeSend($event)" (onUpload)="onBasicUpload($event)" [url]="uploadUrl"></p-fileUpload>' +
             '</div>',
     }),
     __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2__services_PupilDetailService__["a" /* PupilDetailService */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__services_PupilDetailService__["a" /* PupilDetailService */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_1_primeng_components_common_messageservice__["MessageService"] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1_primeng_components_common_messageservice__["MessageService"]) === "function" && _b || Object])
@@ -4333,7 +4339,7 @@ var Config = (function () {
 }());
 
 Config.debug = false;
-Config.version = "2.0";
+Config.version = "2.1";
 Config.SERVER = "http://" + window.location.hostname + ":8080/";
 //# sourceMappingURL=Config.js.map
 
@@ -5564,7 +5570,7 @@ var MailService = (function () {
             .catch(this.handleError);
     };
     MailService.prototype.getTemplate = function (s, url) {
-        url = url + "/" + s; // URL to web API
+        url = s; // URL to web API
         return this.http.get(url)
             .map(function (res) { return res.text(); })
             .catch(this.handleError);
