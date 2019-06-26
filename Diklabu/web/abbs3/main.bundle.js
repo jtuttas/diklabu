@@ -4339,7 +4339,7 @@ var Config = (function () {
 }());
 
 Config.debug = false;
-Config.version = "2.1";
+Config.version = "2.11";
 Config.SERVER = "http://" + window.location.hostname + ":8080/";
 //# sourceMappingURL=Config.js.map
 
@@ -5570,7 +5570,7 @@ var MailService = (function () {
             .catch(this.handleError);
     };
     MailService.prototype.getTemplate = function (s, url) {
-        url = s; // URL to web API
+        url = __WEBPACK_IMPORTED_MODULE_6__data_Config__["a" /* Config */].SERVER + s; // URL to web API
         return this.http.get(url)
             .map(function (res) { return res.text(); })
             .catch(this.handleError);
