@@ -75,7 +75,7 @@ RUN apt-get -qq -y install wget unzip && \
 # diklabu installieren
 
 RUN  mkdir /home/diklabu && \
-        echo "klone diklabu............" && \
+        echo "klone diklabu............." && \
         cd /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \        

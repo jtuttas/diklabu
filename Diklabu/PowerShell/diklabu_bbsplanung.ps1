@@ -296,6 +296,91 @@ function Get-BPPupils
 
 <#
 .Synopsis
+   Liest einen Schüler aus BBS Planung aus
+.DESCRIPTION
+   Liest einen Schüler aus BBS Planung aus
+.EXAMPLE
+   Get-BPPupil -id 16505
+.EXAMPLE
+   Get-BPPupil -NR_SCHÜLER 1
+#>
+function Get-BPPupil
+{
+    [CmdletBinding()]
+    Param
+    (
+        # ID des Schülers
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0,ParameterSetName = "Set 1")]
+        [int]$id,
+
+        # BBS-PLan ID des Schülers
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,Position=0,ParameterSetName = "Set 2")]
+         [alias("ID_MMBBS")]
+        [int]$NR_SCHÜLER
+    )
+
+    Begin
+    {
+        if ($global:connection) {
+            if ($global:connection.State -eq "Open") {
+                $command = $global:connection.CreateCommand()
+                if ($id) {
+	                $command.CommandText = "Select * From SIL where id=$id"
+                }
+                elseif ($NR_SCHÜLER) {
+                   $command.CommandText = "Select * From SIL where NR_SCHÜLER=$NR_SCHÜLER"
+                }
+                Write-Verbose "Lese Datenbank SIL (Schülerdaten) ein!" 
+
+                $dataset = New-Object System.Data.DataSet
+	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                $out=$adapter.Fill($dataset)
+                $schueler=@();
+                foreach ($item in $dataset.Tables[0]) {
+                #$item
+                    $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER","E_ANREDE","E_NNAME","E_VNAME","E_STR","E_PLZ","E_ORT","E_TEL","E_FAX","E_EMAIL"
+                    $sch.BBSID=$item.NR_SCHÜLER;
+                    $sch.NNAME=$item.NNAME;
+                    $sch.VNAME=$item.VNAME;
+                    if ((""+$item.GEBDAT).Length -gt 0) {
+                        [datetime]$sch.GEBDAT=$item.GEBDAT
+                    }
+                    $sch.GEBORT=$item.GEBORT
+                    $sch.STR=$item.STR
+                    $sch.PLZ=$item.PLZ
+                    $sch.ORT=$item.ORT
+                    $sch.TEL=$item.TEL
+                    $sch.TEL_HANDY=$item.TEL_HANDY
+                    $sch.EMAIL=$item.EMAIL
+                    $sch.GESCHLECHT=$item.GESCHLECHT
+                    $sch.KL_NAME=$item.KL_NAME
+                    $sch.BETRIEB_NR=$item.BETRIEB_NR                    
+                    $sch.E_ANREDE=$item.E_ANREDE
+                    $sch.E_NNAME=$item.E_NNAME
+                    $sch.E_VNAME=$item.E_VNAME
+                    $sch.E_STR=$item.E_STR
+                    $sch.E_PLZ=$item.E_PLZ
+                    $sch.E_ORT=$item.E_ORT
+                    $sch.E_TEL=$item.E_TEL
+                    $sch.E_FAX=$item.E_FAX
+                    $sch.E_EMAIL=$item.E_EMAIL
+                    $schueler+=$sch;    
+                } 
+                Write-Verbose "Insgesammt $($schueler.Length) Schüler eingelesen!"
+                return $schueler
+            }
+            else {
+                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+            }
+        }
+        else {
+            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+        }
+    }
+}
+
+<#
+.Synopsis
    Liest die Betriebe aus BBS Planung aus
 .DESCRIPTION
    Liest die Betriebe aus BBS Planung aus
