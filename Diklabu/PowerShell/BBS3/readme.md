@@ -20,7 +20,7 @@ Das Ausführen von Powershell Skripten muss erlaubt werden (als Administrator)
 ```
 Set-Executionpolicy RemoteSigned
 ```
-Das diklabu Powershell Modul muss installiert sein, entweder über die Powershell Galery als Admin über:
+Das diklabu Powershell Modul muss installiert sein, entweder über die Powershell Gallery als Admin über:
 ```
 Install-Module -Name diklabu
 ```
