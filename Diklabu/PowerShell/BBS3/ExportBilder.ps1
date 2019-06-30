@@ -9,14 +9,20 @@ $src | ForEach-Object {
         Write-Warning "SRC Bild $($_.BILDPFAD) nicht gefunden"
     }
     else {
-        $p=Get-Pupil -bbsplanid $bp.BBSID
-        if (-not $p) {
-            Write-Warning "Keinen Schüler mit BBSID=$($_.BBSID) im diklabu gefunden!"
+        $i=Get-Item $_.BILDPFAD
+        if ($i.Length -eq 0) {
+            Write-Warning "Skipped, file size is 0"
         }
         else {
-            $name=$prefix+$p.id+".jpg"
-            Write-Host "Schreibe Bild $name in $dest"
-            Copy-Item -Path $_.BILDPFAD -Destination "$dest/$name"
+            $p=Get-Pupil -bbsplanid $bp.BBSID
+            if (-not $p) {
+                Write-Warning "Keinen Schüler mit BBSID=$($_.BBSID) im diklabu gefunden!"
+            }
+            else {
+                $name=$prefix+$p.id+".jpg"
+                Write-Host "Schreibe Bild $name in $dest"
+                Copy-Item -Path $_.BILDPFAD -Destination "$dest/$name"
+            }
         }
     }
 }
