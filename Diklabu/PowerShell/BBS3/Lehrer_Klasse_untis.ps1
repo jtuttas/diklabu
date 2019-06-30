@@ -1,4 +1,9 @@
-﻿$datei = Read-Host "Pfad zur CSV Datei" 
+﻿$datei = Read-Host "Pfad zur Export Datei" 
+$head='"Klasse","a1","a2","a3","k","a4","a5","a6","a7","a8","a9","a10","a11","a12","a13","a14","a15","a16","a17","a18","a19","a20","a21","a22","a23","a24","a25","a26","a27","Lehrer","a28","a29",'
+Write-Warning "Ergänze HEAD Zeile"
+$ftext = get-content $datei
+$head|out-file -filepath $datei 
+$ftext|out-file -filepath $datei -Append 
 $data = Import-Csv $datei 
 $obj = @{}
 $data | ForEach-Object {
