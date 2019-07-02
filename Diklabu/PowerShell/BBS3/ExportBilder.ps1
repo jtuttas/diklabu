@@ -1,5 +1,5 @@
 ﻿Write-Host "Die Verbindung zu BBS Planung muss via Connect-BBSPlan hergestellt sein! Die Verbindung zum diklabu muss via Login-Diklabu hergestellt sein!"
-Write-Host "Ferner muss das Powershell Module Resize-Image installiert sein (via Powershell Galery über Install-Module -Name ResizeImageModule"
+#Write-Host "Ferner muss das Powershell Module Resize-Image installiert sein (via Powershell Galery über Install-Module -Name ResizeImageModule"
 if(($dest = Read-Host "Pfad zum diklabu Bilderverzeichnis [$home]") -eq ''){$dest=$home}
 if(($prefix = Read-Host "Prefix der Bilder (wie im Config.JSON angegeben) [bild]") -eq ''){$prefix="bild"}
 $src=Get-BPPupilImages
@@ -22,8 +22,8 @@ $src | ForEach-Object {
             else {
                 $name=$prefix+$p.id+".jpg"
                 Write-Host "Schreibe Bild $name in $dest"
-                #Copy-Item -Path $_.BILDPFAD -Destination "$dest/$name"
-                Resize-Image -InputFile $_.BILDPFAD -OutputFile "$dest/$name" -Width 200 -Height 200 -ProportionalResize $true
+                Copy-Item -Path $_.BILDPFAD -Destination "$dest/$name"
+                #Resize-Image -InputFile $_.BILDPFAD -OutputFile "$dest/$name" -Width 200 -Height 200 -ProportionalResize $true
             }
         }
     }
