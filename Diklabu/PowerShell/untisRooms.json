@@ -1,0 +1,617 @@
+[
+    {
+        "id":  1,
+        "name":  "1.01",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  2,
+        "name":  "1.02",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  2,
+        "building":  ""
+    },
+    {
+        "id":  3,
+        "name":  "1.06",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  4,
+        "name":  "1.08",
+        "longName":  "Fotostudio",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  5,
+        "name":  "1.09",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  6,
+        "name":  "1.11",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  7,
+        "name":  "1.12",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  8,
+        "name":  "1.13",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  2,
+        "building":  ""
+    },
+    {
+        "id":  9,
+        "name":  "1.14",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  10,
+        "name":  "1.15",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  11,
+        "name":  "2.01",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  12,
+        "name":  "2.02",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  2,
+        "building":  ""
+    },
+    {
+        "id":  13,
+        "name":  "2.03",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  14,
+        "name":  "2.06",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  15,
+        "name":  "2.10",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  16,
+        "name":  "2.11",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  17,
+        "name":  "2.13",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  18,
+        "name":  "2.16",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  19,
+        "name":  "2.18",
+        "longName":  "IT-BLZ / Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  20,
+        "name":  "2.19",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  21,
+        "name":  "3.01",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  22,
+        "name":  "3.02",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  23,
+        "name":  "3.04",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  24,
+        "name":  "3.06",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  25,
+        "name":  "3.08",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  26,
+        "name":  "3.09",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  27,
+        "name":  "3.10",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  28,
+        "name":  "3.11",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  29,
+        "name":  "3.12",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  30,
+        "name":  "3.16",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  31,
+        "name":  "3.17",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  32,
+        "name":  "3.18",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  33,
+        "name":  "E.03",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  34,
+        "name":  "E.04",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  35,
+        "name":  "E.05",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  36,
+        "name":  "E.07",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  37,
+        "name":  "E.09",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  38,
+        "name":  "E.16",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  2,
+        "building":  ""
+    },
+    {
+        "id":  39,
+        "name":  "E.17",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  80,
+        "name":  "Foyer",
+        "longName":  "Foyer",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  40,
+        "name":  "G.01",
+        "longName":  "imaginärer Raum GTA / IMC 1",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  41,
+        "name":  "G.02",
+        "longName":  "imaginärer Raum GTA / IMC 2",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  42,
+        "name":  "G.03",
+        "longName":  "imaginärer Raum GTA / IMC 3",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  81,
+        "name":  "Gänge",
+        "longName":  "Gangsystem der Schule",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  79,
+        "name":  "Hof",
+        "longName":  "EXPO Plaza",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  43,
+        "name":  "ORIA",
+        "longName":  "Ort und Raum in Absprache mit SuS",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  44,
+        "name":  "Planet",
+        "longName":  "Raum im Planet",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  45,
+        "name":  "SPFA",
+        "longName":  "Sport Fitness-Studio Atrium",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  46,
+        "name":  "SPMM",
+        "longName":  "Sport MM BbS",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  47,
+        "name":  "SPSlz1",
+        "longName":  "Sport SLZ 1",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  48,
+        "name":  "SPSlz2",
+        "longName":  "Sport SLZ 2",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  49,
+        "name":  "SPSP",
+        "longName":  "Sport Soccer Park",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  50,
+        "name":  "T1",
+        "longName":  "temporärer Raum 1",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  51,
+        "name":  "T2",
+        "longName":  "temporärer Raum 2",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  52,
+        "name":  "T3",
+        "longName":  "temporärer Raum 3",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  53,
+        "name":  "T4",
+        "longName":  "temporärer Raum 4",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  54,
+        "name":  "T5",
+        "longName":  "temporärer Raum 5",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  55,
+        "name":  "T6",
+        "longName":  "temporärer Raum 6",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  56,
+        "name":  "T7",
+        "longName":  "temporärer Raum 7",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  57,
+        "name":  "T8",
+        "longName":  "temporärer Raum 8",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  58,
+        "name":  "T9",
+        "longName":  "temporärer Raum 9",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  59,
+        "name":  "U.01",
+        "longName":  "Digitaldruck",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  60,
+        "name":  "U.02",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  61,
+        "name":  "U.08",
+        "longName":  "Unterrichtsraum",
+        "active":  true,
+        "did":  2,
+        "building":  ""
+    },
+    {
+        "id":  62,
+        "name":  "U.10",
+        "longName":  "Elektrolabor",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  63,
+        "name":  "U.12",
+        "longName":  "AVID-Schnittraum",
+        "active":  true,
+        "did":  3,
+        "building":  ""
+    },
+    {
+        "id":  64,
+        "name":  "U.16",
+        "longName":  "Fernsehstudio",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  65,
+        "name":  "U.17",
+        "longName":  "Postpro Edit 3",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  66,
+        "name":  "U.18",
+        "longName":  "Edit 4",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  67,
+        "name":  "U.19",
+        "longName":  "Regie",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  68,
+        "name":  "U.22",
+        "longName":  "Besprechungsraum Studio",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  69,
+        "name":  "U.23",
+        "longName":  "Postproduktion Edit 1",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  70,
+        "name":  "U.24",
+        "longName":  "Edit 2",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  71,
+        "name":  "UD.01",
+        "longName":  "Medien BLZ / Unterrichtsraum",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  72,
+        "name":  "UD.02",
+        "longName":  "Seminarraum",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  73,
+        "name":  "VZ",
+        "longName":  "Veranstaltungszentrum",
+        "active":  true,
+        "did":  1,
+        "building":  ""
+    },
+    {
+        "id":  74,
+        "name":  "X.01",
+        "longName":  "imaginärer Raum 1",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  75,
+        "name":  "X.02",
+        "longName":  "imaginärer Raum 2",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  76,
+        "name":  "X.03",
+        "longName":  "imaginärer Raum 3",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  77,
+        "name":  "X.04",
+        "longName":  "imaginärer Raum 4",
+        "active":  true,
+        "building":  ""
+    },
+    {
+        "id":  78,
+        "name":  "X.05",
+        "longName":  "imaginärer Raum 5",
+        "active":  true,
+        "building":  ""
+    }
+]

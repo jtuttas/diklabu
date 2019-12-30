@@ -64,7 +64,7 @@ public class Config {
     /**
      * Version Nummer
      */
-    public final static String VERSION = "V 2.41";
+    public final static String VERSION = "V 2.51";
 
     /**
      * JSON Objekt für die Client Seite
@@ -97,6 +97,9 @@ public class Config {
             auth = (boolean) jo.get("auth");
             IMAGE_FILE_PATH = (String) jo.get("IMAGE_FILE_PATH");
             ATEST_FILE_PATH = (String) jo.get("ATEST_FILE_PATH");
+            LOGO_PRINT=(String)jo.get("LOGO_PRINT");
+            
+            HEADLINE_PRINT=(String)jo.get("HEADLINE_PRINT");
             TEMPLATE_FILE_PATH = (String) jo.get("TEMPLATE_FILE_PATH");
             Log.d("IMage_File_Path=" + IMAGE_FILE_PATH);
             JSONArray ja = (JSONArray) jo.get("adminusers");
@@ -203,6 +206,9 @@ public class Config {
      */
     public static boolean debug = true;
 
+    
+    public String LOGO_PRINT = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+    public String HEADLINE_PRINT = "Multi Media Berufsbildende Schulen Hannover";
     /**
      * Pfad an dem die Bilder gespeichert werden
      */

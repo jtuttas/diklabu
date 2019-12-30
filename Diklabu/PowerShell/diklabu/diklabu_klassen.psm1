@@ -56,7 +56,11 @@ function Find-Course
             Write-Verbose "Finde Klasse mit Namen ($KNAME): Ergebnis:$r"
             return $r;
         } catch {
-            Write-Error "Find-Course: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+            Write-Warning "Find-Course: Fehler"
+            $log=Login-Diklabu
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/info/"+$KNAME) -Headers $headers  
+            Write-Verbose "Finde Klasse mit Namen ($KNAME): Ergebnis:$r"
+            return $r;
         }
     }    
 }

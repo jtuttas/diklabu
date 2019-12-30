@@ -1,34 +1,12 @@
 # BUILD Example
 # docker build Diklabu -t "diklabu:neu"
 # START Example
-# docker run -v c:/Temp/diklabudb:/var/lib/firebird/2.5/data -i -t -p 8080:8080 -p 3051:3050 -p 222:22  diklabu:neu
+# docker run -v d:/Temp:/var/lib/firebird/2.5/data -v d:/Temp:/etc/diklabu -i -t -p 8080:8080 -p 3051:3050 -p 222:22  diklabu
 
 FROM ubuntu:16.04
 MAINTAINER Joerg Tuttas <tuttas@mmbbs.de>
 ENV DEBIAN_FRONTEND noninteractive
 
-ENV debug true
-ENV auth false
-ENV adminusers [\"TU\",\"TUTTAS\",\"KEMMRIES\"]
-ENV verwaltung [\"BÜ\"]
-ENV AUTH_TOKE_TIMEOUT 432000000
-
-ENV SMTP_HOST smtp.uni-hannover.de
-ENV SMTP_PORT 587
-ENV SMTP_USER joerg.tuttas@ifbe.uni-hannover.de
-ENV SMTP_PASSWORD geheim
-ENV LDAP_SERVER ldap://10.0.75.10:389
-ENV LDAP_USER CN=admin,CN=Users,DC=tuttas,DC=de
-ENV LDAP_PASSWORD admin
-ENV LDAP_CONTEXT OU=mmbbs,DC=tuttas,DC=de
-
-ENV DWO http://service.joerg-tuttas.de:8082/dwoRest/webresources/
-ENV SERVER http://localhost:8080        
-ENV WEBSOCKET ws://
-ENV DIKLABUNAME DiKlaBu@Docker
-ENV FIREBIRD_GDB_FILENAME diklabu.GDB
-ENV TWOFA false
-    
 
 #Install firebird
 RUN apt-get update && \
@@ -40,6 +18,9 @@ RUN apt-get update && \
 
 # forward logs to docker log collector
 #RUN ln -sf /dev/stdout /var/log/firebird/firebird2.5.log
+
+RUN mkdir /etc/diklabu
+VOLUME /etc/diklabu
 
 #install Utils
 RUN apt-get -qq update && \
@@ -94,6 +75,7 @@ RUN apt-get -qq -y install wget unzip && \
 # diklabu installieren
 
 RUN  mkdir /home/diklabu && \
+        echo "klone diklabu............." && \
         cd /home/diklabu && \
         mkdir temp && \
         git clone https://github.com/jtuttas/diklabu.git && \        
@@ -101,35 +83,11 @@ RUN  mkdir /home/diklabu && \
         mkdir /home/diklabu/atest && \
         mkdir /home/diklabu/images && \
         mkdir /home/diklabu/templates && \
-        echo "{" > /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"debug\": $debug, " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"auth\": $auth, " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"IMAGE_FILE_PATH\": \"/home/diklabu/images\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"ATEST_FILE_PATH\": \"/home/diklabu/atest\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"TEMPLATE_FILE_PATH\": \"/home/diklabu/templates\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"adminusers\": $adminusers, " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"verwaltung\": $verwaltung, " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"AUTH_TOKE_TIMEOUT\" : $AUTH_TOKE_TIMEOUT, " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"ldaphost\": \"$LDAP_SERVER\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"binduser\": \"$LDAP_USER\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"bindpassword\":\"$LDAP_PASSWORD\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"context\": \"$LDAP_CONTEXT\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"smtphost\": \"$SMTP_HOST\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"port\": \"$SMTP_PORT\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"user\": \"$SMTP_USER\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"pass\": \"$SMTP_PASSWORD\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "\"clientConfig\" : { " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "	  \"DWO\": \"$DWO\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "    \"SERVER\": \"$SERVER\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "    \"WEBSOCKET\": \"$WEBSOCKET\", " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "    \"TWOFA\": $TWOFA, " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "    \"DIKLABUNAME\":\"$DIKLABUNAME\" " >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
-        echo "}"  >> /glassfish4/glassfish/domains/domain1/config.json && \
+        ln -s /etc/diklabu/config.json /glassfish4/glassfish/domains/domain1/config.json && \
         chmod +xxx diklabu/Diklabu/Diklabu/start.sh && \        
         cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
         asadmin --user=admin start-domain && \
-        /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/$FIREBIRD_GDB_FILENAME:ServerName=localhost:port=3050:encoding=ISO8859_1:characterEncoding=ISO8859_1:characterSetResults=ISO8859_1 connectionPoolKlassenbuch && \
+        /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050:encoding=ISO8859_1:characterEncoding=ISO8859_1:characterSetResults=ISO8859_1 connectionPoolKlassenbuch && \
         /glassfish4/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/glassfishpwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \
         asadmin --user=admin stop-domain 
 

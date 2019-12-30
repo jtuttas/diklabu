@@ -125,7 +125,7 @@ function Search-Pupil
             Write-Verbose "Suche Schüler (Suchmuster: $VNAMENNAMEGEBDAT ) mit Levensheindistanz $LDist : Ergebnis: $r"
             return $r;
         } catch {
-            Write-Error "Search-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
+            Write-Warning "Search-Pupil: Fehler beim Suchen des Schülers"
         }
     }
 }
@@ -174,6 +174,7 @@ function Get-Pupil
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     }
     Process
     {
@@ -188,7 +189,19 @@ function Get-Pupil
             }
             return $r;
         } catch {
-            Write-Error "Get-Pupil: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+            Write-Host ($_ | Format-List | Out-String)
+            Write-Warning "Get-Pupil: FEHLER beim Suchen des Schülers"
+            $log=Login-Diklabu
+            if ($id) {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/"+$id) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+                Write-Verbose "Suche Schüler mit der ID $id"
+            }
+            else {
+                $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/bbsplan/"+$bbsplanid) -Headers $headers -ContentType "application/json; charset=iso-8859-1"     
+                Write-Verbose "Suche Schüler mit der BBS PLan ID $bbsplanid"
+            }
+            Write-Host ($r | Format-List | Out-String)
+            return $r;
         }
     }
 }

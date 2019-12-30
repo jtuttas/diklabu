@@ -272,7 +272,17 @@ function Remove-Coursemember
               Write-Verbose "Entferne Schüler mit der ID $id aus der Klasse mit der ID $klassenid"
               return $r;
            } catch {
-              Write-Error "Remove-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
+              try {
+              Login-Diklabu
+              if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/verwaltung/"+$id+"/"+$klassenid) -Headers $headers 
+              }
+              Write-Verbose "Entferne Schüler mit der ID $id aus der Klasse mit der ID $klassenid"
+              return $r;
+              }
+              catch {
+                Write-Error "Remove-Coursemember failed!"
+              }
         }
     }
     End

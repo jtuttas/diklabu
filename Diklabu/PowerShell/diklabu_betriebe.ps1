@@ -188,7 +188,7 @@ function Get-Company
             Write-Verbose "Finde Betrieb mit der ID $ID . Ergebnis: $r"
             return $r;
         } catch {
-            Write-Error "Get-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+            Write-Warning "Get-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -323,7 +323,7 @@ function New-Company
           Write-Verbose "Lege neuen Betrieb an mit den Daten $betrieb"
           return $r;
         } catch {
-            Write-Error "New-Company: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+            Write-Warning "New-Company: Fehler beim Anlegen"
         }
     }
    

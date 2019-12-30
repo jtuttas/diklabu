@@ -1,4 +1,6 @@
-﻿$PSScriptRoot
+﻿[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+
+$PSScriptRoot
 [Environment]::Is64BitProcess
 . "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
@@ -58,7 +60,7 @@ Dann das Skript wie folgt starten
 Export-BBSPlanung -mode ONEWAY -log -verbose -newyear
 
 #>
-$report=Export-BBSPlanung -mode ONEWAY -log -verbose
+$report=Export-BBSPlanung -mode SYNC -log  -newyear -deletepupil -verbose
 $body+="Das Synchronisationsscript BBS-Planung(neu) -> Diklabu beendet um "+(Get-Date)+"! `r`n";
 $body+="`r`n`r`nDie Änderungen befinden sich im Anhang!";
 $report | Set-Content "$Home/syncreport.txt"

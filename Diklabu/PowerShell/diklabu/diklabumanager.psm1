@@ -1,4 +1,6 @@
-﻿<#
+﻿$global:keys = (3,4,2,3,56,34,254,222,1,1,2,23,42,54,33,233,1,34,2,7,6,5,35,43) 
+
+<#
     VERBEN:
         find ... findet einen oder mehrere Objekte nach Namen. '%' ist WildCard
         get .... findet ein Objekt durch angabe des PK
@@ -104,7 +106,12 @@ function Set-Keystore
         $login.location = $server
         $login.user =  $credential.UserName
         if ($credential.password) {
-            $login.password = $credential.Password | ConvertFrom-SecureString
+            try {
+                $login.password = $credential.Password | ConvertFrom-SecureString -Key $global:keys
+            }
+            catch {
+                $login.password = ""
+            }
         }
         $global:logins[$key]=$login
         $global:logins | ConvertTo-Json -Compress | Set-Content $file
@@ -199,7 +206,7 @@ function Login-Diklabu
                 break;
             }
             else {
-                $password = $Global:logins["diklabu"].password | ConvertTo-SecureString 
+                $password = $Global:logins["diklabu"].password | ConvertTo-SecureString -Key $global:keys
                 $credential = New-Object System.Management.Automation.PsCredential($Global:logins["diklabu"].user,$password)
             }    
         } 

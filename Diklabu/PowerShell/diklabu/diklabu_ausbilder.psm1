@@ -104,7 +104,11 @@ function Get-Instructor
             Write-Verbose "Finde Ausbilder mit der ID $ID ! Ergebnis:$r"
             return $r;
         } catch {
-            Write-Error "Get-Instructor: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+            Write-Warning "Get-Instructor:  Fehler beim Suchen des Ausbilders mit ID $ID"
+            $log=Login-Diklabu
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"ausbilder/"+$ID) -Headers $headers  
+            Write-Verbose "Finde Ausbilder mit der ID $ID ! Ergebnis:$r"
+            return $r;
         }
     }
    

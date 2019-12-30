@@ -43,7 +43,7 @@ function Login-LDAP
         if (-not $server -or -not $credential) {
             if ($Global:logins["ldap"]) {
                 $server=$Global:logins["ldap"].location;
-                $password = $Global:logins["ldap"].password | ConvertTo-SecureString 
+                $password = $Global:logins["ldap"].password | ConvertTo-SecureString -Key $global:keys
                 $credential = New-Object System.Management.Automation.PsCredential($Global:logins["ldap"].user,$password)
             }
             else {
@@ -498,7 +498,7 @@ function New-LDAPPupil
     Process {        
         $name=Get-LDAPAccount -ID $ID -NNAME $NNAME -VNAME $VNAME
         try {
-            New-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver  -GivenName $VNAME -Surname $NNAME -Path $searchbase -Name $name.AccountName -OtherAttributes @{pager=$ID} -Enabled $true  -accountPassword (ConvertTo-SecureString -AsPlainText $PASSWORD -Force) -UserPrincipalName $name.LoginName 
+            New-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver  -GivenName $VNAME -Surname $NNAME -Path $searchbase -Name $name.AccountName -OtherAttributes @{pager=$ID} -Enabled $true  -accountPassword (ConvertTo-SecureString -AsPlainText $PASSWORD -Force -Key $global:keys) -UserPrincipalName $name.LoginName 
             Write-Verbose "Neuer Schüler ID=$ID angelegt"
         }
         catch {
@@ -562,7 +562,7 @@ function Set-LDAPPupil
             $in=Get-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver -Filter {Pager -like $ID} -Properties EmailAddress,GivenName,Surname,Pager,DistinguishedName -SearchBase $searchbase
             if ($in) {
                 if ($PASSWORD) {
-                    $in | Set-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver  -GivenName $VNAME -Surname $NNAME -Enabled $true  -accountPassword (ConvertTo-SecureString -AsPlainText $PASSWORD -Force)  -SamAccountName $name.AccountName
+                    $in | Set-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver  -GivenName $VNAME -Surname $NNAME -Enabled $true  -accountPassword (ConvertTo-SecureString -AsPlainText $PASSWORD -Force -Key $global:keys)  -SamAccountName $name.AccountName
                 }
                 else {
                     $in | Set-ADUser -Credential $global:ldapcredentials -Server $global:ldapserver  -GivenName $VNAME -Surname $NNAME 

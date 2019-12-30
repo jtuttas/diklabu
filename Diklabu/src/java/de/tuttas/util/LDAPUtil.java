@@ -54,10 +54,11 @@ public class LDAPUtil {
     }
 
     public static void main(String[] args) {
+        System.out.println("Starte...");
         LDAPUtil lpd = LDAPUtil.getInstance();
         LDAPUser u;
         try {
-            u = lpd.authenticateJndi("bahrke", "mmbbs");
+            u = lpd.authenticateJndi("Kirk, James", "Test123!");
             Log.d("Habe gefunden " + u);
             Log.d("TWOFA="+Config.getInstance().clientConfig.get("TWOFA"));
         } catch (Exception ex) {
@@ -84,12 +85,13 @@ public class LDAPUtil {
         try {
             context = new InitialDirContext(props);
             ctrls = new SearchControls();
-            ctrls.setReturningAttributes(new String[]{"description", "mail", "sn", "initials", "givenName", "memberOf", "userPrincipalName", "distinguishedName","telephonenumber"});
+            ctrls.setReturningAttributes(new String[]{"description", "mail", "sn", "initials", "givenName", "memberOf", "userPrincipalName", "distinguishedName","telephonenumber","samAccountName"});
             ctrls.setSearchScope(SearchControls.SUBTREE_SCOPE);
+            System.out.println("Bind User OK");
         } catch (NamingException ex) {
             Logger.getLogger(LDAPUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
-        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(Config.getInstance().userContext, "(cn=" + username + ")", ctrls);
+        NamingEnumeration<javax.naming.directory.SearchResult> answers = context.search(Config.getInstance().userContext, "(samAccountName=" + username + ")", ctrls);
         Log.d("answers=" + answers);
         Log.d("answers=" + answers.hasMore());
 
@@ -112,7 +114,7 @@ public class LDAPUtil {
         } catch (NamingException e) {
             e.printStackTrace();
         }
-
+        System.out.println("samAccountName="+result.getAttributes().get("samAccountName").getAll().next().toString());
         String inititials = "";
         if (result.getAttributes().get("initials") != null) {
             inititials = result.getAttributes().get("initials").getAll().next().toString();
@@ -144,11 +146,15 @@ public class LDAPUtil {
             Log.d("Ich bin ein Schüler");
             u.setRole(Roles.toString(Roles.SCHUELER));
             if (result.getAttributes().get("memberOf") != null) {
-                String memberOf = result.getAttributes().get("memberOf").getAll().next().toString();
-                String courseName = memberOf.split(",")[0];
-                courseName = courseName.substring(courseName.indexOf("=")+1);
-                Log.d("Name der Klasse ist " + courseName);
-                u.setCourse(courseName);
+                NamingEnumeration memberOf = result.getAttributes().get("memberOf").getAll();
+                while (memberOf.hasMore()) {
+                    String o = (String)memberOf.next().toString();
+                    Log.d("Gruppe: "+o);
+                    String courseName = o.split(",")[0];
+                    courseName = courseName.substring(courseName.indexOf("=")+1);
+                    Log.d("Name der Klasse ist " + courseName);
+                    u.addCourse(courseName);
+                }
             }
         }
 
@@ -160,12 +166,14 @@ public class LDAPUtil {
             props = new Properties();
             props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             props.put(Context.PROVIDER_URL, Config.getInstance().ldaphost);
+            System.out.println("Login as "+user+" password="+password);
             props.put(Context.SECURITY_PRINCIPAL, user);
             props.put(Context.SECURITY_CREDENTIALS, password);
 
             context = new InitialDirContext(props);
         } catch (Exception e) {
-            
+            System.out.println ("Exception:"+e.getMessage());
+            e.printStackTrace();
             return null;
         }
         return u;

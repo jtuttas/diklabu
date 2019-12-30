@@ -135,7 +135,11 @@ function Get-Teacher
             Write-Verbose "Abfrage der Daten des Lehrer mit der ID $ID"
             return $r;
         } catch {
-            Write-Error "Get-Teacher: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
+            Write-Warning "Get-Teacher: Fehler"
+            $log=Login-Diklabu
+            $r=Invoke-RestMethod -Method Get -Uri ($uri+"lehrer/"+$ID) -Headers $headers 
+            Write-Verbose "Abfrage der Daten des Lehrer mit der ID $ID"
+            return $r;
         }
     }
 }

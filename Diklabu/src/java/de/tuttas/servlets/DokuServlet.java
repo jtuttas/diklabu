@@ -296,7 +296,7 @@ public class DokuServlet extends HttpServlet {
                         kopf += ("<table border='1' align='center' width='100%'>");
                         kopf += ("<tr>");
                         kopf += ("<td rowspan=\"3\" width='150px'></td>");
-                        kopf += ("<td align='center'><h2>Multi Media Berufsbildende Schulen Hannover</h2></td>");
+                        kopf += ("<td align='center'><h2>"+Config.getInstance().HEADLINE_PRINT+"</h2></td>");
                         if (cmd.compareTo("Verlauf") == 0) {
                             kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Unterrichtsverlauf</b></td>");
                         } else if (cmd.compareTo("Anwesenheit") == 0) {
@@ -493,7 +493,7 @@ public class DokuServlet extends HttpServlet {
         Umfrage u2 = em.find(Umfrage.class, idUmfrage2);
 
         // Bild einfügen
-        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+        String url = Config.getInstance().LOGO_PRINT;
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(15f);
@@ -609,7 +609,7 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+        String url = Config.getInstance().LOGO_PRINT;
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(15f);
@@ -651,7 +651,7 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+        String url = Config.getInstance().LOGO_PRINT;
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(15f);
@@ -673,7 +673,7 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+        String url = Config.getInstance().LOGO_PRINT;
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(15f);
@@ -695,7 +695,7 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+        String url = Config.getInstance().LOGO_PRINT;
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(15f);
@@ -774,7 +774,7 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+        String url = Config.getInstance().LOGO_PRINT;
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(15f);
@@ -1024,7 +1024,7 @@ public class DokuServlet extends HttpServlet {
                 htmlString.append(tagZeile);
                 InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
                 // Bild einfügen
-                String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+                String url = Config.getInstance().LOGO_PRINT;
                 Image image = Image.getInstance(url);
                 image.setAbsolutePosition(45f, 720f);
                 image.scalePercent(15f);
@@ -1050,7 +1050,7 @@ public class DokuServlet extends HttpServlet {
 
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
-            String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+            String url = Config.getInstance().LOGO_PRINT;
             Image image = Image.getInstance(url);
             image.setAbsolutePosition(45f, 720f);
             image.scalePercent(15f);
@@ -1177,8 +1177,7 @@ public class DokuServlet extends HttpServlet {
         boolean found=false;
         for (Schueler s : schueler) {
             found=false;
-            htmlString.append("<h2 align=\"center\">Multi Media Berufsbildende Schulen</h2>");
-            htmlString.append("<h2 align=\"center\">der Region Hannover</h2>");
+            htmlString.append("<h2 align=\"center\">"+Config.getInstance().HEADLINE_PRINT+"</h2>");
             htmlString.append("<hr></hr>");
             htmlString.append("<h1 align=\"center\">Portfolio</h1>");
             htmlString.append("<h3 align=\"center\">über besuchte Zusatzkurse</h3>");
@@ -1234,7 +1233,7 @@ public class DokuServlet extends HttpServlet {
             if (found) {
                 InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
                 // Bild einfügen
-                String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+                String url = Config.getInstance().LOGO_PRINT;
                 Image image = Image.getInstance(url);
                 image.setAbsolutePosition(480f, 730f);
                 image.scalePercent(15f);
@@ -1263,7 +1262,7 @@ public class DokuServlet extends HttpServlet {
         kopf += ("<table border='1' align='center' width='100%'>");
         kopf += ("<tr>");
         kopf += ("<td rowspan=\"3\" width='150px'></td>");
-        kopf += ("<td align='center'><h2>Multi Media Berufsbildende Schulen Hannover</h2></td>");
+        kopf += ("<td align='center'><h2>"+Config.getInstance().HEADLINE_PRINT+"</h2></td>");
 
         kopf += ("<td colspan=\"2\" align='center'><b>Digitales Klassenbuch Vertretungsliste</b></td>");
         kopf += ("</tr>");
@@ -1325,7 +1324,7 @@ public class DokuServlet extends HttpServlet {
         //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+        String url = Config.getInstance().LOGO_PRINT;
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
         image.scalePercent(15f);
@@ -1393,7 +1392,7 @@ public class DokuServlet extends HttpServlet {
                     //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
                     InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
                     // Bild einfügen
-                    String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+                    String url = Config.getInstance().LOGO_PRINT;
                     Image image = Image.getInstance(url);
                     image.setAbsolutePosition(45f, 720f);
                     image.scalePercent(15f);
@@ -1426,7 +1425,7 @@ public class DokuServlet extends HttpServlet {
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
-            String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+            String url = Config.getInstance().LOGO_PRINT;
             Image image = Image.getInstance(url);
             image.setAbsolutePosition(45f, 720f);
             image.scalePercent(15f);
@@ -1438,7 +1437,7 @@ public class DokuServlet extends HttpServlet {
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
-            String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
+            String url = Config.getInstance().LOGO_PRINT;
             Image image = Image.getInstance(url);
             image.setAbsolutePosition(45f, 720f);
             image.scalePercent(15f);
