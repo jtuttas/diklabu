@@ -1294,6 +1294,7 @@ function Sync-LDAPCourseMember
             Write-Error "Sie sind nicht am LDAP angemeldet, versuchen Sie Login-LDAP"
             break
         }
+        Write-Verbose "Begin: KNAME=$KNAME TEACHER_ID=$TEACHER_ID"
         $gm = Get-LDAPCourseMember -KNAME $KNAME -searchbase $searchbase
         $ist=@{}
         foreach ($m in $gm) {
@@ -1317,6 +1318,7 @@ function Sync-LDAPCourseMember
         }
         #Write-Host "Process $data"
         $data | ForEach-Object {
+            Write-Verbose "Bearbeite $_"
             #Write-Host "Teste [$_] ist=$($ist[$_]) map:$($ist[1576]) Length="$ist.Count
             if (-not $ist[$_]) {
                 Write-Verbose "Der Benutzer ID $_ existiert nicht in der Gruppe $KNAME und wird dort hinzugefügt"

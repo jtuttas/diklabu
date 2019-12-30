@@ -1,4 +1,7 @@
-﻿Import-Module -Name ImportExcel
+﻿
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Ssl3 -bor [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls12
+Import-Module -Name ImportExcel
 . "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
 . "$PSScriptRoot/sync_lehrer.ps1"
@@ -45,20 +48,28 @@ else {
     try {
         ## Moodle gloable gruppe Sync
         $body+="`r`n`r`nSynchronisiere Moodle Cohorts"
+        Write-Host "Synchronisiere Moodle Cohorts"
         Login-Moodle
         $body+="`r`nLogin Moodle OK"
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $null
         Invoke-WebRequest -Uri $Global:logins["lehrerteams"].location -OutFile "$env:TMP\teams.xlsx"
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
         $obj=Import-Excel "$env:TMP\teams.xlsx"
+        Write-Host "Lehrer Teams geladen"
+
+
         Sync-MoodleTeams -obj $obj -Verbose
         $body+="`r`nSynchronisation erfolgt"
     }
     catch {
-        Write-Error $_.Exception.Message
+        Write-Error "Fehler:"
+        $_.Exception.Message
         $body+=$_.Exception.Message
     }
     try {
         ## Gruppen in der AD Sync
         $body+="`r`n`r`nSynchronisiere AD Lehrer Gruppen"
+        Write-Host "Synchronisiere AD Lehrer Gruppen" -BackgroundColor DarkGray
         Login-LDAP
         $body+="`r`nLogin AD OK"
         . "$PSScriptRoot/sync_ldapTeacherGroups.ps1"
@@ -73,45 +84,46 @@ else {
 }
 
 
-$body+="`r`n`r`nLade Untisexport.csv"
-if (-not $Global:logins["untisexport"]) {
-    $body+="`r`nAchtung keine URL für Untisexport im Keystore gefunden!"
-    Write-Warning "Achtung keine URL für Untisexport im Keystore gefunden!"
-}
-else {
-    try {
-        ## Klassenteams in der AD Sync
-        $body+="`r`n`r`nSynchronisiere AD Klassenteams"
-        Login-LDAP
-        $body+="`r`nLogin AD OK"
-        . "$PSScriptRoot/gpu2ADGroups.ps1"
-        Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
-        $obj=Import-Untis -path "$env:TMP\untis.csv"
-        Sync-LDAPTeams -map $obj -Verbose -force -searchbase "OU=Klassenteams,OU=Schüler,DC=mmbbs,DC=local"  
-        $body+="`r`nSynchronisation erfolgt"
-    }
-    catch {
-        Write-Error $_.Exception.Message
-        $body+=$_.Exception.Message
-    }
+#$body+="`r`n`r`nLade Untisexport.csv"
+#if (-not $Global:logins["untisexport"]) {
+#    $body+="`r`nAchtung keine URL für Untisexport im Keystore gefunden!"
+#    Write-Warning "Achtung keine URL für Untisexport im Keystore gefunden!"
+#}
+#else {
+#    try {
+#        ## Klassenteams in der AD Sync
+#        $body+="`r`n`r`nSynchronisiere AD Klassenteams"
+#        Login-LDAP
+#        $body+="`r`nLogin AD OK"
+#        . "$PSScriptRoot/gpu2ADGroups.ps1"
+#        Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
+#        $obj=Import-Untis -path "$env:TMP\untis.csv"
+#        Sync-LDAPTeams -map $obj -Verbose -force -searchbase "OU=Klassenteams,OU=Schüler,DC=mmbbs,DC=local"  
+#        $body+="`r`nSynchronisation erfolgt"
+#    }
+#    catch {
+#        Write-Error $_.Exception.Message
+#        $body+=$_.Exception.Message
+#    }
     ## Moodle Klassen-Kurse Synchronisieren
-    $body+="`r`n`r`nSynchronisiere Moodle Klassenteams"
-    Login-Moodle
-    $body+="`r`nLogin Moodel OK"
-    . "$PSScriptRoot/Sync-MoodleClasses.ps1"
-    Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
-    Sync-MoodleCourses -untisexport "$env:TMP\untis.csv" -categoryid 108 -Verbose -templateid 866 
-    $body+="`r`nSynchronisation Moodle Klassen erfolgt"
+#    $body+="`r`n`r`nSynchronisiere Moodle Klassenteams"
+#    Login-Moodle
+#    $body+="`r`nLogin Moodel OK"
+#    . "$PSScriptRoot/Sync-MoodleClasses.ps1"
+#    Invoke-WebRequest -Uri $Global:logins["untisexport"].location -OutFile "$env:TMP\untis.csv"
+#    Sync-MoodleCourses -untisexport "$env:TMP\untis.csv" -categoryid 108 -Verbose -templateid 866 
+#    $body+="`r`nSynchronisation Moodle Klassen erfolgt"
 
-}
+#}
 
 # Alles Lehrer in Gruppe alleLul eintragen
+Write-Host "alle LuL anlegen" -BackgroundColor DarkGreen
 if (-not (Test-LDAPCourse "alleLuL" -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,dc=local")) {
     Write-Verbose "Gruppe alleLuL wird angelegt!"
     [String]$gname=$tm.Name
-    New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -Name "alleLul" -OtherAttributes @{'Mail'="alleLuL@@mm-bbs.de"}
+    New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -Name "alleLul" -OtherAttributes @{'Mail'="alleLuL@mm-bbs.de"}
 }
-Get-LDAPTeachers | Sync-LDAPCourseMember -KNAME alleLul -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -force
+Get-LDAPTeachers | Where-Object {$_.TEACHER_ID} | Sync-LDAPCourseMember -KNAME alleLul -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -force
 
 
 if (-not $Global:logins["smtp"]) {
@@ -121,9 +133,9 @@ if (-not $Global:logins["smtp"]) {
 else {
     #send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$PSScriptRoot/../../../out_lehrer.txt","$PSScriptRoot/../../../out_schueler.txt"
     if (Test-Path "$PSScriptRoot/../../../out_schueler.txt") {
-        send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$PSScriptRoot/../../../out_schueler.txt"
+        send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$env:TMP\teams.xlsx"
     }
     else {
-        send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$PSScriptRoot/../../../out_schueler.txt"
+        send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$$env:TMP\teams.xlsx"
     }
 }

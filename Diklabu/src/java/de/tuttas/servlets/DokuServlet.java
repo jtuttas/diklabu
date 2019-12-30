@@ -493,10 +493,10 @@ public class DokuServlet extends HttpServlet {
         Umfrage u2 = em.find(Umfrage.class, idUmfrage2);
 
         // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
+        image.scalePercent(15f);
 
         StringBuilder htmlString = new StringBuilder();
         htmlString.append(kopf);
@@ -609,10 +609,10 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
+        image.scalePercent(15f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
         document.close();
@@ -651,10 +651,10 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
+        image.scalePercent(15f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
 
@@ -673,10 +673,10 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
+        image.scalePercent(15f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
 
@@ -695,10 +695,10 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
+        image.scalePercent(15f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
 
@@ -774,10 +774,10 @@ public class DokuServlet extends HttpServlet {
         // Dokument erzeugen
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
+        image.scalePercent(15f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
 
@@ -1024,10 +1024,10 @@ public class DokuServlet extends HttpServlet {
                 htmlString.append(tagZeile);
                 InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
                 // Bild einfügen
-                String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+                String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
                 Image image = Image.getInstance(url);
                 image.setAbsolutePosition(45f, 720f);
-                image.scalePercent(50f);
+                image.scalePercent(15f);
                 document.add(image);
                 XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
                 document.newPage();
@@ -1050,10 +1050,10 @@ public class DokuServlet extends HttpServlet {
 
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
-            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
             Image image = Image.getInstance(url);
             image.setAbsolutePosition(45f, 720f);
-            image.scalePercent(50f);
+            image.scalePercent(15f);
             document.add(image);
             Log.d("writer=" + writer + " document=" + document + " is=" + is);
             XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
@@ -1234,10 +1234,10 @@ public class DokuServlet extends HttpServlet {
             if (found) {
                 InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
                 // Bild einfügen
-                String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+                String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
                 Image image = Image.getInstance(url);
                 image.setAbsolutePosition(480f, 730f);
-                image.scalePercent(40f);
+                image.scalePercent(15f);
                 Log.d("Image=" + image);
                 document.add(image); 
                 XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
@@ -1325,10 +1325,10 @@ public class DokuServlet extends HttpServlet {
         //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
         InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
         // Bild einfügen
-        String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+        String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
         Image image = Image.getInstance(url);
         image.setAbsolutePosition(45f, 720f);
-        image.scalePercent(50f);
+        image.scalePercent(15f);
         document.add(image);
         XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
         document.close();
@@ -1393,10 +1393,10 @@ public class DokuServlet extends HttpServlet {
                     //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
                     InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
                     // Bild einfügen
-                    String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+                    String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
                     Image image = Image.getInstance(url);
                     image.setAbsolutePosition(45f, 720f);
-                    image.scalePercent(50f);
+                    image.scalePercent(15f);
                     document.add(image);
                     XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
                     System.out.println("Vertical Position is:" + writer.getVerticalPosition(false) + " next: " + writer.getVerticalPosition(true) + " page size is:" + writer.getPageSize().getHeight());
@@ -1426,10 +1426,10 @@ public class DokuServlet extends HttpServlet {
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
-            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
             Image image = Image.getInstance(url);
             image.setAbsolutePosition(45f, 720f);
-            image.scalePercent(50f);
+            image.scalePercent(15f);
             document.add(image);
             XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
         } else {
@@ -1438,10 +1438,10 @@ public class DokuServlet extends HttpServlet {
             //document.add(new Paragraph("Tutorial to Generate PDF using Servlet"));
             InputStream is = new ByteArrayInputStream(htmlString.toString().getBytes());
             // Bild einfügen
-            String url = "http://www.mmbbs.de/fileadmin/template/mmbbs/gfx/mmbbs_logo_druck.gif";
+            String url = "http://service.joerg-tuttas.de/Logo_bitmap.gif";
             Image image = Image.getInstance(url);
             image.setAbsolutePosition(45f, 720f);
-            image.scalePercent(50f);
+            image.scalePercent(15f);
             document.add(image);
             XMLWorkerHelper.getInstance().parseXHtml(writer, document, is);
         }

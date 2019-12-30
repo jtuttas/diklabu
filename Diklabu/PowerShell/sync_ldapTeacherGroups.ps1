@@ -134,7 +134,7 @@ function Sync-LDAPTeams
                 }
             }
             if ($member) {
-                $member | Sync-LDAPCourseMember -KNAME $tm.Name -searchbase $searchbase -force  
+                $member | Sync-LDAPCourseMember -KNAME $tm.Name -searchbase $searchbase -force  -Verbose
             }
         }
         Write-Host "Lösche Gruppen die nicht verwendet werden unter $searchbase" -BackgroundColor DarkGreen

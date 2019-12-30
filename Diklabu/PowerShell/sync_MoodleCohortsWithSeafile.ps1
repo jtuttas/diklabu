@@ -90,16 +90,16 @@ function Sync-MoodleTeams
             else {
                 $group= Get-MoodleCohorts | Where-Object {$_.idnumber -eq $tm.Name}
             }
-            
+            Write-Host "Test: $tm.Value und $tm"
             if (-not $group) {
                 Write-Warning "Gruppe $($tm.Name) existiert nicht und wird angelegt"
                 $group=New-MoodleCohort -name $tm.Name -idnumber $tm.Name -description "Teamgruppe $($tm.Name)" -force
             }
             if ($PSBoundParameters['Verbose']) {
-                $tm.Value | Get-MoodleUser -PROPERTYTYPE EMAIL | ForEach-Object {$_.id} | Sync-MoodleCohortMember -cohortid $group.id -force -Verbose
+                $tm.Value | ForEach-Object {Write-Host "Processing $_";$merk=$_;$_} | Get-MoodleUser -PROPERTYTYPE EMAIL -Verbose | ForEach-Object {if ($_.id -ne $null) {Write-Host "ID OK: $($tm.Value)";$_.id} else {Write-error "ID ($merk) Null: $_" }  } | Sync-MoodleCohortMember -cohortid $group.id -force -Verbose
             }
             else {
-                $tm.Value | Get-MoodleUser -PROPERTYTYPE EMAIL | ForEach-Object {$_.id} | Sync-MoodleCohortMember -cohortid $group.id -force
+                $tm.Value | ForEach-Object {Write-Host "Processing $_";$merk=$_;$_} | Get-MoodleUser -PROPERTYTYPE EMAIL -Verbose | ForEach-Object {if ($_.id -ne $null) {Write-Host "ID OK: $($tm.Value)";$_.id} else {Write-Error "ID ($merk) Null: $_" } } | Sync-MoodleCohortMember -cohortid $group.id -force
             }
         }
     }
