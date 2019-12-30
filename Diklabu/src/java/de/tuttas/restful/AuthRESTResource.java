@@ -83,7 +83,9 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                 Query query = em.createNamedQuery("findSchuelerByNameAndKlasse");
                 query.setParameter("paramVNAME", u.getVName());
                 query.setParameter("paramNNAME", u.getNName());
-                query.setParameter("paramKLASSE", u.getCourse());
+                query.setParameter("paramKLASSE", u.getCourses());
+                
+                Log.d("Sucher Schüler VName="+u.getVName()+" NNAME="+u.getNName()+" in Klassen "+u.getCourses().toString());
                 List<Schueler> schueler = query.getResultList();
                 Log.d("Result List:" + schueler);
                 
@@ -95,9 +97,10 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                         s.setEMAIL(u.getEMail());
                         em.merge(s);
                     }                    
-                    jsonObjBuilder.add("nameKlasse", u.getCourse());
+                    //jsonObjBuilder.add("nameKlasse", u.getCourse());
+                    jsonObjBuilder.add("nameKlasse", u.getCourses().toString());
                     query = em.createNamedQuery("findKlassebyName");
-                    query.setParameter("paramKName", u.getCourse().toUpperCase());
+                    query.setParameter("paramKName", u.getCourses().toString().toUpperCase());
                     List<Klasse> klasse = query.getResultList();
                     if (klasse.size() != 0) { 
                         jsonObjBuilder.add("idKlasse", klasse.get(0).getId());
@@ -109,8 +112,8 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     jsonObjBuilder.add("auth_token", u.getAuthToken());
 
                 } else {
-                    if (u.getCourse()!=null) {
-                        jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" im Diklabu in der Klasse "+u.getCourse()+" finden!");
+                    if (u.getCourses()!=null) {
+                        jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" im Diklabu in den Klasse "+u.getCourses().toString()+" finden!");
                     }
                     else {
                         jsonObjBuilder.add("msg", "Anmeldedaten OK, aber kann keinen Schüler mit "+u.getVName()+" "+u.getNName()+" hat keine Gruppenzugehörigkeit!");                        

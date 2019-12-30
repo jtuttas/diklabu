@@ -61,3 +61,6 @@ get-courses | Where-Object {$_.idKategorie -eq 11}  | ForEach-Object {$wpkname=$
         }
     }
     Add-Member -InputObject $_ -MemberType NoteProperty -Name KNAME -Value $Klasse;$_ | Select-Object -Property VNAME,NNAME,KNAME}| Export-Excel "c:\Temp\Klassen\$wpkname.xlsx"}
+
+
+# Klassen leeren

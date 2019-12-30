@@ -3,7 +3,7 @@
 
     Pfad zur Excel Datei muss ggf. angepasst werden (das geeignete Keystore muss schon geladen sein!)
 #>
-$path='D:\Temp\Kurslisten 2018_19.xlsx'
+$path='D:\Temp\Kurslisten 2019_20.xlsx'
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 Write-Host $PSScriptRoot

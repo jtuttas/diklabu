@@ -606,7 +606,13 @@ function Get-UntisCoursemember
 
             }
             #$reg1
-            $r=Invoke-WebRequest -Uri $reg1 -websession $global:session 
+            try {
+                $r=Invoke-WebRequest -Uri $reg1 -websession $global:session 
+            }
+            catch {
+                Login-Untis
+                $r=Invoke-WebRequest -Uri $reg1 -websession $global:session 
+            }
             Write-Verbose "Status Code is $($r.StatusCode)"
             $obj=ConvertFrom-Json $r.content
             

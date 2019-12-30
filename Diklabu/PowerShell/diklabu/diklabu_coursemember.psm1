@@ -55,7 +55,6 @@ function Add-Coursemember
 
     Begin
     {
-        $klassenid
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -158,7 +157,6 @@ function Get-Coursemember
 
     Begin
     {
-        $id
         $headers=@{}
         $headers["content-Type"]="application/json;charset=iso-8859-1"
         $headers["auth_token"]=$global:auth_token;
@@ -170,12 +168,7 @@ function Get-Coursemember
             Write-Verbose "Finde Schüler der Klasse mit der ID $id Ergebnis:$r"
             return  $r;
          } catch {
-            Write-Warning "Get-Coursemember: Fehler"
-            $log=Login-Diklabu
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"klasse/member/"+$id) -Headers $headers  
-            Write-Verbose "Finde Schüler der Klasse mit der ID $id Ergebnis:$r"
-            return  $r;
-
+            Write-Error "Get-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -217,11 +210,7 @@ function Get-Coursemembership
             Write-Verbose "Abfrage der Klassen in der sich der Schüler mit der ID $id befindet. Ergebnis: $r"
             return  $r;
          } catch {
-            Write-Warning "Get-Membership: Fehler"
-            $log=login-diklabu
-            $r=Invoke-RestMethod -Method Get -Uri ($uri+"schueler/member/"+$id) -Headers $headers  
-            Write-Verbose "Abfrage der Klassen in der sich der Schüler mit der ID $id befindet. Ergebnis: $r"
-            return  $r;
+            Write-Error "Get-Membership: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription 
         }
     }
 }
@@ -283,7 +272,17 @@ function Remove-Coursemember
               Write-Verbose "Entferne Schüler mit der ID $id aus der Klasse mit der ID $klassenid"
               return $r;
            } catch {
-              Write-Error "Remove-Coursemember: Status-Code"$_.Exception.Response.StatusCode.value__ " "$_.Exception.Response.StatusDescription
+              try {
+              Login-Diklabu
+              if (-not $whatif) {
+                $r=Invoke-RestMethod -Method Delete -Uri ($uri+"klasse/verwaltung/"+$id+"/"+$klassenid) -Headers $headers 
+              }
+              Write-Verbose "Entferne Schüler mit der ID $id aus der Klasse mit der ID $klassenid"
+              return $r;
+              }
+              catch {
+                Write-Error "Remove-Coursemember failed!"
+              }
         }
     }
     End

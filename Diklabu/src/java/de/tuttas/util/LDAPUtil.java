@@ -121,12 +121,12 @@ public class LDAPUtil {
         }
         LDAPUser u;
         if (result.getAttributes().get("mail") == null) {
-            u = new LDAPUser(result.getAttributes().get("samAccountName").getAll().next().toString(),
+            u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
                     result.getAttributes().get("givenName").getAll().next().toString(),
                     "",
                     inititials);
         } else {
-            u = new LDAPUser(result.getAttributes().get("samAccountName").getAll().next().toString(),
+            u = new LDAPUser(result.getAttributes().get("sn").getAll().next().toString(),
                     result.getAttributes().get("givenName").getAll().next().toString(),
                     result.getAttributes().get("mail").getAll().next().toString(),
                     inititials);
@@ -146,11 +146,15 @@ public class LDAPUtil {
             Log.d("Ich bin ein Schüler");
             u.setRole(Roles.toString(Roles.SCHUELER));
             if (result.getAttributes().get("memberOf") != null) {
-                String memberOf = result.getAttributes().get("memberOf").getAll().next().toString();
-                String courseName = memberOf.split(",")[0];
-                courseName = courseName.substring(courseName.indexOf("=")+1);
-                Log.d("Name der Klasse ist " + courseName);
-                u.setCourse(courseName);
+                NamingEnumeration memberOf = result.getAttributes().get("memberOf").getAll();
+                while (memberOf.hasMore()) {
+                    String o = (String)memberOf.next().toString();
+                    Log.d("Gruppe: "+o);
+                    String courseName = o.split(",")[0];
+                    courseName = courseName.substring(courseName.indexOf("=")+1);
+                    Log.d("Name der Klasse ist " + courseName);
+                    u.addCourse(courseName);
+                }
             }
         }
 
@@ -162,12 +166,14 @@ public class LDAPUtil {
             props = new Properties();
             props.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
             props.put(Context.PROVIDER_URL, Config.getInstance().ldaphost);
+            System.out.println("Login as "+user+" password="+password);
             props.put(Context.SECURITY_PRINCIPAL, user);
             props.put(Context.SECURITY_CREDENTIALS, password);
 
             context = new InitialDirContext(props);
         } catch (Exception e) {
-            
+            System.out.println ("Exception:"+e.getMessage());
+            e.printStackTrace();
             return null;
         }
         return u;

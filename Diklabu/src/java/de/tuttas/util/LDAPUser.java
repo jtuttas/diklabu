@@ -6,6 +6,7 @@
 package de.tuttas.util;
 
 import de.tuttas.restful.auth.Roles;
+import java.util.ArrayList;
 import javax.json.JsonValue;
 
 /**
@@ -21,7 +22,7 @@ public class LDAPUser {
     // ShortName ohne deutsche Umlaute
     private String idPlain;
     private String role;
-    private String course;
+    private ArrayList courses;
     private String phone;
     private long timestamp;
 
@@ -41,6 +42,7 @@ public class LDAPUser {
         this.EMail = EMail;
         this.ShortName = ShortName;
         this.idPlain=StringUtil.removeGermanCharacters(ShortName);
+        this.courses = new ArrayList<String>();
     }
 
     public long getTimestamp() {
@@ -53,12 +55,16 @@ public class LDAPUser {
 
     
     
-    public void setCourse(String course) {
-        this.course = course;
+    public void addCourse(String course) {
+        this.courses.add(course);
+    }
+    
+    public ArrayList getCourses() {
+        return this.courses;
     }
 
-    public String getCourse() {
-        return course;
+    public boolean isMemberOf(String course) {
+        return this.courses.contains(course);
     }
 
     public void setPhone(String phone) {
