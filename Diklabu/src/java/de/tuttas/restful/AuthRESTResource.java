@@ -89,6 +89,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                 List<Schueler> schueler = query.getResultList();
                 Log.d("Result List:" + schueler);
                 
+                // Wenn ein Schüler aus den AD Gruppen in einer Diklabu Klasse ist..
                 if (schueler.size() != 0) {
                     u.setShortName("" + schueler.get(0).getId());
                     Schueler s = schueler.get(0);
@@ -97,14 +98,21 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                         s.setEMAIL(u.getEMail());
                         em.merge(s);
                     }                    
-                    //jsonObjBuilder.add("nameKlasse", u.getCourse());
-                    jsonObjBuilder.add("nameKlasse", u.getCourses().toString());
-                    query = em.createNamedQuery("findKlassebyName");
-                    query.setParameter("paramKName", u.getCourses().toString().toUpperCase());
-                    List<Klasse> klasse = query.getResultList();
-                    if (klasse.size() != 0) { 
-                        jsonObjBuilder.add("idKlasse", klasse.get(0).getId());
+                    // Suchen der Klasse in der sich der Schüler befindet
+                    query = em.createNamedQuery("findKlassebySchuelerID");
+                    query.setParameter("paramIDSchueler", s.getId());
+                    List<Klasse> klassen = query.getResultList();
+                    if (klassen.size() !=0 ) {
+                        Klasse k = klassen.get(0);
+                        jsonObjBuilder.add("nameKlasse", k.getKNAME());    
+                        query = em.createNamedQuery("findKlassebyName");
+                        query.setParameter("paramKName", k.getKNAME().toUpperCase());
+                        klassen = query.getResultList();
+                        if (klassen.size() != 0) { 
+                            jsonObjBuilder.add("idKlasse", klassen.get(0).getId());
+                        }
                     }
+                    
                     jsonObjBuilder.add("VNAME", u.getVName());
                     jsonObjBuilder.add("NNAME", u.getNName());
                     jsonObjBuilder.add("msg", "Login erfolgreich! Rolle ist "+u.getRole());

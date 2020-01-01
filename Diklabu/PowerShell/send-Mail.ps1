@@ -39,7 +39,7 @@ function send-mailreport
             break;
         }
         # Email Senden via Powershell
-        $password = $global:logins["smtp"].password | ConvertTo-SecureString 
+        $password = $global:logins["smtp"].password | ConvertTo-SecureString  -Key $global:keys
         $credentials = New-Object System.Management.Automation.PSCredential -ArgumentList $($global:logins["smtp"].user), $password
         $utf8 = New-Object System.Text.utf8encoding
         $server = ($global:logins["smtp"].location).Split(":");

@@ -189,7 +189,9 @@ function Login-Diklabu
 
     Begin
     {
-        
+        $org = [Net.ServicePointManager]::SecurityProtocol
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
         if (-not $uri) {
             if ($Global:logins["diklabu"]) {
                 $uri=$Global:logins["diklabu"].location;
@@ -228,6 +230,7 @@ function Login-Diklabu
         catch {
             Write-Error $_.Exception.Message
         }
+        [Net.ServicePointManager]::SecurityProtocol=$org
         
     }
 }
