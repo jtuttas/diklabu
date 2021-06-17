@@ -31,7 +31,7 @@ import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-import sun.misc.BASE64Encoder;
+//import sun.misc.BASE64Encoder;
 
 /**
  * Hilfsmethoden zur Bildbearbeitung

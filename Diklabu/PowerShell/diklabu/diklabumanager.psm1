@@ -191,7 +191,7 @@ function Login-Diklabu
     {
         $org = [Net.ServicePointManager]::SecurityProtocol
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
-        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}        
         if (-not $uri) {
             if ($Global:logins["diklabu"]) {
                 $uri=$Global:logins["diklabu"].location;
