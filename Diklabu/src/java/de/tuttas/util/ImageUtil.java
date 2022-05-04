@@ -26,12 +26,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
-//import sun.misc.BASE64Encoder;
+import java.util.Base64;
 
 /**
  * Hilfsmethoden zur Bildbearbeitung
@@ -66,9 +67,8 @@ public class ImageUtil {
         try {
             ImageIO.write(image, type, bos);
             byte[] imageBytes = bos.toByteArray();
-
-            BASE64Encoder encoder = new BASE64Encoder();
-            imageString = encoder.encode(imageBytes);
+            
+            imageString = Base64.getEncoder().encodeToString(imageBytes);
 
             bos.close();
         } catch (IOException e) {
