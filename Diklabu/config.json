@@ -1,6 +1,6 @@
 {
-    "debug": true,
-    "auth": false,
+    "debug": false,
+    "auth": true,
     "IMAGE_FILE_PATH": "/home/diklabu/images/sbild",
     "ATEST_FILE_PATH": "/home/diklabu/atest",
     "TEMPLATE_FILE_PATH": "/home/diklabu/templates",

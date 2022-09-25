@@ -1,5 +1,8 @@
 ﻿$org= [Net.ServicePointManager]::SecurityProtocol 
 #[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+
+Write-Host "Script Root:"+$PSScriptRoot
+
 Import-Module -Name ImportExcel
 . "$PSScriptRoot/LoadModule.ps1"
 . "$PSScriptRoot/send-Mail.ps1"
@@ -10,7 +13,8 @@ Import-Module -Name ImportExcel
 
 
 $ks=Get-Keystore C:\diklabuApp\diklabu.conf
-
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $body="Das Synchronisationsscript ist am "+(Get-Date)+" durchgelaufen!! `r`n";
 try {
     $db=Login-Diklabu 
@@ -53,7 +57,9 @@ else {
         Write-Host "Login Moodle OK"
         [System.Net.ServicePointManager]::ServerCertificateValidationCallback = $null
         
-        [Net.ServicePointManager]::SecurityProtocol = $org
+        #[Net.ServicePointManager]::SecurityProtocol = $org
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Write-Host "Lade... $($Global:logins["lehrerteams"].location)"
         Invoke-WebRequest -Uri $Global:logins["lehrerteams"].location -OutFile "$env:TMP\teams.xlsx"
         Write-Host "Lehrer Teams geladen"
         [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
@@ -78,7 +84,7 @@ else {
         $body+="`r`nLogin AD OK"
         . "$PSScriptRoot/sync_ldapTeacherGroups.ps1"
         $obj=Import-Excel "$env:TMP\teams.xlsx"
-        Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" 
+        Sync-LDAPTeams -obj $obj -Verbose -force -searchbase "OU=Lehrer,DC=int,DC=mm-bbs,DC=de" 
         $body+="`r`nSynchronisation erfolgt"
     }
     catch {
@@ -121,6 +127,7 @@ else {
 #}
 
 # Alles Lehrer in Gruppe alleLul eintragen
+<#
 Write-Host "alle LuL anlegen" -BackgroundColor DarkGreen
 if (-not (Test-LDAPCourse "alleLuL" -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,dc=local")) {
     Write-Verbose "Gruppe alleLuL wird angelegt!"
@@ -128,7 +135,7 @@ if (-not (Test-LDAPCourse "alleLuL" -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=m
     New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -Name "alleLul" -OtherAttributes @{'Mail'="alleLuL@mm-bbs.de"}
 }
 Get-LDAPTeachers | Where-Object {$_.TEACHER_ID} | Sync-LDAPCourseMember -KNAME alleLul -searchbase "OU=Lehrergruppen,OU=Lehrer,DC=mmbbs,DC=local" -force
-
+#>
 
 if (-not $Global:logins["smtp"]) {
     Write-Error "Keine SMTP Credentials gefunden. Bitte zunächst mit Login-SMTP Verbindung herstellen"
@@ -137,9 +144,9 @@ if (-not $Global:logins["smtp"]) {
 else {
     #send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$PSScriptRoot/../../../out_lehrer.txt","$PSScriptRoot/../../../out_schueler.txt"
     if (Test-Path "$PSScriptRoot/../../../out_schueler.txt") {
-        send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$env:TMP\teams.xlsx"
+        send-mailreport -from tuttas@mmbbs.de -to tuttas@mmbbs.de -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$env:TMP\teams.xlsx"
     }
     else {
-        send-mailreport -from tuttas@mmbbs.de -to jtuttas@gmx.net -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$$env:TMP\teams.xlsx"
+        send-mailreport -from tuttas@mmbbs.de -to tuttas@mmbbs.de -subject "Synchronisationsscript durchgelaufen" -body $body -attachment "$env:TMP\teams.xlsx"
     }
 }

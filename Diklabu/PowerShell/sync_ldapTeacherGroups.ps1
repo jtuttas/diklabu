@@ -105,10 +105,15 @@ function Sync-LDAPTeams
         }
         foreach ($tm in $tas.GetEnumerator()) {
             Write-Host "Synchronisiere Gruppe ($($tm.Name))" -BackgroundColor DarkGreen
+            Write-Host "Teste Gruppe ($($tm.Name)) in $searchbase" -BackgroundColor DarkGreen
+
             if (-not (Test-LDAPCourse $tm.Name -searchbase $searchbase)) {
                 Write-Verbose "Gruppe $($tm.Name) wird angelegt!"
                 [String]$gname=$tm.Name
                 $in=New-ADGroup -Credential $global:ldapcredentials -Server $global:ldapserver -GroupScope Global -Path $searchbase -Name $gname -OtherAttributes @{'Mail'="$gname@mm-bbs.de"} `
+            }
+            else {
+                Write-Verbose "Gruppe Existiert"
             }
             $member=@();
             foreach ($l in $tm.Value) {
@@ -152,13 +157,13 @@ function Sync-LDAPTeams
                 if (-not $force) {
                     $q = Read-Host "Soll die Gruppe $($_.KName) gelöscht werden? (J/N)"
                     if ($q -eq "J") {
-                        Write-Verbose "Lösche die Gruppe ($($_.KName))"
-                        $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.DistinguishedName -Confirm:$false
+                        #Write-Verbose "Lösche die Gruppe ($($_.KName))"
+                        #$d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.DistinguishedName -Confirm:$false
                     }
                 }
                 else {
-                    Write-Verbose "Lösche die Gruppe ($($_.KName))"
-                    $d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.DistinguishedName -Confirm:$false
+                    #Write-Verbose "Lösche die Gruppe ($($_.KName))"
+                    #$d=Remove-ADGroup -Server $global:ldapserver -Credential $global:ldapcredentials -Identity $_.DistinguishedName -Confirm:$false
                 }
             }
         }

@@ -169,8 +169,12 @@ public class LDAPUtil {
             System.out.println("Login as "+user+" password="+password);
             props.put(Context.SECURITY_PRINCIPAL, user);
             props.put(Context.SECURITY_CREDENTIALS, password);
-
+            if (password.length()==0) {
+                System.out.println("Empty Password!");
+                return null;
+            }
             context = new InitialDirContext(props);
+            
         } catch (Exception e) {
             System.out.println ("Exception:"+e.getMessage());
             e.printStackTrace();
