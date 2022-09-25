@@ -170,7 +170,10 @@ public class LDAPUtil {
             props.put(Context.SECURITY_PRINCIPAL, user);
             props.put(Context.SECURITY_CREDENTIALS, password);
             if (password.length()==0) {
+<<<<<<< HEAD
                 System.out.println("Empty Password!");
+=======
+>>>>>>> 3d67e553d035faf535ef9de5f06baa77dcb8e55d
                 return null;
             }
             context = new InitialDirContext(props);
