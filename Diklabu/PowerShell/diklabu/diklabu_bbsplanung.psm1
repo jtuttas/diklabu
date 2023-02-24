@@ -253,7 +253,7 @@ function Get-BPPupils
                 $schueler=@();
                 foreach ($item in $dataset.Tables[0]) {
                 #$item
-                    $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER","E_ANREDE","E_NNAME","E_VNAME","E_STR","E_PLZ","E_ORT","E_TEL","E_FAX","E_EMAIL"
+                    $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","FAX","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER","E_ANREDE","E_NNAME","E_VNAME","E_STR","E_PLZ","E_ORT","E_TEL","E_FAX","E_EMAIL"
                     $sch.BBSID=$item.NR_SCHÜLER;
                     $sch.NNAME=$item.NNAME;
                     $sch.VNAME=$item.VNAME;
@@ -266,6 +266,7 @@ function Get-BPPupils
                     $sch.ORT=$item.ORT
                     $sch.TEL=$item.TEL
                     $sch.TEL_HANDY=$item.TEL_HANDY
+		    $sch.FAX=$item.FAX
                     $sch.EMAIL=$item.EMAIL
                     $sch.GESCHLECHT=$item.GESCHLECHT
                     $sch.KL_NAME=$item.KL_NAME
