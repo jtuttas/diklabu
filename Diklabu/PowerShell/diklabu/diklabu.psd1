@@ -4,16 +4,16 @@
 # Generiert von: Jörg
 #
 # Generiert am: 20.04.2016
-#
+# Geändert am: 12.01.2025, JoKe
 
 @{
 
 # Die diesem Manifest zugeordnete Skript- oder Binärmoduldatei.
 RootModule = 'diklabumanager.psm1'
-NestedModules = @("diklabu_schueler.psm1", "diklabu_klassen.psm1", "diklabu_betriebe.psm1", "diklabu_ausbilder.psm1" , "diklabu_coursemember.psm1","diklabu_kurswahl.psm1","diklabu_lehrer.psm1","diklabu_poll.psm1","diklabu_bbsplanung.psm1","diklabu-Seafile.psm1","diklabu_moodle.psm1","diklabu_ldap.psm1","diklabu_dwo.psm1","diklabu_termine.psm1","diklabu_bbszeugnis.psm1","diklabu-Webuntis.psm1")
+NestedModules = @("diklabu_schueler.psm1", "diklabu_klassen.psm1", "diklabu_betriebe.psm1", "diklabu_ausbilder.psm1" , "diklabu_coursemember.psm1","diklabu_kurswahl.psm1","diklabu_lehrer.psm1","diklabu_poll.psm1","diklabu_bbsplanung.psm1","diklabu-Seafile.psm1","diklabu_moodle.psm1","diklabu_ldap.psm1","diklabu_dwo.psm1","diklabu_termine.psm1","diklabu_bbszeugnis.psm1","diklabu-Webuntis.psm1","diklabu_nextcloudVWN.psm1", "diklabu_cwaProcess.psm1")
 
 # Die Versionsnummer dieses Moduls
-ModuleVersion = '4.7.3.8'
+ModuleVersion = '4.7.4.0'
 
 # ID zur eindeutigen Kennzeichnung dieses Moduls
 GUID = 'ae83af3e-8c98-407a-a165-eb0f24c0d185'

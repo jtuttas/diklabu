@@ -403,7 +403,7 @@ function Get-UntisTimetable
             $options | Add-Member -MemberType NoteProperty -Name "endDate" -Value $startDate
         }
         if ($endDate) {
-            $options | Add-Member -MemberType NoteProperty -Name "endDate" -Value $endDate
+            $options | Add-Member -MemberType NoteProperty -Name "endDate" -Value $endDate -force
         }
         $element.id=$id
         if ($elementtype -eq "class") {
@@ -716,3 +716,199 @@ function Get-UntisCoursemember
         }        
     }       
 }
+###                           get-sjNds                               ###
+##### JoKe 2025-01-11 ###################################################
+<#
+.Synopsis
+   Gibt Anfangsdatum und Endedatum des im Parameter übergebenen Schuljahres im Format "yyyyMMdd" zurück
+.DESCRIPTION
+   Gibt Anfangsdatum und Endedatum des im Parameter übergebenen Schuljahres im Format "yyyyMMdd" zurück
+   Parameter ist irgendein Datum innerhalb des gesuchten Schuljahres, Parameter hat ebenfalls das Format "yyyyMMdd"
+   Falls kein Parameter angegeben wurde, wird das aktuelle Tagesdatum benutzt
+   Basisdaten stammen vom 21.8.2023 von https://www.schulferien.org/deutschland/ferien/niedersachsen/
+.EXAMPLE
+   get-sjNds
+.EXAMPLE
+   get-sjNds "20250407"
+#>
+function get-sjNds {
+    Param(
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [String]$sj = (get-date -Format "yyyyMMdd") # Format "yyyyMMdd"
+    )
+    Begin{
+        # start and end school day of the term
+        $sjs = @{
+            SJ2324 = @{
+                startdate="20230817"
+                enddate="20240621"
+            }
+            SJ2425 = @{
+                startdate="20240805"
+                enddate="20250702"
+            }
+            SJ2526 = @{
+                startdate="20250814"
+                enddate="20260701"
+            }
+            SJ2627 = @{
+                startdate="20260813"
+                enddate="20270707"
+            }
+            SJ2728 = @{
+                startdate="20270819"
+                enddate="20280719"
+            }        
+        } # end of schoolterm list
+    }
+    Process{
+        $start ="00000000"
+        $end = "00000000"
+        foreach ($entry in $sjs.GetEnumerator()){
+            if ($sj -in $entry.value['startdate']..$entry.value['enddate']){
+                $start = $entry.value['startdate']
+                $end = $entry.value['enddate']
+            }
+        }
+        $dates=@{}
+        $dates.startdate=$start
+        $dates.enddate=$end
+        return $dates
+    }
+}
+###                           add-untisDay                               ###
+##### JoKe 2025-01-11 ######################################################
+<#
+.Synopsis
+   Addiert einen Tag zum Datum im Übergabeformat yyyyMMdd
+.DESCRIPTION
+   Addiert einen Tag zum Datum im Übergabeformat yyyyMMdd
+   Beispielsweise wird aus "20233112" --> "20240101"
+.EXAMPLE
+   add-untisDay "20233112"
+#>
+function add-untisDay {
+    Param
+    (
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]        
+        [String]$datestring # Date in diklabu datestring format yyyyMMdd
+    )
+    $d=[DateTime]::ParseExact($datestring,"yyyyMMdd",$Null)
+    $d=$d.AddDays(1)
+    return $d.tostring("yyyyMMdd")
+} # end function add-untisDay 
+####################################### ende add-untisDay ##############################################
+
+#####                                    get-untisClassTeacherTeams                                #####
+##### JoKe 2025-01-11 ##################################################################################
+<#
+.Synopsis
+   Baut eine Hashliste mit der Zuordnung Klasse zu Lehrkräfteteam
+.DESCRIPTION
+   Baut eine Hashliste mit der Zuordnung Klasse zu Lehrkräfteteam mit Daten aus dem aktuellen Webuntis
+   Key: Klassenname, Value: Komma separierte Liste mit Lehrkräftekürzeln, z.B. FISI24D: "KE,LE,WE"
+   Wenn $checkHashlistClassesTeachers $true gesetzt wird (default ist $false), 
+   wird nach einer vorher abgespeicherten Version der Hashliste geschaut und, falls diese vorhanden UND TAGESAKTUELL ist, 
+   diese verwendet anstelle der Webuntisdaten. Dieses Verfahren bietet Geschwindigkeitsvorteile 
+   gegenüber der Abfrage in Webuntis, nutzt aber evtl. nicht die aktuellen Daten
+.EXAMPLE
+   get-untisClassTeacherTeams
+.EXAMPLE
+   get-untisClassTeacherTeams $true
+#>
+function get-untisClassTeacherTeams{
+    Param(
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+            [Boolean]$checkHashlistClassesTeachers = $false, # $true: use stored CSV-file if available and from today
+        [Parameter(Mandatory=$true)]
+            [string]$WUlocationClassTeachers, 
+        [Parameter(Mandatory=$true)]
+            [string]$WUclassesTeachersDelimiter,
+        [Parameter(Mandatory=$true)]
+            [System.Management.Automation.PSCredential]$WUcreds
+
+    )
+    Begin{
+        $funcName = $MyInvocation.InvocationName # wer bin ich?
+     }  
+    Process {
+        if ($checkHashlistClassesTeachers -and (Test-Path ($WUlocationClassTeachers)) -and ((Get-Item ($WUlocationClassTeachers)).LastWriteTime.Date -eq (Get-Date).Date)) {
+            # Hashlist classes-teachers must be used and they are already created and from today
+            $hashClassesTeachers = @{}
+            $f=Import-Csv $WUlocationClassTeachers
+            foreach ($row in $f){$hashClassesTeachers[$row.name]=$row.value}
+        }
+        else{
+            # No check if lists are stored or CSV-file not found --> Login Untis
+            $feedbacklogin=login-untis -url https://borys.webuntis.com/WebUntis/jsonrpc.do?school=MMBbS%20Hannover -credential $WUcreds
+            write-verbose $feedbacklogin.toString() # damit keine Logininformationen im Klartext in der Konsole erscheinen
+            # Alle Lehrkräfte aus dem aktuellen Stundenplan ermitteln
+            $alleLuL = Get-UntisTeachers
+            # Speicher für Timetable schulweit und über ein Jahr
+            $classesTeachersRaw=@()
+            
+            foreach ($LoL in $alleLuL){
+                # Ask Untis to start today
+
+                $year = (get-date).year
+                $monthString = ((get-date).Month).tostring()
+                if ([int]$monthString -lt 8) {$year-=1} # second half of the school term
+                $dateString = $year.toString() + "1231" # we need a valid date within the school term
+                $startEndTerm=get-sjNds -sj $dateString
+                write-host "$funcName : --$($LoL.name)-- hole Stundenplaneinträge von Webuntis ..."
+                $classesTeacherRaw=(Get-UntisTimetable -elementtype teacher -id $LoL.id -startDate $startEndTerm.startDate -endDate $startEndTerm.enddate)  
+                $classesTeachersRaw+=$classesTeacherRaw
+                Start-Sleep -Milliseconds 100                    
+            } # Ende foreach ($LoL in $alleLuL)
+
+            # sort and bind teachers to classes
+            Write-Host "$funcName : Sortiere und lösche Duplikate in Hashtabelle Klassen/ Lehrkräfte..."
+            $classesTeachers =@{}
+            foreach ($entry in $classesTeachersRaw){
+                foreach ($class in $entry.kl){
+
+                    # Klasse schon eingetragen?
+                    if ($classesTeachers.($class.name) -ne $null){
+                        # class already exists
+                        foreach ($teacher in $entry.te){
+                            # multiple teachers possible (teamteaching)
+                            # Lehrkräfte in Array speichern, weil in einer Liste mit Trennzeichen sich 
+                            # Suchprobleme ergeben (NO ist in KNO enthalten z.B.)
+                            $listContainsTeacher = $false
+                            $arrayClassTeachers = @()
+                            $arrayClassTeachers = ($classesTeachers.($class.name)).split(",")
+                            foreach ($elementOfClassTeachers in $arrayClassTeachers){
+                                if ($elementOfClassTeachers -eq $teacher.name){
+                                    $listContainsTeacher = $true
+                                }
+                            }
+                            if (!$listContainsTeacher){
+                                # teacher not yet associated
+                                $classesTeachers.($class.name) += $teacher.name
+                            }
+                        }
+                    }
+                    else {
+                        # class not in list right now --> create and fill in 1st teacher
+                        $classesTeachers.($class.name)=[Array]$entry.te.name
+                    }                
+                }
+            }
+            Write-Host "$funcName : Alles sortiert und Duplikate entfernt!"
+            Write-Host "$funcName : Baue die Hashtabelle mit Klassen (keys) und Komma separierte Liste mit Lehrkräftekürzeln ..."
+            # das oben für die Suche nach bereits eingetragenen Lehrkräften angelegte Array für die Lehrkraftkürzel
+            # (Grund z.B.: NO ist Element von KNO und wird dann nicht gefunden) wieder auflösen und als Liste mit
+            # Trennzeichen erstellen
+            $hashClassesTeachers= @{}
+            foreach ($key in $classesTeachers.Keys){
+                $hashClassesTeachers[$key] = @($classesTeachers[$key] | where-object {$_ -like '*'}) -join $WUclassesTeachersDelimiter
+                
+            }
+
+            $hashClassesTeachers.GetEnumerator()| export-csv -noTypeInformation -path $WUlocationClassTeachers -encoding UTF8
+        } # end else
+
+        write-host "$funcName : Hashtabelle mit Klassen und Lehrkräften fertig erstellt!"
+        return $hashClassesTeachers        
+    }  # end Process
+} # end function get-untisClassTeacherTeams

@@ -231,67 +231,154 @@ function Get-BPPupilImages
    Liest die Schüler aus BBS Planung aus
 .EXAMPLE
    Get-BPPupils
+.EXAMPLE
+   Get-BPPupils -useDB $false -bpPlanBackupRootDir "C:\Programme\BBS-Planung\Sicherung"
 #>
 function Get-BPPupils
 {
     [CmdletBinding()]
     Param
     (
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [System.Boolean]$useDB=$true,
+        # $useDB -eq $true: work with Access DB
+        # $useDB -eq $false: work with BBS-Plan backup files
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipelineByPropertyName=$true)]
+        [String]$bpBackupRootDir="D:\Programme\BBS-Planung\Sicherung"
+        # Rootfolder of BBS-Plan backups
     )
 
     Begin
     {
-        if ($global:connection) {
-            if ($global:connection.State -eq "Open") {
-                $command = $global:connection.CreateCommand()
-	            $command.CommandText = "Select * From SIL"
-                Write-Verbose "Lese Datenbank SIL (Schülerdaten) ein!" 
+        if ($useDB){
+            if ($global:connection) {
+                if ($global:connection.State -eq "Open") {
+                    $command = $global:connection.CreateCommand()
+                    $command.CommandText = "Select * From SIL"
+                    Write-Verbose "Lese Datenbank SIL (Schülerdaten) ein!" 
 
-                $dataset = New-Object System.Data.DataSet
-	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
-                $out=$adapter.Fill($dataset)
-                $schueler=@();
-                foreach ($item in $dataset.Tables[0]) {
-                #$item
-                    $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","EMAIL","FAX","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER","E_ANREDE","E_NNAME","E_VNAME","E_STR","E_PLZ","E_ORT","E_TEL","E_FAX","E_EMAIL"
-                    $sch.BBSID=$item.NR_SCHÜLER;
-                    $sch.NNAME=$item.NNAME;
-                    $sch.VNAME=$item.VNAME;
-                    if ((""+$item.GEBDAT).Length -gt 0) {
-                        [datetime]$sch.GEBDAT=$item.GEBDAT
-                    }
-                    $sch.GEBORT=$item.GEBORT
-                    $sch.STR=$item.STR
-                    $sch.PLZ=$item.PLZ
-                    $sch.ORT=$item.ORT
-                    $sch.TEL=$item.TEL
-                    $sch.TEL_HANDY=$item.TEL_HANDY
-		    $sch.FAX=$item.FAX
-                    $sch.EMAIL=$item.EMAIL
-                    $sch.GESCHLECHT=$item.GESCHLECHT
-                    $sch.KL_NAME=$item.KL_NAME
-                    $sch.BETRIEB_NR=$item.BETRIEB_NR                    
-                    $sch.E_ANREDE=$item.E_ANREDE
-                    $sch.E_NNAME=$item.E_NNAME
-                    $sch.E_VNAME=$item.E_VNAME
-                    $sch.E_STR=$item.E_STR
-                    $sch.E_PLZ=$item.E_PLZ
-                    $sch.E_ORT=$item.E_ORT
-                    $sch.E_TEL=$item.E_TEL
-                    $sch.E_FAX=$item.E_FAX
-                    $sch.E_EMAIL=$item.E_EMAIL
-                    $schueler+=$sch;    
-                } 
-                Write-Verbose "Insgesammt $($schueler.Length) Schüler eingelesen!"
-                return $schueler
+                    $dataset = New-Object System.Data.DataSet
+                    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                    $out=$adapter.Fill($dataset)
+                    $schueler=@();
+                    foreach ($item in $dataset.Tables[0]) {
+                    #$item
+                        $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","FAX","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER","E_ANREDE","E_NNAME","E_VNAME","E_STR","E_PLZ","E_ORT","E_TEL","E_FAX","E_EMAIL"
+                        $sch.BBSID=$item.NR_SCHÜLER;
+                        $sch.NNAME=$item.NNAME;
+                        $sch.VNAME=$item.VNAME;
+                        if ((""+$item.GEBDAT).Length -gt 0) {
+                            [datetime]$sch.GEBDAT=$item.GEBDAT
+                        }
+                        $sch.GEBORT=$item.GEBORT
+                        $sch.STR=$item.STR
+                        $sch.PLZ=$item.PLZ
+                        $sch.ORT=$item.ORT
+                        $sch.TEL=$item.TEL
+                        $sch.TEL_HANDY=$item.TEL_HANDY
+                        $sch.FAX=$item.FAX
+                        $sch.EMAIL=$item.EMAIL
+                        $sch.GESCHLECHT=$item.GESCHLECHT
+                        $sch.KL_NAME=$item.KL_NAME
+                        $sch.BETRIEB_NR=$item.BETRIEB_NR                    
+                        $sch.E_ANREDE=$item.E_ANREDE
+                        $sch.E_NNAME=$item.E_NNAME
+                        $sch.E_VNAME=$item.E_VNAME
+                        $sch.E_STR=$item.E_STR
+                        $sch.E_PLZ=$item.E_PLZ
+                        $sch.E_ORT=$item.E_ORT
+                        $sch.E_TEL=$item.E_TEL
+                        $sch.E_FAX=$item.E_FAX
+                        $sch.E_EMAIL=$item.E_EMAIL
+                        $schueler+=$sch;    
+                    } 
+                    Write-Verbose "Insgesammt $($schueler.Length) Schüler eingelesen!"
+                    return $schueler
+                }
+                else {
+                    Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                }
             }
             else {
-                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             }
         }
-        else {
-            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+        else{
+           
+            # use data from BBS-Plan backup files
+            # root location is function parameter $bpBackupRootDir, 
+            #   generally D:\Programme\BBS-Planung\Sicherung
+            # Subdir of the actual schoolterm is like SJ2324
+            # Within this subdir we find further subdirs for daily backups like 
+            #   V_AUTOMATISCH_T_2023_07_06_Zeit_16_10_51
+            #
+            # find out subdir of the actual schoolterm
+            $thisMonth = get-date -format "MM"
+            $thisYear = get-date -format "yy"
+            if ($thisMonth -in "08","09","10","11","12"){
+                $schoolTermSubDir= "SJ"+$thisYear+([int]$thisYear+1).toString()
+            }
+            else{
+                $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
+            }
+            # find out subdirectory with latest backup
+            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+            # open file SK_SIL.TXT
+            # "SNR";"KL_NAME";"LFD";"STATUS";"NR_SCHÜLER";"NNAME";"VNAME";"GEBDAT";"GEBORT";"STR";"PLZ";"ORT";"TEL";"FAX";"LANDKREIS";"GESCHLECHT";"KONF";"STAAT";"FAMSTAND";"SFO";"TAKURZ";"KLST";"ORG";"DAUER";"TAKLSTORG";"SFOTEXT";"TALANG";"ORG_N";"A";"BG";"BG_SFO";"BG_BFELD";"BG_FREI";"BG_KLST";"BG_ORG";"BG_DAUER";"KO";"EINTR_DAT";"AUSB_BEGDAT";"A_DAUER";"A_ENDEDAT";"ANRECH_BGJ";"WIEDERHOL";"ABSCHLUSS";"HERKUNFT";"FH_Z";"UM";"A_AMT";"BETRAG";"E_ANREDE";"E_NNAME";"E_VNAME";"E_STR";"E_PLZ";"E_ORT";"E_TEL";"E_FAX";"E_ANREDE2";"E_NNAME2";"E_VNAME2";"E_STR2";"E_PLZ2";"E_ORT2";"E_TEL2";"E_FAX2";"BETRIEB_NR";"BETRIEB_NR2";"BEMERK";"KENNUNG1";"KENNUNG2";"KENNUNG3";"DATUM1";"DATUM2";"K1";"K_NR1";"K2";"K_NR2";"K3";"K_NR3";"K4";"K_NR4";"K5";"K_NR5";"K6";"K_NR6";"K7";"K_NR7";"K8";"K_NR8";"K9";"K_NR9";"K10";"K_NR10";"K11";"K_NR11";"K12";"K_NR12";"K13";"K_NR13";"K14";"K_NR14";"K15";"K_NR15";"ZU";"MARKE";"FEHLER";"LDK";"HER_ZUSATZ";"E_LDK";"E_LDK2";"BETRIEB_NR3";"BETRIEB_NR4";"KENNUNG4";"KENNUNG5";"KENNUNG6";"SNR1";"SNR2";"LDK_Z";"BETRAG_G";"AS";"BAFOEG";"LML1";"BUDGET_TH";"BUDGET_FP";"KONF_TEXT";"A_BEZIRK";"P_FAKTOR";"SCHULPFLICHT";"N_DE";"HER_B";"BL_SOLL";"LM_M";"LM_Z";"LM_DAT";"EMAIL";"E_EMAIL";"E_EMAIL2";"IDENT";"TEL_HANDY";"TAKLSTORG_ERST";"ZFH";"E_BEM";"E_INSTITUTION";"E_TEL_HANDY1";"E_TEL_HANDY2";"DSE";"DSE_VOTUM";"DASNR";"E_BETREUER";"E_VORMUND"
+            Write-Verbose "Lese Backupdatei SK_SIL.TXT (Schüler) aus Verzeichnis $bpBackupRootDir\$schoolTermSubDir\$latestSubdirectory ein!" 
+            # Pfad zur CSV-Datei
+            $csvFilePath = "$latestSubdirectory\SK_SIL.TXT"
+            # Read CSV-Datei
+            try {
+                $csvContent = Import-Csv -Path $csvFilePath -Delimiter ';' -Encoding "iso-8859-9"
+
+                if ($csvContent -ne $null) {
+                    $schueler=@();
+                    foreach ($item in $csvContent) {
+                        #$item
+                        $sch="" | Select-Object -Property "BBSID","NNAME","VNAME","GEBDAT","GEBORT","STR","PLZ","ORT","TEL","TEL_HANDY","FAX","EMAIL","GESCHLECHT","KL_NAME","BETRIEB_NR","ID_AUSBILDER","E_ANREDE","E_NNAME","E_VNAME","E_STR","E_PLZ","E_ORT","E_TEL","E_FAX","E_EMAIL"
+                        $sch.BBSID=$item.NR_SCHÜLER;
+                        $sch.NNAME=$item.NNAME;
+                        $sch.VNAME=$item.VNAME;
+                        if ((""+$item.GEBDAT).Length -gt 0) {
+                            $sch.GEBDAT=[datetime]::ParseExact($item.GEBDAT, "d.M.yy HH:mm:ss", $null)
+                        }
+                        $sch.GEBORT=$item.GEBORT
+                        $sch.STR=$item.STR
+                        $sch.PLZ=$item.PLZ
+                        $sch.ORT=$item.ORT
+                        $sch.TEL=$item.TEL
+                        $sch.TEL_HANDY=$item.TEL_HANDY
+                        $sch.FAX=$item.FAX
+                        $sch.EMAIL=$item.EMAIL
+                        $sch.GESCHLECHT=$item.GESCHLECHT
+                        $sch.KL_NAME=$item.KL_NAME
+                        $sch.BETRIEB_NR=$item.BETRIEB_NR                    
+                        $sch.E_ANREDE=$item.E_ANREDE
+                        $sch.E_NNAME=$item.E_NNAME
+                        $sch.E_VNAME=$item.E_VNAME
+                        $sch.E_STR=$item.E_STR
+                        $sch.E_PLZ=$item.E_PLZ
+                        $sch.E_ORT=$item.E_ORT
+                        $sch.E_TEL=$item.E_TEL
+                        $sch.E_FAX=$item.E_FAX
+                        $sch.E_EMAIL=$item.E_EMAIL
+                        $schueler+=$sch;    
+                    } 
+                    Write-Verbose "Insgesamt $($schueler.Length) Schüler eingelesen!"
+                    return $schueler
+    
+                } else {
+                    Write-Host "Get-BPPupils: Die CSV-Datei $csvFilePath ist leer oder konnte nicht gelesen werden."
+                }
+            } 
+            catch {
+                Write-Host "Get-BPPupils: Fehler beim Lesen der CSV-Datei: $csvFilePath. "$Error
+            }
         }
+        
     }
 }
 
@@ -387,46 +474,115 @@ function Get-BPPupil
    Liest die Betriebe aus BBS Planung aus
 .EXAMPLE
    Get-BPCompanies
+.EXAMPLE
+   Get-BPCompanies -useDB $false -bpPlanBackupRootDir "C:\Programme\BBS-Planung\Sicherung"
+
 #>
 function Get-BPCompanies
 {
     [CmdletBinding()]
     Param
     (
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [System.Boolean]$useDB=$true,
+        # $useDB -eq $true: work with Access DB
+        # $useDB -eq $false: work with BBS-Plan backup files
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipelineByPropertyName=$true)]
+        [String]$bpBackupRootDir="D:\Programme\BBS-Planung\Sicherung"
+        # Rootfolder of BBS-Plan backups
     )
 
     Begin
     {
-        if ($global:connection) {
-            if ($global:connection.State -eq "Open") {
-                $command = $global:connection.CreateCommand()
-	            $command.CommandText = "Select * From BETRIEBE"
-                Write-Verbose "Lese Datenbank BETRIEBE (Betriebe/Ausbilder) ein!" 
-                $dataset = New-Object System.Data.DataSet
-	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
-                $out=$adapter.Fill($dataset)
-                $betriebe=@();
-                foreach ($item in $dataset.Tables[0]) {
-                    $bet="" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID","BETRIEB_NR"
+        if($useDB){
+            if ($global:connection) {
+                if ($global:connection.State -eq "Open") {
+                    $command = $global:connection.CreateCommand()
+                    $command.CommandText = "Select * From BETRIEBE"
+                    Write-Verbose "Lese Datenbank BETRIEBE (Betriebe/Ausbilder) ein!" 
+                    $dataset = New-Object System.Data.DataSet
+                    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                    $out=$adapter.Fill($dataset)
+                    $betriebe=@();
+                    foreach ($item in $dataset.Tables[0]) {
+                        $bet="" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID","BETRIEB_NR"
 
-                    $bet.NAME=$item.BETRNAM1;
-                    $bet.STRASSE=$item.BETRSTR;
-                    $bet.PLZ=$item.BETRPLZ;
-                    $bet.ORT=$item.BETRORT;
-                    $bet.ID=$item.ID;
-                    $bet.BETRIEB_NR=$item.BETRIEB_NR;
+                        $bet.NAME=$item.BETRNAM1;
+                        $bet.STRASSE=$item.BETRSTR;
+                        $bet.PLZ=$item.BETRPLZ;
+                        $bet.ORT=$item.BETRORT;
+                        $bet.ID=$item.ID;
+                        $bet.BETRIEB_NR=$item.BETRIEB_NR;
 
-                    $betriebe+=$bet;
-                } 
-                Write-Verbose "Insgesammt $($betriebe.Length) Betriebe eingelesen!"
-                return $betriebe
+                        $betriebe+=$bet;
+                    } 
+                    Write-Verbose "Insgesammt $($betriebe.Length) Betriebe eingelesen!"
+                    return $betriebe
+                }
+                else {
+                    Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                }
             }
             else {
-                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             }
         }
-        else {
-            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+        else {            
+            # use data from BBS-Plan backup files
+            # root location is function parameter $bpBackupRootDir, 
+            #   generally D:\Programme\BBS-Planung\Sicherung
+            # Subdir of the actual schoolterm is like SJ2324
+            # Within this subdir we find further subdirs for daily backups like 
+            #   V_AUTOMATISCH_T_2023_07_06_Zeit_16_10_51
+            #
+            # find out subdir of the actual schoolterm
+            $thisMonth = get-date -format "MM"
+            $thisYear = get-date -format "yy"
+            if ($thisMonth -in "08","09","10","11","12"){
+                $schoolTermSubDir= "SJ"+$thisYear+([int]$thisYear+1).toString()
+            }
+            else{
+                $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
+            }
+            # find out subdirectory with latest backup
+            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+            # open file SK_BTR.TXT
+            # "SNR";"BETRIEB_NR";"BETRSORT";"BETRANR";"BETRZUSATZ";"BETRNAM1";"BETRNAM2";"BETRSTR";"BETRPLZ";"BETRORT";"BETRTEL";"BETRANSPR";"BETRFAX";"BETRLANDKR";"BETRLANDKR_Z";"BETRONLINE";"BETRBR1";"BETRBR2";"BETRBR3";"BETRBR4";"BETRBR5";"BETRBR6";"BETRKENN1";"BETRKENN2";"BETRKENN3";"BETRBEM";"BETRTEL2";"BETRANR2";"BETRANSPR2";"BETRFAX2";"BETRONLINE2";"BETRHOMEPAGE1";"BETRHOMEPAGE2";"BETRTEL_HANDY1";"BETRTEL_HANDY2"
+            Write-Verbose "Lese Backupdatei SK_BTR.TXT (Betriebe) aus Verzeichnis $bpBackupRootDir\$schoolTermSubDir\$latestSubdirectory ein!" 
+            # Pfad zur CSV-Datei
+            $csvFilePath = "$latestSubdirectory\SK_BTR.TXT"
+
+            # Read CSV-Datei
+            try {
+                $csvContent = Import-Csv -Path $csvFilePath -Delimiter ';' -Encoding "iso-8859-9"
+
+                if ($csvContent -ne $null) {
+                    $betriebe=@();
+                    foreach ($item in $csvContent) {
+                        $bet="" | Select-Object -Property "NAME","PLZ","ORT","STRASSE","NR","ID","BETRIEB_NR"
+
+                        $bet.NAME=$item.BETRNAM1;
+                        $bet.STRASSE=$item.BETRSTR;
+                        $bet.PLZ=$item.BETRPLZ;
+                        $bet.ORT=$item.BETRORT;
+                        $bet.ID=$item.ID;
+                        $bet.BETRIEB_NR=$item.BETRIEB_NR;
+
+                        $betriebe+=$bet;
+                    } 
+                    Write-Verbose "Insgesamt $($betriebe.Length) Betriebe eingelesen!"
+                    return $betriebe
+                } 
+                else {
+                    Write-Host "Get-BPCompanies: Die CSV-Datei $csvFilePath ist leer oder konnte nicht gelesen werden."
+                }
+            } 
+            catch {
+                Write-Host "Get-BPCompanies: Fehler beim Lesen der CSV-Datei: $csvFilePath"
+            }
+
         }
     }
 }
@@ -497,48 +653,125 @@ function Get-BPCompany
 .DESCRIPTION
    Liest die Ausbilder aus BBS Planung aus
 .EXAMPLE
-   Get-BPCompanies
+   Get-BPInstructors
+.EXAMPLE
+   Get-BPInstructors -useDB $false -bpPlanBackupRootDir "C:\Programme\BBS-Planung\Sicherung"
+
 #>
 function Get-BPInstructors
 {
     [CmdletBinding()]
     Param
     (
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [System.Boolean]$useDB=$true,
+        # $useDB -eq $true: work with Access DB
+        # $useDB -eq $false: work with BBS-Plan backup files
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipelineByPropertyName=$true)]
+        [String]$bpBackupRootDir="D:\Programme\BBS-Planung\Sicherung"
+        # Rootfolder of BBS-Plan backups  
     )
 
     Begin
     {
-        if ($global:connection) {
-            if ($global:connection.State -eq "Open") {
-                $command = $global:connection.CreateCommand()
-	            $command.CommandText = "Select * From BETRIEBE"
-                Write-Verbose "Lese Datenbank BETRIEBE (Betriebe/Ausbilder) ein!" 
-                $dataset = New-Object System.Data.DataSet
-	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
-                $out=$adapter.Fill($dataset)
+        $funcName = $MyInvocation.InvocationName
+        if ($useDB){
+            if ($global:connection) {
+                if ($global:connection.State -eq "Open") {
+                    $command = $global:connection.CreateCommand()
+                    $command.CommandText = "Select * From BETRIEBE"
+                    Write-Verbose "Lese Datenbank BETRIEBE (Betriebe/Ausbilder) ein!" 
+                    $dataset = New-Object System.Data.DataSet
+                    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                    $out=$adapter.Fill($dataset)
 
-                $ausbilder=@();
-                foreach ($item in $dataset.Tables[0]) {
-                    $aus="" | Select-Object -Property "BETRIEB_NR","ID_BETRIEB","NNAME","EMAIL","TELEFON","FAX"
+                    $ausbilder=@();
+                    foreach ($item in $dataset.Tables[0]) {
+                        $aus="" | Select-Object -Property "BETRIEB_NR","ID_BETRIEB","NNAME","EMAIL","TELEFON","FAX","NNAME2","EMAIL2","TELEFON2"
 
-                    $aus.TELEFON=$item.BETRTEL;
-                    $aus.NNAME=$item.BETRANSPR;
-                    $aus.FAX=$item.BETRFAX;
-                    $aus.EMAIL=$item.BETRONLINE
-                    $aus.ID_BETRIEB=$item.id
-                    $aus.BETRIEB_NR=$item.BETRIEB_NR
-                    $ausbilder+=$aus;
-                } 
-                Write-Verbose "Insgesammt $($ausbilder.Length) Ausbilder eingelesen!"
-                return $ausbilder
+                        $aus.TELEFON=$item.BETRTEL;
+                        $aus.NNAME=$item.BETRANSPR;
+                        $aus.FAX=$item.BETRFAX;
+                        $aus.EMAIL=$item.BETRONLINE
+                        $aus.TELEFON2=$item.BETRTEL2;
+                        $aus.NNAME2=$item.BETRANSPR2;
+                        $aus.EMAIL2=$item.BETRONLINE2
+                        $aus.ID_BETRIEB=$item.id
+                        $aus.BETRIEB_NR=$item.BETRIEB_NR
+                        $ausbilder+=$aus;
+                    } 
+                    Write-Verbose "Insgesamt $($ausbilder.Length) Ausbilder eingelesen!"
+                    return $ausbilder
+                }
+                else {
+                    Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                }
             }
             else {
-                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             }
         }
-        else {
-            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+        else{
+            
+            # use data from BBS-Plan backup files
+            # root location is function parameter $bpBackupRootDir, 
+            #   generally D:\Programme\BBS-Planung\Sicherung
+            # Subdir of the actual schoolterm is like SJ2324
+            # Within this subdir we find further subdirs for daily backups like 
+            #   V_AUTOMATISCH_T_2023_07_06_Zeit_16_10_51
+            #
+            # find out subdir of the actual schoolterm
+            $thisMonth = get-date -format "MM"
+            $thisYear = get-date -format "yy"
+            if ($thisMonth -in "08","09","10","11","12"){
+                $schoolTermSubDir= "SJ"+$thisYear+([int]$thisYear+1).toString()
+            }
+            else{
+                $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
+            }
+            # find out subdirectory with latest backup
+            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+            # open file SK_BTR.TXT
+            # "SNR";"BETRIEB_NR";"BETRSORT";"BETRANR";"BETRZUSATZ";"BETRNAM1";"BETRNAM2";"BETRSTR";"BETRPLZ";"BETRORT";"BETRTEL";"BETRANSPR";"BETRFAX";"BETRLANDKR";"BETRLANDKR_Z";"BETRONLINE";"BETRBR1";"BETRBR2";"BETRBR3";"BETRBR4";"BETRBR5";"BETRBR6";"BETRKENN1";"BETRKENN2";"BETRKENN3";"BETRBEM";"BETRTEL2";"BETRANR2";"BETRANSPR2";"BETRFAX2";"BETRONLINE2";"BETRHOMEPAGE1";"BETRHOMEPAGE2";"BETRTEL_HANDY1";"BETRTEL_HANDY2"
+            Write-Verbose "Lese Backupdatei SK_BTR.TXT (Betriebe) aus Verzeichnis $bpBackupRootDir\$schoolTermSubDir\$latestSubdirectory ein!" 
+            # Pfad zur CSV-Datei
+            $csvFilePath = "$latestSubdirectory\SK_BTR.TXT"
+
+            # Read CSV-Datei
+            try {
+                $csvContent = Import-Csv -Path $csvFilePath -Delimiter ';' -Encoding "iso-8859-9"
+
+                if ($csvContent -ne $null) {
+                    $ausbilder=@();
+                    foreach ($item in $csvContent) {
+                        $aus="" | Select-Object -Property "BETRIEB_NR","ID_BETRIEB","NNAME","EMAIL","TELEFON","FAX","NNAME2","EMAIL2","TELEFON2"
+
+                        $aus.TELEFON=$item.BETRTEL;
+                        $aus.NNAME=$item.BETRANSPR;
+                        $aus.FAX=$item.BETRFAX;
+                        $aus.EMAIL=$item.BETRONLINE
+                        $aus.TELEFON2=$item.BETRTEL2;
+                        $aus.NNAME2=$item.BETRANSPR2;
+                        $aus.EMAIL2=$item.BETRONLINE2
+                        $aus.ID_BETRIEB=$item.id
+                        $aus.BETRIEB_NR=$item.BETRIEB_NR
+                        $ausbilder+=$aus;
+                    } 
+                    Write-Verbose "Insgesamt $($ausbilder.Length) Ausbilder eingelesen!"
+                    return $ausbilder
+                }
+                else {
+                    Write-Host "$funcName : Die CSV-Datei $csvFilePath ist leer oder konnte nicht gelesen werden."
+                }
+            } 
+            catch {
+                Write-Host "$funcName : Fehler beim Lesen der CSV-Datei: $csvFilePath"
+            }
+
         }
+    
     }
 }
 
@@ -546,48 +779,113 @@ function Get-BPInstructors
 .Synopsis
    Liest die Lehrer aus BBS Planung aus
 .DESCRIPTION
-   Liest die Lehrer aus BBS Planung aus
+   Liest die Lehrer aus BBS Planung aus. Ist $useDB auf false, so werden die Daten aus einem 
+   Backup von BBS-Planung geholt. Das Backup liegt im Oberverzeichnis $bpBackupRootDir
 .EXAMPLE
    Get-BPTeachers
+.EXAMPLE
+   Get-BPTeachers $false "C:\access\plan\Backup"
 #>
 function Get-BPTeachers
 {
     [CmdletBinding()]
     Param
     (
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [System.Boolean]$useDB=$true,
+        # $useDB -eq $true: work with Access DB
+        # $useDB -eq $false: work with BBS-Plan backup files
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipelineByPropertyName=$true)]
+        [String]$bpBackupRootDir="D:\Programme\BBS-Planung\Sicherung"
+        # Rootfolder of BBS-Plan backups
     )
 
     Begin
     {
-        if ($global:connection) {
-            if ($global:connection.State -eq "Open") {
-                $command = $global:connection.CreateCommand();
-	            $command.CommandText = "Select * From LVUEL"
-                Write-Verbose "Lese Datenbank LVUEL (Lehrerdaten) ein!" 
-                $dataset = New-Object System.Data.DataSet
-	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
-                $out=$adapter.Fill($dataset)
-                $lehrer=@();
-                foreach ($item in $dataset.Tables[0]) {
-                    $leh="" | Select-Object -Property "NNAME","VNAME","KÜRZEL","TELEFON","FAX","EMAIL"
-                    $leh.NNAME=$item.NNAME;
-                    $leh.VNAME=$item.VNAME;
-                    $leh.Kürzel=$item.NKURZ;
-                    $leh.TELEFON=$item.TEL1;
-                    $leh.FAX=$item.FAX;
-                    $leh.EMAIL=$item.ONLINE;
-                    $lehrer+=$leh;
+        $funcName = $MyInvocation.InvocationName
+        if ($useDB){
+            if ($global:connection) {
+                if ($global:connection.State -eq "Open") {
+                    $command = $global:connection.CreateCommand();
+                    $command.CommandText = "Select * From LVUEL"
+                    Write-Verbose "Lese Datenbank LVUEL (Lehrerdaten) ein!" 
+                    $dataset = New-Object System.Data.DataSet
+                    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                    $out=$adapter.Fill($dataset)
+                    $lehrer=@();
+                    foreach ($item in $dataset.Tables[0]) {
+                        $leh="" | Select-Object -Property "NNAME","VNAME","KÜRZEL","TELEFON","FAX","EMAIL"
+                        $leh.NNAME=$item.NNAME;
+                        $leh.VNAME=$item.VNAME;
+                        $leh.Kürzel=$item.NKURZ;
+                        $leh.TELEFON=$item.TEL1;
+                        $leh.FAX=$item.FAX;
+                        $leh.EMAIL=$item.ONLINE;
+                        $lehrer+=$leh;
+                    }
+                    Write-Verbose "Insgesamt $($lehrer.Length) Lehrer eingelesen!"
+                    return $lehrer
                 }
-                Write-Verbose "Insgesammt $($lehrer.Length) Lehrer eingelesen!"
-                return $lehrer
+                else {
+                    Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                }
             }
             else {
-                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             }
         }
-        else {
-            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
-        }
+        else{
+            # use data from BBS-Plan backup files
+            # root location is function parameter $bpBackupRootDir, 
+            #   generally D:\Programme\BBS-Planung\Sicherung
+            # Subdir of the actual schoolterm is like SJ2324
+            # Within this subdir we find further subdirs for daily backups like 
+            #   V_AUTOMATISCH_T_2023_07_06_Zeit_16_10_51
+            #
+            # find out subdir of the actual schoolterm
+            $thisMonth = get-date -format "MM"
+            $thisYear = get-date -format "yy"
+            if ($thisMonth -in "08","09","10","11","12"){
+                $schoolTermSubDir= "SJ"+$thisYear+([int]$thisYear+1).toString()
+            }
+            else{
+                $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
+            }
+            # find out subdirectory with latest backup
+            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+            # open file SK_LV.TXT
+            # "SNR";"SORT";"SGL1";"SGL2";"SGL3";"SGL4";"SGL5";"STAMM";"NNAME";"VNAME";"NKURZ";"GEBDAT";"GESCHLECHT";"ZIFFER";"STAAT";"KONF";"ADBEZ";"LEHRAMT";"LFACH1";"LFACH2";"LFACH3";"STD_RV";"ERM1SCHL";"ERM1STD";"ERM2SCHL";"ERM2STD";"ERM3SCHL";"ERM3STD";"ERM4SCHL";"ERM4STD";"ERM5SCHL";"ERM5STD";"STDANDER";"STDMEHR";"STDGES";"STD_SGL1";"STD_SGL2";"STD_SGL3";"STD_SGL4";"STD_SGL5";"ZUABGANG";"L_ART";"A_SNR1";"A_SNR2";"FUNK";"BEM";"STR";"PLZ";"ORT";"TEL1";"TEL2";"FAX";"ONLINE";"KFZ";"BEGINN";"ENDE";"AKTZEICH";"VERB";"BEF1";"BEF2";"JUBI";"MEHRMIN";"ABZK";"ABZK_B";"ABZK_E";"L_NR_STATI";"F_LV";"F_UEL";"FEHLER";"STDABZK";"STD_DIFF";"KO";"KO2";"AENDERUNG";"BEM_S";"IDENT"
+            Write-Verbose "$funcName : Lese Backupdatei SK_LV.TXT (Lehrkräfte) aus Verzeichnis $bpBackupRootDir\$schoolTermSubDir\$latestSubdirectory ein!" 
+            # Pfad zur CSV-Datei
+            $csvFilePath = "$latestSubdirectory\SK_LV.TXT"
+
+            # Read CSV-Datei
+            try {
+                $csvContent = Import-Csv -Path $csvFilePath -Delimiter ';' -Encoding "iso-8859-9"
+
+                if ($csvContent -ne $null) {
+                    $lehrer=@();
+                    foreach ($item in $csvContent) {
+                        $leh="" | Select-Object -Property "NNAME","VNAME","KÜRZEL","TELEFON","FAX","EMAIL"
+                        $leh.NNAME=$item.NNAME;
+                        $leh.VNAME=$item.VNAME;
+                        $leh.KÜRZEL=$item.NKURZ;
+                        $leh.TELEFON=$item.TEL1;
+                        $leh.FAX=$item.FAX;
+                        $leh.EMAIL=$item.ONLINE;
+                        $lehrer+=$leh;
+                    } 
+                    Write-Verbose "Insgesamt $($lehrer.Length) Lehrkräfte eingelesen!" 
+                    return $lehrer
+                } else {
+                    Write-Host "$funcName : Die CSV-Datei $csvFilePath ist leer oder konnte nicht gelesen werden."
+                }
+            } catch {
+                Write-Host "$funcName : Fehler beim Lesen der CSV-Datei: $csvFilePath"
+            }
+        }        
     }
 }
 
@@ -595,43 +893,103 @@ function Get-BPTeachers
 .Synopsis
    Liest die Klassen aus BBS Planung aus
 .DESCRIPTION
-   Liest die Klassen aus BBS Planung aus
+   Liest die Klassen aus BBS Planung aus, entweder aus der Datenbank (Default) oder aus den Backupdateien
 .EXAMPLE
    Get-BPCourses
+.EXAMPLE
+   Get-BPCourses -useDB $false -bpPlanBackupRootDir "C:\Programme\BBS-Planung\Sicherung"
 #>
 function Get-BPCourses
 {
     [CmdletBinding()]
     Param
     (
+        [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
+        [System.Boolean]$useDB=$true,
+        # $useDB -eq $true: work with Access DB
+        # $useDB -eq $false: work with BBS-Plan backup files
+        [Parameter(Mandatory=$false,Position=1,ValueFromPipelineByPropertyName=$true)]
+        [String]$bpBackupRootDir="D:\Programme\BBS-Planung\Sicherung"
+        # Rootfolder of BBS-Plan backups
     )
 
     Begin
     {
-        if ($global:connection) {
-            if ($global:connection.State -eq "Open") {
-                $command = $global:connection.CreateCommand()
-	            $command.CommandText = "Select * From KUL"
-                Write-Verbose "Lese Datenbank KUL (Klassen) ein!" 
-                $dataset = New-Object System.Data.DataSet
-	            $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
-                $out=$adapter.Fill($dataset)
-                $klassen=@();
-                foreach ($item in $dataset.Tables[0]) {
-                    $kl="" | Select-Object -Property "KNAME","ID_LEHRER"
-                    $kl.KNAME=$item.KL_NAME;
-                    $kl.ID_LEHRER=$item.KL_LEHRER;
-                    $klassen+=$kl;  
-                } 
-                Write-Verbose "Insgesammt $($klassen.Length) Klassen eingelesen!" 
-                return $klassen
+        $funcName = $MyInvocation.InvocationName
+        if ($useDB){
+            if ($global:connection) {
+                if ($global:connection.State -eq "Open") {
+                    $command = $global:connection.CreateCommand()
+                    $command.CommandText = "Select * From KUL"
+                    Write-Verbose "Lese Datenbank KUL (Klassen) ein!" 
+                    $dataset = New-Object System.Data.DataSet
+                    $adapter = New-Object System.Data.OleDb.OleDbDataAdapter $command
+                    $out=$adapter.Fill($dataset)
+                    $klassen=@();
+                    foreach ($item in $dataset.Tables[0]) {
+                        $kl="" | Select-Object -Property "KNAME","ID_LEHRER"
+                        $kl.KNAME=$item.KL_NAME;
+                        $kl.ID_LEHRER=$item.KL_LEHRER;
+                        $klassen+=$kl;  
+                    } 
+                    Write-Verbose "Insgesamt $($klassen.Length) Klassen eingelesen!" 
+                    return $klassen
+                }
+                else {
+                    Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                }
             }
             else {
-                Write-Error "Verbindung zu BBS Planung ist nicht geöffnet, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+                Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
             }
         }
-        else {
-            Write-Error "Es existiert noch keine Verbindung zu BBS Planung, evtl. zunächst mit Connect-BBSPlan eine Verbindung aufbauen"
+        else{
+            # use data from BBS-Plan backup files
+            # root location is function parameter $bpBackupRootDir, 
+            #   generally D:\Programme\BBS-Planung\Sicherung
+            # Subdir of the actual schoolterm is like SJ2324
+            # Within this subdir we find further subdirs for daily backups like 
+            #   V_AUTOMATISCH_T_2023_07_06_Zeit_16_10_51
+            #
+            # find out subdir of the actual schoolterm
+            $thisMonth = get-date -format "MM"
+            $thisYear = get-date -format "yy"
+            if ($thisMonth -in "08","09","10","11","12"){
+                $schoolTermSubDir= "SJ"+$thisYear+([int]$thisYear+1).toString()
+            }
+            else{
+                $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
+            }
+            # find out subdirectory with latest backup
+            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+            # open file SK_KUL.TXT
+            # "SNR";"KL_NAME";"LFD";"KL_LEHRER";"BEM";"TEXT1";"TEXT2";"TEXT3";"DATUM1";"DATUM2";"KO";"P_FAKTOR";"FEHLER";"AS";"TEAM_KL_LEHRER"
+            Write-Verbose "$funcName : Lese Backupdatei SK_KUL.TXT (Klassen) aus Verzeichnis $bpBackupRootDir\$schoolTermSubDir\$latestSubdirectory ein!" 
+            # Pfad zur CSV-Datei
+            $csvFilePath = "$latestSubdirectory\SK_KUL.TXT"
+
+            # Read CSV-Datei
+            try {
+                $csvContent = Import-Csv -Path $csvFilePath -Delimiter ';' -Encoding "iso-8859-9"
+
+                if ($csvContent -ne $null) {
+                    $klassen=@();
+                    foreach ($item in $csvContent) {
+                        $kl="" | Select-Object -Property "KNAME","ID_LEHRER"
+                        $kl.KNAME=$item.KL_NAME;
+                        $kl.ID_LEHRER=$item.KL_LEHRER;
+                        $klassen+=$kl;  
+                    } 
+                    Write-Verbose "Insgesamt $($klassen.Length) Klassen eingelesen!" 
+                    return $klassen
+                } else {
+                    Write-Host "$funcName : Die CSV-Datei $csvFilePath ist leer oder konnte nicht gelesen werden."
+                }
+            } catch {
+                Write-Host "$funcName : Fehler beim Lesen der CSV-Datei: $csvFilePath"
+            }
         }
     }
 }

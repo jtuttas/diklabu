@@ -189,9 +189,7 @@ function Login-Diklabu
 
     Begin
     {
-        $org = [Net.ServicePointManager]::SecurityProtocol
-        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 
-        [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}        
+        
         if (-not $uri) {
             if ($Global:logins["diklabu"]) {
                 $uri=$Global:logins["diklabu"].location;
@@ -230,7 +228,6 @@ function Login-Diklabu
         catch {
             Write-Error $_.Exception.Message
         }
-        [Net.ServicePointManager]::SecurityProtocol=$org
         
     }
 }
@@ -254,5 +251,64 @@ function Get-Diklabu
         $Global:logins["diklabu"]
     }
 }
+<#
+.Synopsis
+   Ausgeben einer Bildschirmmeldung und Zeitdifferenz
+.DESCRIPTION
+   Ausgeben einer Bildschirmmeldung mit write-verbose und bei Bedarf Anzeigen einer Zeitdifferenz,
+   um die Dauer einer Programmausführung anzeigen zu können. Wenn eine Protokolldatei angegeben wird,
+   wird die Meldung auch in die Protokolldatei geschrieben.
+.EXAMPLE
+   write-msg "Hallo"
+.EXAMPLE
+   $now = get-date 
+   write-msg "Die aktuelle Zeitdifferenz zu jetzt ist: " $now
+.EXAMPLE
+   write-msg "Hallo" $null "c:\temp\protokoll.txt"
+#>
+function write-msg{
+    param(
+     [Parameter(Mandatory=$true, Position=0)]
+     [String]$msg,
+     [Parameter(Mandatory=$false, Position=1)]
+     [datetime]$time,
+     [Parameter(Mandatory=$false, Position=2)]
+     [String]$path_prot
+    )
+   
+    if($time){
+      # Zeitdifferenz ausgeben, wenn eine Zeit übergeben wurde (für Dauer einer Befehlsausführung)
+      [datetime]$end = get-date
+      $msg+=": "
+    $msg+=[math]::Round((new-timespan -start $time -end $end).totalSeconds)
+      $msg+=" Sekunden"
+    }
+    if ($path_prot) {write-prot $msg $path_prot}
+    write-host $msg
+    # Zeit nur zurückgeben, wenn keine Zeit übergeben wurde 
+    # (so kann vor einer Befehlsausführung die Anfangszeit ermittelt werden durch Ausgabe einer Meldung, 
+    # dass der Befehl gestartet wird)
+    if(!$time) {return (get-date)}
+   }
+######################### ende write-msg #######################################
 
-
+#####                         write-prot                                   #####
+<#
+.Synopsis
+   Protokollieren einer Meldung in der Protokolldatei
+.DESCRIPTION
+   Protokollieren einer Meldung in der Protokolldatei
+.EXAMPLE
+   write-prot "Hallo" "C:\protokoll.txt"
+#>   
+function write-prot{
+    param(
+        [Parameter(Mandatory=$true,Position=0,ValueFromPipelineByPropertyName=$true)]
+            [String]$text, # Text, der gespeichert werden soll
+        [Parameter(Mandatory=$true,Position=1,ValueFromPipelineByPropertyName=$true)]
+            [String]$path_prot # Name und Pfad zur Protokolldatei
+    )
+    $text=(get-date -format "hh:mm:ss") +": "+ $text
+    $text|out-file -filepath $path_prot -Append   
+}
+######################### ende write-prot #######################################
