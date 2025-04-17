@@ -6,7 +6,7 @@
 FROM ubuntu:16.04
 MAINTAINER Joerg Tuttas <tuttas@mmbbs.de>
 ENV DEBIAN_FRONTEND noninteractive
-
+ENV _JAVA_OPTIONS="-Djdk.tls.client.protocols=TLSv1.2"
 
 #Install firebird
 RUN apt-get update && \
@@ -85,9 +85,10 @@ RUN  mkdir /home/diklabu && \
         mkdir /home/diklabu/templates && \
         ln -s /etc/diklabu/config.json /glassfish4/glassfish/domains/domain1/config.json && \
         chmod +xxx diklabu/Diklabu/Diklabu/start.sh && \        
-        cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-full-2.2.8.jar /glassfish4/glassfish/domains/domain1/lib/ && \
-        asadmin --user=admin start-domain && \
-        /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050:encoding=ISO8859_1:characterEncoding=ISO8859_1:characterSetResults=ISO8859_1 connectionPoolKlassenbuch && \
+        cp /glassfish4/glassfish/domains/domain1/lib/ext/jaybird-5.0.7.jar /glassfish4/glassfish/domains/domain1/lib/
+
+RUN  asadmin --user=admin start-domain && \
+    /glassfish4/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/glassfishpwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/2.5/data/diklabu.GDB:ServerName=localhost:port=3050:useEncryption=false:encoding=ISO8859_1:characterEncoding=ISO8859_1:characterSetResults=ISO8859_1 connectionPoolKlassenbuch && \
         /glassfish4/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/glassfishpwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \
         asadmin --user=admin stop-domain 
 
