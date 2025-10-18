@@ -748,7 +748,7 @@ function get-sjNds {
                 enddate="20250702"
             }
             SJ2526 = @{
-                startdate="20250814"
+                startdate="20250813"
                 enddate="20260701"
             }
             SJ2627 = @{

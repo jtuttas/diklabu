@@ -45,7 +45,7 @@ function new-cwapClassesTeachers{
              Position=4)]
           [String]$allgCsvDelimiter
      )
-     Begin{
+
         $bpTeachers = get-BpTeachers -useDB $false -bpBackupRootDir $BPBackupRootDir
         # get credentials for Untis
         $WUcreds = get-LoginCreds -userKey "WUuser" -passKey "WUpass" -passFileKey "WUpassFile"
@@ -54,7 +54,7 @@ function new-cwapClassesTeachers{
 
         # zu $bpteachers eine Spalte mit dem Namen der Klassen hinzufügen
         $bpTeachers | ForEach-Object {
-            $kurz = $_.Kürzel
+            $kurz = $_."Kürzel"
             $ou=""
             foreach($item in $hashClassesTeachers.GetEnumerator()){
                 # Lehrkräfte der aktuellen Klasse ermitteln
@@ -72,5 +72,5 @@ function new-cwapClassesTeachers{
             $_ | Add-Member -MemberType NoteProperty -Name "Klassen" -Value $ou
         }
          $bpTeachers|Export-Csv -Path $pathCWAteachersClasses -NoTypeInformation -Delimiter $allgCsvDelimiter
-    }
+  
 }

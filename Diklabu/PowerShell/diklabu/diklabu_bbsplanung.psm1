@@ -322,7 +322,8 @@ function Get-BPPupils
                 $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
             }
             # find out subdirectory with latest backup
-            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $subdirectories = Get-ChildItem -Directory -Path "$bpBackupRootDir\$schoolTermSubDir"
+
             $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
             # open file SK_SIL.TXT
@@ -545,7 +546,7 @@ function Get-BPCompanies
                 $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
             }
             # find out subdirectory with latest backup
-            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $subdirectories = Get-ChildItem -Directory -Path "$bpBackupRootDir\$schoolTermSubDir"
             $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
             # open file SK_BTR.TXT
@@ -730,7 +731,7 @@ function Get-BPInstructors
                 $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
             }
             # find out subdirectory with latest backup
-            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $subdirectories = Get-ChildItem  -Directory -Path "$bpBackupRootDir\$schoolTermSubDir" 
             $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
             # open file SK_BTR.TXT
@@ -852,7 +853,7 @@ function Get-BPTeachers
                 $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
             }
             # find out subdirectory with latest backup
-            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $subdirectories = Get-ChildItem  -Directory -Path "$bpBackupRootDir\$schoolTermSubDir"
             $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
             # open file SK_LV.TXT
@@ -961,7 +962,7 @@ function Get-BPCourses
                 $schoolTermSubDir= "SJ"+([int]$thisYear-1).toString()+$thisYear
             }
             # find out subdirectory with latest backup
-            $subdirectories = Get-ChildItem -Path "$bpBackupRootDir\$schoolTermSubDir" -Directory
+            $subdirectories = Get-ChildItem -Directory -Path "$bpBackupRootDir\$schoolTermSubDir"
             $latestSubdirectory = $subdirectories | Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
             # open file SK_KUL.TXT
