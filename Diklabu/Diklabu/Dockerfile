@@ -57,7 +57,7 @@ ENV PAYARA_PKG=payara-6.2024.6.zip \
 # Setup password file
 # Enable DAS
 RUN apt-get -qq -y install wget unzip && \
-    wget --no-check-certificate $PAYARA_URL && \
+    wget $PAYARA_URL && \
     unzip -o $PAYARA_PKG -d /opt && \
     rm -f $PAYARA_PKG && \    
     echo "--- Setup the password file ---" && \
@@ -83,7 +83,7 @@ RUN  mkdir /home/diklabu && \
         mkdir /home/diklabu/images && \
         mkdir /home/diklabu/templates && \
         ln -s /etc/diklabu/config.json ${PAYARA_HOME}/glassfish/domains/domain1/config.json && \
-        chmod +xxx diklabu/Diklabu/Diklabu/start.sh && \        
+        chmod +x diklabu/Diklabu/Diklabu/start.sh && \        
         cp ${PAYARA_HOME}/glassfish/domains/domain1/lib/ext/jaybird-5.0.7.jar ${PAYARA_HOME}/glassfish/domains/domain1/lib/
 
 RUN  ${PAYARA_HOME}/bin/asadmin --user=admin start-domain && \
