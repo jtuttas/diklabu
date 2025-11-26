@@ -45,7 +45,7 @@ Die Konfigurationsdatei *config.json* [download](https://raw.githubusercontent.c
 
 ```
 docker pull tuttas/diklabu
-docker run -v c:/Temp:/var/lib/firebird/2.5/data -v c:/Temp:/etc/diklabu -i -t -p 8080:8080 tuttas/diklabu
+docker run -v c:/Temp:/var/lib/firebird/3.0/data -v c:/Temp:/etc/diklabu -i -t -p 8080:8080 tuttas/diklabu
 ```
 Dann aufruf der Seite http://localhost:8080/Diklabu/dev2/ bzw. http://localhost:8080/Diklabu/abbs3/
 
