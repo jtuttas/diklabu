@@ -12,7 +12,7 @@ Ferner muss im gleichen Verzeichnis wie die config.json auch die Datei [template
 ### Starten des Containers
 Anschließend ist der Docker Container zu starten über:
 ```
-docker run -d -i -t -v {Pfad zur Ordner mit diklabu.GDB}:/var/lib/firebird/2.5/data -v {Pfad zum Verzeichnis mit config.json}:/etc/diklabu -v {Pfad zum Schülerbilder Verzeichnis}:/home/diklabu/images -p 8080:8080 tuttas/diklabu
+docker run -d -i -t -v {Pfad zur Ordner mit diklabu.GDB}:/var/lib/firebird/3.0/data -v {Pfad zum Verzeichnis mit config.json}:/etc/diklabu -v {Pfad zum Schülerbilder Verzeichnis}:/home/diklabu/images -p 8080:8080 tuttas/diklabu
 ```
 ## Synchronisation über Powershell
 ### Voraussetzungen
