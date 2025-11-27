@@ -8,11 +8,17 @@ MAINTAINER Joerg Tuttas <tuttas@mmbbs.de>
 ENV DEBIAN_FRONTEND noninteractive
 ENV _JAVA_OPTIONS="-Djdk.tls.client.protocols=TLSv1.2"
 
-#Install firebird
+#Install firebird 3.0
 RUN apt-get update && \
     apt-get -y upgrade && \
 	apt-get install -y firebird3.0-server firebird3.0-utils && \
   sed -ri 's/RemoteBindAddress = localhost/RemoteBindAddress = /g' /etc/firebird/3.0/firebird.conf && \
+  echo "" >> /etc/firebird/3.0/firebird.conf && \
+  echo "# Custom configuration for legacy database support" >> /etc/firebird/3.0/firebird.conf && \
+  echo "AuthServer = Legacy_Auth, Srp" >> /etc/firebird/3.0/firebird.conf && \
+  echo "AuthClient = Legacy_Auth, Srp" >> /etc/firebird/3.0/firebird.conf && \
+  echo "UserManager = Legacy_UserManager, Srp" >> /etc/firebird/3.0/firebird.conf && \
+  echo "WireCrypt = Disabled" >> /etc/firebird/3.0/firebird.conf && \
   apt-get clean && \
   rm -rf /var/lib/apt/lists/*
 
@@ -46,11 +52,11 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 # Java installieren
 RUN     apt-get install -y openjdk-11-jdk
 
-# Payara Server installieren
-ENV PAYARA_PKG=payara-6.2024.6.zip \
-    PAYARA_URL=https://nexus.payara.fish/repository/payara-community/fish/payara/distributions/payara/6.2024.6/payara-6.2024.6.zip \
-    PAYARA_HOME=/opt/payara6 \
-    PATH=$PATH:/opt/payara6/bin \
+# Payara Server installieren (Version 5 für javax.servlet Kompatibilität)
+ENV PAYARA_PKG=payara-5.2022.5.zip \
+    PAYARA_URL=https://nexus.payara.fish/repository/payara-community/fish/payara/distributions/payara/5.2022.5/payara-5.2022.5.zip \
+    PAYARA_HOME=/opt/payara5 \
+    PATH=$PATH:/opt/payara5/bin \
     PASSWORD=mmbbs
 
 # Install packages, download and extract Payara Server
@@ -77,18 +83,36 @@ RUN  mkdir /home/diklabu && \
         echo "klone diklabu............!!." && \
         cd /home/diklabu && \
         mkdir temp && \
-        git clone https://github.com/jtuttas/diklabu.git && \        
-        mv diklabu/Diklabu/lib/* ${PAYARA_HOME}/glassfish/domains/domain1/lib/ext/  && \
+        git clone https://github.com/jtuttas/diklabu.git && \
+        mkdir -p ${PAYARA_HOME}/glassfish/domains/domain1/lib/ && \
+        cp -r diklabu/Diklabu/lib/* ${PAYARA_HOME}/glassfish/domains/domain1/lib/  && \
         mkdir /home/diklabu/atest && \
         mkdir /home/diklabu/images && \
         mkdir /home/diklabu/templates && \
         ln -s /etc/diklabu/config.json ${PAYARA_HOME}/glassfish/domains/domain1/config.json && \
-        chmod +x diklabu/Diklabu/Diklabu/start.sh && \        
-        cp ${PAYARA_HOME}/glassfish/domains/domain1/lib/ext/jaybird-5.0.7.jar ${PAYARA_HOME}/glassfish/domains/domain1/lib/
+        mkdir -p /home/diklabu/diklabu/Diklabu/dist
+
+# Copy the pre-built WAR file from local dist folder (relative to build context)
+COPY dist/Diklabu.war /home/diklabu/diklabu/Diklabu/dist/Diklabu.war
+
+# Copy local start.sh to override the one from git
+COPY Diklabu/start.sh /home/diklabu/diklabu/Diklabu/Diklabu/start.sh
+RUN sed -i 's/\r$//' /home/diklabu/diklabu/Diklabu/Diklabu/start.sh && \
+    chmod +x /home/diklabu/diklabu/Diklabu/Diklabu/start.sh
 
 RUN  ${PAYARA_HOME}/bin/asadmin --user=admin start-domain && \
-    ${PAYARA_HOME}/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/payarapwd --datasourceclassname org.firebirdsql.pool.FBSimpleDataSource --restype javax.sql.DataSource --property user=sysdba:password=masterkey:DatabaseName=/var/lib/firebird/3.0/data/diklabu.GDB:ServerName=localhost:port=3050:useEncryption=false:encoding=ISO8859_1:characterEncoding=ISO8859_1:characterSetResults=ISO8859_1 connectionPoolKlassenbuch && \
-        ${PAYARA_HOME}/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/payarapwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasource && \
+    ${PAYARA_HOME}/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/payarapwd --datasourceclassname org.firebirdsql.ds.FBSimpleDataSource --restype javax.sql.DataSource connectionPoolKlassenbuch && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.serverName=localhost && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.portNumber=3050 && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.databaseName=/var/lib/firebird/3.0/data/KLASSENBUCH.GDB && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.userName=SYSDBA && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.password=masterkey && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.charSet=ISO8859_1 && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.type=PURE_JAVA && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.sqlDialect=3 && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.wireCrypt=DISABLED && \
+        ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd "resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.authPlugins=Legacy_Auth,Srp256" && \
+        ${PAYARA_HOME}/bin/asadmin create-jdbc-resource --user admin --passwordfile=/tmp/payarapwd --connectionpoolid connectionPoolKlassenbuch jdbc/myDatasourceKlassenbuch && \
         ${PAYARA_HOME}/bin/asadmin --user=admin stop-domain 
 
 RUN    cd /var/lib/firebird/3.0/data && \
