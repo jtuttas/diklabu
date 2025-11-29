@@ -21,7 +21,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 @Local
-@Path( "auth" )
 public interface AuthRESTResourceProxy extends Serializable {
 
     @POST

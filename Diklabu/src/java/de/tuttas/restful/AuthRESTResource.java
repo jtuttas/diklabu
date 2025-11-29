@@ -35,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -46,6 +47,7 @@ import javax.ws.rs.core.Response;
  * @author Jörg
  */
 @Stateless(name = "DemoBusinessRESTResource", mappedName = "ejb/DemoBusinessRESTResource")
+@Path("auth")
 public class AuthRESTResource implements AuthRESTResourceProxy {
 
     private static final long serialVersionUID = -6663599014192066936L;

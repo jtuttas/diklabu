@@ -1,6 +1,6 @@
 {
     "debug": false,
-    "auth": true,
+    "auth": false,
     "IMAGE_FILE_PATH": "/home/diklabu/images/sbild",
     "ATEST_FILE_PATH": "/home/diklabu/atest",
     "TEMPLATE_FILE_PATH": "/home/diklabu/templates",
@@ -28,6 +28,6 @@
         "SERVER": "http://localhost:8080",
         "WEBSOCKET": "ws://",
         "TWOFA": false,
-        "DIKLABUNAME": "DiKlaBu@Docker"
+        "DIKLABUNAME": "DiKlaBu@Docker!!"
     }
 }

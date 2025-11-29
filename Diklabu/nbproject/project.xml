@@ -41,18 +41,18 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.itextpdf-5.5.8.jar}</file>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.jaybird-2.2.8.jar}</file>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.jaybird-full-2.2.8.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
                     <file>${file.reference.json-simple-1.1.1.jar}</file>
                 </library>
                 <library dirs="200">
+                    <file>${file.reference.Diklabu-lib}</file>
+                    <path-in-war>WEB-INF/classes</path-in-war>
+                </library>
+                <library dirs="200">
                     <file>${file.reference.metadata-extractor-2.8.1.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
                     <file>${file.reference.poi-3.14-20160307.jar}</file>
