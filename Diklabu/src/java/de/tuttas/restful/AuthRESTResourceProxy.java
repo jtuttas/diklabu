@@ -24,7 +24,7 @@ import javax.ws.rs.core.Response;
 public interface AuthRESTResourceProxy extends Serializable {
 
     @POST
-    @Path( "login" )
+    @Path( "login/" )
     @Produces( MediaType.APPLICATION_JSON )
     public Response login(
         @Context HttpHeaders httpHeaders,
@@ -32,7 +32,7 @@ public interface AuthRESTResourceProxy extends Serializable {
 
    
     @POST
-    @Path( "setpin" )
+    @Path( "setpin/" )
     @Consumes(MediaType.APPLICATION_JSON)
     public Response setPin(
             @Context HttpHeaders httpHeaders,
@@ -40,7 +40,7 @@ public interface AuthRESTResourceProxy extends Serializable {
 
 
     @POST
-    @Path( "logout" )
+    @Path( "logout/" )
     public Response logout(
         @Context HttpHeaders httpHeaders
     );

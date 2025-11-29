@@ -100,6 +100,9 @@ COPY Diklabu/start.sh /home/diklabu/diklabu/Diklabu/Diklabu/start.sh
 RUN sed -i 's/\r$//' /home/diklabu/diklabu/Diklabu/Diklabu/start.sh && \
     chmod +x /home/diklabu/diklabu/Diklabu/Diklabu/start.sh
 
+# Copy local web.xml to override the one from git
+COPY web/WEB-INF/web.xml /home/diklabu/diklabu/Diklabu/web/WEB-INF/web.xml
+
 RUN  ${PAYARA_HOME}/bin/asadmin --user=admin start-domain && \
     ${PAYARA_HOME}/bin/asadmin create-jdbc-connection-pool --user admin --passwordfile=/tmp/payarapwd --datasourceclassname org.firebirdsql.ds.FBSimpleDataSource --restype javax.sql.DataSource connectionPoolKlassenbuch && \
         ${PAYARA_HOME}/bin/asadmin set --user admin --passwordfile=/tmp/payarapwd resources.jdbc-connection-pool.connectionPoolKlassenbuch.property.serverName=localhost && \

@@ -1,5 +1,5 @@
 {
-    "debug": false,
+    "debug": true,
     "auth": false,
     "IMAGE_FILE_PATH": "/home/diklabu/images/sbild",
     "ATEST_FILE_PATH": "/home/diklabu/atest",

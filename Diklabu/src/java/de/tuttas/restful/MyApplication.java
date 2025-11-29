@@ -28,5 +28,12 @@ public class MyApplication extends Application {
         return props;
     }
     
+    @Override
+    public Set<Class<?>> getClasses() {
+        Set<Class<?>> resources = new HashSet<>();
+        resources.add(AuthRESTResource.class);
+        resources.add(de.tuttas.restful.auth.RESTRequestFilter.class);
+        return resources;
+    }
     
 }

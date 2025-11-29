@@ -35,7 +35,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
@@ -66,7 +68,10 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
      * @return Je nach Rolle (Schüler oder Lehrer) werden Daten in ein JSON Antwort Objekt übertragen. Bei erfolgreicher Anmeldung wird zudem der auth_key erzeugt!
      */
     @Override
+    @POST
+    @Path("login/")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response login(
             @Context HttpHeaders httpHeaders,
             Auth a) {
@@ -198,7 +203,10 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
     }
     
     @Override
+    @POST
+    @Path("setpin/")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response setPin(
             @Context HttpHeaders httpHeaders,
             Auth a) {
@@ -234,6 +242,8 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
      * @return Ergebnisobjekt
      */
     @Override
+    @POST
+    @Path("logout/")
     public Response logout(
             @Context HttpHeaders httpHeaders) {
         try {
