@@ -128,7 +128,10 @@ VOLUME 	/home/diklabu/atest
 VOLUME  /home/diklabu/images
 VOLUME	/home/diklabu/templates
 
-EXPOSE 8080 4848 8181 3050 22
+# Install OpenSSL for certificate conversion
+RUN apt-get -qq update && apt-get -qq -y install openssl
+
+EXPOSE 8080 8443 4848 8181 3050 22
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
 #ENTRYPOINT /home/diklabu/diklabu/Diklabu/start.sh
 #cmd     ["/home/diklabu/diklabu/Diklabu/start.sh", "-n"]

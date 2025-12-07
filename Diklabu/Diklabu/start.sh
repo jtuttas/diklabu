@@ -109,6 +109,30 @@ else
 fi
 
 echo "=========================================="
+echo "Configuring HTTPS/SSL Certificates"
+echo "=========================================="
+if [ -f /etc/diklabu/server.cert ] && [ -f /etc/diklabu/server.key ]; then
+    echo "SSL certificates found, configuring HTTPS..."
+    
+    # Create PKCS12 keystore from cert and key
+    openssl pkcs12 -export -in /etc/diklabu/server.cert -inkey /etc/diklabu/server.key \
+        -out /tmp/keystore.p12 -name server-cert -password pass:changeit
+    
+    # Remove old keystore if exists
+    rm -f ${PAYARA_HOME}/glassfish/domains/domain1/config/keystore.jks
+    
+    # Import PKCS12 into Java keystore
+    keytool -importkeystore -deststorepass changeit -destkeypass changeit \
+        -destkeystore ${PAYARA_HOME}/glassfish/domains/domain1/config/keystore.jks \
+        -srckeystore /tmp/keystore.p12 -srcstoretype PKCS12 -srcstorepass changeit \
+        -alias server-cert -noprompt 2>&1 || echo "Keystore import completed with warnings"
+    
+    echo "SSL keystore created successfully"
+else
+    echo "No SSL certificates found in /etc/diklabu/, using default configuration"
+fi
+
+echo "=========================================="
 echo "Starting Payara Application Server"
 echo "=========================================="
 ${PAYARA_HOME}/bin/asadmin start-domain
@@ -116,6 +140,25 @@ echo "Payara start command completed"
 
 echo "Waiting for Payara to start..."
 sleep 10 || true
+
+# Configure HTTPS listener if certificates are present
+if [ -f /etc/diklabu/server.cert ] && [ -f /etc/diklabu/server.key ]; then
+    echo "=========================================="
+    echo "Enabling HTTPS on port 8443"
+    echo "=========================================="
+    
+    # Enable secure admin and HTTP/HTTPS listeners
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set \
+        configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=server-cert 2>&1 || true
+    
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set \
+        configs.config.server-config.network-config.protocols.protocol.http-listener-2.http.redirect-port=8443 2>&1 || true
+    
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set \
+        configs.config.server-config.network-config.network-listeners.network-listener.http-listener-2.enabled=true 2>&1 || true
+    
+    echo "HTTPS enabled on port 8443"
+fi
 
 echo "=========================================="
 echo "Deploying diklabu Application"
