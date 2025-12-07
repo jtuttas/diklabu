@@ -69,11 +69,11 @@ RUN apt-get -qq -y install wget unzip && \
     echo "--- Setup the password file ---" && \
     echo "AS_ADMIN_PASSWORD=" > /tmp/payarapwd && \
     echo "AS_ADMIN_NEWPASSWORD=${PASSWORD}" >> /tmp/payarapwd  && \
-    echo "--- Enable DAS, change admin password, and secure admin access ---" && \
+    echo "--- Enable DAS and change admin password ---" && \
     ${PAYARA_HOME}/bin/asadmin --user=admin --passwordfile=/tmp/payarapwd change-admin-password --domain_name domain1 && \
     ${PAYARA_HOME}/bin/asadmin start-domain && \
     echo "AS_ADMIN_PASSWORD=${PASSWORD}" > /tmp/payarapwd && \
-    ${PAYARA_HOME}/bin/asadmin --user=admin --passwordfile=/tmp/payarapwd enable-secure-admin && \
+    echo "--- Skipping secure-admin to allow runtime SSL configuration ---" && \
     ${PAYARA_HOME}/bin/asadmin --user=admin stop-domain 
     
 

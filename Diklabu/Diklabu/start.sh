@@ -147,15 +147,20 @@ if [ -f /etc/diklabu/server.cert ] && [ -f /etc/diklabu/server.key ]; then
     echo "Enabling HTTPS on port 8443"
     echo "=========================================="
     
-    # Enable secure admin and HTTP/HTTPS listeners
-    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set \
-        configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=server-cert 2>&1 || true
+    # Configure HTTPS listener (non-secure admin connection)
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set configs.config.server-config.network-config.protocols.protocol.http-listener-2.ssl.cert-nickname=server-cert
     
-    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set \
-        configs.config.server-config.network-config.protocols.protocol.http-listener-2.http.redirect-port=8443 2>&1 || true
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set configs.config.server-config.network-config.protocols.protocol.http-listener-2.security-enabled=true
     
-    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set \
-        configs.config.server-config.network-config.network-listeners.network-listener.http-listener-2.enabled=true 2>&1 || true
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set configs.config.server-config.network-config.network-listeners.network-listener.http-listener-2.port=8443
+    
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd set configs.config.server-config.network-config.network-listeners.network-listener.http-listener-2.enabled=true
+    
+    echo "HTTPS configured on port 8443, restarting domain..."
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd stop-domain
+    sleep 3
+    ${PAYARA_HOME}/bin/asadmin start-domain
+    sleep 10
     
     echo "HTTPS enabled on port 8443"
 fi
@@ -164,7 +169,8 @@ echo "=========================================="
 echo "Deploying diklabu Application"
 echo "=========================================="
 if [ -f /home/diklabu/diklabu/Diklabu/dist/Diklabu.war ]; then
-    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd deploy /home/diklabu/diklabu/Diklabu/dist/Diklabu.war && echo "Deployment successful" || echo "Deployment failed, continuing..."
+    # Try deployment with plain admin connection (non-SSL)
+    ${PAYARA_HOME}/bin/asadmin --user admin --passwordfile=/tmp/payarapwd --port 4848 deploy --force /home/diklabu/diklabu/Diklabu/dist/Diklabu.war && echo "Deployment successful" || echo "Deployment failed, continuing..."
 else
     echo "WAR file not found, skipping deployment"
 fi
