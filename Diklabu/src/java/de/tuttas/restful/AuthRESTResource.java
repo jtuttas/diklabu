@@ -24,6 +24,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
@@ -72,6 +74,7 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
     @Path("login/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @TransactionAttribute(TransactionAttributeType.REQUIRED)
     public Response login(
             @Context HttpHeaders httpHeaders,
             Auth a) {
@@ -102,8 +105,14 @@ public class AuthRESTResource implements AuthRESTResourceProxy {
                     Schueler s = schueler.get(0);
                     if (s != null && u.getEMail() != null && !u.getEMail().equals(s.getEMAIL())) {
                         Log.d("Aktualisiere EMails für Schüler aus der AD auf " + u.getEMail());
-                        s.setEMAIL(u.getEMail());
-                        em.merge(s);
+                        try {
+                            s.setEMAIL(u.getEMail());
+                            em.merge(s);
+                            em.flush();
+                        } catch (Exception ex) {
+                            Log.d("Fehler beim Aktualisieren der E-Mail: " + ex.getMessage());
+                            // Continue anyway - email update is not critical for login
+                        }
                     }                    
                     // Suchen der Klasse in der sich der Schüler befindet
                     query = em.createNamedQuery("findKlassebySchuelerID");
