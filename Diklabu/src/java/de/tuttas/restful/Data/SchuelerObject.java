@@ -10,6 +10,7 @@ import de.tuttas.entities.Bemerkung;
 import de.tuttas.entities.Betrieb;
 import de.tuttas.entities.Klasse;
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
@@ -131,8 +132,13 @@ public class SchuelerObject  implements Comparable<SchuelerObject> {
         this.gebDatum = gebDatum;
     }
 
-    public Date getGebDatum() {
-        return gebDatum;
+    public String getGebDatum() {
+        if (gebDatum == null) {
+            return null;
+        }
+        // Format date as yyyy-MM-dd without timezone
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return sdf.format(gebDatum);
     }
     
     public int getId() {
