@@ -24,7 +24,7 @@ public class SchuelerObject  implements Comparable<SchuelerObject> {
     private String name;
     private String vorname;
     private int id;
-    private Date gebDatum;
+    private String gebDatum;
     private Ausbilder ausbilder;
     private Betrieb betrieb;
     private String email;
@@ -129,16 +129,17 @@ public class SchuelerObject  implements Comparable<SchuelerObject> {
 
     
     public void setGebDatum(Date gebDatum) {
-        this.gebDatum = gebDatum;
+        if (gebDatum == null) {
+            this.gebDatum = null;
+        } else {
+            // Format date as yyyy-MM-dd without timezone
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            this.gebDatum = sdf.format(gebDatum);
+        }
     }
 
     public String getGebDatum() {
-        if (gebDatum == null) {
-            return null;
-        }
-        // Format date as yyyy-MM-dd without timezone
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        return sdf.format(gebDatum);
+        return gebDatum;
     }
     
     public int getId() {
