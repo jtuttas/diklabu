@@ -3,6 +3,7 @@ package de.tuttas.entities;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Collection;
+import javax.json.bind.annotation.JsonbDateFormat;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -48,6 +49,7 @@ public class Schueler implements Serializable {
     /**
      * Geburtsdatum in der Form yyyy-mm-dd
      */
+    @JsonbDateFormat("yyyy-MM-dd")
     private Date GEBDAT;
 
     private String EMAIL;
