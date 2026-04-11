@@ -5,7 +5,7 @@
 .DESCRIPTION
    Anmelden an Webuntis
 .EXAMPLE
-   login-Untis -url https://borys.webuntis.com/WebUntis/jsonrpc.do?school=MMBbS%20Hannover -credential (Get-Credential Tuttas)
+   login-Untis -url https://mmbbs-hannover.webuntis.com/WebUntis/jsonrpc.do?school=mmbbs-hannover -credential (Get-Credential Tuttas)
 
 #>
 function Login-Untis

@@ -5,7 +5,7 @@
 .DESCRIPTION
    Anmelden an Webuntis
 .EXAMPLE
-   login-Untis -url https://borys.webuntis.com/WebUntis/jsonrpc.do?school=MMBbS%20Hannover -credential (Get-Credential Tuttas)
+   login-Untis -url https://mmbbs-hannover.webuntis.com/WebUntis/jsonrpc.do?school=mmbbs-hannover -credential (Get-Credential Tuttas)
 
 #>
 function Login-Untis
@@ -840,7 +840,7 @@ function get-untisClassTeacherTeams{
         }
         else{
             # No check if lists are stored or CSV-file not found --> Login Untis
-            $feedbacklogin=login-untis -url https://borys.webuntis.com/WebUntis/jsonrpc.do?school=MMBbS%20Hannover -credential $WUcreds
+            $feedbacklogin=login-untis -url https://mmbbs-hannover.webuntis.com/WebUntis/jsonrpc.do?school=mmbbs-hannover -credential $WUcreds
             write-verbose $feedbacklogin.toString() # damit keine Logininformationen im Klartext in der Konsole erscheinen
             # Alle Lehrkräfte aus dem aktuellen Stundenplan ermitteln
             $alleLuL = Get-UntisTeachers
