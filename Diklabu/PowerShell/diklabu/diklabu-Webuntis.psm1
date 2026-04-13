@@ -816,99 +816,73 @@ function add-untisDay {
 .EXAMPLE
    get-untisClassTeacherTeams $true
 #>
-function get-untisClassTeacherTeams{
+function get-untisClassTeacherTeams {
     Param(
         [Parameter(Mandatory=$false,Position=0,ValueFromPipelineByPropertyName=$true)]
-            [Boolean]$checkHashlistClassesTeachers = $false, # $true: use stored CSV-file if available and from today
+            [Boolean]$checkHashlistClassesTeachers = $false,
         [Parameter(Mandatory=$true)]
             [string]$WUlocationClassTeachers, 
         [Parameter(Mandatory=$true)]
             [string]$WUclassesTeachersDelimiter,
         [Parameter(Mandatory=$true)]
             [System.Management.Automation.PSCredential]$WUcreds
-
     )
-    Begin{
-        $funcName = $MyInvocation.InvocationName # wer bin ich?
-     }  
+    Begin {
+        $funcName = $MyInvocation.InvocationName
+	}
     Process {
         if ($checkHashlistClassesTeachers -and (Test-Path ($WUlocationClassTeachers)) -and ((Get-Item ($WUlocationClassTeachers)).LastWriteTime.Date -eq (Get-Date).Date)) {
-            # Hashlist classes-teachers must be used and they are already created and from today
             $hashClassesTeachers = @{}
-            $f=Import-Csv $WUlocationClassTeachers
-            foreach ($row in $f){$hashClassesTeachers[$row.name]=$row.value}
+            $f = Import-Csv $WUlocationClassTeachers -Delimiter ","
+            foreach ($row in $f) { $hashClassesTeachers[$row.Name] = $row.Value }
+            return $hashClassesTeachers
         }
-        else{
-            # No check if lists are stored or CSV-file not found --> Login Untis
-            $feedbacklogin=login-untis -url https://mmbbs-hannover.webuntis.com/WebUntis/jsonrpc.do?school=mmbbs-hannover -credential $WUcreds
-            write-verbose $feedbacklogin.toString() # damit keine Logininformationen im Klartext in der Konsole erscheinen
-            # Alle Lehrkräfte aus dem aktuellen Stundenplan ermitteln
+        else {
+            $feedbacklogin = login-untis -url "https://mmbbs-hannover.webuntis.com/WebUntis/jsonrpc.do?school=mmbbs-hannover" -credential $WUcreds
             $alleLuL = Get-UntisTeachers
-            # Speicher für Timetable schulweit und über ein Jahr
-            $classesTeachersRaw=@()
+            $classesTeachers = @{} 
+
+            $today = Get-Date -Format "yyyyMMdd"
+            $term = get-sjNds -sj $today
             
-            foreach ($LoL in $alleLuL){
-                # Ask Untis to start today
+            Write-Host "$funcName : Verarbeite $($alleLuL.Count) Lehrkräfte für Zeitraum $($term.startDate) bis $($term.endDate)..."
 
-                $year = (get-date).year
-                $monthString = ((get-date).Month).tostring()
-                if ([int]$monthString -lt 8) {$year-=1} # second half of the school term
-                $dateString = $year.toString() + "1231" # we need a valid date within the school term
-                $startEndTerm=get-sjNds -sj $dateString
-                write-host "$funcName : --$($LoL.name)-- hole Stundenplaneinträge von Webuntis ..."
-                $classesTeacherRaw=(Get-UntisTimetable -elementtype teacher -id $LoL.id -startDate $startEndTerm.startDate -endDate $startEndTerm.enddate)  
-                $classesTeachersRaw+=$classesTeacherRaw
-                Start-Sleep -Milliseconds 100                    
-            } # Ende foreach ($LoL in $alleLuL)
-
-            # sort and bind teachers to classes
-            Write-Host "$funcName : Sortiere und lösche Duplikate in Hashtabelle Klassen/ Lehrkräfte..."
-            $classesTeachers =@{}
-            foreach ($entry in $classesTeachersRaw){
-                foreach ($class in $entry.kl){
-
-                    # Klasse schon eingetragen?
-                    if ($classesTeachers.($class.name) -ne $null){
-                        # class already exists
-                        foreach ($teacher in $entry.te){
-                            # multiple teachers possible (teamteaching)
-                            # Lehrkräfte in Array speichern, weil in einer Liste mit Trennzeichen sich 
-                            # Suchprobleme ergeben (NO ist in KNO enthalten z.B.)
-                            $listContainsTeacher = $false
-                            $arrayClassTeachers = @()
-                            $arrayClassTeachers = ($classesTeachers.($class.name)).split(",")
-                            foreach ($elementOfClassTeachers in $arrayClassTeachers){
-                                if ($elementOfClassTeachers -eq $teacher.name){
-                                    $listContainsTeacher = $true
-                                }
+            foreach ($LoL in $alleLuL) {
+                $plan = Get-UntisTimetable -elementtype teacher -id $LoL.id -startDate $term.startDate -endDate $term.endDate
+                if ($plan) {
+                    foreach ($stunde in $plan) {
+                        foreach ($klasse in $stunde.kl) {
+                            $kName = $klasse.name
+                            if (-not $classesTeachers.ContainsKey($kName)) {
+                                $classesTeachers[$kName] = New-Object System.Collections.Generic.HashSet[string]
                             }
-                            if (!$listContainsTeacher){
-                                # teacher not yet associated
-                                $classesTeachers.($class.name) += $teacher.name
+                            foreach ($lehrer in $stunde.te) {
+                                [void]$classesTeachers[$kName].Add($lehrer.name)
                             }
                         }
                     }
-                    else {
-                        # class not in list right now --> create and fill in 1st teacher
-                        $classesTeachers.($class.name)=[Array]$entry.te.name
-                    }                
+                }
+                Start-Sleep -Milliseconds 50
+            }
+
+            $finalExport = foreach ($key in $classesTeachers.Keys) {
+                [PSCustomObject]@{
+                    Name  = $key
+                    Key   = $key
+                    Value = ($classesTeachers[$key] -join $WUclassesTeachersDelimiter)
                 }
             }
-            Write-Host "$funcName : Alles sortiert und Duplikate entfernt!"
-            Write-Host "$funcName : Baue die Hashtabelle mit Klassen (keys) und Komma separierte Liste mit Lehrkräftekürzeln ..."
-            # das oben für die Suche nach bereits eingetragenen Lehrkräften angelegte Array für die Lehrkraftkürzel
-            # (Grund z.B.: NO ist Element von KNO und wird dann nicht gefunden) wieder auflösen und als Liste mit
-            # Trennzeichen erstellen
-            $hashClassesTeachers= @{}
-            foreach ($key in $classesTeachers.Keys){
-                $hashClassesTeachers[$key] = @($classesTeachers[$key] | where-object {$_ -like '*'}) -join $WUclassesTeachersDelimiter
-                
+
+            if ($finalExport) {
+                $finalExport | Export-Csv -Path $WUlocationClassTeachers -NoTypeInformation -Encoding UTF8 -Delimiter ","
+                Write-Host "$funcName : CSV-Datei erfolgreich erstellt unter $WUlocationClassTeachers"
             }
 
-            $hashClassesTeachers.GetEnumerator()| export-csv -noTypeInformation -path $WUlocationClassTeachers -encoding UTF8
-        } # end else
-
-        write-host "$funcName : Hashtabelle mit Klassen und Lehrkräften fertig erstellt!"
-        return $hashClassesTeachers        
-    }  # end Process
+            $hashClassesTeachers = @{}
+            foreach ($item in $finalExport) { $hashClassesTeachers[$item.Name] = $item.Value }
+            
+            Write-Host "$funcName : Hashtabelle fertig erstellt!"
+            return $hashClassesTeachers        
+        }
+    } # end process
 } # end function get-untisClassTeacherTeams
